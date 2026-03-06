@@ -624,7 +624,7 @@ function pgDaily(){
 
 // ─── SHARE SCORE ────────────────────────────────────────────────
 function shareScore(subj,correct,streak){
-  var text="\uD83D\uDCDA StudyLab Daily Challenge\n"+(correct?"\u2705 Answered correctly!":"\u274C Missed today's question")+"\n\uD83D\uDD25 Current streak: "+streak+" days\n\uD83C\uDF93 Subject: "+subj+"\n\nStudy with me at StudyLab!";
+  var text="\uD83D\uDCDA StudyLab Daily Challenge\n"+(correct?"\u2705 Answered correctly!":"\u274C Missed today's question")+"\n\uD83D\uDD25 Current streak: "+streak+" days\n\uD83C\uDF93 Subject: "+subj+"\n\n🌐 https://studylab-inky.vercel.app";
   if(navigator.share){navigator.share({title:"StudyLab Daily Challenge",text:text});}
   else{navigator.clipboard.writeText(text).then(function(){toast("Result copied! Share it \uD83D\uDE80");});}
 }
@@ -733,7 +733,7 @@ function pgStats(){
   // Share button
   var shareWrap=el("div",{css:{textAlign:"center",marginBottom:"32px"}});
   shareWrap.appendChild(el("button",{cls:"btn btnp",css:{padding:"12px 32px",fontSize:".95rem"},onclick:function(){
-    var text="\uD83D\uDCCA My StudyLab Progress\n\n\uD83D\uDCDD "+totalAttempted+" questions attempted\n\uD83C\uDFAF "+overallAcc+"% overall accuracy\n\uD83D\uDD25 "+streak.count+" day streak\n\uD83D\uDCDA "+totalSessions+" quiz sessions\n\nStudy smarter at StudyLab!";
+    var text="\uD83D\uDCCA My StudyLab Progress\n\n\uD83D\uDCDD "+totalAttempted+" questions attempted\n\uD83C\uDFAF "+overallAcc+"% overall accuracy\n\uD83D\uDD25 "+streak.count+" day streak\n\uD83D\uDCDA "+totalSessions+" quiz sessions\n\n🌐 https://studylab-inky.vercel.app";
     if(navigator.share){navigator.share({title:"My StudyLab Progress",text:text});}
     else{navigator.clipboard.writeText(text).then(function(){toast("Stats copied! Share it \uD83D\uDE80");});}
   }},"\uD83D\uDCF1 Share My Progress"));
