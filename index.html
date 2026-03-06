@@ -310,11 +310,26 @@ function pgHome(){
     if(!selRating){toast("Please select a star rating first","#f87171");return;}
     Sv.set("fb_msg",selMsg);
     Sv.set("fb_done",true);
-    toast("Thank you for your feedback! \u2764\uFE0F");
-    fb.innerHTML="";
-    fb.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"10px"},txt:"\uD83C\uDF89"}));
-    fb.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"700",marginBottom:"6px"},txt:"Thank you, Aman!"}));
-    fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 feedback has been saved. We really appreciate it!"}));
+    var btn=fb.querySelector(".btnp");if(btn){btn.textContent="Sending...";btn.disabled=true;}
+    fetch("https://sheetdb.io/api/v1/i8ecj767f19et",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data:{Date:new Date().toLocaleString("en-IN"),Rating:selRating+" stars",Message:selMsg||"(no message)"}})
+    })
+    .then(function(){
+      toast("Thank you for your feedback! \u2764\uFE0F");
+      fb.innerHTML="";
+      fb.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"},txt:"\uD83C\uDF89"}));
+      fb.appendChild(el("div",{css:{fontSize:"1.1rem",fontWeight:"700",marginBottom:"6px"},txt:"Thank you so much!"}));
+      fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 rating has been recorded. It means a lot!"}));
+    })
+    .catch(function(){
+      toast("Saved locally! \u2764\uFE0F");
+      fb.innerHTML="";
+      fb.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"},txt:"\uD83D\uDC9A"}));
+      fb.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"700",marginBottom:"6px"},txt:"Feedback saved!"}));
+      fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 feedback was recorded. Thank you!"}));
+    });
   }},"Submit Feedback"));
   w.appendChild(fb);
 
