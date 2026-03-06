@@ -33,6 +33,7 @@ body{background:#1a1a1a;color:#ececec;font-family:Inter,system-ui,sans-serif;min
 .fd{animation:fu .2s ease}
 @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
 .pb{height:3px;background:#3a3a3a;border-radius:99px;overflow:hidden;margin-bottom:20px}
 .pf{height:100%;border-radius:99px;transition:width .35s}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;padding:9px 18px;border-radius:8px;font-size:.82rem;font-weight:500;z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.4);animation:fu .2s ease}
@@ -75,7 +76,7 @@ function makeNav(active){
   brand.appendChild(el("div",{css:{fontSize:".7rem",color:"#c96442",fontWeight:"500",marginTop:"1px"},txt:"Your AI Study Partner"}));
   left.appendChild(brand);nav.appendChild(left);
   var right=el("div",{css:{display:"flex",gap:"6px"}});
-  [["Home","home"],["Notes","notes"],["About","about"]].forEach(function(ln){
+  [["Home","home"],["AI Chat","notes"],["About","about"]].forEach(function(ln){
     var isA=active===ln[1];
     right.appendChild(el("button",{cls:"btn"+(isA?" btnp":""),css:{padding:"6px 14px",fontSize:".8rem"},onclick:function(){go(ln[1]);}},ln[0]));
   });
@@ -326,11 +327,11 @@ function smartSummarize(text){
 function pgNotes(){
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("notes"));
-  var savedNotes=Sv.get("notes_list")||[];
-  var notesText="",summaryResult="",isLoading=false;
-  var uploadedFile=null; // {data, mimeType, fileType, name}
-  var activeTab="text"; // "text" or "file"
   var BACKEND="https://studylab-1.onrender.com";
+  var messages=[]; // {role:"user"|"ai", content:"...", file:null|{name,fileType}}
+  var uploadedFile=null;
+  var isLoading=false;
+  var inputVal="";
 
   var wrap=el("div",{css:{maxWidth:"860px",margin:"0 auto"}});
   w.appendChild(wrap);
@@ -349,141 +350,203 @@ function pgNotes(){
     if(file.size>15*1024*1024){toast("File too large (max 15MB)","#f87171");return;}
     readFile(file,function(b64){
       uploadedFile={data:b64,mimeType:file.type,fileType:isPDF?"pdf":"image",name:file.name};
-      summaryResult="";toast("File loaded! Click Summarize.");build();
+      toast("\uD83D\uDCC2 "+file.name+" loaded!");build();
     });
   }
 
-  function doSummarize(){
-    if(activeTab==="text"){
-      var txt=notesText.trim();
-      if(!txt||txt.length<20){toast("Paste some notes first","#f87171");return;}
-      isLoading=true;summaryResult="";build();
-      fetch(BACKEND+"/summarize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({notes:txt})})
+  function sendMessage(){
+    var txt=inputVal.trim();
+    if(!txt&&!uploadedFile)return;
+    if(isLoading)return;
+
+    if(uploadedFile){
+      // File message
+      var userMsg={role:"user",content:txt||"Please summarize these notes.",file:{name:uploadedFile.name,fileType:uploadedFile.fileType}};
+      messages.push(userMsg);
+      isLoading=true;
+      var fd=uploadedFile;
+      uploadedFile=null;
+      inputVal="";
+      build();
+      fetch(BACKEND+"/summarize-file",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:fd.data,mimeType:fd.mimeType,fileType:fd.fileType,question:txt||""})})
       .then(function(r){return r.json();})
-      .then(function(d){summaryResult=d.summary||("Error: "+d.error);isLoading=false;build();})
-      .catch(function(){summaryResult="Server waking up (30 sec on first use). Try again shortly!";isLoading=false;build();});
+      .then(function(d){messages.push({role:"ai",content:d.reply||("Error: "+d.error)});isLoading=false;build();scrollBottom();})
+      .catch(function(){messages.push({role:"ai",content:"Server waking up, please try again in 30 seconds!"});isLoading=false;build();scrollBottom();});
     } else {
-      if(!uploadedFile){toast("Upload a file first","#f87171");return;}
-      isLoading=true;summaryResult="";build();
-      fetch(BACKEND+"/summarize-file",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(uploadedFile)})
+      // Text message
+      messages.push({role:"user",content:txt});
+      isLoading=true;inputVal="";build();
+      fetch(BACKEND+"/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:messages.filter(function(m){return!m.file;}).map(function(m){return{role:m.role==="ai"?"assistant":m.role,content:m.content};})})})
       .then(function(r){return r.json();})
-      .then(function(d){summaryResult=d.summary||("Error: "+d.error);isLoading=false;build();})
-      .catch(function(){summaryResult="Server waking up (30 sec on first use). Try again shortly!";isLoading=false;build();});
+      .then(function(d){messages.push({role:"ai",content:d.reply||("Error: "+d.error)});isLoading=false;build();scrollBottom();})
+      .catch(function(){messages.push({role:"ai",content:"Server waking up, please try again in 30 seconds!"});isLoading=false;build();scrollBottom();});
     }
+  }
+
+  function scrollBottom(){
+    setTimeout(function(){var cb=document.getElementById("chatbox");if(cb)cb.scrollTop=cb.scrollHeight;},50);
+  }
+
+  function formatMsg(text){
+    // Convert markdown-like to styled spans
+    var div=document.createElement("div");
+    div.style.lineHeight="1.75";
+    div.style.fontSize=".875rem";
+    var lines=text.split("\n");
+    lines.forEach(function(line,i){
+      if(!line.trim()){div.appendChild(document.createElement("br"));return;}
+      var p=document.createElement("div");
+      p.style.marginBottom="4px";
+      // Bold headers like "1. KEY POINTS" or "**text**"
+      if(/^\d+\.\s+[A-Z\s&]+$/.test(line.trim())||/^#{1,3}\s/.test(line)){
+        p.style.fontWeight="600";p.style.marginTop="10px";p.style.color="#c96442";
+        p.textContent=line.replace(/^#{1,3}\s/,"");
+      } else if(/^[•\-\*]\s/.test(line.trim())||/^\d+\.\s/.test(line.trim())){
+        p.style.paddingLeft="12px";
+        p.textContent=line;
+      } else {
+        p.textContent=line;
+      }
+      div.appendChild(p);
+    });
+    return div;
   }
 
   function build(){
     wrap.innerHTML="";
+
     // Header
-    var hd=el("div",{css:{marginBottom:"24px"}});
-    var ht=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}});
-    ht.appendChild(el("span",{css:{fontSize:"1.4rem"},txt:"\uD83E\uDD16"}));
-    ht.appendChild(el("div",{css:{fontSize:"1.25rem",fontWeight:"700"},txt:"AI Notes Summarizer"}));
-    hd.appendChild(ht);
-    hd.appendChild(el("div",{css:{fontSize:".875rem",color:"#a0a0a0",lineHeight:"1.6"},txt:"Paste text notes OR upload a photo/PDF of your notes. Gemini AI will summarize key points, dates, names and give a quick revision summary."}));
+    var hd=el("div",{css:{marginBottom:"20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"10px"}});
+    var hl=el("div",{});
+    var ht=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"4px"}});
+    ht.appendChild(makeLogo(32));
+    ht.appendChild(el("div",{css:{fontSize:"1.2rem",fontWeight:"700"},txt:"AI Study Assistant"}));
+    hl.appendChild(ht);
+    hl.appendChild(el("div",{css:{fontSize:".82rem",color:"#a0a0a0"},txt:"Ask anything \u00b7 Upload notes \u00b7 Get summaries \u00b7 Powered by Gemini AI"}));
+    hd.appendChild(hl);
+    if(messages.length>0){
+      hd.appendChild(el("button",{cls:"btn btng",css:{fontSize:".78rem"},onclick:function(){messages=[];uploadedFile=null;inputVal="";build();}},"\uD83D\uDDD1\uFE0F Clear Chat"));
+    }
     wrap.appendChild(hd);
 
-    // Tabs
-    var tabs=el("div",{css:{display:"flex",gap:"4px",background:"#1f1f1f",padding:"4px",borderRadius:"10px",marginBottom:"20px",width:"fit-content"}});
-    [["text","\uD83D\uDCDD Text Notes"],["file","\uD83D\uDCC2 Upload File"]].forEach(function(tb){
-      var isA=activeTab===tb[0];
-      var btn=el("button",{css:{padding:"8px 20px",borderRadius:"7px",fontSize:".85rem",fontWeight:"500",cursor:"pointer",fontFamily:"inherit",background:isA?"#262626":"transparent",color:isA?"#ececec":"#6b6b6b",border:isA?"1px solid #3a3a3a":"none",transition:"all .15s"},onclick:function(){activeTab=tb[0];summaryResult="";build();}},tb[1]);
-      tabs.appendChild(btn);
-    });
-    wrap.appendChild(tabs);
+    // Chat area
+    var chatWrap=el("div",{css:{background:"#1a1a1a",border:"1px solid #3a3a3a",borderRadius:"12px",overflow:"hidden",marginBottom:"12px"}});
 
-    // Main grid
-    var grid=el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"20px"}});
-
-    // LEFT side
-    var left=el("div",{});
-    left.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:activeTab==="text"?"Your Notes":"Upload File"}));
-
-    if(activeTab==="text"){
-      var ta=el("textarea",{cls:"inp",placeholder:"Paste your study notes here...\n\nExample:\nThe Mughal Empire was founded in 1526 by Babur after the First Battle of Panipat. Akbar (1556-1605) introduced Din-i-Ilahi and Sulh-i-Kul policy...",rows:"14",css:{resize:"vertical",lineHeight:"1.65",fontSize:".875rem"}});
-      ta.value=notesText;ta.addEventListener("input",function(e){notesText=e.target.value;});
-      left.appendChild(ta);
-      var br=el("div",{css:{display:"flex",gap:"8px",marginTop:"10px",flexWrap:"wrap"}});
-      br.appendChild(el("button",{cls:"btn btnp",css:{flex:"1"},onclick:doSummarize},"\uD83E\uDD16 Summarize with AI"));
-      br.appendChild(el("button",{cls:"btn",css:{padding:"8px 14px"},onclick:function(){
-        var txt=ta.value.trim();if(!txt)return;
-        savedNotes.unshift({title:txt.slice(0,40)+(txt.length>40?"...":""),body:txt,date:new Date().toLocaleDateString("en-IN")});
-        if(savedNotes.length>10)savedNotes.pop();Sv.set("notes_list",savedNotes);toast("Saved! \u2713");build();
-      }},"\uD83D\uDCBE Save"));
-      br.appendChild(el("button",{cls:"btn btng",onclick:function(){ta.value="";notesText="";summaryResult="";build();}},"\u2715"));
-      left.appendChild(br);
-    } else {
-      // Drop zone
-      var dz=el("div",{css:{border:"2px dashed "+(uploadedFile?"#c96442":"#3a3a3a"),borderRadius:"12px",background:uploadedFile?"rgba(201,100,66,.08)":"#1f1f1f",padding:"36px 20px",textAlign:"center",cursor:"pointer",transition:"all .2s",minHeight:"200px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"10px"}});
-      dz.addEventListener("dragover",function(e){e.preventDefault();this.style.borderColor="#c96442";this.style.background="rgba(201,100,66,.12)";});
-      dz.addEventListener("dragleave",function(){this.style.borderColor=uploadedFile?"#c96442":"#3a3a3a";this.style.background=uploadedFile?"rgba(201,100,66,.08)":"#1f1f1f";});
-      dz.addEventListener("drop",function(e){e.preventDefault();handleFile(e.dataTransfer.files[0]);});
-      var fi=document.createElement("input");fi.type="file";fi.accept=".pdf,image/*";fi.style.display="none";
-      fi.addEventListener("change",function(e){handleFile(e.target.files[0]);});
-      dz.appendChild(fi);
-      dz.addEventListener("click",function(){fi.click();});
-      if(uploadedFile){
-        dz.appendChild(el("div",{css:{fontSize:"3rem"}},uploadedFile.fileType==="pdf"?"\uD83D\uDCC4":"\uD83D\uDDBC\uFE0F"));
-        dz.appendChild(el("div",{css:{fontSize:".95rem",fontWeight:"600",color:"#c96442"},txt:uploadedFile.name}));
-        dz.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b"},txt:"Click to change file"}));
-      } else {
-        dz.appendChild(el("div",{css:{fontSize:"3rem"},txt:"\uD83D\uDCC2"}));
-        dz.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:"Drop file here or click to browse"}));
-        dz.appendChild(el("div",{css:{fontSize:".82rem",color:"#6b6b6b"},txt:"Supports PDF and images (JPG, PNG)"}));
-        var chips=el("div",{css:{display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap",marginTop:"8px"}});
-        ["\uD83D\uDDBC\uFE0F Photo of notes","\uD83D\uDCC4 PDF document","\u270D\uFE0F Handwritten"].forEach(function(c){chips.appendChild(el("span",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"6px",padding:"4px 12px",fontSize:".75rem",color:"#ececec"}},c));});
-        dz.appendChild(chips);
-      }
-      left.appendChild(dz);
-      var fb=el("div",{css:{display:"flex",gap:"8px",marginTop:"10px"}});
-      var sb=el("button",{cls:"btn btnp",css:{flex:"1"},onclick:doSummarize},"\uD83E\uDD16 Summarize with AI");
-      if(isLoading){sb.disabled=true;sb.style.opacity=".7";}
-      fb.appendChild(sb);
-      if(uploadedFile)fb.appendChild(el("button",{cls:"btn btng",onclick:function(){uploadedFile=null;summaryResult="";build();}},"\u2715 Clear"));
-      left.appendChild(fb);
-    }
-    grid.appendChild(left);
-
-    // RIGHT side - output
-    var right=el("div",{});
-    right.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:"AI Summary"}));
-    var ob=el("div",{css:{background:"#1f1f1f",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"16px",minHeight:"340px",fontSize:".83rem",lineHeight:"1.8",whiteSpace:"pre-wrap",wordBreak:"break-word",overflowY:"auto",maxHeight:"460px",color:summaryResult?"#ececec":"#6b6b6b"}});
-    if(isLoading){
-      var sp=el("div",{css:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"300px",gap:"16px",color:"#6b6b6b"}});
-      var spi=el("div",{css:{width:"32px",height:"32px",border:"3px solid #3a3a3a",borderTop:"3px solid #c96442",borderRadius:"50%",animation:"spin 0.8s linear infinite"}});
-      sp.appendChild(spi);
-      sp.appendChild(el("div",{css:{fontSize:".9rem",fontWeight:"500"}},"\uD83E\uDD16 Gemini AI is reading your notes..."));
-      sp.appendChild(el("div",{css:{fontSize:".75rem",color:"#484848"}},activeTab==="file"?"This may take 10-20 seconds for files":"Summarizing..."));
-      ob.appendChild(sp);
-    } else if(summaryResult){
-      ob.textContent=summaryResult;
-    } else {
-      ob.textContent="Your AI summary will appear here.\n\n"+(activeTab==="text"?"Paste your notes on the left and click Summarize.":"Upload a PDF or photo of your notes and click Summarize.\n\nGemini AI can read handwritten notes too!");
-    }
-    right.appendChild(ob);
-    if(summaryResult&&!isLoading){
-      right.appendChild(el("button",{cls:"btn",css:{marginTop:"10px",width:"100%"},onclick:function(){navigator.clipboard.writeText(summaryResult).then(function(){toast("Copied to clipboard!");}).catch(function(){});}},"\uD83D\uDCCB Copy Summary"));
-    }
-    grid.appendChild(right);
-    wrap.appendChild(grid);
-
-    // Saved notes (text tab only)
-    if(activeTab==="text"&&savedNotes.length){
-      var sn=el("div",{css:{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #3a3a3a"}});
-      sn.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"10px"},txt:"Saved Notes ("+savedNotes.length+")"}));
-      var snl=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px"}});
-      savedNotes.forEach(function(n){
-        var card=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"12px",cursor:"pointer"}});
-        card.addEventListener("mouseenter",function(){this.style.borderColor="#c96442";});
-        card.addEventListener("mouseleave",function(){this.style.borderColor="#3a3a3a";});
-        card.appendChild(el("div",{css:{fontSize:".82rem",fontWeight:"500",marginBottom:"4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},txt:n.title}));
-        card.appendChild(el("div",{css:{fontSize:".72rem",color:"#6b6b6b"},txt:n.date}));
-        card.addEventListener("click",function(){notesText=n.body;summaryResult="";build();window.setTimeout(function(){var t=document.querySelector("textarea");if(t)t.value=n.body;},50);});
-        snl.appendChild(card);
+    if(messages.length===0){
+      // Empty state with suggestions
+      var empty=el("div",{css:{padding:"32px 24px",textAlign:"center"}});
+      empty.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"12px"},txt:"\uD83E\uDD16"}));
+      empty.appendChild(el("div",{css:{fontSize:"1.05rem",fontWeight:"600",marginBottom:"6px"},txt:"StudyLab AI Assistant"}));
+      empty.appendChild(el("div",{css:{fontSize:".85rem",color:"#6b6b6b",marginBottom:"24px"},txt:"Ask questions, upload notes, get explanations"}));
+      var sugg=el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",maxWidth:"600px",margin:"0 auto"}});
+      [
+        ["\uD83D\uDCDA","Explain the Preamble of the Indian Constitution"],
+        ["\uD83C\uDFDB\uFE0F","Who were the Maratha rulers and their importance?"],
+        ["\uD83C\uDF0D","Name important rivers and their tributaries in India"],
+        ["\uD83D\uDCA1","Give me a mnemonic for the layers of atmosphere"],
+        ["\uD83D\uDCC4","Summarize my notes (upload a file below)"],
+        ["\u2753","What is the difference between Lok Sabha and Rajya Sabha?"]
+      ].forEach(function(s){
+        var btn=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"10px 12px",cursor:"pointer",textAlign:"left",display:"flex",gap:"8px",alignItems:"flex-start",transition:"all .15s"}});
+        btn.addEventListener("mouseenter",function(){this.style.borderColor="#c96442";this.style.background="#2e2e2e";});
+        btn.addEventListener("mouseleave",function(){this.style.borderColor="#3a3a3a";this.style.background="#262626";});
+        btn.appendChild(el("span",{css:{fontSize:"1rem",flexShrink:"0"},txt:s[0]}));
+        btn.appendChild(el("span",{css:{fontSize:".78rem",color:"#a0a0a0",lineHeight:"1.4"}},s[1]));
+        btn.addEventListener("click",function(){inputVal=s[1];sendMessage();});
+        sugg.appendChild(btn);
       });
-      sn.appendChild(snl);wrap.appendChild(sn);
+      empty.appendChild(sugg);
+      chatWrap.appendChild(empty);
+    } else {
+      // Messages
+      var cb=el("div",{id:"chatbox",css:{maxHeight:"480px",overflowY:"auto",padding:"16px",display:"flex",flexDirection:"column",gap:"12px"}});
+      messages.forEach(function(msg){
+        var isUser=msg.role==="user";
+        var row=el("div",{css:{display:"flex",gap:"10px",flexDirection:isUser?"row-reverse":"row",alignItems:"flex-start"}});
+        // Avatar
+        var av=el("div",{css:{width:"30px",height:"30px",borderRadius:"50%",flexShrink:"0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".75rem",fontWeight:"700"}});
+        if(isUser){av.style.background="#c96442";av.style.color="#fff";av.textContent="A";}
+        else{av.appendChild(makeLogo(30));}
+        // Bubble
+        var bubble=el("div",{css:{maxWidth:"80%",borderRadius:"12px",padding:"12px 14px",background:isUser?"#c96442":"#262626",border:isUser?"none":"1px solid #3a3a3a"}});
+        if(msg.file){
+          var ftag=el("div",{css:{display:"flex",alignItems:"center",gap:"6px",marginBottom:msg.content?"8px":"0",background:"rgba(255,255,255,.15)",padding:"6px 10px",borderRadius:"6px",fontSize:".78rem",fontWeight:"500"}});
+          ftag.appendChild(el("span",{},msg.file.fileType==="pdf"?"\uD83D\uDCC4":"\uD83D\uDDBC\uFE0F"));
+          ftag.appendChild(el("span",{},msg.file.name));
+          bubble.appendChild(ftag);
+        }
+        if(msg.content){
+          if(isUser){
+            var p=document.createElement("div");p.style.fontSize=".875rem";p.style.lineHeight="1.6";p.textContent=msg.content;bubble.appendChild(p);
+          } else {
+            bubble.appendChild(formatMsg(msg.content));
+          }
+        }
+        row.appendChild(av);row.appendChild(bubble);
+        cb.appendChild(row);
+      });
+      // Loading bubble
+      if(isLoading){
+        var lrow=el("div",{css:{display:"flex",gap:"10px",alignItems:"flex-start"}});
+        var lav=el("div",{css:{width:"30px",height:"30px",borderRadius:"50%",flexShrink:"0"}});
+        lav.appendChild(makeLogo(30));
+        var lb=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"12px",padding:"14px 16px",display:"flex",gap:"6px",alignItems:"center"}});
+        [0,1,2].forEach(function(i){var d=el("div",{css:{width:"7px",height:"7px",borderRadius:"50%",background:"#c96442",animation:"bounce 1.2s ease infinite",animationDelay:(i*0.2)+"s"}});lb.appendChild(d);});
+        lrow.appendChild(lav);lrow.appendChild(lb);
+        cb.appendChild(lrow);
+      }
+      chatWrap.appendChild(cb);
     }
+    wrap.appendChild(chatWrap);
+
+    // Input area
+    var inputWrap=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"12px",padding:"12px"}});
+
+    // File preview if uploaded
+    if(uploadedFile){
+      var fp=el("div",{css:{display:"flex",alignItems:"center",gap:"8px",background:"rgba(201,100,66,.12)",border:"1px solid rgba(201,100,66,.3)",borderRadius:"8px",padding:"8px 12px",marginBottom:"10px"}});
+      fp.appendChild(el("span",{css:{fontSize:"1.1rem"}},uploadedFile.fileType==="pdf"?"\uD83D\uDCC4":"\uD83D\uDDBC\uFE0F"));
+      fp.appendChild(el("span",{css:{flex:"1",fontSize:".82rem",fontWeight:"500",color:"#c96442"},txt:uploadedFile.name}));
+      fp.appendChild(el("button",{cls:"btn btng",css:{padding:"2px 8px",fontSize:".75rem"},onclick:function(){uploadedFile=null;build();}},"\u2715"));
+      inputWrap.appendChild(fp);
+    }
+
+    var irow=el("div",{css:{display:"flex",gap:"8px",alignItems:"flex-end"}});
+
+    // File upload button
+    var fi=document.createElement("input");fi.type="file";fi.accept=".pdf,image/*";fi.style.display="none";
+    fi.addEventListener("change",function(e){handleFile(e.target.files[0]);});
+    var upBtn=el("button",{cls:"btn",css:{padding:"9px 12px",flexShrink:"0",fontSize:"1.1rem"},onclick:function(){fi.click();}},"\uD83D\uDCCE");
+    upBtn.appendChild(fi);
+    upBtn.title="Upload PDF or image";
+    irow.appendChild(upBtn);
+
+    // Text input
+    var ta=el("textarea",{cls:"inp",placeholder:"Ask anything... or upload a PDF/photo of your notes",rows:"1",css:{resize:"none",flex:"1",lineHeight:"1.5",padding:"9px 12px",maxHeight:"120px",overflow:"auto"}});
+    ta.value=inputVal;
+    ta.addEventListener("input",function(e){inputVal=e.target.value;ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,120)+"px";});
+    ta.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
+    irow.appendChild(ta);
+
+    // Send button
+    var sb=el("button",{cls:"btn btnp",css:{padding:"9px 16px",flexShrink:"0"},onclick:sendMessage},isLoading?"\u23F3":"\u27A4");
+    if(isLoading)sb.disabled=true;
+    irow.appendChild(sb);
+    inputWrap.appendChild(irow);
+
+    var hint=el("div",{css:{fontSize:".7rem",color:"#484848",marginTop:"8px",textAlign:"center"}},"\uD83D\uDCC2 Click the clip to upload PDF or image \u00b7 Press Enter to send \u00b7 Shift+Enter for new line");
+    inputWrap.appendChild(hint);
+    wrap.appendChild(inputWrap);
+
+    // Scroll to bottom after render
+    scrollBottom();
   }
+
+  // Add bounce animation
+  var styleTag=document.createElement("style");
+  styleTag.textContent="@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}";
+  document.head.appendChild(styleTag);
+
   build();return w;
 }
 
