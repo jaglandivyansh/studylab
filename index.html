@@ -79,7 +79,7 @@ textarea.inp{resize:vertical}
 .login-card{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:40px 36px;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5)}
 </style>
 </head>
-<body> 
+<body>
 <div id="app"></div>
 <div id="tc"></div>
 <!-- Theme toggle button -->
@@ -95,7 +95,8 @@ const firebaseConfig = {
   projectId: "studylab-ca12f",
   storageBucket: "studylab-ca12f.firebasestorage.app",
   messagingSenderId: "930775182106",
-  appId: "1:930775182106:web:9e8a5c103b5be8ffbfdaa3"
+  appId: "1:930775182106:web:9e8a5c103b5be8ffbfdaa3",
+  measurementId: "G-86DKRBT1QD"
 };firebase.initializeApp(firebaseConfig);
 window.auth=firebase.auth();
 window.db=firebase.firestore();
