@@ -10,37 +10,43 @@ CORS(app)
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-PROMPT = """You are a study assistant helping a student prepare for competitive exams like UPSC, SSC, State PSC etc.
+SYSTEM = """You are StudyLab AI, a smart study assistant helping Indian students prepare for competitive exams like UPSC, SSC, State PSC, Railways, Banking etc.
 
-Read these notes carefully and provide a structured summary:
+You can:
+- Answer questions on History, Geography, Polity, Economy, Science, GK
+- Summarize notes (text, PDF, images)
+- Explain concepts clearly
+- Give mnemonics and memory tricks
+- Create practice questions
+- Give quick revision points
 
-1. KEY POINTS
-(bullet points of all important facts)
-
-2. IMPORTANT DATES & NUMBERS
-(dates, years, statistics, numbers)
-
-3. IMPORTANT NAMES & TERMS
-(people, places, acts, concepts, battles, dynasties)
-
-4. QUICK REVISION
-(3-5 sentences for last-minute revision)
-
-Be thorough. Capture every important fact clearly."""
+Keep responses clear, structured and exam-focused. Use bullet points where helpful."""
 
 @app.route("/")
 def home():
-    return jsonify({"status": "StudyLab AI Backend running!"})
+    return jsonify({"status": "StudyLab AI Assistant running!"})
 
-@app.route("/summarize", methods=["POST"])
-def summarize():
+@app.route("/chat", methods=["POST"])
+def chat():
     try:
         data = request.get_json()
-        notes = data.get("notes", "").strip()
-        if not notes or len(notes) < 20:
-            return jsonify({"error": "Notes too short"}), 400
-        response = model.generate_content([PROMPT + "\n\nNotes:\n" + notes])
-        return jsonify({"summary": response.text})
+        messages = data.get("messages", [])
+        if not messages:
+            return jsonify({"error": "No messages"}), 400
+
+        # Build conversation history for Gemini
+        history = []
+        for msg in messages[:-1]:
+            history.append({
+                "role": "user" if msg["role"] == "user" else "model",
+                "parts": [msg["content"]]
+            })
+
+        chat_session = model.start_chat(history=history)
+        last_msg = messages[-1]["content"]
+        response = chat_session.send_message(SYSTEM + "\n\n" + last_msg if len(messages) == 1 else last_msg)
+        return jsonify({"reply": response.text})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -50,39 +56,35 @@ def summarize_file():
         data = request.get_json()
         file_data = data.get("data", "")
         mime_type = data.get("mimeType", "")
-        file_type = data.get("fileType", "")  # "pdf" or "image"
+        file_type = data.get("fileType", "")
+        question = data.get("question", "")
 
         if not file_data or not mime_type:
             return jsonify({"error": "No file data"}), 400
 
-        # Decode base64
-        raw = base64.b64decode(file_data)
+        prompt = question if question else """You are a study assistant for Indian competitive exams. Read these notes and provide:
 
-        if file_type == "pdf":
-            # For PDF use inline_data
-            content = [
-                PROMPT,
-                {
-                    "inline_data": {
-                        "mime_type": "application/pdf",
-                        "data": file_data
-                    }
-                }
-            ]
-        else:
-            # Image
-            content = [
-                PROMPT,
-                {
-                    "inline_data": {
-                        "mime_type": mime_type,
-                        "data": file_data
-                    }
-                }
-            ]
+1. KEY POINTS
+(bullet points of all important facts)
+
+2. IMPORTANT DATES & NUMBERS
+(dates, years, statistics)
+
+3. IMPORTANT NAMES & TERMS
+(people, places, acts, concepts)
+
+4. QUICK REVISION
+(3-5 sentences for last-minute revision)
+
+Be thorough and exam-focused."""
+
+        content = [
+            prompt,
+            {"inline_data": {"mime_type": mime_type, "data": file_data}}
+        ]
 
         response = model.generate_content(content)
-        return jsonify({"summary": response.text})
+        return jsonify({"reply": response.text})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
