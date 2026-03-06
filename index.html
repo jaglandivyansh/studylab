@@ -328,53 +328,159 @@ function pgNotes(){
   w.appendChild(makeNav("notes"));
   var savedNotes=Sv.get("notes_list")||[];
   var notesText="",summaryResult="",isLoading=false;
-  var wrap=el("div",{css:{maxWidth:"820px",margin:"0 auto"}});
+  var uploadedFile=null; // {data, mimeType, fileType, name}
+  var activeTab="text"; // "text" or "file"
+  var BACKEND="https://studylab-1.onrender.com";
+
+  var wrap=el("div",{css:{maxWidth:"860px",margin:"0 auto"}});
   w.appendChild(wrap);
+
+  function readFile(file,cb){
+    var reader=new FileReader();
+    reader.onload=function(e){cb(e.target.result.split(",")[1]);};
+    reader.readAsDataURL(file);
+  }
+
+  function handleFile(file){
+    if(!file)return;
+    var isPDF=file.type==="application/pdf";
+    var isImg=file.type.indexOf("image/")===0;
+    if(!isPDF&&!isImg){toast("Only PDF or image files!","#f87171");return;}
+    if(file.size>15*1024*1024){toast("File too large (max 15MB)","#f87171");return;}
+    readFile(file,function(b64){
+      uploadedFile={data:b64,mimeType:file.type,fileType:isPDF?"pdf":"image",name:file.name};
+      summaryResult="";toast("File loaded! Click Summarize.");build();
+    });
+  }
+
+  function doSummarize(){
+    if(activeTab==="text"){
+      var txt=notesText.trim();
+      if(!txt||txt.length<20){toast("Paste some notes first","#f87171");return;}
+      isLoading=true;summaryResult="";build();
+      fetch(BACKEND+"/summarize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({notes:txt})})
+      .then(function(r){return r.json();})
+      .then(function(d){summaryResult=d.summary||("Error: "+d.error);isLoading=false;build();})
+      .catch(function(){summaryResult="Server waking up (30 sec on first use). Try again shortly!";isLoading=false;build();});
+    } else {
+      if(!uploadedFile){toast("Upload a file first","#f87171");return;}
+      isLoading=true;summaryResult="";build();
+      fetch(BACKEND+"/summarize-file",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(uploadedFile)})
+      .then(function(r){return r.json();})
+      .then(function(d){summaryResult=d.summary||("Error: "+d.error);isLoading=false;build();})
+      .catch(function(){summaryResult="Server waking up (30 sec on first use). Try again shortly!";isLoading=false;build();});
+    }
+  }
+
   function build(){
     wrap.innerHTML="";
+    // Header
     var hd=el("div",{css:{marginBottom:"24px"}});
-    var htitle=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}});
-    htitle.appendChild(el("span",{css:{fontSize:"1.4rem"},txt:"\uD83E\uDD16"}));
-    htitle.appendChild(el("div",{css:{fontSize:"1.25rem",fontWeight:"700"},txt:"Smart Notes Summarizer"}));
-    hd.appendChild(htitle);
-    hd.appendChild(el("div",{css:{fontSize:".875rem",color:"#a0a0a0",lineHeight:"1.6"},txt:"Paste your study notes below. Instantly extracts key points, dates, names and quick revision summary. Works 100% offline!"}));
+    var ht=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}});
+    ht.appendChild(el("span",{css:{fontSize:"1.4rem"},txt:"\uD83E\uDD16"}));
+    ht.appendChild(el("div",{css:{fontSize:"1.25rem",fontWeight:"700"},txt:"AI Notes Summarizer"}));
+    hd.appendChild(ht);
+    hd.appendChild(el("div",{css:{fontSize:".875rem",color:"#a0a0a0",lineHeight:"1.6"},txt:"Paste text notes OR upload a photo/PDF of your notes. Gemini AI will summarize key points, dates, names and give a quick revision summary."}));
     wrap.appendChild(hd);
+
+    // Tabs
+    var tabs=el("div",{css:{display:"flex",gap:"4px",background:"#1f1f1f",padding:"4px",borderRadius:"10px",marginBottom:"20px",width:"fit-content"}});
+    [["text","\uD83D\uDCDD Text Notes"],["file","\uD83D\uDCC2 Upload File"]].forEach(function(tb){
+      var isA=activeTab===tb[0];
+      var btn=el("button",{css:{padding:"8px 20px",borderRadius:"7px",fontSize:".85rem",fontWeight:"500",cursor:"pointer",fontFamily:"inherit",background:isA?"#262626":"transparent",color:isA?"#ececec":"#6b6b6b",border:isA?"1px solid #3a3a3a":"none",transition:"all .15s"},onclick:function(){activeTab=tb[0];summaryResult="";build();}},tb[1]);
+      tabs.appendChild(btn);
+    });
+    wrap.appendChild(tabs);
+
+    // Main grid
     var grid=el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"20px"}});
+
+    // LEFT side
     var left=el("div",{});
-    left.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:"Your Notes"}));
-    var ta=el("textarea",{cls:"inp",placeholder:"Paste your notes here...\n\nExample:\nThe Mughal Empire was founded in 1526 by Babur. Akbar ruled 1556-1605 and introduced Din-i-Ilahi. The Battle of Panipat...",rows:"14",css:{resize:"vertical",lineHeight:"1.65",fontSize:".875rem"}});
-    ta.value=notesText;ta.addEventListener("input",function(e){notesText=e.target.value;});
-    left.appendChild(ta);
-    var br=el("div",{css:{display:"flex",gap:"8px",marginTop:"10px",flexWrap:"wrap"}});
-    br.appendChild(el("button",{cls:"btn btnp",css:{flex:"1"},onclick:function(){var txt=ta.value.trim();if(!txt||txt.length<30){toast("Please paste some notes first","#f87171");return;}notesText=txt;isLoading=true;summaryResult="";build();
-      fetch("https://studylab-1.onrender.com/summarize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({notes:txt})})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d.summary){summaryResult=d.summary;}
-        else{summaryResult="AI error. Offline summary:\n\n"+smartSummarize(txt);}
-        isLoading=false;build();
-      })
-      .catch(function(){
-        summaryResult="Note: AI server may take 30 sec to wake up on first use. Showing offline summary:\n\n"+smartSummarize(txt);
-        isLoading=false;build();
-      });}},"\uD83E\uDD16 Summarize Notes"));
-    br.appendChild(el("button",{cls:"btn",css:{padding:"8px 14px"},onclick:function(){var txt=ta.value.trim();if(!txt){toast("Nothing to save","#f87171");return;}savedNotes.unshift({title:txt.slice(0,40)+(txt.length>40?"...":""),body:txt,date:new Date().toLocaleDateString("en-IN")});if(savedNotes.length>10)savedNotes.pop();Sv.set("notes_list",savedNotes);toast("Saved! \u2713");build();}},"\uD83D\uDCBE Save"));
-    br.appendChild(el("button",{cls:"btn btng",onclick:function(){ta.value="";notesText="";summaryResult="";build();}},"\u2715"));
-    left.appendChild(br);grid.appendChild(left);
+    left.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:activeTab==="text"?"Your Notes":"Upload File"}));
+
+    if(activeTab==="text"){
+      var ta=el("textarea",{cls:"inp",placeholder:"Paste your study notes here...\n\nExample:\nThe Mughal Empire was founded in 1526 by Babur after the First Battle of Panipat. Akbar (1556-1605) introduced Din-i-Ilahi and Sulh-i-Kul policy...",rows:"14",css:{resize:"vertical",lineHeight:"1.65",fontSize:".875rem"}});
+      ta.value=notesText;ta.addEventListener("input",function(e){notesText=e.target.value;});
+      left.appendChild(ta);
+      var br=el("div",{css:{display:"flex",gap:"8px",marginTop:"10px",flexWrap:"wrap"}});
+      br.appendChild(el("button",{cls:"btn btnp",css:{flex:"1"},onclick:doSummarize},"\uD83E\uDD16 Summarize with AI"));
+      br.appendChild(el("button",{cls:"btn",css:{padding:"8px 14px"},onclick:function(){
+        var txt=ta.value.trim();if(!txt)return;
+        savedNotes.unshift({title:txt.slice(0,40)+(txt.length>40?"...":""),body:txt,date:new Date().toLocaleDateString("en-IN")});
+        if(savedNotes.length>10)savedNotes.pop();Sv.set("notes_list",savedNotes);toast("Saved! \u2713");build();
+      }},"\uD83D\uDCBE Save"));
+      br.appendChild(el("button",{cls:"btn btng",onclick:function(){ta.value="";notesText="";summaryResult="";build();}},"\u2715"));
+      left.appendChild(br);
+    } else {
+      // Drop zone
+      var dz=el("div",{css:{border:"2px dashed "+(uploadedFile?"#c96442":"#3a3a3a"),borderRadius:"12px",background:uploadedFile?"rgba(201,100,66,.08)":"#1f1f1f",padding:"36px 20px",textAlign:"center",cursor:"pointer",transition:"all .2s",minHeight:"200px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"10px"}});
+      dz.addEventListener("dragover",function(e){e.preventDefault();this.style.borderColor="#c96442";this.style.background="rgba(201,100,66,.12)";});
+      dz.addEventListener("dragleave",function(){this.style.borderColor=uploadedFile?"#c96442":"#3a3a3a";this.style.background=uploadedFile?"rgba(201,100,66,.08)":"#1f1f1f";});
+      dz.addEventListener("drop",function(e){e.preventDefault();handleFile(e.dataTransfer.files[0]);});
+      var fi=document.createElement("input");fi.type="file";fi.accept=".pdf,image/*";fi.style.display="none";
+      fi.addEventListener("change",function(e){handleFile(e.target.files[0]);});
+      dz.appendChild(fi);
+      dz.addEventListener("click",function(){fi.click();});
+      if(uploadedFile){
+        dz.appendChild(el("div",{css:{fontSize:"3rem"}},uploadedFile.fileType==="pdf"?"\uD83D\uDCC4":"\uD83D\uDDBC\uFE0F"));
+        dz.appendChild(el("div",{css:{fontSize:".95rem",fontWeight:"600",color:"#c96442"},txt:uploadedFile.name}));
+        dz.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b"},txt:"Click to change file"}));
+      } else {
+        dz.appendChild(el("div",{css:{fontSize:"3rem"},txt:"\uD83D\uDCC2"}));
+        dz.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:"Drop file here or click to browse"}));
+        dz.appendChild(el("div",{css:{fontSize:".82rem",color:"#6b6b6b"},txt:"Supports PDF and images (JPG, PNG)"}));
+        var chips=el("div",{css:{display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap",marginTop:"8px"}});
+        ["\uD83D\uDDBC\uFE0F Photo of notes","\uD83D\uDCC4 PDF document","\u270D\uFE0F Handwritten"].forEach(function(c){chips.appendChild(el("span",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"6px",padding:"4px 12px",fontSize:".75rem",color:"#ececec"}},c));});
+        dz.appendChild(chips);
+      }
+      left.appendChild(dz);
+      var fb=el("div",{css:{display:"flex",gap:"8px",marginTop:"10px"}});
+      var sb=el("button",{cls:"btn btnp",css:{flex:"1"},onclick:doSummarize},"\uD83E\uDD16 Summarize with AI");
+      if(isLoading){sb.disabled=true;sb.style.opacity=".7";}
+      fb.appendChild(sb);
+      if(uploadedFile)fb.appendChild(el("button",{cls:"btn btng",onclick:function(){uploadedFile=null;summaryResult="";build();}},"\u2715 Clear"));
+      left.appendChild(fb);
+    }
+    grid.appendChild(left);
+
+    // RIGHT side - output
     var right=el("div",{});
-    right.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:"Summary"}));
-    var ob=el("div",{css:{background:"#1f1f1f",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"16px",minHeight:"310px",fontSize:".83rem",lineHeight:"1.8",whiteSpace:"pre-wrap",wordBreak:"break-word",overflowY:"auto",maxHeight:"420px",color:summaryResult?"#ececec":"#6b6b6b"}});
-    if(isLoading){var sp=el("div",{css:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"270px",gap:"14px",color:"#6b6b6b"}});var spi=el("div",{css:{width:"26px",height:"26px",border:"3px solid #3a3a3a",borderTop:"3px solid #c96442",borderRadius:"50%",animation:"spin 0.8s linear infinite"}});sp.appendChild(spi);sp.appendChild(document.createTextNode("\u23F3 Analysing..."));ob.appendChild(sp);}
-    else if(summaryResult){ob.textContent=summaryResult;}
-    else{ob.textContent="Your summary will appear here.\n\nPaste notes on the left and click Summarize Notes.\n\nWorks 100% offline!";}
+    right.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"8px"},txt:"AI Summary"}));
+    var ob=el("div",{css:{background:"#1f1f1f",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"16px",minHeight:"340px",fontSize:".83rem",lineHeight:"1.8",whiteSpace:"pre-wrap",wordBreak:"break-word",overflowY:"auto",maxHeight:"460px",color:summaryResult?"#ececec":"#6b6b6b"}});
+    if(isLoading){
+      var sp=el("div",{css:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"300px",gap:"16px",color:"#6b6b6b"}});
+      var spi=el("div",{css:{width:"32px",height:"32px",border:"3px solid #3a3a3a",borderTop:"3px solid #c96442",borderRadius:"50%",animation:"spin 0.8s linear infinite"}});
+      sp.appendChild(spi);
+      sp.appendChild(el("div",{css:{fontSize:".9rem",fontWeight:"500"}},"\uD83E\uDD16 Gemini AI is reading your notes..."));
+      sp.appendChild(el("div",{css:{fontSize:".75rem",color:"#484848"}},activeTab==="file"?"This may take 10-20 seconds for files":"Summarizing..."));
+      ob.appendChild(sp);
+    } else if(summaryResult){
+      ob.textContent=summaryResult;
+    } else {
+      ob.textContent="Your AI summary will appear here.\n\n"+(activeTab==="text"?"Paste your notes on the left and click Summarize.":"Upload a PDF or photo of your notes and click Summarize.\n\nGemini AI can read handwritten notes too!");
+    }
     right.appendChild(ob);
-    if(summaryResult&&!isLoading){right.appendChild(el("button",{cls:"btn",css:{marginTop:"10px",width:"100%"},onclick:function(){navigator.clipboard.writeText(summaryResult).then(function(){toast("Copied!");}).catch(function(){});}},"\uD83D\uDCCB Copy Summary"));}
-    grid.appendChild(right);wrap.appendChild(grid);
-    if(savedNotes.length){
+    if(summaryResult&&!isLoading){
+      right.appendChild(el("button",{cls:"btn",css:{marginTop:"10px",width:"100%"},onclick:function(){navigator.clipboard.writeText(summaryResult).then(function(){toast("Copied to clipboard!");}).catch(function(){});}},"\uD83D\uDCCB Copy Summary"));
+    }
+    grid.appendChild(right);
+    wrap.appendChild(grid);
+
+    // Saved notes (text tab only)
+    if(activeTab==="text"&&savedNotes.length){
       var sn=el("div",{css:{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #3a3a3a"}});
       sn.appendChild(el("div",{css:{fontSize:".78rem",color:"#6b6b6b",textTransform:"uppercase",letterSpacing:".08em",fontWeight:"500",marginBottom:"10px"},txt:"Saved Notes ("+savedNotes.length+")"}));
       var snl=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px"}});
-      savedNotes.forEach(function(n){var card=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"12px",cursor:"pointer"}});card.addEventListener("mouseenter",function(){this.style.borderColor="#c96442";});card.addEventListener("mouseleave",function(){this.style.borderColor="#3a3a3a";});card.appendChild(el("div",{css:{fontSize:".82rem",fontWeight:"500",marginBottom:"4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},txt:n.title}));card.appendChild(el("div",{css:{fontSize:".72rem",color:"#6b6b6b"},txt:n.date}));card.addEventListener("click",function(){ta.value=n.body;notesText=n.body;summaryResult="";build();});snl.appendChild(card);});
+      savedNotes.forEach(function(n){
+        var card=el("div",{css:{background:"#262626",border:"1px solid #3a3a3a",borderRadius:"8px",padding:"12px",cursor:"pointer"}});
+        card.addEventListener("mouseenter",function(){this.style.borderColor="#c96442";});
+        card.addEventListener("mouseleave",function(){this.style.borderColor="#3a3a3a";});
+        card.appendChild(el("div",{css:{fontSize:".82rem",fontWeight:"500",marginBottom:"4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},txt:n.title}));
+        card.appendChild(el("div",{css:{fontSize:".72rem",color:"#6b6b6b"},txt:n.date}));
+        card.addEventListener("click",function(){notesText=n.body;summaryResult="";build();window.setTimeout(function(){var t=document.querySelector("textarea");if(t)t.value=n.body;},50);});
+        snl.appendChild(card);
+      });
       sn.appendChild(snl);wrap.appendChild(sn);
     }
   }
