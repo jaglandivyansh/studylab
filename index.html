@@ -6,239 +6,112 @@
 <title>StudyLab — Online Masterclass</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* === WIX-STYLE PREMIUM TEMPLATE === */
+/* === PURE BLACK & BLUE THEME + CURRENT AFFAIRS === */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  /* Light Theme (Default E-Learning Vibe) */
-  --bg: #F8FAFC;
-  --bg2: #FFFFFF;
-  --card: #FFFFFF;
-  --card2: #F1F5F9;
-  --border: #E2E8F0;
-  --border2: #CBD5E1;
-  --accent: #4F46E5;
-  --accent2: #4338CA;
-  --text: #0F172A;
-  --muted: #475569;
-  --subtle: #94A3B8;
-  --hero-bg: #0B0F19;
-  --shadow-card: 0 12px 30px -10px rgba(0,0,0,0.05);
-  --shadow-hover: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
+:root, :root[data-theme="dark"] {
+  --bg: #02040A !important; 
+  --bg2: #0A0D14 !important;
+  --card: #0D111A !important;
+  --card2: #151A26 !important;
+  --border: #1F2937 !important;
+  --border2: #374151 !important;
+  --accent: #2563EB !important; 
+  --accent2: #3B82F6 !important;
+  --text: #F8FAFC !important;
+  --muted: #94A3B8 !important;
+  --subtle: #475569 !important;
+  --hero-bg: #02040A !important;
+  --shadow-card: 0 12px 30px -10px rgba(0,0,0,0.5);
+  --shadow-hover: 0 20px 40px -10px rgba(37, 99, 235, 0.25);
   --radius: 20px;
 }
 
-:root[data-theme="dark"] {
-  --bg: #0B0F19;
-  --bg2: #111827;
-  --card: #111827;
-  --card2: #1F2937;
-  --border: #374151;
-  --border2: #4B5563;
-  --accent: #6366F1;
-  --accent2: #818CF8;
-  --text: #F8FAFC;
-  --muted: #94A3B8;
-  --subtle: #64748B;
-  --hero-bg: #020617;
-  --shadow-card: 0 12px 30px -10px rgba(0,0,0,0.3);
-  --shadow-hover: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
+:root[data-theme="light"] {
+  --bg: #F8FAFC !important; --bg2: #FFFFFF !important;
+  --card: #FFFFFF !important; --card2: #F1F5F9 !important;
+  --border: #E2E8F0 !important; --border2: #CBD5E1 !important;
+  --accent: #2563EB !important; --accent2: #1D4ED8 !important;
+  --text: #0F172A !important; --muted: #475569 !important;
+  --subtle: #94A3B8 !important; --hero-bg: #F8FAFC !important;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg); color: var(--text);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  min-height: 100vh;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* WIX-STYLE HEADER */
-.wix-header {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-}
-.wix-header .logo {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.03em;
-}
+/* HEADER */
+.wix-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+.wix-header .logo { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -0.03em; }
 .wix-header .logo span { color: var(--accent); }
 
-/* WIX-STYLE HERO SECTION */
-.wix-hero {
-  background: var(--hero-bg);
-  color: #fff;
-  padding: 100px 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.wix-hero::after {
-  content: '';
-  position: absolute;
-  top: -50%; left: 50%;
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(0,0,0,0) 70%);
-  transform: translateX(-50%);
-  z-index: 0;
-}
-.wix-hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 800px;
-  margin: 0 auto;
-}
-.wix-hero h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin-bottom: 20px;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-}
-.wix-hero p {
-  font-size: 1.15rem;
-  color: #94A3B8;
-  margin-bottom: 30px;
-}
+/* HERO SECTION */
+.wix-hero { background: var(--hero-bg); color: var(--text); padding: 100px 20px; text-align: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+.wix-hero::after { content: ''; position: absolute; top: -50%; left: 50%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(0,0,0,0) 70%); transform: translateX(-50%); z-index: 0; }
+.wix-hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.wix-hero h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; line-height: 1.1; letter-spacing: -0.04em; }
+.wix-hero p { font-size: 1.15rem; color: var(--muted); margin-bottom: 30px; }
 
-/* HIDE HERO & HEADER WHEN QUIZ STARTS (Distraction Free Mode) */
-body:has(.qo) .hide-on-quiz, 
-body:has(.cw) .hide-on-quiz {
-  display: none !important;
-}
+/* HIDE ON QUIZ */
+body:has(.qo) .hide-on-quiz, body:has(.cw) .hide-on-quiz { display: none !important; }
 
-/* MAIN APP CONTAINER */
-#app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 60px 20px;
-}
+/* LAYOUT */
+.app-container { max-width: 1200px; margin: 0 auto; padding: 20px 20px; }
+#app { padding-top: 20px; padding-bottom: 60px; }
+#app:has(.subj-row) { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
 
-/* SMART GRID FOR SUBJECTS */
-#app:has(.subj-row) {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 30px;
-}
+/* CARDS */
+.subj-row { display: flex; flex-direction: column !important; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-card); cursor: pointer; overflow: hidden; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); min-height: auto !important; margin-bottom: 0 !important; }
+.subj-row:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+.sym-panel { width: 100% !important; height: 180px !important; background: linear-gradient(135deg, var(--card2), var(--border)); display: flex; align-items: center; justify-content: center; border-right: none !important; position: relative; }
+.float-sym { font-size: 4rem; animation: none !important; opacity: 1 !important; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)); }
+.content-panel { padding: 30px !important; flex: 1; display: flex; flex-direction: column; background: transparent !important; }
 
-/* REDESIGNED SUBJECT CARDS (Wix Course Card Style) */
-.subj-row {
-  display: flex;
-  flex-direction: column !important;
-  background: var(--card);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-card);
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  min-height: auto !important;
-  margin-bottom: 0 !important;
-}
-.subj-row:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--accent);
-}
-.sym-panel {
-  width: 100% !important;
-  height: 180px !important;
-  background: linear-gradient(135deg, var(--card2), var(--border));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: none !important;
-  position: relative;
-}
-.float-sym {
-  font-size: 4rem;
-  animation: none !important;
-  opacity: 1 !important;
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.08));
-}
-.content-panel {
-  padding: 30px !important;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-left: none !important;
-  background: transparent !important;
-}
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 26px; border-radius: 99px; font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: var(--card2) !important; color: var(--text) !important; transition: all 0.2s; }
+.btn:hover { background: var(--border) !important; transform: translateY(-2px); }
+.btnp, [style*="linear-gradient(135deg,var(--accent)"] { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3) !important; }
+.btnp:hover { background: var(--accent2) !important; border-color: var(--accent2) !important; color: #fff !important; transform: translateY(-2px); }
+.btng { background: transparent !important; border-color: transparent !important; color: var(--muted) !important; box-shadow: none !important; }
+.btng:hover { background: var(--card2) !important; border-color: var(--border) !important; color: var(--text) !important; transform: none; }
 
-/* WIX-STYLE BUTTONS */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 26px; border-radius: 99px; font-family: inherit;
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
-  border: 1px solid var(--border2); background: var(--card); color: var(--text);
-  transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-}
-.btn:hover { background: var(--card2); transform: translateY(-2px); }
-.btnp {
-  background: var(--accent); border-color: var(--accent); color: #fff;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
-}
-.btnp:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; transform: translateY(-2px); }
-
-/* QUIZ OPTIONS / FLASHCARDS */
-.qo {
-  width: 100%; padding: 18px 24px; border-radius: 16px; border: 2px solid var(--border);
-  background: var(--card); color: var(--text); font-family: inherit; font-size: 1rem;
-  cursor: pointer; text-align: left; display: flex; gap: 16px; margin-bottom: 14px;
-  transition: all 0.2s; font-weight: 500; align-items: center;
-}
-.qo:hover:not(:disabled) {
-  border-color: var(--accent); background: var(--bg); transform: translateX(6px);
-}
-.qo.ok { border-color: #10B981; background: rgba(16, 185, 129, 0.05); color: #059669; }
-.qo.no { border-color: #EF4444; background: rgba(239, 68, 68, 0.05); color: #DC2626; }
+/* QUIZ ELEMENTS */
+.qo { width: 100%; padding: 18px 24px; border-radius: 16px; border: 2px solid var(--border) !important; background: var(--card) !important; color: var(--text) !important; font-family: inherit; font-size: 1rem; cursor: pointer; text-align: left; display: flex; gap: 16px; margin-bottom: 14px; transition: all 0.2s; font-weight: 500; align-items: center; }
+.qo:hover:not(:disabled) { border-color: var(--accent) !important; background: var(--card2) !important; transform: translateX(6px); }
+.qo.ok { border-color: #10B981 !important; background: rgba(16, 185, 129, 0.1) !important; color: #10B981 !important; }
+.qo.no { border-color: #EF4444 !important; background: rgba(239, 68, 68, 0.1) !important; color: #EF4444 !important; }
 .qo:disabled { cursor: default; opacity: 0.8; }
 
-/* FLASHCARD 3D */
+/* FLASHCARDS */
 .cw { perspective: 2000px; height: 350px; cursor: pointer; margin-bottom: 30px; }
 .ci { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 .ci.fl { transform: rotateY(180deg); }
-.cf, .cb {
-  position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 40px; text-align: center; border: 1px solid var(--border);
-  background: var(--card); box-shadow: var(--shadow-card); font-size: 1.2rem; font-weight: 500;
-}
+.cf, .cb { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; border: 1px solid var(--border); background: var(--card); box-shadow: var(--shadow-card); font-size: 1.2rem; font-weight: 500; }
 .cb { transform: rotateY(180deg); border-color: var(--accent); background: var(--card2); }
 
 /* PROGRESS BAR */
-.pb { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 30px; }
-.pf { height: 100%; border-radius: 99px; transition: width 0.5s ease; background: var(--accent); }
+.pb { height: 8px; background: var(--card2) !important; border-radius: 99px; overflow: hidden; margin-bottom: 30px; border: 1px solid var(--border); }
+.pf { height: 100%; border-radius: 99px; transition: width 0.5s ease; background: var(--accent) !important; }
 
 /* INPUTS & MISC */
-.inp { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; color: var(--text); font-family: inherit; font-size: 1rem; padding: 14px 20px; outline: none; width: 100%; transition: border-color 0.2s; }
-.inp:focus { border-color: var(--accent); }
-.tag { font-size: 0.7rem; padding: 5px 12px; border-radius: 99px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg); color: var(--muted); }
-.sc, .mc { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s; box-shadow: var(--shadow-card); }
+.inp { background: var(--bg2) !important; border: 2px solid var(--border) !important; border-radius: 12px; color: var(--text) !important; font-family: inherit; font-size: 1rem; padding: 14px 20px; outline: none; width: 100%; transition: border-color 0.2s; }
+.inp:focus { border-color: var(--accent) !important; }
+.tag { font-size: 0.7rem; padding: 5px 12px; border-radius: 99px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg2) !important; color: var(--accent2) !important; border: 1px solid var(--border); }
+.sc, .mc { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 16px; padding: 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s; box-shadow: var(--shadow-card); }
 .mc { flex-direction: column; text-align: center; min-width: 200px; }
-.sc:hover, .mc:hover { transform: translateY(-4px); border-color: var(--accent); }
-.hrow { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; font-weight: 600; border: 1px solid var(--border); }
-.stb { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; box-shadow: var(--shadow-card); }
+.sc:hover, .mc:hover { transform: translateY(-4px); border-color: var(--accent) !important; }
+.hrow { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-radius: 12px; background: var(--card2) !important; margin-bottom: 8px; font-weight: 600; border: 1px solid var(--border); }
+.stb { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; box-shadow: var(--shadow-card); }
 
 /* TOAST */
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 14px 28px; border-radius: 99px; font-size: 0.9rem; font-weight: 600; z-index: 9999; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1); }
-@keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent) !important; color: #fff !important; padding: 14px 28px; border-radius: 99px; font-size: 0.9rem; font-weight: 600; z-index: 9999; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.3s ease; }
 
 /* THEME TOGGLE */
 .theme-toggle { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5rem; box-shadow: var(--shadow-hover); transition: all 0.2s; z-index: 1000; }
-.theme-toggle:hover { transform: scale(1.1) rotate(15deg); }
+.theme-toggle:hover { transform: scale(1.1) rotate(15deg); border-color: var(--accent); }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 8px; }
@@ -247,14 +120,29 @@ body:has(.cw) .hide-on-quiz {
 /* REFINED STARS */
 .star { font-size: 2rem; cursor: pointer; transition: transform 0.2s; color: var(--border2); }
 .star:hover { transform: scale(1.2); }
-.star.lit { color: #F59E0B; filter: drop-shadow(0 0 12px rgba(245,158,11,0.4)); }
+.star.lit { color: var(--accent2) !important; filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5)); }
 
-/* Responsive adjustments */
+/* CURRENT AFFAIRS STYLES */
+.news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-top: 30px;}
+.news-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+.news-header h2 span { color: var(--accent); }
+.news-live-badge { background: rgba(37, 99, 235, 0.15); color: var(--accent2); padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+.news-scroller { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+.news-scroller::-webkit-scrollbar { display: none; }
+.news-card { min-width: 300px; max-width: 300px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; border-left: 4px solid var(--accent); }
+.news-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--shadow-hover); }
+.news-source { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.05em; }
+.news-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 16px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.news-btn { font-size: 0.85rem; color: var(--accent2); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.news-btn:hover { color: var(--accent); text-decoration: underline; }
+
+/* Responsive */
 @media(max-width: 768px) {
   .wix-header { padding: 15px 20px; }
   .wix-hero { padding: 60px 15px; }
   .wix-hero h1 { font-size: 2.5rem; }
-  #app { padding: 30px 15px; }
+  .app-container { padding: 10px 15px; }
   #app:has(.subj-row) { grid-template-columns: 1fr; }
 }
 </style>
@@ -273,9 +161,14 @@ body:has(.cw) .hide-on-quiz {
   </div>
 </section>
 
-<div id="app"></div>
+<div class="app-container">
+  <div id="current-affairs-container" class="hide-on-quiz"></div>
+  
+  <div id="app"></div>
+</div>
+
 <div id="tc"></div>
-<div class="theme-toggle" id="themeToggle" title="Toggle theme">🌓</div>
+<div class="theme-toggle" id="themeToggle" title="Toggle theme">☀️</div>
 
 <script>
 window.currentUser = null;
@@ -283,27 +176,89 @@ window.currentUser = null;
 function toast(msg, color) {
   var t = document.createElement("div");
   t.className = "toast";
-  if(color) { t.style.background = color; t.style.color = "#fff"; }
   t.innerText = msg;
   document.getElementById("tc").appendChild(t);
+  
+  t.animate([
+    { opacity: 0, transform: 'translate(-50%, 20px)' },
+    { opacity: 1, transform: 'translate(-50%, 0)' }
+  ], { duration: 300, easing: 'cubic-bezier(0.4,0,0.2,1)' });
+
   setTimeout(function(){ 
-    t.style.opacity = '0';
-    t.style.transform = 'translate(-50%, 20px)';
-    t.style.transition = 'all 0.3s ease';
-    setTimeout(() => t.remove(), 300);
+    var anim = t.animate([
+      { opacity: 1, transform: 'translate(-50%, 0)' },
+      { opacity: 0, transform: 'translate(-50%, 20px)' }
+    ], { duration: 300, easing: 'ease' });
+    
+    anim.onfinish = () => t.remove();
   }, 3000);
+}
+
+// ========================================
+// LIVE DAILY CURRENT AFFAIRS FETCHER
+// ========================================
+async function loadCurrentAffairs() {
+  const container = document.getElementById('current-affairs-container');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="news-header">
+      <h2>Daily <span>Current Affairs</span></h2>
+      <div class="news-live-badge">Fetching Live...</div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('https://saurav.tech/NewsAPI/top-headlines/category/general/in.json');
+    const data = await response.json();
+    
+    if (data && data.articles && data.articles.length > 0) {
+      let cardsHTML = '';
+      const topNews = data.articles.slice(0, 8); // Get top 8 headlines
+      
+      topNews.forEach(article => {
+        let cleanTitle = article.title.split(' - ')[0]; // Clean up title
+        let sourceName = article.source.name || "News Update";
+        
+        cardsHTML += `
+          <div class="news-card">
+            <div>
+              <div class="news-source">${sourceName}</div>
+              <div class="news-title">${cleanTitle}</div>
+            </div>
+            <a href="${article.url}" target="_blank" class="news-btn">Read Full Story ↗</a>
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="news-header">
+          <h2>Daily <span>Current Affairs</span></h2>
+          <div class="news-live-badge">● LIVE</div>
+        </div>
+        <div class="news-scroller">
+          ${cardsHTML}
+        </div>
+      `;
+    } else {
+      container.style.display = 'none';
+    }
+  } catch (error) {
+    console.error("Error fetching current affairs:", error);
+    container.style.display = 'none';
+  }
 }
 
 // ========================================
 // THEME SYSTEM
 // ========================================
 var ThemeManager = {
-  isDark: false, // Default to Light theme matching modern Wix Masterclass sites
+  isDark: true, // Defaults to Dark Black/Blue mode
   
   init: function() {
     var saved = localStorage.getItem('theme');
-    if (saved === 'dark') {
-      this.isDark = true;
+    if (saved === 'light') {
+      this.isDark = false;
     }
     this.applyTheme();
     
@@ -334,13 +289,16 @@ var ThemeManager = {
   }
 };
 
+// Start application
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     ThemeManager.init();
+    loadCurrentAffairs(); // Automatically loads the news!
     if(typeof render === "function") render();
   });
 } else {
   ThemeManager.init();
+  loadCurrentAffairs(); // Automatically loads the news!
   if(typeof render === "function") render();
 }
 </script>
