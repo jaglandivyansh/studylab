@@ -603,6 +603,35 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 .news-btn { font-size: 0.8rem; color: var(--accent); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: gap 0.2s; font-family: var(--font-display); letter-spacing: 0.02em; }
 .news-btn:hover { gap: 8px; }
 
+/* ── CA TAB SYSTEM ── */
+.ca-tabs-wrap { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.ca-tab {
+  padding:6px 14px; border-radius:99px; font-size:.78rem; font-weight:600;
+  border:1.5px solid var(--border2); background:var(--card); color:var(--muted);
+  cursor:pointer; transition:all .18s ease; font-family:var(--font-body);
+}
+.ca-tab:hover { color:var(--text); border-color:var(--accent); }
+.ca-tab-active {
+  background:var(--ca-color, var(--accent)) !important;
+  border-color:var(--ca-color, var(--accent)) !important;
+  color:#fff !important;
+  box-shadow:0 3px 12px rgba(0,0,0,.25);
+}
+.ca-card { animation: slide-up .3s cubic-bezier(.2,.8,.2,1) both; }
+.ca-live-dot {
+  display:inline-block; width:7px; height:7px; border-radius:50%;
+  background:#4ade80; margin-right:5px; animation:pulse-dot 1.4s infinite;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.ca-spinner {
+  width:22px; height:22px; border:2px solid var(--border2);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:ca-spin .7s linear infinite; display:inline-block;
+}
+@keyframes ca-spin { to { transform:rotate(360deg); } }
+.ca-loading { padding:40px; text-align:center; color:var(--muted); font-size:.85rem; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.ca-empty { padding:40px; text-align:center; color:var(--muted); font-size:.85rem; }
+
 /* ── LOGIN MODAL ── */
 .login-modal { position: fixed; inset: 0; background: rgba(4,8,16,0.82); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; animation: fade-in 0.2s ease; }
 .login-card { background: var(--card); border: 1px solid var(--border2); border-radius: 24px; padding: 40px 36px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
@@ -750,125 +779,200 @@ function toast(msg, color) {
 }
 
 // ========================================
-// LIVE DAILY CURRENT AFFAIRS FETCHER
+// LIVE DAILY CURRENT AFFAIRS — RSS SYSTEM
 // ========================================
 
-// Curated fallback headlines (India GK/Current Affairs topics)
-const FALLBACK_NEWS = [
-  { title: "India's GDP growth forecast revised upward by IMF for FY2025", source: "Economic Times", url: "https://economictimes.indiatimes.com" },
-  { title: "Union Cabinet approves major infrastructure projects under PM Gati Shakti", source: "PIB India", url: "https://pib.gov.in" },
-  { title: "ISRO successfully tests next-generation rocket engine for Gaganyaan mission", source: "The Hindu", url: "https://www.thehindu.com" },
-  { title: "RBI holds repo rate steady; focuses on inflation management", source: "Mint", url: "https://www.livemint.com" },
-  { title: "India ranks among top 10 in Global Innovation Index 2024", source: "India Today", url: "https://www.indiatoday.in" },
-  { title: "New education policy implementation reviewed at national level meet", source: "Hindustan Times", url: "https://www.hindustantimes.com" },
-  { title: "India signs bilateral trade agreements with multiple nations at G20 summit", source: "Business Standard", url: "https://www.business-standard.com" },
-  { title: "Supreme Court delivers landmark verdict on electoral bonds scheme", source: "The Wire", url: "https://thewire.in" }
+const CA_TABS = [
+  { id: 'national',  label: '🇮🇳 National',  color: '#4F8EF7' },
+  { id: 'govt',      label: '🏛 Govt / PIB',  color: '#8b5cf6' },
+  { id: 'economy',   label: '📈 Economy',     color: '#f59e0b' },
+  { id: 'science',   label: '🔬 Science',     color: '#4ade80' },
+  { id: 'world',     label: '🌐 World',       color: '#f87171' }
 ];
 
-function renderNewsCards(articles, isLive) {
+// rss2json base — free, no key, works from browser
+const R2J = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+const CA_FEEDS = {
+  national: [
+    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-india-news'),          name: 'NDTV India' },
+    { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/2083611.cms'),  name: 'Times of India' },
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu' }
+  ],
+  govt: [
+    { url: R2J + encodeURIComponent('https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3'),   name: 'PIB India' },
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu' },
+    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-india-news'),          name: 'NDTV India' }
+  ],
+  economy: [
+    { url: R2J + encodeURIComponent('https://economictimes.indiatimes.com/rssfeedsdefault.cms'),  name: 'Economic Times' },
+    { url: R2J + encodeURIComponent('https://www.livemint.com/rss/economy'),                      name: 'Mint Economy' },
+    { url: R2J + encodeURIComponent('https://www.business-standard.com/rss/economy-policy-102.rss'), name: 'Business Standard' }
+  ],
+  science: [
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/sci-tech/feeder/default.rss'),      name: 'The Hindu Sci-Tech' },
+    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-science'),             name: 'NDTV Science' },
+    { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/2886704.cms'),  name: 'TOI Science' }
+  ],
+  world: [
+    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-world-news'),          name: 'NDTV World' },
+    { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),name: 'TOI World' },
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/international/feeder/default.rss'), name: 'The Hindu World' }
+  ]
+};
+
+const CA_FALLBACK = {
+  national: [
+    { title: "India's GDP growth forecast revised upward by IMF for FY2025", source: "Economic Times", url: "https://economictimes.indiatimes.com", pubDate: "" },
+    { title: "Union Cabinet approves major infrastructure projects under PM Gati Shakti", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
+    { title: "Supreme Court delivers landmark verdict on electoral bonds scheme", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "New education policy implementation reviewed at national level meet", source: "Hindustan Times", url: "https://www.hindustantimes.com", pubDate: "" }
+  ],
+  govt: [
+    { title: "Cabinet approves PM Vishwakarma scheme for traditional artisans", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
+    { title: "Government launches Digital India initiative phase-3", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
+    { title: "New railway line inaugurated connecting remote districts", source: "PIB India", url: "https://pib.gov.in", pubDate: "" }
+  ],
+  economy: [
+    { title: "RBI holds repo rate steady; focuses on inflation management", source: "Mint", url: "https://www.livemint.com", pubDate: "" },
+    { title: "India ranks among top 10 in Global Innovation Index 2024", source: "India Today", url: "https://www.indiatoday.in", pubDate: "" },
+    { title: "India signs bilateral trade agreements with multiple nations at G20", source: "Business Standard", url: "https://www.business-standard.com", pubDate: "" }
+  ],
+  science: [
+    { title: "ISRO successfully tests next-generation rocket engine for Gaganyaan", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "India's first quantum computing mission gets Cabinet approval", source: "NDTV Science", url: "https://www.ndtv.com", pubDate: "" },
+    { title: "DRDO develops new high-altitude surveillance drone", source: "Times of India", url: "https://timesofindia.com", pubDate: "" }
+  ],
+  world: [
+    { title: "India-US strategic partnership strengthened at bilateral summit", source: "NDTV World", url: "https://www.ndtv.com", pubDate: "" },
+    { title: "UN General Assembly adopts India-sponsored resolution on yoga", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "SCO summit: India pushes for stronger connectivity in Central Asia", source: "Times of India", url: "https://timesofindia.com", pubDate: "" }
+  ]
+};
+
+var caActiveTab = 'national';
+var caCache = {};  // cache fetched articles per tab
+
+async function fetchRSSFeed(feedObj) {
+  const res = await Promise.race([
+    fetch(feedObj.url),
+    new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), 6000))
+  ]);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('Empty feed');
+  return data.items.map(item => ({
+    title: (item.title || '').split(' - ')[0].split(' | ')[0].trim(),
+    source: feedObj.name,
+    url: item.link || item.url || '#',
+    pubDate: item.pubDate || ''
+  })).filter(a => a.title.length > 10);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    var d = new Date(dateStr);
+    if (isNaN(d)) return '';
+    var now = new Date();
+    var diff = Math.floor((now - d) / 60000); // minutes
+    if (diff < 60) return diff + 'm ago';
+    if (diff < 1440) return Math.floor(diff/60) + 'h ago';
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+  } catch(e) { return ''; }
+}
+
+function renderCurrentAffairs(articles, isLive, tabId) {
   const container = document.getElementById('current-affairs-container');
   if (!container) return;
+  const tab = CA_TABS.find(t => t.id === tabId) || CA_TABS[0];
 
-  let cardsHTML = '';
-  articles.slice(0, 8).forEach(article => {
-    let cleanTitle = (article.title || article.name || '').split(' - ')[0].split(' | ')[0];
-    let sourceName = (article.source && article.source.name) ? article.source.name : (article.source || 'News Update');
-    let url = article.url || article.link || '#';
+  // Build tab bar HTML
+  let tabsHTML = CA_TABS.map(t => `
+    <button class="ca-tab${t.id === tabId ? ' ca-tab-active' : ''}"
+      style="${t.id === tabId ? '--ca-color:'+t.color : ''}"
+      onclick="switchCATab('${t.id}')">
+      ${t.label}
+    </button>`).join('');
 
-    cardsHTML += `
-      <div class="news-card">
-        <div>
-          <div class="news-source">${sourceName}</div>
-          <div class="news-title">${cleanTitle}</div>
+  // Build cards HTML
+  let cardsHTML = articles.slice(0, 10).map((a, i) => `
+    <div class="news-card ca-card" style="animation-delay:${i*40}ms">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="news-source" style="color:${tab.color}">${a.source}</div>
+          ${a.pubDate ? `<div style="font-size:.65rem;color:var(--subtle)">${formatDate(a.pubDate)}</div>` : ''}
         </div>
-        <a href="${url}" target="_blank" rel="noopener" class="news-btn">Read Full Story ↗</a>
+        <div class="news-title">${a.title}</div>
       </div>
-    `;
-  });
+      <a href="${a.url}" target="_blank" rel="noopener" class="news-btn" style="color:${tab.color}">Read Full Story ↗</a>
+    </div>`).join('');
 
   container.innerHTML = `
-    <div class="news-header">
+    <div class="news-header" style="margin-bottom:14px">
       <h2>Daily <span>Current Affairs</span></h2>
-      <div class="news-live-badge">${isLive ? '● LIVE' : '📰 CURATED'}</div>
+      <div class="news-live-badge">${isLive ? '<span class="ca-live-dot"></span>LIVE' : '📰 OFFLINE'}</div>
     </div>
-    <div class="news-scroller">${cardsHTML}</div>
+    <div class="ca-tabs-wrap">${tabsHTML}</div>
+    <div class="news-scroller ca-scroller">${cardsHTML || '<div class="ca-empty">No articles found. Try another tab.</div>'}</div>
   `;
+}
+
+async function switchCATab(tabId) {
+  caActiveTab = tabId;
+  // Update tab active state immediately (fast UI)
+  document.querySelectorAll('.ca-tab').forEach(b => {
+    const isActive = b.getAttribute('onclick').includes("'"+tabId+"'");
+    b.classList.toggle('ca-tab-active', isActive);
+    const tab = CA_TABS.find(t => t.id === tabId);
+    if (isActive && tab) b.style.setProperty('--ca-color', tab.color);
+    else b.style.removeProperty('--ca-color');
+  });
+  // Use cache if available
+  if (caCache[tabId]) {
+    renderCurrentAffairs(caCache[tabId].articles, caCache[tabId].isLive, tabId);
+    return;
+  }
+  // Show loading skeleton
+  const scroller = document.querySelector('.ca-scroller');
+  if (scroller) scroller.innerHTML = '<div class="ca-loading"><div class="ca-spinner"></div>Loading '+tabId+' news...</div>';
+  await loadCATab(tabId);
+}
+
+async function loadCATab(tabId) {
+  const feeds = CA_FEEDS[tabId] || [];
+  for (const feed of feeds) {
+    try {
+      const articles = await fetchRSSFeed(feed);
+      if (articles.length) {
+        caCache[tabId] = { articles, isLive: true };
+        if (caActiveTab === tabId) renderCurrentAffairs(articles, true, tabId);
+        return;
+      }
+    } catch(e) { continue; }
+  }
+  // All feeds failed — use fallback
+  const fallback = CA_FALLBACK[tabId] || [];
+  caCache[tabId] = { articles: fallback, isLive: false };
+  if (caActiveTab === tabId) renderCurrentAffairs(fallback, false, tabId);
 }
 
 async function loadCurrentAffairs() {
   const container = document.getElementById('current-affairs-container');
   if (!container) return;
-
   container.innerHTML = `
     <div class="news-header">
       <h2>Daily <span>Current Affairs</span></h2>
-      <div class="news-live-badge">Fetching Live...</div>
+      <div class="news-live-badge"><span class="ca-live-dot"></span>Loading...</div>
     </div>
-  `;
-
-  // Bulletproof API list starting with an ultra-stable GitHub-hosted API
-  const SOURCES = [
-    {
-      url: 'https://saurav.tech/NewsAPI/top-headlines/category/general/in.json',
-      type: 'saurav'
-    },
-    {
-      url: 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2Fndtvnews-india-news',
-      type: 'rss2json',
-      sourceName: 'NDTV'
-    },
-    {
-      url: 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftimesofindia.indiatimes.com%2Frssfeeds%2F2083611.cms',
-      type: 'rss2json',
-      sourceName: 'Times of India'
-    }
-  ];
-
-  for (const src of SOURCES) {
-    try {
-      // Safe, cross-browser timeout (5 seconds) so it never gets stuck
-      const fetchPromise = fetch(src.url);
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-      
-      if (!res.ok) continue;
-      const data = await res.json();
-      let articles = [];
-
-      // Parse depending on which API responded
-      if (src.type === 'saurav' && data.articles && data.articles.length > 0) {
-        articles = data.articles.map(i => ({
-          title: i.title,
-          source: { name: (i.source && i.source.name) ? i.source.name : 'News' },
-          url: i.url || '#'
-        }));
-      } else if (src.type === 'rss2json' && data.status === 'ok' && data.items && data.items.length > 0) {
-        articles = data.items.map(i => ({
-          title: i.title,
-          source: { name: src.sourceName },
-          url: i.link || '#'
-        }));
-      }
-
-      if (articles.length > 0) {
-        renderNewsCards(articles, true); // "true" triggers the "● LIVE" badge
-        return; // Success! Exit the loop.
-      }
-    } catch (e) {
-      console.warn("Failed to fetch from: " + (src.sourceName || src.type) + ". Switching to backup...");
-      continue; 
-    }
-  }
-
-  // If ALL live sources fail (e.g. user has no internet), show the curated fallback
-  console.warn("All live news sources failed. Showing curated fallback.");
-  renderNewsCards(FALLBACK_NEWS.map(n => ({ 
-    title: n.title, 
-    source: { name: n.source }, 
-    url: n.url 
-  })), false);
+    <div style="padding:40px;text-align:center;color:var(--muted);font-size:.85rem">
+      <div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live news...
+    </div>`;
+  caCache = {};
+  await loadCATab(caActiveTab);
+  // Pre-fetch remaining tabs in background (no await)
+  CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
 }
-
 // ========================================
 // THEME SYSTEM
 // ========================================
@@ -1720,7 +1824,7 @@ function pgAbout(){
 }
 
 // ═══════════════════════════════════════════
-//   GOVT UPDATES PAGE
+//   GOVT UPDATES PAGE — RSS SYSTEM
 // ═══════════════════════════════════════════
 
 var GU_TYPES = {
@@ -1730,20 +1834,82 @@ var GU_TYPES = {
   result:    { label:"Result",        icon:"🏆", color:"#4ade80" }
 };
 
-var GU_FALLBACK = [
-  { id:1, type:"vacancy",   title:"UPSC Civil Services 2025 – Notification Released (1078 Posts)", org:"Union Public Service Commission", date:"2025-02-15", lastDate:"2025-03-10", link:"https://upsc.gov.in", tags:["UPSC","IAS","Civil Services"] },
-  { id:2, type:"examdate",  title:"SSC CGL Tier-I 2025 Exam Dates Announced", org:"Staff Selection Commission", date:"2025-02-20", examDate:"2025-04-14 to 2025-04-27", link:"https://ssc.nic.in", tags:["SSC","CGL","Tier-I"] },
-  { id:3, type:"admitcard", title:"Railway RRB NTPC Admit Card 2025 Released", org:"Railway Recruitment Board", date:"2025-02-22", examDate:"2025-03-15", link:"https://indianrailways.gov.in", tags:["RRB","NTPC","Railway"] },
-  { id:4, type:"result",    title:"IBPS PO Mains 2024 Result Declared", org:"Institute of Banking Personnel Selection", date:"2025-02-18", link:"https://ibps.in", tags:["IBPS","PO","Banking"] },
-  { id:5, type:"vacancy",   title:"DRDO Scientist B Recruitment 2025 (635 Posts)", org:"Defence Research & Development Organisation", date:"2025-02-10", lastDate:"2025-03-25", link:"https://drdo.gov.in", tags:["DRDO","Scientist","Defence"] },
-  { id:6, type:"examdate",  title:"NEET UG 2025 Exam Date Announced – May 4", org:"National Testing Agency", date:"2025-02-25", examDate:"2025-05-04", link:"https://nta.ac.in", tags:["NTA","NEET","Medical"] },
-  { id:7, type:"admitcard", title:"UPPSC PCS Prelims 2025 Admit Card Available", org:"Uttar Pradesh Public Service Commission", date:"2025-02-28", examDate:"2025-03-22", link:"https://uppsc.up.nic.in", tags:["UPPSC","PCS","State PSC"] },
-  { id:8, type:"result",    title:"SBI PO Mains 2024-25 Final Result Out", org:"State Bank of India", date:"2025-03-01", link:"https://sbi.co.in", tags:["SBI","PO","Banking"] },
-  { id:9, type:"vacancy",   title:"NABARD Grade A & B Recruitment 2025 (102 Posts)", org:"National Bank for Agriculture and Rural Development", date:"2025-03-02", lastDate:"2025-04-01", link:"https://nabard.org", tags:["NABARD","Grade A","Finance"] },
-  { id:10,type:"examdate",  title:"CAT 2025 Exam Window – November 30", org:"IIM Calcutta (CAT Convener)", date:"2025-03-05", examDate:"2025-11-30", link:"https://iimcat.ac.in", tags:["CAT","MBA","IIM"] },
-  { id:11,type:"admitcard", title:"CAPF AC 2025 Admit Card Released", org:"Union Public Service Commission", date:"2025-03-03", examDate:"2025-03-30", link:"https://upsc.gov.in", tags:["UPSC","CAPF","Police"] },
-  { id:12,type:"vacancy",   title:"High Court Allahabad – Law Clerk-cum-Research Assistant (150 Posts)", org:"Allahabad High Court", date:"2025-02-26", lastDate:"2025-03-28", link:"https://allahabadhighcourt.in", tags:["Judiciary","Law Clerk","Court"] }
+// ── RSS feeds via rss2json (free, no key, browser-friendly)
+var GU_R2J = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+// Each feed has a source name + keyword hints to auto-classify type
+var GU_RSS_FEEDS = [
+  { url: GU_R2J + encodeURIComponent('https://www.freshersworld.com/feeds/jobsalert.xml'),           name:'FreshersWorld' },
+  { url: GU_R2J + encodeURIComponent('https://www.sarkarinaukriblog.com/feeds/posts/default'),        name:'Sarkari Naukri' },
+  { url: GU_R2J + encodeURIComponent('https://www.rojgarresult.com/feed/'),                          name:'Rojgar Result' },
+  { url: GU_R2J + encodeURIComponent('https://www.freejobalert.com/feed/'),                          name:'FreeJobAlert' },
+  { url: GU_R2J + encodeURIComponent('https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx'),name:'Employment News' }
 ];
+
+// Keyword-based auto type classifier
+function guClassify(title) {
+  var t = (title||'').toLowerCase();
+  if (/admit card|hall ticket|call letter/.test(t))           return 'admitcard';
+  if (/result|merit list|final list|selected|cut.?off/.test(t)) return 'result';
+  if (/exam date|schedule|timetable|postponed|date sheet/.test(t)) return 'examdate';
+  return 'vacancy';
+}
+
+// Extract org name from title heuristically
+function guExtractOrg(title) {
+  var orgs = ['UPSC','SSC','RRB','IBPS','NTA','DRDO','SBI','RBI','NABARD','TNPSC',
+    'UPPSC','MPSC','BPSC','RPSC','HPSC','UKPSC','JPSC','OPSC','KPSC','GPSC',
+    'Army','Navy','Air Force','Police','Railway','High Court','Supreme Court',
+    'ISRO','HAL','BHEL','ONGC','NTPC','NHM','AIIMS','ESIC','LIC','GIC'];
+  for (var i=0; i<orgs.length; i++) {
+    if ((title||'').toUpperCase().indexOf(orgs[i]) !== -1) return orgs[i];
+  }
+  return '';
+}
+
+// Fallback data shown when all RSS feeds fail
+var GU_FALLBACK = [
+  { id:'f1', type:'vacancy',   title:'UPSC Civil Services 2025 – Notification Released (1078 Posts)', org:'UPSC', date:'2025-02-15', lastDate:'2025-03-10', link:'https://upsc.gov.in', tags:['UPSC','IAS'] },
+  { id:'f2', type:'examdate',  title:'SSC CGL Tier-I 2025 Exam Dates Announced (Apr 14–27)', org:'SSC', date:'2025-02-20', examDate:'Apr 14–27, 2025', link:'https://ssc.nic.in', tags:['SSC','CGL'] },
+  { id:'f3', type:'admitcard', title:'Railway RRB NTPC Admit Card 2025 Released', org:'RRB', date:'2025-02-22', link:'https://indianrailways.gov.in', tags:['RRB','NTPC'] },
+  { id:'f4', type:'result',    title:'IBPS PO Mains 2024 Result Declared', org:'IBPS', date:'2025-02-18', link:'https://ibps.in', tags:['IBPS','PO'] },
+  { id:'f5', type:'vacancy',   title:'DRDO Scientist B Recruitment 2025 (635 Posts)', org:'DRDO', date:'2025-02-10', lastDate:'2025-03-25', link:'https://drdo.gov.in', tags:['DRDO','Scientist'] },
+  { id:'f6', type:'examdate',  title:'NEET UG 2025 Exam Date – May 4', org:'NTA', date:'2025-02-25', examDate:'May 4, 2025', link:'https://nta.ac.in', tags:['NTA','NEET'] },
+  { id:'f7', type:'admitcard', title:'UPPSC PCS Prelims 2025 Admit Card Available', org:'UPPSC', date:'2025-02-28', link:'https://uppsc.up.nic.in', tags:['UPPSC','PCS'] },
+  { id:'f8', type:'result',    title:'SBI PO Mains 2024-25 Final Result Out', org:'SBI', date:'2025-03-01', link:'https://sbi.co.in', tags:['SBI','PO'] },
+  { id:'f9', type:'vacancy',   title:'NABARD Grade A & B Recruitment 2025 (102 Posts)', org:'NABARD', date:'2025-03-02', lastDate:'2025-04-01', link:'https://nabard.org', tags:['NABARD'] },
+  { id:'f10',type:'vacancy',   title:'High Court Allahabad – Law Clerk (150 Posts)', org:'High Court', date:'2025-02-26', lastDate:'2025-03-28', link:'https://allahabadhighcourt.in', tags:['Judiciary'] }
+];
+
+// RSS fetch + parse into GU entry format
+async function guFetchFeed(feed) {
+  var res = await Promise.race([
+    fetch(feed.url),
+    new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 7000); })
+  ]);
+  if (!res.ok) throw new Error('HTTP '+res.status);
+  var data = await res.json();
+  if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('Empty');
+  return data.items.slice(0,20).map(function(item, idx) {
+    var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
+    return {
+      id: feed.name+'_'+idx+'_'+Date.now(),
+      type: guClassify(title),
+      title: title,
+      org: guExtractOrg(title) || feed.name,
+      date: item.pubDate ? item.pubDate.slice(0,10) : new Date().toISOString().slice(0,10),
+      lastDate: null,
+      examDate: null,
+      link: item.link || item.url || '#',
+      tags: [guExtractOrg(title)].filter(Boolean),
+      _rss: true
+    };
+  }).filter(function(e){ return e.title.length > 8; });
+}
+
+// Cache for RSS results
+var guRssCache = null;
+var guLastFetch = 0;
 
 function pgGovtUpdates(){
   var w = el("div",{cls:"fd"});
@@ -1751,92 +1917,105 @@ function pgGovtUpdates(){
   var wrap = el("div",{css:{maxWidth:"780px",margin:"0 auto"}});
 
   // Header
-  var hd = el("div",{css:{textAlign:"center",marginBottom:"28px"}});
+  var hd = el("div",{css:{textAlign:"center",marginBottom:"24px"}});
   hd.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"6px"},txt:"🔔"}));
   hd.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"4px"},txt:"Government Job Updates"}));
-  hd.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Vacancies · Admit Cards · Exam Dates · Results – all in one place"}));
+  hd.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Vacancies · Admit Cards · Exam Dates · Results — live from RSS"}));
   wrap.appendChild(hd);
 
-  // Load stored + fallback data
-  var stored = Sv.get("gu_entries") || [];
-  var allEntries = stored.concat(GU_FALLBACK).sort(function(a,b){ return (b.date||"") > (a.date||"") ? 1 : -1; });
-
-  // Stats bar
-  var counts = {vacancy:0,admitcard:0,examdate:0,result:0};
-  allEntries.forEach(function(e){ if(counts[e.type]!==undefined) counts[e.type]++; });
-  var statsBar = el("div",{cls:"gu-stats-bar"});
-  [["vacancy","📋"],["admitcard","🪪"],["examdate","📅"],["result","🏆"]].forEach(function(r){
-    var t = GU_TYPES[r[0]];
-    var sc = el("div",{cls:"gu-stat"});
-    sc.appendChild(el("div",{css:{fontSize:"1.1rem"}},r[1]));
-    sc.appendChild(el("div",{cls:"gu-stat-num",css:{color:t.color}},String(counts[r[0]])));
-    sc.appendChild(el("div",{cls:"gu-stat-lbl"},t.label));
-    statsBar.appendChild(sc);
-  });
-  wrap.appendChild(statsBar);
-
-  // AI Auto-fetch strip
-  var fetchStrip = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"12px 18px",marginBottom:"20px"}});
-  var liveInfo = el("div",{css:{display:"flex",alignItems:"center",gap:"10px"}});
-  liveInfo.appendChild(el("div",{cls:"gu-live-badge"},[el("div",{cls:"gu-live-dot"}),"AI Auto-Fetch"]));
-  liveInfo.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--muted)"}},"Fetches latest Govt job updates via AI + web"));
-  fetchStrip.appendChild(liveInfo);
-  var fetchBtn = el("button",{cls:"gu-fetch-btn"});
-  fetchBtn.textContent = "🤖 Fetch Latest";
-  fetchBtn.addEventListener("click", function(){ runAIFetch(fetchBtn, activeTab, listWrap); });
-  fetchStrip.appendChild(fetchBtn);
-  wrap.appendChild(fetchStrip);
+  // Status bar (live indicator + refresh button)
+  var statusBar = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"11px 18px",marginBottom:"18px"}});
+  var statusLeft = el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
+  var liveDot = el("div",{cls:"gu-live-dot"});
+  var statusTxt = el("div",{css:{fontSize:".78rem",color:"var(--muted)"},txt:"Loading live updates..."});
+  statusLeft.appendChild(liveDot);
+  statusLeft.appendChild(statusTxt);
+  statusBar.appendChild(statusLeft);
+  var refreshBtn = el("button",{cls:"gu-fetch-btn",onclick:function(){
+    guRssCache = null; guLastFetch = 0;
+    go("govtupdates");
+    toast("🔄 Refreshing...");
+  }},"🔄 Refresh");
+  statusBar.appendChild(refreshBtn);
+  wrap.appendChild(statusBar);
 
   // Search
   var searchBox = el("input",{cls:"gu-search",placeholder:"🔍  Search vacancies, exams, boards..."});
 
-  // Active tab tracker
+  // Tabs + list container
   var activeTab = {v:"all"};
   var listWrap = el("div",{});
+  var allEntries = [];
+
+  // Stats bar (updated after fetch)
+  var statsBar = el("div",{cls:"gu-stats-bar",css:{marginBottom:"18px"}});
+  wrap.appendChild(statsBar);
+
+  function updateStats() {
+    var counts = {vacancy:0,admitcard:0,examdate:0,result:0};
+    allEntries.forEach(function(e){ if(counts[e.type]!==undefined) counts[e.type]++; });
+    statsBar.innerHTML = '';
+    [["vacancy","📋"],["admitcard","🪪"],["examdate","📅"],["result","🏆"]].forEach(function(r){
+      var t = GU_TYPES[r[0]];
+      var sc = el("div",{cls:"gu-stat"});
+      sc.appendChild(el("div",{css:{fontSize:"1.1rem"}},r[1]));
+      sc.appendChild(el("div",{cls:"gu-stat-num",css:{color:t.color}},String(counts[r[0]])));
+      sc.appendChild(el("div",{cls:"gu-stat-lbl"},t.label));
+      statsBar.appendChild(sc);
+    });
+  }
 
   function renderList(){
     var q = searchBox.value.toLowerCase().trim();
     var filtered = allEntries.filter(function(e){
       var typeMatch = activeTab.v === "all" || e.type === activeTab.v;
-      var textMatch = !q || (e.title||"").toLowerCase().indexOf(q)!==-1 || (e.org||"").toLowerCase().indexOf(q)!==-1 || (e.tags||[]).join(" ").toLowerCase().indexOf(q)!==-1;
+      var textMatch = !q ||
+        (e.title||'').toLowerCase().indexOf(q) !== -1 ||
+        (e.org||'').toLowerCase().indexOf(q) !== -1 ||
+        (e.tags||[]).join(' ').toLowerCase().indexOf(q) !== -1;
       return typeMatch && textMatch;
     });
-    listWrap.innerHTML = "";
+    listWrap.innerHTML = '';
     if(!filtered.length){
       var emp = el("div",{cls:"gu-empty"});
-      emp.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"12px"}},GU_TYPES[activeTab.v]?GU_TYPES[activeTab.v].icon:"📭"));
-      emp.appendChild(el("div",{css:{fontWeight:"600",marginBottom:"6px"}},q?"No results for \""+q+"\"":" No entries yet!"));
-      emp.appendChild(el("div",{css:{fontSize:".85rem"}},"Try 'Fetch Latest' or add one manually below."));
+      emp.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"}},activeTab.v!=='all'?(GU_TYPES[activeTab.v]||{icon:'📭'}).icon:'📭'));
+      emp.appendChild(el("div",{css:{fontWeight:"600",marginBottom:"6px"}},q?'No results for "'+q+'"':'Nothing here yet'));
+      emp.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)"}},'Try another tab or refresh'));
       listWrap.appendChild(emp);
       return;
     }
-    filtered.forEach(function(entry){
+    filtered.forEach(function(entry, idx){
       var t = GU_TYPES[entry.type] || GU_TYPES.vacancy;
       var card = el("div",{cls:"gu-card"});
       card.style.setProperty("--gu-color", t.color);
+      card.style.animationDelay = (idx*30)+"ms";
+      // Badge
       var badge = el("span",{cls:"gu-badge"},t.icon+" "+t.label);
-      badge.style.background = t.color+"22";
+      badge.style.background = t.color+"20";
       badge.style.color = t.color;
       card.appendChild(badge);
+      // Title
       card.appendChild(el("div",{cls:"gu-title"},entry.title));
+      // Meta
       var meta = el("div",{cls:"gu-meta"});
       if(entry.org)      meta.appendChild(el("span",{},"🏛 "+entry.org));
       if(entry.date)     meta.appendChild(el("span",{},"📅 "+entry.date));
       if(entry.lastDate) meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
       if(entry.examDate) meta.appendChild(el("span",{css:{color:"#f59e0b"}},"📝 Exam: "+entry.examDate));
       card.appendChild(meta);
+      // Tags
       if(entry.tags && entry.tags.length){
         var tagWrap = el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"10px"}});
-        entry.tags.forEach(function(tag){
+        entry.tags.filter(Boolean).forEach(function(tag){
           tagWrap.appendChild(el("span",{css:{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"99px",padding:"2px 9px",fontSize:".68rem",color:"var(--muted)",fontWeight:"600"}},tag));
         });
         card.appendChild(tagWrap);
       }
+      // Footer
       var foot = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between"}});
-      if(entry.link){
-        foot.appendChild(el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener"},"Apply / View ↗"));
-      } else { foot.appendChild(el("span",{})); }
-      if(entry._user || entry._ai){
+      foot.appendChild(entry.link ? el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener",css:{color:t.color}},"View / Apply ↗") : el("span",{}));
+      // Remove button for manually added entries
+      if(entry._user){
         (function(eid){
           foot.appendChild(el("button",{cls:"btng",css:{fontSize:".72rem",padding:"4px 10px"},onclick:function(){
             var s = Sv.get("gu_entries")||[];
@@ -1851,11 +2030,10 @@ function pgGovtUpdates(){
     });
   }
 
-  // Tab buttons
+  // Tabs
   var tabs = el("div",{cls:"gu-tabs"});
   [["all","🔔 All"],["vacancy","📋 Vacancy"],["admitcard","🪪 Admit Card"],["examdate","📅 Exam Date"],["result","🏆 Result"]].forEach(function(td){
-    var isActive = activeTab.v===td[0];
-    var tb = el("button",{cls:"gu-tab"+(isActive?" gu-active":""),onclick:function(){
+    var tb = el("button",{cls:"gu-tab"+(activeTab.v===td[0]?" gu-active":""),onclick:function(){
       activeTab.v = td[0];
       tabs.querySelectorAll(".gu-tab").forEach(function(b){ b.classList.remove("gu-active"); });
       tb.classList.add("gu-active");
@@ -1868,10 +2046,72 @@ function pgGovtUpdates(){
 
   wrap.appendChild(searchBox);
   wrap.appendChild(tabs);
-  wrap.appendChild(listWrap);
-  renderList();
 
-  // Manual Add Panel (collapsible)
+  // Loading skeleton
+  var skeleton = el("div",{css:{padding:"40px",textAlign:"center",color:"var(--muted)",fontSize:".85rem"}});
+  skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
+  wrap.appendChild(skeleton);
+  wrap.appendChild(listWrap);
+
+  // ── Fetch RSS feeds ──
+  (async function(){
+    // Use cache if less than 10 minutes old
+    if(guRssCache && (Date.now()-guLastFetch) < 600000){
+      allEntries = guRssCache;
+      skeleton.style.display = 'none';
+      updateStats();
+      renderList();
+      statusTxt.textContent = '✅ Live – '+allEntries.length+' updates loaded';
+      return;
+    }
+
+    var fetchedEntries = [];
+    var success = false;
+
+    for(var i=0; i<GU_RSS_FEEDS.length; i++){
+      try {
+        var items = await guFetchFeed(GU_RSS_FEEDS[i]);
+        if(items && items.length){
+          fetchedEntries = fetchedEntries.concat(items);
+          success = true;
+          // Stop after 2 successful feeds to keep it fast
+          if(fetchedEntries.length >= 30) break;
+        }
+      } catch(e){ continue; }
+    }
+
+    // Merge with manually added entries from localStorage
+    var stored = Sv.get("gu_entries") || [];
+
+    if(success && fetchedEntries.length){
+      // Deduplicate by title similarity
+      var seen = {};
+      fetchedEntries = fetchedEntries.filter(function(e){
+        var key = e.title.slice(0,40).toLowerCase();
+        if(seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+      // Sort newest first
+      fetchedEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
+      allEntries = stored.concat(fetchedEntries);
+      guRssCache = allEntries;
+      guLastFetch = Date.now();
+      statusTxt.textContent = '● Live — '+fetchedEntries.length+' updates from RSS';
+      liveDot.style.background = '#4ade80';
+    } else {
+      // All RSS failed — use fallback
+      allEntries = stored.concat(GU_FALLBACK);
+      statusTxt.textContent = '📰 Offline — showing curated data';
+      liveDot.style.background = '#f59e0b';
+    }
+
+    skeleton.style.display = 'none';
+    updateStats();
+    renderList();
+  })();
+
+  // ── Manual Add Panel ──
   var adminToggle = el("div",{css:{marginTop:"28px",marginBottom:"12px",display:"flex",alignItems:"center",gap:"10px",cursor:"pointer",userSelect:"none"},onclick:function(){
     adminPanel.style.display = adminPanel.style.display==="none"?"block":"none";
     arrow.textContent = adminPanel.style.display==="none"?"▶":"▼";
@@ -1893,7 +2133,7 @@ function pgGovtUpdates(){
     var opt = document.createElement("option"); opt.value=o[0]; opt.textContent=o[1]; inpType.appendChild(opt);
   });
   var inpDate  = el("input",{type:"date"});
-  var inpLast  = el("input",{placeholder:"Last Date to Apply (e.g. 2025-04-15) – optional"});
+  var inpLast  = el("input",{placeholder:"Last Date to Apply – optional"});
   var inpExam  = el("input",{placeholder:"Exam Date – optional"});
   var inpLink  = el("input",{placeholder:"Official link (https://...) – optional"});
   var inpTags  = el("input",{placeholder:"Tags – comma separated (e.g. UPSC, IAS)"});
@@ -1902,7 +2142,7 @@ function pgGovtUpdates(){
     var title = inpTitle.value.trim();
     if(!title){ toast("Title is required","#f87171"); return; }
     var entry = {
-      id: Date.now()+"_"+Math.random(),
+      id: Date.now()+"_u",
       _user: true,
       type: inpType.value,
       title: title,
@@ -1916,6 +2156,7 @@ function pgGovtUpdates(){
     var s = Sv.get("gu_entries")||[];
     s.unshift(entry);
     Sv.set("gu_entries", s);
+    guRssCache = null; // clear cache so new entry shows
     go("govtupdates");
     toast("✅ Entry added!");
   }},"➕ Add Entry");
@@ -1924,51 +2165,6 @@ function pgGovtUpdates(){
   wrap.appendChild(adminPanel);
   w.appendChild(wrap);
   return w;
-}
-
-async function runAIFetch(btn, activeTab, listWrap){
-  btn.disabled = true;
-  btn.textContent = "⏳ Fetching...";
-  try {
-    var today = new Date().toISOString().slice(0,10);
-    var res = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:1000,
-        tools:[{type:"web_search_20250305",name:"web_search"}],
-        messages:[{role:"user",content:"Search for the latest Indian government job notifications, admit cards released, exam dates announced, and results declared in 2025. Find at least 6 recent updates from UPSC, SSC, RRB, IBPS, NTA, state PSCs, DRDO, defence, banking etc. Return ONLY a valid JSON array, no markdown, no explanation. Each object must have: type (one of vacancy/admitcard/examdate/result), title (string), org (string), date (YYYY-MM-DD or today "+today+"), lastDate (string or null), examDate (string or null), link (string or null), tags (array of strings)."}]
-      })
-    });
-    var data = await res.json();
-    var text = (data.content||[]).map(function(c){return c.type==="text"?c.text:"";}).join("");
-    var clean = text.replace(/```json|```/g,"").trim();
-    var start = clean.indexOf("["), end = clean.lastIndexOf("]");
-    if(start===-1||end===-1) throw new Error("No JSON");
-    var fetched = JSON.parse(clean.slice(start, end+1));
-    var stored = Sv.get("gu_entries")||[];
-    var added = 0;
-    fetched.forEach(function(e){
-      if(!stored.find(function(s){return s.title===e.title;})){
-        e.id = Date.now()+"_"+Math.random();
-        e._ai = true;
-        stored.unshift(e);
-        added++;
-      }
-    });
-    if(added){
-      Sv.set("gu_entries", stored);
-      go("govtupdates");
-      toast("🎉 "+added+" new updates fetched!");
-    } else {
-      toast("✅ Already up to date!");
-    }
-  } catch(err){
-    toast("⚠️ Fetch failed – check your connection","#f59e0b");
-  }
-  btn.disabled = false;
-  btn.textContent = "🤖 Fetch Latest";
 }
 
 render();
