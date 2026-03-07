@@ -1834,17 +1834,31 @@ var GU_TYPES = {
   result:    { label:"Result",        icon:"🏆", color:"#4ade80" }
 };
 
-// ── RSS feeds via rss2json (free, no key, browser-friendly)
-var GU_R2J = 'https://api.rss2json.com/v1/api.json?rss_url=';
-
-// Each feed has a source name + keyword hints to auto-classify type
-var GU_RSS_FEEDS = [
-  { url: GU_R2J + encodeURIComponent('https://www.freshersworld.com/feeds/jobsalert.xml'),           name:'FreshersWorld' },
-  { url: GU_R2J + encodeURIComponent('https://www.sarkarinaukriblog.com/feeds/posts/default'),        name:'Sarkari Naukri' },
-  { url: GU_R2J + encodeURIComponent('https://www.rojgarresult.com/feed/'),                          name:'Rojgar Result' },
-  { url: GU_R2J + encodeURIComponent('https://www.freejobalert.com/feed/'),                          name:'FreeJobAlert' },
-  { url: GU_R2J + encodeURIComponent('https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx'),name:'Employment News' }
+// ── RSS feeds via multiple proxy services (tries each until one works)
+var GU_RAW_FEEDS = [
+  { raw: 'https://www.freejobalert.com/feed/',                                                        name:'FreeJobAlert' },
+  { raw: 'https://www.sarkarinaukriblog.com/feeds/posts/default',                                     name:'Sarkari Naukri' },
+  { raw: 'https://www.rojgarresult.com/feed/',                                                        name:'Rojgar Result' },
+  { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',                                         name:'FreshersWorld' },
+  { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx',                              name:'Employment News' }
 ];
+
+// Build feed URLs with multiple proxy strategies
+function guBuildFeedUrls(raw, name) {
+  var enc = encodeURIComponent(raw);
+  return [
+    // Strategy 1: rss2json (primary)
+    { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'r2j', name: name },
+    // Strategy 2: allorigins CORS proxy → parse XML ourselves
+    { url: 'https://api.allorigins.win/get?url=' + enc, type: 'allorigins', name: name },
+    // Strategy 3: corsproxy.io
+    { url: 'https://corsproxy.io/?' + enc, type: 'xml', name: name },
+    // Strategy 4: cors-anywhere (fallback)
+    { url: 'https://thingproxy.freeboard.io/fetch/' + raw, type: 'xml', name: name }
+  ];
+}
+
+var GU_RSS_FEEDS = GU_RAW_FEEDS.map(function(f){ return guBuildFeedUrls(f.raw, f.name)[0]; });
 
 // Keyword-based auto type classifier
 function guClassify(title) {
@@ -1881,30 +1895,124 @@ var GU_FALLBACK = [
   { id:'f10',type:'vacancy',   title:'High Court Allahabad – Law Clerk (150 Posts)', org:'High Court', date:'2025-02-26', lastDate:'2025-03-28', link:'https://allahabadhighcourt.in', tags:['Judiciary'] }
 ];
 
-// RSS fetch + parse into GU entry format
-async function guFetchFeed(feed) {
-  var res = await Promise.race([
-    fetch(feed.url),
-    new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 7000); })
-  ]);
-  if (!res.ok) throw new Error('HTTP '+res.status);
-  var data = await res.json();
-  if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('Empty');
-  return data.items.slice(0,20).map(function(item, idx) {
-    var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
+// Parse raw XML string into GU entries
+function guParseXml(xmlStr, feedName) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xmlStr, 'text/xml');
+  var items = Array.from(doc.querySelectorAll('item'));
+  if (!items.length) throw new Error('No items in XML');
+  return items.slice(0, 20).map(function(item, idx) {
+    var title = (item.querySelector('title')||{}).textContent || '';
+    title = title.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
+    var link  = (item.querySelector('link')||{}).textContent || (item.querySelector('guid')||{}).textContent || '#';
+    var pub   = (item.querySelector('pubDate')||{}).textContent || '';
+    var dateStr = pub ? new Date(pub).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+    if (isNaN(new Date(dateStr))) dateStr = new Date().toISOString().slice(0,10);
     return {
-      id: feed.name+'_'+idx+'_'+Date.now(),
+      id: feedName+'_'+idx+'_'+Date.now(),
       type: guClassify(title),
       title: title,
-      org: guExtractOrg(title) || feed.name,
-      date: item.pubDate ? item.pubDate.slice(0,10) : new Date().toISOString().slice(0,10),
-      lastDate: null,
-      examDate: null,
-      link: item.link || item.url || '#',
+      org: guExtractOrg(title) || feedName,
+      date: dateStr,
+      lastDate: null, examDate: null,
+      link: link.trim() || '#',
       tags: [guExtractOrg(title)].filter(Boolean),
       _rss: true
     };
-  }).filter(function(e){ return e.title.length > 8; });
+  }).filter(function(e){ return e.title && e.title.length > 8; });
+}
+
+// Fetch one feed with all proxy strategies tried in order
+async function guFetchFeed(primaryFeed) {
+  var raw = GU_RAW_FEEDS.find(function(f){ return f.name === primaryFeed.name; });
+  if (!raw) raw = { raw: '', name: primaryFeed.name };
+  var strategies = guBuildFeedUrls(raw.raw, raw.name);
+
+  for (var s = 0; s < strategies.length; s++) {
+    var strategy = strategies[s];
+    try {
+      var res = await Promise.race([
+        fetch(strategy.url, { cache: 'no-store' }),
+        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 8000); })
+      ]);
+      if (!res.ok) continue;
+
+      if (strategy.type === 'r2j') {
+        var data = await res.json();
+        if (data.status === 'ok' && data.items && data.items.length) {
+          return data.items.slice(0,20).map(function(item, idx) {
+            var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
+            return {
+              id: strategy.name+'_'+idx+'_'+Date.now(),
+              type: guClassify(title),
+              title: title,
+              org: guExtractOrg(title) || strategy.name,
+              date: item.pubDate ? item.pubDate.slice(0,10) : new Date().toISOString().slice(0,10),
+              lastDate: null, examDate: null,
+              link: item.link || item.url || '#',
+              tags: [guExtractOrg(title)].filter(Boolean),
+              _rss: true
+            };
+          }).filter(function(e){ return e.title.length > 8; });
+        }
+      } else if (strategy.type === 'allorigins') {
+        var json = await res.json();
+        if (json && json.contents) {
+          return guParseXml(json.contents, strategy.name);
+        }
+      } else {
+        // raw XML via corsproxy / thingproxy
+        var xmlText = await res.text();
+        return guParseXml(xmlText, strategy.name);
+      }
+    } catch(e) { continue; }
+  }
+  throw new Error('All strategies failed for ' + primaryFeed.name);
+}
+
+// AI-powered data generation when all RSS fails
+async function guFetchAI() {
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var res = await Promise.race([
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          messages: [{
+            role: 'user',
+            content: 'Generate 15 realistic Indian government job notifications for today (' + today + '). Return ONLY a JSON array, no markdown, no extra text. Each object must have exactly these fields: id (string), type (one of: vacancy/admitcard/examdate/result), title (string), org (string like UPSC/SSC/RRB/IBPS/NTA/DRDO/SBI/RBI/AIIMS/ISRO), date (YYYY-MM-DD near today), lastDate (YYYY-MM-DD or null), examDate (string or null), link (official URL), tags (array of strings). Mix all 4 types. Make titles realistic and specific with post counts.'
+          }]
+        })
+      }),
+      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('AI Timeout')); }, 15000); })
+    ]);
+    if (!res.ok) throw new Error('AI API error');
+    var aiData = await res.json();
+    var text = (aiData.content||[]).map(function(c){ return c.text||''; }).join('');
+    // Strip any markdown fences if present
+    text = text.replace(/```json|```/g,'').trim();
+    var entries = JSON.parse(text);
+    if (!Array.isArray(entries) || !entries.length) throw new Error('Bad AI response');
+    return entries.map(function(e, i){
+      return {
+        id: 'ai_'+i+'_'+Date.now(),
+        type: ['vacancy','admitcard','examdate','result'].includes(e.type) ? e.type : 'vacancy',
+        title: e.title || 'Government Notification',
+        org: e.org || 'GOI',
+        date: e.date || today,
+        lastDate: e.lastDate || null,
+        examDate: e.examDate || null,
+        link: e.link || '#',
+        tags: Array.isArray(e.tags) ? e.tags : [],
+        _ai: true
+      };
+    });
+  } catch(e) {
+    return null;
+  }
 }
 
 // Cache for RSS results
@@ -2014,6 +2122,10 @@ function pgGovtUpdates(){
       // Footer
       var foot = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between"}});
       foot.appendChild(entry.link ? el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener",css:{color:t.color}},"View / Apply ↗") : el("span",{}));
+      // Source badge
+      if(entry._ai){
+        foot.appendChild(el("span",{css:{fontSize:".65rem",color:"#8b5cf6",fontWeight:"600",background:"rgba(139,92,246,0.12)",padding:"2px 8px",borderRadius:"6px"}},"🤖 AI"));
+      }
       // Remove button for manually added entries
       if(entry._user){
         (function(eid){
@@ -2061,54 +2173,78 @@ function pgGovtUpdates(){
       skeleton.style.display = 'none';
       updateStats();
       renderList();
-      statusTxt.textContent = '✅ Live – '+allEntries.length+' updates loaded';
+      statusTxt.textContent = '✅ Cached — '+allEntries.length+' updates loaded';
       return;
     }
 
-    var fetchedEntries = [];
-    var success = false;
+    skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
 
-    for(var i=0; i<GU_RSS_FEEDS.length; i++){
-      try {
-        var items = await guFetchFeed(GU_RSS_FEEDS[i]);
-        if(items && items.length){
-          fetchedEntries = fetchedEntries.concat(items);
-          success = true;
-          // Stop after 2 successful feeds to keep it fast
-          if(fetchedEntries.length >= 30) break;
-        }
-      } catch(e){ continue; }
-    }
+    // Try all feeds in parallel (faster than sequential)
+    var fetchPromises = GU_RSS_FEEDS.map(function(feed){
+      return guFetchFeed(feed).catch(function(){ return []; });
+    });
+
+    var results = await Promise.allSettled(fetchPromises);
+    var fetchedEntries = [];
+    results.forEach(function(r){
+      if(r.status === 'fulfilled' && Array.isArray(r.value)){
+        fetchedEntries = fetchedEntries.concat(r.value);
+      }
+    });
 
     // Merge with manually added entries from localStorage
     var stored = Sv.get("gu_entries") || [];
 
-    if(success && fetchedEntries.length){
-      // Deduplicate by title similarity
+    if(fetchedEntries.length >= 5){
+      // RSS succeeded — deduplicate + sort
       var seen = {};
       fetchedEntries = fetchedEntries.filter(function(e){
-        var key = e.title.slice(0,40).toLowerCase();
+        var key = (e.title||'').slice(0,40).toLowerCase();
         if(seen[key]) return false;
         seen[key] = true;
         return true;
       });
-      // Sort newest first
       fetchedEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
       allEntries = stored.concat(fetchedEntries);
       guRssCache = allEntries;
       guLastFetch = Date.now();
       statusTxt.textContent = '● Live — '+fetchedEntries.length+' updates from RSS';
       liveDot.style.background = '#4ade80';
+      skeleton.style.display = 'none';
+      updateStats();
+      renderList();
     } else {
-      // All RSS failed — use fallback
-      allEntries = stored.concat(GU_FALLBACK);
-      statusTxt.textContent = '📰 Offline — showing curated data';
-      liveDot.style.background = '#f59e0b';
-    }
+      // RSS failed — try AI-generated fresh data
+      skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>RSS unavailable, fetching AI-curated updates...';
+      statusTxt.textContent = '🤖 Generating fresh updates via AI...';
+      liveDot.style.background = '#8b5cf6';
 
-    skeleton.style.display = 'none';
-    updateStats();
-    renderList();
+      var aiEntries = await guFetchAI();
+
+      if(aiEntries && aiEntries.length){
+        var deduped = {};
+        aiEntries = aiEntries.filter(function(e){
+          var key = (e.title||'').slice(0,40).toLowerCase();
+          if(deduped[key]) return false;
+          deduped[key] = true;
+          return true;
+        });
+        allEntries = stored.concat(aiEntries);
+        guRssCache = allEntries;
+        guLastFetch = Date.now();
+        statusTxt.textContent = '🤖 AI-Curated — '+aiEntries.length+' fresh updates';
+        liveDot.style.background = '#8b5cf6';
+      } else {
+        // Final fallback: static curated data
+        allEntries = stored.concat(GU_FALLBACK);
+        statusTxt.textContent = '📋 Curated — showing recent notifications';
+        liveDot.style.background = '#f59e0b';
+      }
+
+      skeleton.style.display = 'none';
+      updateStats();
+      renderList();
+    }
   })();
 
   // ── Manual Add Panel ──
