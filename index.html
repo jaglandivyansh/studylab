@@ -7,28 +7,27 @@
 
 <!-- 
 ═══════════════════════════════════════════════════════════════════
-STUDYLAB - FIXED VERSION (All Critical Issues Resolved)
+STUDYLAB - CREATOR EDITION (Simple Admin Access)
 ═══════════════════════════════════════════════════════════════════
-✅ Live RSS feeds enabled for Current Affairs
-✅ Live RSS feeds enabled for Government Updates
-✅ Automatic fallback to offline data if feeds fail
-✅ Hamburger menu closes automatically after clicking
-✅ Guest authentication system (FIXED - no more broken Google Sign-In)
-✅ Secure feedback system (API endpoint removed from public code)
-✅ PWA support added (install as mobile app)
-✅ Global error handling implemented
-✅ All progress saved locally in localStorage
+✅ All features from fixed version
+✅ Simple password-protected admin mode
+✅ Console access to all data
+✅ No complex UI to break
+
+👑 ADMIN ACCESS:
+   1. Triple-click "Created by Aman" at bottom of any page
+   2. Enter password: admin2026
+   3. Check browser console (F12) for admin commands
+   4. Full access to: localStorage, QD, Sv, SUBJ
+
+🔧 Admin Powers (via Console):
+   - View all questions: console.log(QD)
+   - Export data: JSON.stringify(localStorage)
+   - Add questions: QD.History.push({q:"...", o:[], c:0})
+   - Clear data: localStorage.clear()
+   - View user stats: console.log(Sv.get("hist"))
 
 ⚠️ IMPORTANT: This version requires hosting on a web server
-   - Deploy to Vercel, Netlify, GitHub Pages, etc.
-   - OR run locally: python -m http.server 8000
-   - Will NOT work if opened directly as file:// (CORS errors)
-
-🔧 CONFIGURATION (Optional):
-   - To enable feedback backend: Set window.STUDYLAB_FEEDBACK_URL in your deployment
-   - Example: window.STUDYLAB_FEEDBACK_URL = "https://your-api.com/feedback"
-
-For offline use, use the index_fixed.html version instead.
 ═══════════════════════════════════════════════════════════════════
 -->
 
@@ -1008,6 +1007,43 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 <div class="theme-toggle" id="themeToggle" title="Toggle theme">☀️</div>
 
 <script>
+// ==========================================
+// 1. CORE UTILITIES (REQUIRED)
+// ==========================================
+var page = 'home';
+var sub = null;
+
+// The 'el' function builds all HTML elements dynamically
+function el(tag, props, children) {
+  var e = document.createElement(tag);
+  if (props) {
+    if (props.cls) e.className = props.cls;
+    if (props.id) e.id = props.id;
+    if (props.txt) e.innerText = props.txt;
+    if (props.css) Object.assign(e.style, props.css);
+    if (props.onclick) e.onclick = props.onclick;
+    if (props.type) e.type = props.type;
+    if (props.placeholder) e.placeholder = props.placeholder;
+    if (props.value) e.value = props.value;
+    if (props.href) e.href = props.href;
+  }
+  if (children) {
+    if (Array.isArray(children)) {
+      children.forEach(function(c) { if (c) e.appendChild(c); });
+    }
+    else if (typeof children === 'string') e.innerText = children;
+    else e.appendChild(children);
+  }
+  return e;
+}
+
+// The 'go' function handles routing between pages
+function go(p, s) {
+  page = p;
+  sub = s || null;
+  if(typeof render === 'function') render();
+  window.scrollTo(0, 0);
+}
 window.currentUser = null;
 
 function toast(msg, color) {
@@ -1221,21 +1257,38 @@ async function loadCATab(tabId) {
   if (caActiveTab === tabId) renderCurrentAffairs(fallback, false, tabId);
 }
 
-async function loadCurrentAffairs() {
-  const container = document.getElementById('current-affairs-container');
-  if (!container) return;
-  container.innerHTML = `
-    <div class="news-header">
-      <h2>Daily <span>Current Affairs</span></h2>
-      <div class="news-live-badge"><span class="ca-live-dot"></span>Loading...</div>
-    </div>
-    <div style="padding:40px;text-align:center;color:var(--muted);font-size:.85rem">
-      <div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live news...
-    </div>`;
-  caCache = {};
-  await loadCATab(caActiveTab);
-  // Pre-fetch remaining tabs in background (no await)
-  CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
+// ==========================================
+// 3. SAFE CURRENT AFFAIRS FETCHING
+// ==========================================
+function loadCurrentAffairs() {
+  var container = document.getElementById('current-affairs-container');
+  if (!container) return; // Exit if container doesn't exist
+  
+  // Try to fetch live data
+  fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.thehindu.com/news/national/feeder/default.rss')
+    .then(function(response) {
+      if (!response.ok) throw new Error("Rate limited or offline");
+      return response.json();
+    })
+    .then(function(data) {
+      if (data && data.items) {
+        // Successfully got live data
+        if(typeof renderCurrentAffairs === 'function') {
+            renderCurrentAffairs(data.items, true);
+        }
+      } else {
+        throw new Error("Invalid format");
+      }
+    })
+    .catch(function(error) {
+      console.warn("Live feed failed, using offline fallback:", error);
+      // Fallback to offline cache
+      if(typeof renderCurrentAffairs === 'function' && typeof caCache !== 'undefined') {
+          renderCurrentAffairs(caCache.articles, false);
+      } else {
+          container.innerHTML = "<p style='text-align:center; padding: 20px;'>Failed to load Current Affairs. Check your connection.</p>";
+      }
+    });
 }
 // ========================================
 // MOBILE DRAWER & HAMBURGER LOGIC
@@ -1362,7 +1415,19 @@ if (document.readyState === 'loading') {
 window.currentUser = null;
 </script>
 <script>
-var QD=JSON.parse(document.getElementById("QD").textContent);
+// ==========================================
+// 2. SAFE DATABASE LOADING
+// ==========================================
+var QD = {};
+try {
+  var qdContent = document.getElementById("QD").textContent;
+  QD = JSON.parse(qdContent);
+} catch (error) {
+  console.error("FATAL ERROR: Your Question Database (QD) has a syntax error!", error);
+  // Provide empty fallback objects so the app doesn't completely crash
+  QD = { History: [], Geography: [], Polity: [] }; 
+  alert("Error loading question database. Check console for details.");
+}
 var SUBJ=["History","Geography","Polity","Economy","Science","GK"];
 var ICON={History:"\uD83C\uDFDB\uFE0F",Geography:"\uD83C\uDF0D",Polity:"\u2696\uFE0F",Economy:"\uD83D\uDCCA",Science:"\uD83D\uDD2C",GK:"\uD83D\uDCA1"};
 var AC={History:"#d97706",Geography:"#059669",Polity:"#7c3aed",Economy:"#db2777",Science:"#0891b2",GK:"#65a30d"};
@@ -1396,15 +1461,34 @@ var Sv={
   }
 };
 
-// ── GUEST USER SYSTEM ──
+// ── ADMIN & USER SYSTEM ──
+window.ADMIN_PASSWORD = "Rishilal@1980"; // Change this!
+window.isAdmin = localStorage.getItem("is_admin") === "true" || false;
 window.currentUser = Sv.get("guest_user") || null;
+
 window.signOut = function() {
   if(confirm("Sign out of StudyLab?")) {
     Sv.set("guest_user", null);
+    localStorage.setItem("is_admin", "false");
     window.currentUser = null;
+    window.isAdmin = false;
     toast("Signed out successfully");
     render();
   }
+};
+
+window.enableAdminMode = function() {
+  var pwd = prompt("🔐 Enter Admin Password:");
+  if(pwd === window.ADMIN_PASSWORD) {
+    window.isAdmin = true;
+    localStorage.setItem("is_admin", "true");
+    toast("✅ Admin mode enabled!", "#4ade80");
+    alert("Admin features:\n\n1. Triple-click footer to test\n2. Check console for admin powers\n3. Full database access\n\nMore features coming soon!");
+    return true;
+  } else if(pwd) {
+    toast("❌ Wrong password!", "#f87171");
+  }
+  return false;
 };
 function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
 var tt;
@@ -1741,7 +1825,29 @@ function pgHome(){
   frl.appendChild(makeLogo(22));
   frl.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"StudyLab \u00b7 Your AI Study Partner"}));
   ft.appendChild(frl);
-  ft.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"Created by Aman | AI-assisted development"}));
+  var footerCredit = el("div",{css:{fontSize:".75rem",color:"var(--subtle)",cursor:"pointer"}});
+  footerCredit.textContent = "Created by Aman | AI-assisted development";
+  footerCredit.title = "Triple-click for admin access";
+  var clicks = 0;
+  footerCredit.onclick = function(){
+    clicks++;
+    if(clicks === 3){
+      clicks = 0;
+      if(window.isAdmin){
+        console.log("👑 ADMIN MODE ACTIVE");
+        console.log("Available commands:");
+        console.log("- localStorage (full access)");
+        console.log("- QD (all questions)");
+        console.log("- Sv (storage functions)");
+        console.log("- SUBJ (all subjects)");
+        toast("Already admin! Check console 👑","#f59e0b");
+      } else {
+        window.enableAdminMode();
+      }
+    }
+    setTimeout(function(){clicks=0;},2000);
+  };
+  ft.appendChild(footerCredit);
   w.appendChild(ft);
   return w;
 }
