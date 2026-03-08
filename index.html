@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>StudyLab — Free Online Masterclass for History, Geography & Polity</title>
 
+<!-- 
+═══════════════════════════════════════════════════════════════════
+STUDYLAB - ONLINE VERSION (Live Feeds Enabled)
+═══════════════════════════════════════════════════════════════════
+✅ Live RSS feeds enabled for Current Affairs
+✅ Live RSS feeds enabled for Government Updates
+✅ Automatic fallback to offline data if feeds fail
+✅ Hamburger menu closes automatically after clicking
+
+⚠️ IMPORTANT: This version requires hosting on a web server
+   - Deploy to Vercel, Netlify, GitHub Pages, etc.
+   - OR run locally: python -m http.server 8000
+   - Will NOT work if opened directly as file:// (CORS errors)
+
+For offline use, use the index_fixed.html version instead.
+═══════════════════════════════════════════════════════════════════
+-->
+
 <!-- ═══ SEO META TAGS ═══ -->
 <meta name="description" content="StudyLab is your free online study partner for competitive exams. Practice thousands of curated questions on History, Geography, Polity and more. Track your progress daily." />
 <meta name="keywords" content="StudyLab, online study, free study app, history questions, geography quiz, polity practice, competitive exam, UPSC, SSC, RRB, government exam, daily practice, study tracker" />
@@ -1100,12 +1118,7 @@ function formatDate(dateStr) {
     return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
   } catch(e) { return ''; }
 }
-function escapeHTML(str) {
-  return (str || '').replace(/[&<>'"]/g, function(tag) {
-    var charsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
-    return charsToReplace[tag] || tag;
-  });
-}
+
 function renderCurrentAffairs(articles, isLive, tabId) {
   const container = document.getElementById('current-affairs-container');
   if (!container) return;
@@ -1119,19 +1132,19 @@ function renderCurrentAffairs(articles, isLive, tabId) {
       ${t.label}
     </button>`).join('');
 
- // Build cards HTML
+  // Build cards HTML
   let cardsHTML = articles.slice(0, 10).map((a, i) => `
     <div class="news-card ca-card" style="animation-delay:${i*40}ms">
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <div class="news-source" style="color:${tab.color}">${escapeHTML(a.source)}</div>
-          ${a.pubDate ? `<div style="font-size:.65rem;color:var(--subtle);font-weight:600;">${formatDate(a.pubDate)}</div>` : ''}
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="news-source" style="color:${tab.color}">${a.source}</div>
+          ${a.pubDate ? `<div style="font-size:.65rem;color:var(--subtle)">${formatDate(a.pubDate)}</div>` : ''}
         </div>
-        <div class="news-title">${escapeHTML(a.title)}</div>
+        <div class="news-title">${a.title}</div>
       </div>
-      <a href="${a.url}" target="_blank" rel="noopener" class="news-btn" style="color:${tab.color}; margin-top:12px;">Read Full Story ↗</a>
+      <a href="${a.url}" target="_blank" rel="noopener" class="news-btn" style="color:${tab.color}">Read Full Story ↗</a>
     </div>`).join('');
-	
+
   container.innerHTML = `
     <div class="news-header" style="margin-bottom:14px">
       <h2>Daily <span>Current Affairs</span></h2>
@@ -1194,8 +1207,8 @@ async function loadCurrentAffairs() {
     </div>`;
   caCache = {};
   await loadCATab(caActiveTab);
-  // Background pre-fetching removed to prevent rate limiting 
-  // Tabs will lazy-load on click
+  // Pre-fetch remaining tabs in background (no await)
+  CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
 }
 // ========================================
 // MOBILE DRAWER & HAMBURGER LOGIC
@@ -1222,17 +1235,6 @@ function toggleMobileDrawer() {
         hamburgerBtn.classList.add('active');
         hamburgerBtn.setAttribute('aria-expanded', 'true');
     }
-  }
-}
-
-function closeMobileDrawer() {
-  const hamburgerBtn = document.getElementById('nb-hamburger');
-  const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  if (!mobileDrawer) return;
-  mobileDrawer.classList.remove('open');
-  if (hamburgerBtn) {
-    hamburgerBtn.classList.remove('active');
-    hamburgerBtn.setAttribute('aria-expanded', 'false');
   }
 }
 
@@ -1264,13 +1266,13 @@ var ThemeManager = {
     }
     this.applyTheme();
     
-    var toggles = document.querySelectorAll('#themeToggle, .theme-toggle');
-    var self = this;
-    toggles.forEach(function(toggle) {
+    var toggle = document.getElementById('themeToggle');
+    if (toggle) {
+      var self = this;
       toggle.onclick = function() {
         self.toggle();
       };
-    });
+    }
   },
   
   toggle: function() {
@@ -1281,16 +1283,16 @@ var ThemeManager = {
   
   applyTheme: function() {
     var root = document.documentElement;
-    var toggles = document.querySelectorAll('#themeToggle, .theme-toggle');
     if (this.isDark) {
       root.setAttribute('data-theme', 'dark');
-      toggles.forEach(function(t) { t.innerText = '☀️'; });
+      document.getElementById('themeToggle').innerText = '☀️';
     } else {
       root.setAttribute('data-theme', 'light');
-      toggles.forEach(function(t) { t.innerText = '🌙'; });
+      document.getElementById('themeToggle').innerText = '🌙';
     }
   }
 };
+
 // Start application
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
@@ -1358,7 +1360,18 @@ function el(t,p,ch){
 }
 
 var pg="home",sub=null;
-function go(p,s){pg=p;if(s!==undefined)sub=s;render();window.scrollTo(0,0);}
+function closeMobileDrawer(){
+  var drawer = document.getElementById("nb-mobile-drawer");
+  var hamburgerBtn = document.getElementById('nb-hamburger');
+  if(drawer) {
+    drawer.classList.remove("open");
+  }
+  if(hamburgerBtn) {
+    hamburgerBtn.classList.remove('active');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+  }
+}
+function go(p,s){pg=p;if(s!==undefined)sub=s;render();window.scrollTo(0,0);closeMobileDrawer();}
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
 if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
 if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
@@ -1635,12 +1648,11 @@ function pgHome(){
     Sv.set("fb_done",true);
     var btn=fb.querySelector(".btnp");if(btn){btn.textContent="Sending...";btn.disabled=true;}
     fetch("https://sheetdb.io/api/v1/i8ecj767f19et",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({data:{Date:new Date().toLocaleString("en-IN"),Rating:selRating+" stars",Message:selMsg||"(no message)"}})
-      })
-      .then(function(res){
-         if(!res.ok) throw new Error("API Error");
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data:{Date:new Date().toLocaleString("en-IN"),Rating:selRating+" stars",Message:selMsg||"(no message)"}})
+    })
+    .then(function(){
       toast("Thank you for your feedback! \u2764\uFE0F");
       fb.innerHTML="";
       fb.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"},txt:"\uD83C\uDF89"}));
@@ -1699,11 +1711,11 @@ function pgSub(){
 
 function pgFC(){
   var s=sub,ac=AC[s],allQ=QD[s]||[];
+  var pool=shuf(allQ),idx=0,fl=false,srch="",tab="browse";
   var sv=Sv.get("fc_"+s)||{c:[],k:{}};var custom=sv.c,known=sv.k;
-  var pool=shuf(allQ.concat(custom)),idx=0,fl=false,srch="",tab="browse";
   function persist(){Sv.set("fc_"+s,{c:custom,k:known});}
   var w=el("div",{css:{maxWidth:"700px",margin:"0 auto"}});
-function getF(){var sc=srch.trim().toLowerCase();return sc?pool.map(function(q){return{id:q.q,q:q.q,a:q.o?q.o[q.a]:q.a};}).filter(function(c){return c.q.toLowerCase().indexOf(sc)>=0||c.a.toLowerCase().indexOf(sc)>=0;}):pool.map(function(q){return{id:q.q,q:q.q,a:q.o?q.o[q.a]:q.a};});}
+  function getF(){var sc=srch.trim().toLowerCase();return sc?pool.map(function(q){return{id:q.q.slice(0,35),q:q.q,a:q.o[q.a]};}).filter(function(c){return c.q.toLowerCase().indexOf(sc)>=0||c.a.toLowerCase().indexOf(sc)>=0;}):pool.map(function(q){return{id:q.q.slice(0,35),q:q.q,a:q.o[q.a]};});}
   function build(){
     w.innerHTML="";
     var fc=getF(),si=fc.length?idx%fc.length:0,card=fc[si]||null,isK=card&&known[card.id];
@@ -1848,11 +1860,7 @@ function pgDaily(){
   var allQ=[];
   SUBJ.forEach(function(s){(QD[s]||[]).forEach(function(q){allQ.push({q:q.q,o:q.o,a:q.a,subj:s});});});
   var dayIdx=Math.floor(Date.now()/86400000);
-function seededRandom(seed) {
-    var x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-}
-var todayQ=allQ[Math.floor(seededRandom(dayIdx) * allQ.length)];
+  var todayQ=allQ[dayIdx%allQ.length];
   var todayKey="daily_"+dayIdx;
   var done=Sv.get(todayKey);
   var streak=Sv.get("streak")||{count:0,last:0};
@@ -1908,11 +1916,9 @@ var todayQ=allQ[Math.floor(seededRandom(dayIdx) * allQ.length)];
         if(correct){
           if(streak.last===yday)streak.count++;
           else if(streak.last!==todayDay)streak.count=1;
-        } else {
-          streak.count=0;
+          streak.last=todayDay;
+          Sv.set("streak",streak);
         }
-        streak.last=todayDay;
-        Sv.set("streak",streak);
         Sv.set(todayKey,{chosen:i,correct:correct});
         done={chosen:i,correct:correct};
         build();
@@ -2320,505 +2326,466 @@ function pgAbout(){
 }
 
 // ═══════════════════════════════════════════
-//   SARKARI NAUKRI PORTAL — FULL INTEGRATION
+//   GOVT UPDATES PAGE — RSS SYSTEM
 // ═══════════════════════════════════════════
 
-// ─── SEED DATA ───────────────────────────────────────────────────────────────
-var SN_DATA = [
-  { id:1, category:"UPSC", org:"Union Public Service Commission", post:"Civil Services (IAS/IPS/IFS)", vacancies:1056, qualification:"Graduate", startDate:"2025-02-01", lastDate:"2025-06-18", examDate:"2025-05-25", state:"Central", payScale:"₹56,100–₹2,50,000", payMin:56100, isStenoPost:false, status:"active" },
-  { id:2, category:"UPSC", org:"Union Public Service Commission", post:"Stenographer Grade C & D", vacancies:312, qualification:"12th Pass", startDate:"2025-01-15", lastDate:"2025-08-28", examDate:"2025-09-20", state:"Central", payScale:"₹25,500–₹81,100", payMin:25500, isStenoPost:true, stenoSpeed:"Grade C: 120 WPM | Grade D: 80 WPM", stenoTest:"Skill Test in Stenography (English/Hindi)", status:"active" },
-  { id:3, category:"Banking", org:"IBPS", post:"PO / MT (Probationary Officer)", vacancies:4455, qualification:"Graduate", startDate:"2025-02-10", lastDate:"2025-06-25", examDate:"2025-05-10", state:"Central", payScale:"₹41,960–₹51,490", payMin:41960, isStenoPost:false, status:"active" },
-  { id:4, category:"Banking", org:"State Bank of India", post:"SBI Clerk (Junior Associate)", vacancies:13735, qualification:"Graduate", startDate:"2025-01-20", lastDate:"2025-07-05", examDate:"2025-04-15", state:"Central", payScale:"₹26,000–₹34,000", payMin:26000, isStenoPost:false, status:"active" },
-  { id:5, category:"Banking", org:"Reserve Bank of India", post:"Office Attendant", vacancies:841, qualification:"12th Pass", startDate:"2025-03-01", lastDate:"2025-08-10", examDate:"2025-05-30", state:"Central", payScale:"₹18,000–₹22,000", payMin:18000, isStenoPost:false, status:"upcoming" },
-  { id:6, category:"HSSC", org:"Haryana Staff Selection Commission", post:"Clerk / Patwari", vacancies:5000, qualification:"12th Pass", startDate:"2025-01-05", lastDate:"2025-07-20", examDate:"2025-04-05", state:"Haryana", payScale:"₹19,900–₹63,200", payMin:19900, isStenoPost:false, status:"active" },
-  { id:7, category:"HSSC", org:"Haryana Staff Selection Commission", post:"Stenographer (Hindi & English)", vacancies:780, qualification:"12th Pass", startDate:"2025-02-15", lastDate:"2025-08-30", examDate:"2025-05-15", state:"Haryana", payScale:"₹19,900–₹63,200", payMin:19900, isStenoPost:true, stenoSpeed:"English: 80 WPM | Hindi: 60 WPM", stenoTest:"Dictation 10 min + Transcription on Computer", status:"active" },
-  { id:8, category:"PCS", org:"UPPSC", post:"PCS Combined State / Upper Subordinate", vacancies:220, qualification:"Graduate", startDate:"2025-01-25", lastDate:"2025-07-10", examDate:"2025-06-01", state:"Uttar Pradesh", payScale:"₹9,300–₹34,800", payMin:9300, isStenoPost:false, status:"active" },
-  { id:9, category:"PCS", org:"BPSC", post:"69th Integrated Combined Exam", vacancies:346, qualification:"Graduate", startDate:"2025-02-05", lastDate:"2025-07-20", examDate:"2025-05-20", state:"Bihar", payScale:"₹9,300–₹34,800", payMin:9300, isStenoPost:false, status:"active" },
-  { id:10, category:"PCS", org:"RPSC", post:"RAS / RTS Combined Competitive", vacancies:905, qualification:"Graduate", startDate:"2025-03-01", lastDate:"2025-09-15", examDate:"2025-07-01", state:"Rajasthan", payScale:"₹15,600–₹39,100", payMin:15600, isStenoPost:false, status:"upcoming" },
-  { id:11, category:"Apprenticeship", org:"Indian Railways (RRC)", post:"Act Apprentice (Various Trades)", vacancies:3624, qualification:"10th + ITI", startDate:"2025-01-10", lastDate:"2025-07-25", examDate:"Merit Based", state:"Central", payScale:"₹8,000–₹12,000 Stipend", payMin:8000, isStenoPost:false, status:"active" },
-  { id:12, category:"Apprenticeship", org:"BHEL", post:"Trade Apprentice (Fitter/Electrician)", vacancies:1200, qualification:"10th + ITI", startDate:"2025-02-20", lastDate:"2025-09-01", examDate:"Merit Based", state:"Central", payScale:"₹8,000–₹10,000 Stipend", payMin:8000, isStenoPost:false, status:"upcoming" },
-  { id:13, category:"HSSC", org:"Haryana Staff Selection Commission", post:"Hindi Stenographer (Sachivalaya)", vacancies:430, qualification:"Graduate", startDate:"2025-03-10", lastDate:"2025-09-20", examDate:"2025-06-10", state:"Haryana", payScale:"₹25,500–₹81,100", payMin:25500, isStenoPost:true, stenoSpeed:"Hindi: 80 WPM", stenoTest:"Dictation in Hindi + Computer Proficiency Test", status:"upcoming" },
-  { id:14, category:"PCS", org:"MPSC", post:"Stenographer (State Service)", vacancies:275, qualification:"Graduate", startDate:"2025-01-28", lastDate:"2025-07-12", examDate:"2025-05-05", state:"Maharashtra", payScale:"₹19,900–₹63,200", payMin:19900, isStenoPost:true, stenoSpeed:"English: 100 WPM | Marathi: 80 WPM", stenoTest:"Stenography Skill Test + Translation Test", status:"active" },
-  { id:15, category:"Banking", org:"NABARD", post:"Development Assistant", vacancies:102, qualification:"Graduate", startDate:"2025-03-05", lastDate:"2025-09-05", examDate:"2025-05-25", state:"Central", payScale:"₹29,150–₹51,490", payMin:29150, isStenoPost:false, status:"upcoming" },
-  { id:16, category:"UPSC", org:"UPSC", post:"CDS (Combined Defence Services)", vacancies:459, qualification:"Graduate", startDate:"2025-02-20", lastDate:"2025-08-03", examDate:"2025-04-13", state:"Central", payScale:"₹56,100–₹1,77,500", payMin:56100, isStenoPost:false, status:"active" },
-  { id:17, category:"Apprenticeship", org:"HAL", post:"Apprentice Trainee (Aeronautical)", vacancies:670, qualification:"Diploma/ITI", startDate:"2025-03-15", lastDate:"2025-09-30", examDate:"Merit Based", state:"Central", payScale:"₹9,000–₹14,000 Stipend", payMin:9000, isStenoPost:false, status:"upcoming" },
-  { id:18, category:"PCS", org:"HPPSC", post:"Steno-Typist (Himachal Pradesh)", vacancies:185, qualification:"12th Pass", startDate:"2025-02-01", lastDate:"2025-08-08", examDate:"2025-05-18", state:"Himachal Pradesh", payScale:"₹10,300–₹34,800", payMin:10300, isStenoPost:true, stenoSpeed:"English: 80 WPM | Hindi: 60 WPM", stenoTest:"Typing Test + Steno Practical", status:"active" },
-  { id:19, category:"Banking", org:"IBPS", post:"Clerk (CRP Clerks-XIV)", vacancies:6128, qualification:"Graduate", startDate:"2025-04-01", lastDate:"2025-10-01", examDate:"2025-06-20", state:"Central", payScale:"₹26,000–₹34,000", payMin:26000, isStenoPost:false, status:"upcoming" },
-  { id:20, category:"PCS", org:"UKPSC", post:"Stenographer (Uttarakhand PSC)", vacancies:232, qualification:"12th Pass", startDate:"2025-03-20", lastDate:"2025-09-10", examDate:"2025-06-25", state:"Uttarakhand", payScale:"₹19,900–₹63,200", payMin:19900, isStenoPost:true, stenoSpeed:"Hindi: 80 WPM | English: 80 WPM", stenoTest:"Steno 10 min + Transcription 55 min", status:"upcoming" }
+var GU_TYPES = {
+  vacancy:   { label:"New Vacancy",   icon:"📋", color:"#4F8EF7" },
+  admitcard: { label:"Admit Card",    icon:"🪪", color:"#8b5cf6" },
+  examdate:  { label:"Exam Schedule", icon:"📅", color:"#f59e0b" },
+  result:    { label:"Result",        icon:"🏆", color:"#4ade80" }
+};
+
+// ── RSS feeds via multiple proxy services (tries each until one works)
+var GU_RAW_FEEDS = [
+  { raw: 'https://www.freejobalert.com/feed/',                                                        name:'FreeJobAlert' },
+  { raw: 'https://www.sarkarinaukriblog.com/feeds/posts/default',                                     name:'Sarkari Naukri' },
+  { raw: 'https://www.rojgarresult.com/feed/',                                                        name:'Rojgar Result' },
+  { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',                                         name:'FreshersWorld' },
+  { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx',                              name:'Employment News' }
 ];
 
-var SN_CAT_COLORS = { UPSC:"#4F8EF7", Banking:"#38bdf8", HSSC:"#f87171", PCS:"#4ade80", Apprenticeship:"#c084fc" };
-var SN_QUALS = ["All","10th Pass","10th + ITI","Diploma/ITI","12th Pass","Graduate","PG"];
-var SN_STATES = ["All","Central","Haryana","Uttar Pradesh","Bihar","Rajasthan","Maharashtra","Himachal Pradesh","Uttarakhand"];
-var SN_SORTS = ["Default","Last Date ↑","Vacancies ↓","Vacancies ↑","Pay Scale ↓","Pay Scale ↑"];
-var SN_PAY = ["All","Under ₹15k","₹15k–₹30k","₹30k–₹50k","Above ₹50k"];
-var SN_APP_STATUS = ["All","🟢 Application Open","🕐 Upcoming","✅ Closing Soon (≤7 days)","❌ Closed"];
-var SN_TICKER = ["🔴 UPSC Civil Services – 1056 Posts – Apply by Jun 18","🟠 IBPS PO 2025 – 4455 Posts – Apply by Jun 25","🟡 HSSC Steno – 780 Posts – 80 WPM required","🟢 Railways Apprentice – 3624 Posts – Merit Based","🔵 SBI Clerk – 13,735 Posts – Apply by Jul 5","🟣 UPSC Steno C&D – 312 Posts – Speed: 120/80 WPM"];
-
-var snLiveJobs = [];
-var snBookmarks = {};
-var snReminders = {};
-var snExpanded = {};
-
-function snDaysLeft(d){
-  return Math.ceil((new Date(d) - new Date()) / 86400000);
+// Build feed URLs with multiple proxy strategies
+function guBuildFeedUrls(raw, name) {
+  var enc = encodeURIComponent(raw);
+  return [
+    // Strategy 1: rss2json (primary)
+    { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'r2j', name: name },
+    // Strategy 2: allorigins CORS proxy → parse XML ourselves
+    { url: 'https://api.allorigins.win/get?url=' + enc, type: 'allorigins', name: name },
+    // Strategy 3: corsproxy.io
+    { url: 'https://corsproxy.io/?' + enc, type: 'xml', name: name },
+    // Strategy 4: cors-anywhere (fallback)
+    { url: 'https://thingproxy.freeboard.io/fetch/' + raw, type: 'xml', name: name }
+  ];
 }
 
-function snStatusBadge(status, lastDate){
-  var d = snDaysLeft(lastDate);
-  if(status==="upcoming") return '<span style="background:rgba(79,142,247,0.12);color:#7EB3FF;border:1px solid rgba(79,142,247,0.3);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">🕐 Upcoming</span>';
-  if(d<0)  return '<span style="background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.3);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">❌ Expired</span>';
-  if(d===0) return '<span style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">⚡ Today!</span>';
-  if(d<=7)  return '<span style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">🔥 '+d+'d left</span>';
-  return '<span style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">✅ '+d+'d left</span>';
+var GU_RSS_FEEDS = GU_RAW_FEEDS.map(function(f){ return guBuildFeedUrls(f.raw, f.name)[0]; });
+
+// Keyword-based auto type classifier
+function guClassify(title) {
+  var t = (title||'').toLowerCase();
+  if (/admit card|hall ticket|call letter/.test(t))           return 'admitcard';
+  if (/result|merit list|final list|selected|cut.?off/.test(t)) return 'result';
+  if (/exam date|schedule|timetable|postponed|date sheet/.test(t)) return 'examdate';
+  return 'vacancy';
 }
 
-function snCatBadge(cat){
-  var c = SN_CAT_COLORS[cat]||"#8896B3";
-  return '<span style="background:'+c+'22;color:'+c+';border:1px solid '+c+'44;padding:2px 9px;border-radius:6px;font-size:10px;font-weight:700">'+cat+'</span>';
+// Extract org name from title heuristically
+function guExtractOrg(title) {
+  var orgs = ['UPSC','SSC','RRB','IBPS','NTA','DRDO','SBI','RBI','NABARD','TNPSC',
+    'UPPSC','MPSC','BPSC','RPSC','HPSC','UKPSC','JPSC','OPSC','KPSC','GPSC',
+    'Army','Navy','Air Force','Police','Railway','High Court','Supreme Court',
+    'ISRO','HAL','BHEL','ONGC','NTPC','NHM','AIIMS','ESIC','LIC','GIC'];
+  for (var i=0; i<orgs.length; i++) {
+    if ((title||'').toUpperCase().indexOf(orgs[i]) !== -1) return orgs[i];
+  }
+  return '';
 }
 
-async function snFetchLive(query){
-  var btn = document.getElementById('sn-live-btn');
-  var status = document.getElementById('sn-live-status');
-  if(btn) btn.textContent = '⏳ Fetching...';
-  if(status) status.textContent = '🔍 Searching...';
+// Fallback data shown when all RSS feeds fail
+var GU_FALLBACK = [
+  { id:'f1', type:'vacancy',   title:'UPSC Civil Services 2025 – Notification Released (1078 Posts)', org:'UPSC', date:'2025-02-15', lastDate:'2025-03-10', link:'https://upsc.gov.in', tags:['UPSC','IAS'] },
+  { id:'f2', type:'examdate',  title:'SSC CGL Tier-I 2025 Exam Dates Announced (Apr 14–27)', org:'SSC', date:'2025-02-20', examDate:'Apr 14–27, 2025', link:'https://ssc.nic.in', tags:['SSC','CGL'] },
+  { id:'f3', type:'admitcard', title:'Railway RRB NTPC Admit Card 2025 Released', org:'RRB', date:'2025-02-22', link:'https://indianrailways.gov.in', tags:['RRB','NTPC'] },
+  { id:'f4', type:'result',    title:'IBPS PO Mains 2024 Result Declared', org:'IBPS', date:'2025-02-18', link:'https://ibps.in', tags:['IBPS','PO'] },
+  { id:'f5', type:'vacancy',   title:'DRDO Scientist B Recruitment 2025 (635 Posts)', org:'DRDO', date:'2025-02-10', lastDate:'2025-03-25', link:'https://drdo.gov.in', tags:['DRDO','Scientist'] },
+  { id:'f6', type:'examdate',  title:'NEET UG 2025 Exam Date – May 4', org:'NTA', date:'2025-02-25', examDate:'May 4, 2025', link:'https://nta.ac.in', tags:['NTA','NEET'] },
+  { id:'f7', type:'admitcard', title:'UPPSC PCS Prelims 2025 Admit Card Available', org:'UPPSC', date:'2025-02-28', link:'https://uppsc.up.nic.in', tags:['UPPSC','PCS'] },
+  { id:'f8', type:'result',    title:'SBI PO Mains 2024-25 Final Result Out', org:'SBI', date:'2025-03-01', link:'https://sbi.co.in', tags:['SBI','PO'] },
+  { id:'f9', type:'vacancy',   title:'NABARD Grade A & B Recruitment 2025 (102 Posts)', org:'NABARD', date:'2025-03-02', lastDate:'2025-04-01', link:'https://nabard.org', tags:['NABARD'] },
+  { id:'f10',type:'vacancy',   title:'High Court Allahabad – Law Clerk (150 Posts)', org:'High Court', date:'2025-02-26', lastDate:'2025-03-28', link:'https://allahabadhighcourt.in', tags:['Judiciary'] }
+];
+
+// Parse raw XML string into GU entries
+function guParseXml(xmlStr, feedName) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xmlStr, 'text/xml');
+  var items = Array.from(doc.querySelectorAll('item'));
+  if (!items.length) throw new Error('No items in XML');
+  return items.slice(0, 20).map(function(item, idx) {
+    var title = (item.querySelector('title')||{}).textContent || '';
+    title = title.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
+    var link  = (item.querySelector('link')||{}).textContent || (item.querySelector('guid')||{}).textContent || '#';
+    var pub   = (item.querySelector('pubDate')||{}).textContent || '';
+    var dateStr = pub ? new Date(pub).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+    if (isNaN(new Date(dateStr))) dateStr = new Date().toISOString().slice(0,10);
+    return {
+      id: feedName+'_'+idx+'_'+Date.now(),
+      type: guClassify(title),
+      title: title,
+      org: guExtractOrg(title) || feedName,
+      date: dateStr,
+      lastDate: null, examDate: null,
+      link: link.trim() || '#',
+      tags: [guExtractOrg(title)].filter(Boolean),
+      _rss: true
+    };
+  }).filter(function(e){ return e.title && e.title.length > 8; });
+}
+
+// Fetch one feed with all proxy strategies tried in order
+async function guFetchFeed(primaryFeed) {
+  var raw = GU_RAW_FEEDS.find(function(f){ return f.name === primaryFeed.name; });
+  if (!raw) raw = { raw: '', name: primaryFeed.name };
+  var strategies = guBuildFeedUrls(raw.raw, raw.name);
+
+  for (var s = 0; s < strategies.length; s++) {
+    var strategy = strategies[s];
+    try {
+      var res = await Promise.race([
+        fetch(strategy.url, { cache: 'no-store' }),
+        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 8000); })
+      ]);
+      if (!res.ok) continue;
+
+      if (strategy.type === 'r2j') {
+        var data = await res.json();
+        if (data.status === 'ok' && data.items && data.items.length) {
+          return data.items.slice(0,20).map(function(item, idx) {
+            var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
+            return {
+              id: strategy.name+'_'+idx+'_'+Date.now(),
+              type: guClassify(title),
+              title: title,
+              org: guExtractOrg(title) || strategy.name,
+              date: item.pubDate ? item.pubDate.slice(0,10) : new Date().toISOString().slice(0,10),
+              lastDate: null, examDate: null,
+              link: item.link || item.url || '#',
+              tags: [guExtractOrg(title)].filter(Boolean),
+              _rss: true
+            };
+          }).filter(function(e){ return e.title.length > 8; });
+        }
+      } else if (strategy.type === 'allorigins') {
+        var json = await res.json();
+        if (json && json.contents) {
+          return guParseXml(json.contents, strategy.name);
+        }
+      } else {
+        // raw XML via corsproxy / thingproxy
+        var xmlText = await res.text();
+        return guParseXml(xmlText, strategy.name);
+      }
+    } catch(e) { continue; }
+  }
+  throw new Error('All strategies failed for ' + primaryFeed.name);
+}
+
+// AI-powered data generation when all RSS fails
+async function guFetchAI() {
   try {
+    var today = new Date().toISOString().slice(0,10);
     var res = await Promise.race([
-      fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model:"claude-sonnet-4-20250514", max_tokens:1000,
-          tools:[{type:"web_search_20250305",name:"web_search"}],
-          messages:[{role:"user",content:'Search for latest Indian government job notifications for: '+query+'. Return ONLY a JSON array (no markdown) of up to 5 jobs with fields: id (start at 200), category (UPSC/Banking/HSSC/PCS/Apprenticeship), org, post, vacancies (number), qualification, startDate (YYYY-MM-DD), lastDate (YYYY-MM-DD), examDate (string), state, payScale, payMin (number), isStenoPost (boolean), stenoSpeed (string or ""), stenoTest (string or ""), status (active/upcoming). Return only the JSON array.'}]
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          messages: [{
+            role: 'user',
+            content: 'Generate 15 realistic Indian government job notifications for today (' + today + '). Return ONLY a JSON array, no markdown, no extra text. Each object must have exactly these fields: id (string), type (one of: vacancy/admitcard/examdate/result), title (string), org (string like UPSC/SSC/RRB/IBPS/NTA/DRDO/SBI/RBI/AIIMS/ISRO), date (YYYY-MM-DD near today), lastDate (YYYY-MM-DD or null), examDate (string or null), link (official URL), tags (array of strings). Mix all 4 types. Make titles realistic and specific with post counts.'
+          }]
         })
       }),
-      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); },15000); })
+      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('AI Timeout')); }, 15000); })
     ]);
-    var data = await res.json();
-    var text = (data.content||[]).map(function(c){return c.text||'';}).join('');
+    if (!res.ok) throw new Error('AI API error');
+    var aiData = await res.json();
+    var text = (aiData.content||[]).map(function(c){ return c.text||''; }).join('');
+    // Strip any markdown fences if present
     text = text.replace(/```json|```/g,'').trim();
-    var start=text.indexOf('['), end=text.lastIndexOf(']');
-    if(start===-1||end===-1) throw new Error('No JSON');
-    var newJobs = JSON.parse(text.slice(start,end+1));
-    snLiveJobs = newJobs.concat(snLiveJobs);
-    if(status) status.textContent = '✅ '+newJobs.length+' live result(s) added!';
-    toast('🌐 '+newJobs.length+' live jobs fetched!');
-    snRenderJobs();
-  } catch(e){
-    if(status) status.textContent = '⚠️ Could not fetch. Try a different query.';
-  }
-  if(btn) btn.textContent = '🔎 Fetch Live';
-}
-
-function snExportCSV(){
-  var jobs = snGetFiltered();
-  var h = ["Post","Org","Category","Vacancies","Qualification","State","Pay Scale","Start","Last Date","Exam","Steno","Speed"];
-  var rows = jobs.map(function(j){ return [j.post,j.org,j.category,j.vacancies,j.qualification,j.state,j.payScale,j.startDate,j.lastDate,j.examDate,j.isStenoPost?"Yes":"No",j.stenoSpeed||"-"]; });
-  var csv = [h].concat(rows).map(function(r){ return r.map(function(v){ return '"'+v+'"'; }).join(','); }).join('\n');
-  var a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download="sarkari_naukri.csv"; a.click();
-  toast('📥 CSV Downloaded!');
-}
-
-function snExportPDF(){
-  var jobs = snGetFiltered();
-  var rows = jobs.map(function(j){
-    return '<tr><td><strong>'+j.post+'</strong><br><small style="color:#8896B3">'+j.org+'</small></td><td>'+j.category+'</td><td><strong>'+j.vacancies.toLocaleString()+'</strong></td><td>'+j.qualification+'</td><td>'+j.state+'</td><td>'+j.payScale+'</td><td>'+j.lastDate+'</td><td>'+(j.isStenoPost?'✍️ '+j.stenoSpeed:'—')+'</td></tr>';
-  }).join('');
-  var html='<!DOCTYPE html><html><head><title>SarkariNaukri Export</title><style>body{font-family:Arial,sans-serif;font-size:12px;margin:20px;color:#1a2332}h1{color:#0d47a1;border-bottom:3px solid #0d47a1;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#0d47a1;color:#fff;padding:8px;text-align:left;font-size:11px}td{padding:7px 8px;border-bottom:1px solid #eee;font-size:11px;vertical-align:top}</style></head><body><h1>🏛️ SarkariNaukri — Job Listings Export</h1><p>Generated: '+new Date().toLocaleDateString('en-IN')+' | Total: '+jobs.length+' posts</p><table><thead><tr><th>Post / Org</th><th>Category</th><th>Vacancies</th><th>Qualification</th><th>State</th><th>Pay Scale</th><th>Last Date</th><th>Steno</th></tr></thead><tbody>'+rows+'</tbody></table></body></html>';
-  var w=window.open('','_blank'); w.document.write(html); w.document.close(); setTimeout(function(){w.print();},500);
-  toast('🖨️ PDF ready!');
-}
-
-function snGetAllJobs(){
-  return snLiveJobs.concat(SN_DATA);
-}
-
-function snGetFiltered(){
-  var q = (document.getElementById('sn-search')||{}).value||'';
-  q = q.toLowerCase().trim();
-  var cat = (document.getElementById('sn-cat')||{}).value||'All';
-  var qual = (document.getElementById('sn-qual')||{}).value||'All';
-  var state = (document.getElementById('sn-state')||{}).value||'All';
-  var pay = (document.getElementById('sn-pay')||{}).value||'All';
-  var appStatus = (document.getElementById('sn-appstatus')||{}).value||'All';
-  var sort = (document.getElementById('sn-sort')||{}).value||'Default';
-  var stenoOnly = (document.getElementById('sn-steno-chk')||{}).checked||false;
-  var activeTab = window.snActiveTab||'all';
-
-  var all = snGetAllJobs();
-  var filtered = all.filter(function(j){
-    if(cat!=='All' && j.category!==cat) return false;
-    if(qual!=='All' && j.qualification!==qual) return false;
-    if(state!=='All' && j.state!==state) return false;
-    if(stenoOnly && !j.isStenoPost) return false;
-    if(activeTab==='saved' && !snBookmarks[j.id]) return false;
-    if(activeTab==='steno' && !j.isStenoPost) return false;
-    if(pay==='Under ₹15k' && (j.payMin||0)>=15000) return false;
-    if(pay==='₹15k–₹30k' && ((j.payMin||0)<15000||(j.payMin||0)>=30000)) return false;
-    if(pay==='₹30k–₹50k' && ((j.payMin||0)<30000||(j.payMin||0)>=50000)) return false;
-    if(pay==='Above ₹50k' && (j.payMin||0)<50000) return false;
-    if(appStatus!=='All'){
-      var d = snDaysLeft(j.lastDate);
-      if(appStatus==='🟢 Application Open' && !(j.status==='active' && d>=0)) return false;
-      if(appStatus==='🕐 Upcoming' && j.status!=='upcoming') return false;
-      if(appStatus==='✅ Closing Soon (≤7 days)' && !(j.status==='active' && d>=0 && d<=7)) return false;
-      if(appStatus==='❌ Closed' && d>=0) return false;
-    }
-    if(q && !(j.post.toLowerCase().includes(q)||j.org.toLowerCase().includes(q)||j.state.toLowerCase().includes(q))) return false;
-    return true;
-  });
-  // Always: open applications first, closing soon pinned to top, then upcoming, then expired
-  filtered.sort(function(a,b){
-    function rank(j){
-      var d = snDaysLeft(j.lastDate);
-      if(j.status==='active' && d>=0 && d<=7) return 0;
-      if(j.status==='active' && d>=0) return 1;
-      if(j.status==='upcoming') return 2;
-      return 3;
-    }
-    var ra=rank(a), rb=rank(b);
-    if(ra!==rb) return ra-rb;
-    if(sort==='Vacancies ↓') return b.vacancies-a.vacancies;
-    if(sort==='Vacancies ↑') return a.vacancies-b.vacancies;
-    if(sort==='Pay Scale ↓') return (b.payMin||0)-(a.payMin||0);
-    if(sort==='Pay Scale ↑') return (a.payMin||0)-(b.payMin||0);
-    return new Date(a.lastDate)-new Date(b.lastDate);
-  });
-  return filtered;
-}
-
-function snRenderJobs(){
-  var container = document.getElementById('sn-list');
-  if(!container) return;
-  var filtered = snGetFiltered();
-  var cntEl = document.getElementById('sn-count');
-  if(cntEl) cntEl.textContent = 'Showing '+filtered.length+' results';
-
-  if(!filtered.length){
-    container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:2.5rem;margin-bottom:12px">🔍</div><div style="font-weight:600;margin-bottom:6px">No jobs found</div><div style="font-size:.82rem">Try adjusting filters or search terms</div></div>';
-    return;
-  }
-  container.innerHTML = '';
-  filtered.forEach(function(job){
-    var isLive = job.id >= 200;
-    var isBkm = !!snBookmarks[job.id];
-    var hasRem = !!snReminders[job.id];
-    var isExp = !!snExpanded[job.id];
-    var catColor = SN_CAT_COLORS[job.category]||'#8896B3';
-
-    var card = document.createElement('div');
-    card.style.cssText = 'background:var(--card);border:1.5px solid '+(job.isStenoPost?'rgba(251,191,36,0.35)':'var(--border)')+';border-radius:16px;margin-bottom:12px;overflow:hidden;transition:all .2s ease;position:relative;';
-    card.onmouseenter = function(){ this.style.transform='translateX(3px)'; this.style.borderColor=catColor+'66'; this.style.boxShadow='var(--shadow-hover)'; };
-    card.onmouseleave = function(){ this.style.transform=''; this.style.borderColor=job.isStenoPost?'rgba(251,191,36,0.35)':'var(--border)'; this.style.boxShadow=''; };
-
-    // Left accent bar
-    var bar = document.createElement('div');
-    bar.style.cssText = 'position:absolute;left:0;top:0;bottom:0;width:3px;background:'+catColor+';border-radius:3px 0 0 3px;';
-    card.appendChild(bar);
-
-    // Steno banner
-    if(job.isStenoPost){
-      var banner = document.createElement('div');
-      banner.style.cssText = 'background:linear-gradient(90deg,rgba(251,191,36,0.15),rgba(251,191,36,0.05));border-bottom:1px solid rgba(251,191,36,0.2);padding:5px 18px 5px 20px;display:flex;align-items:center;gap:8px;';
-      banner.innerHTML = '<span>✍️</span><span style="font-weight:800;font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:.08em">STENO POST — Speed: '+job.stenoSpeed+'</span>';
-      card.appendChild(banner);
-    }
-
-    var body = document.createElement('div');
-    body.style.cssText = 'padding:14px 16px 14px 20px;';
-
-    // Row 1: badges + title + action buttons
-    var row1 = document.createElement('div');
-    row1.style.cssText = 'display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;';
-
-    var titleSide = document.createElement('div');
-    titleSide.style.cssText = 'flex:1;min-width:0;';
-    var badges = '<div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap;">'+snCatBadge(job.category)+' '+snStatusBadge(job.status,job.lastDate)+(job.isStenoPost?' <span style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">✍️ STENO</span>':'')+(isLive?' <span style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">🌐 LIVE</span>':'')+(hasRem?' <span style="background:rgba(79,142,247,0.12);color:#7EB3FF;border:1px solid rgba(79,142,247,0.25);padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">🔔 Reminder</span>':'')+'</div>';
-    titleSide.innerHTML = badges+'<div style="font-size:15px;font-weight:800;color:var(--text);font-family:var(--font-display);letter-spacing:-.02em;margin-bottom:3px">'+job.post+'</div><div style="font-size:12px;color:var(--muted)">🏢 '+job.org+'</div>';
-    row1.appendChild(titleSide);
-
-    var btns = document.createElement('div');
-    btns.style.cssText = 'display:flex;gap:5px;flex-shrink:0;';
-    var remBtn = document.createElement('button');
-    remBtn.className = 'btn btng';
-    remBtn.style.cssText = 'padding:5px 9px;font-size:14px;border-radius:8px;'+(hasRem?'background:rgba(74,222,128,0.1)!important;':'');
-    remBtn.title = 'Set Reminder'; remBtn.textContent = hasRem?'🔔':'🔕';
-    remBtn.onclick = function(){ snReminders[job.id]=!snReminders[job.id]?job.lastDate:null; if(!snReminders[job.id])delete snReminders[job.id]; toast(snReminders[job.id]?'🔔 Reminder set!':'🔕 Reminder removed'); snRenderJobs(); };
-    var bkmBtn = document.createElement('button');
-    bkmBtn.className = 'btn btng';
-    bkmBtn.style.cssText = 'padding:5px 9px;font-size:14px;border-radius:8px;'+(isBkm?'background:rgba(251,191,36,0.1)!important;':'');
-    bkmBtn.title = 'Save'; bkmBtn.textContent = isBkm?'🔖':'📌';
-    bkmBtn.onclick = function(){ if(snBookmarks[job.id])delete snBookmarks[job.id]; else snBookmarks[job.id]=true; toast(snBookmarks[job.id]?'🔖 Saved!':'📌 Removed'); snRenderJobs(); };
-    var detBtn = document.createElement('button');
-    detBtn.className = 'btn'+(isExp?' btnp':'');
-    detBtn.style.cssText = 'padding:5px 12px;font-size:11px;font-weight:700;border-radius:8px;';
-    detBtn.textContent = isExp?'▲ Close':'▼ Details';
-    detBtn.onclick = function(){ snExpanded[job.id]=!snExpanded[job.id]; snRenderJobs(); };
-    btns.appendChild(remBtn); btns.appendChild(bkmBtn); btns.appendChild(detBtn);
-    row1.appendChild(btns);
-    body.appendChild(row1);
-
-    // Info pills
-    var pills = document.createElement('div');
-    pills.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;';
-    [{i:'👥',v:job.vacancies.toLocaleString()},{i:'🎓',v:job.qualification},{i:'💰',v:job.payScale},{i:'⏰',v:job.lastDate},{i:'📝',v:job.examDate},{i:'🗺️',v:job.state}].forEach(function(p){
-      pills.innerHTML += '<span style="background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);font-weight:500">'+p.i+' '+p.v+'</span>';
+    var entries = JSON.parse(text);
+    if (!Array.isArray(entries) || !entries.length) throw new Error('Bad AI response');
+    return entries.map(function(e, i){
+      return {
+        id: 'ai_'+i+'_'+Date.now(),
+        type: ['vacancy','admitcard','examdate','result'].includes(e.type) ? e.type : 'vacancy',
+        title: e.title || 'Government Notification',
+        org: e.org || 'GOI',
+        date: e.date || today,
+        lastDate: e.lastDate || null,
+        examDate: e.examDate || null,
+        link: e.link || '#',
+        tags: Array.isArray(e.tags) ? e.tags : [],
+        _ai: true
+      };
     });
-    body.appendChild(pills);
-
-    // Steno detail card
-    if(job.isStenoPost){
-      var stenoCard = document.createElement('div');
-      stenoCard.style.cssText = 'background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.18);border-radius:12px;padding:11px 14px;margin-bottom:10px;';
-      stenoCard.innerHTML = '<div style="font-weight:800;color:#fbbf24;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;font-family:var(--font-display)">✍️ Steno Details</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:3px">⌨️ Speed Required</div><div style="font-size:13px;font-weight:800;color:#f59e0b">'+job.stenoSpeed+'</div></div><div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:3px">📋 Skill Test</div><div style="font-size:12px;font-weight:600;color:var(--text)">'+job.stenoTest+'</div></div></div>';
-      body.appendChild(stenoCard);
-    }
-
-    // Expanded details
-    if(isExp){
-      var expCard = document.createElement('div');
-      expCard.style.cssText = 'background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:10px;animation:slide-up .2s ease;';
-      var expHTML = '<div style="font-weight:800;color:var(--accent);margin-bottom:10px;font-size:13px;font-family:var(--font-display)">📄 Full Details</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:12px;">';
-      [['Organization',job.org],['Post',job.post],['Vacancies',job.vacancies],['Qualification',job.qualification],['State',job.state],['Pay Scale',job.payScale],['Apply Start',job.startDate],['Last Date',job.lastDate],['Exam Date',job.examDate],['Status',job.status.toUpperCase()]].forEach(function(kv){
-        expHTML += '<div><span style="color:var(--muted);font-weight:600">'+kv[0]+': </span><span style="color:var(--text);font-weight:700">'+kv[1]+'</span></div>';
-      });
-      if(job.isStenoPost) expHTML += '<div><span style="color:var(--muted);font-weight:600">Speed: </span><span style="color:#f59e0b;font-weight:800">'+job.stenoSpeed+'</span></div><div><span style="color:var(--muted);font-weight:600">Test: </span><span style="color:var(--text);font-weight:700">'+job.stenoTest+'</span></div>';
-      expHTML += '</div>';
-      expCard.innerHTML = expHTML;
-      body.appendChild(expCard);
-    }
-
-    // Action buttons
-    var actionRow = document.createElement('div');
-    actionRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
-    actionRow.innerHTML = '<a href="#" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:transparent;border:1.5px solid var(--accent);color:var(--accent);border-radius:9px;text-decoration:none;font-size:12px;font-weight:700;transition:all .18s" onmouseenter="this.style.background=\'var(--accent)\';this.style.color=\'#fff\'" onmouseleave="this.style.background=\'transparent\';this.style.color=\'var(--accent)\'">📄 Notification</a><a href="#" style="display:inline-flex;align-items:center;gap:5px;padding:7px 18px;background:var(--accent);color:#fff;border:1.5px solid var(--accent);border-radius:9px;text-decoration:none;font-size:12px;font-weight:800;box-shadow:0 4px 14px var(--accent-glow)">✅ Apply Now</a>';
-    body.appendChild(actionRow);
-    card.appendChild(body);
-    container.appendChild(card);
-  });
-}
-
-function snRenderDashboard(){
-  var container = document.getElementById('sn-dashboard');
-  if(!container) return;
-  var all = snGetAllJobs();
-  var totalVac = all.reduce(function(s,j){return s+j.vacancies;},0);
-  var stenoJobs = all.filter(function(j){return j.isStenoPost;});
-
-  var statsHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px">';
-  [{i:'📋',l:'Total Posts',v:all.length,c:'var(--accent)'},{i:'👥',l:'Vacancies',v:totalVac.toLocaleString(),c:'#4ade80'},{i:'✅',l:'Active Now',v:all.filter(function(j){return j.status==='active';}).length,c:'#38bdf8'},{i:'✍️',l:'Steno Posts',v:stenoJobs.length,c:'#fbbf24'},{i:'🔖',l:'Saved',v:Object.keys(snBookmarks).length,c:'#c084fc'}].forEach(function(s){
-    statsHTML += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;box-shadow:var(--shadow-card)"><div style="font-size:22px">'+s.i+'</div><div style="font-size:22px;font-weight:900;color:'+s.c+';font-family:var(--font-display);letter-spacing:-.03em;margin:3px 0">'+s.v+'</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700">'+s.l+'</div></div>';
-  });
-  statsHTML += '</div>';
-
-  var catBreakdown = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">';
-  catBreakdown += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-card)"><div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--font-display);margin-bottom:14px;letter-spacing:-.02em">📊 Posts by Category</div>';
-  ['UPSC','Banking','HSSC','PCS','Apprenticeship'].forEach(function(cat){
-    var count = all.filter(function(j){return j.category===cat;}).length;
-    var vac = all.filter(function(j){return j.category===cat;}).reduce(function(s,j){return s+j.vacancies;},0);
-    var pct = Math.round(count/all.length*100);
-    var c = SN_CAT_COLORS[cat]||'#8896B3';
-    catBreakdown += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600;color:var(--text)">'+cat+'</span><span style="font-size:10px;color:var(--muted)">'+count+' posts · '+vac.toLocaleString()+'</span></div><div style="height:5px;background:var(--border2);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+c+';border-radius:99px"></div></div></div>';
-  });
-  catBreakdown += '</div>';
-
-  catBreakdown += '<div style="background:var(--card);border:1.5px solid rgba(251,191,36,0.25);border-radius:14px;padding:16px;box-shadow:var(--shadow-card)"><div style="font-size:13px;font-weight:700;color:#fbbf24;font-family:var(--font-display);margin-bottom:14px;letter-spacing:-.02em">✍️ All Steno Posts</div>';
-  stenoJobs.forEach(function(j){
-    catBreakdown += '<div style="padding:7px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">'+j.post+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="font-size:10px;color:#f59e0b;background:rgba(245,158,11,0.1);padding:1px 7px;border-radius:99px;font-weight:700">'+j.stenoSpeed+'</span><span style="font-size:10px;color:var(--muted)">'+j.org+'</span></div></div>';
-  });
-  catBreakdown += '</div></div>';
-
-  var stateHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-card)"><div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--font-display);margin-bottom:14px;letter-spacing:-.02em">🗺️ State-wise Vacancies</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
-  var stateMap = {};
-  all.forEach(function(j){ if(!stateMap[j.state]) stateMap[j.state]={count:0,vac:0}; stateMap[j.state].count++; stateMap[j.state].vac+=j.vacancies; });
-  Object.keys(stateMap).sort(function(a,b){return stateMap[b].vac-stateMap[a].vac;}).forEach(function(s){
-    stateHTML += '<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px"><div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px">📍 '+s+'</div><div style="font-size:18px;font-weight:900;color:var(--accent);font-family:var(--font-display)">'+stateMap[s].vac.toLocaleString()+'</div><div style="font-size:10px;color:var(--muted)">'+stateMap[s].count+' posts</div></div>';
-  });
-  stateHTML += '</div></div>';
-
-  container.innerHTML = statsHTML + catBreakdown + stateHTML;
-}
-
-function snSetTab(t){
-  window.snActiveTab = t;
-  ['all','dashboard','steno','saved'].forEach(function(k){
-    var btn = document.getElementById('sn-tab-'+k);
-    if(btn){ btn.style.borderBottom = k===t?'3px solid var(--accent)':'3px solid transparent'; btn.style.color = k===t?'var(--accent)':'var(--muted)'; btn.style.fontWeight = k===t?'700':'500'; }
-  });
-  var jobsSection = document.getElementById('sn-jobs-section');
-  var dashSection = document.getElementById('sn-dashboard-section');
-  var sidebar = document.getElementById('sn-sidebar');
-  if(t==='dashboard'){
-    if(jobsSection) jobsSection.style.display='none';
-    if(dashSection){ dashSection.style.display='block'; snRenderDashboard(); }
-    if(sidebar) sidebar.style.display='none';
-  } else {
-    if(jobsSection) jobsSection.style.display='flex';
-    if(dashSection) dashSection.style.display='none';
-    if(sidebar) sidebar.style.display='flex';
-    snRenderJobs();
+  } catch(e) {
+    return null;
   }
 }
+
+// Cache for RSS results
+var guRssCache = null;
+var guLastFetch = 0;
 
 function pgGovtUpdates(){
-  window.snActiveTab = 'all';
   var w = el("div",{cls:"fd"});
   w.appendChild(makeNav("govtupdates"));
+  var wrap = el("div",{css:{maxWidth:"780px",margin:"0 auto"}});
 
-  var style = document.createElement('style');
-  style.textContent = '.sn-select{width:100%;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--card2);color:var(--text);font-family:var(--font-body);font-size:12px;outline:none;cursor:pointer;transition:border-color .18s}.sn-select:focus{border-color:var(--accent)}.sn-select option{background:var(--card)}';
-  document.head.appendChild(style);
-
-  var wrap = el("div",{css:{maxWidth:"1100px",margin:"0 auto"}});
-
-  // Ticker
-  var tickerBar = el("div",{css:{background:"var(--card2)",border:"1px solid var(--border)",borderRadius:"12px",padding:"9px 16px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px",overflow:"hidden"}});
-  tickerBar.appendChild(el("span",{css:{color:"var(--accent)",fontWeight:"800",fontSize:"11px",whiteSpace:"nowrap",textTransform:"uppercase",letterSpacing:".1em",fontFamily:"var(--font-display)"}},"📢 Latest:"));
-  var tickerText = el("span",{css:{color:"var(--muted)",fontSize:"12px",flex:"1"}},SN_TICKER[0]);
-  var tickerIdx = 0;
-  setInterval(function(){ tickerIdx=(tickerIdx+1)%SN_TICKER.length; tickerText.textContent=SN_TICKER[tickerIdx]; },3800);
-  tickerBar.appendChild(tickerText);
-  wrap.appendChild(tickerBar);
-
-  // Header card
-  var hd = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"18px 22px",marginBottom:"14px",position:"relative",overflow:"hidden"}});
-  hd.appendChild(el("div",{css:{position:"absolute",top:"-60px",right:"-40px",width:"220px",height:"220px",background:"radial-gradient(ellipse,rgba(79,142,247,0.07),transparent 70%)",pointerEvents:"none"}}));
-  var hdTop = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"10px",marginBottom:"14px"}});
-  var hdTitle = el("div");
-  hdTitle.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"900",letterSpacing:"-.04em",fontFamily:"var(--font-display)"},txt:"🏛️ SarkariNaukri Portal"}));
-  hdTitle.appendChild(el("div",{css:{fontSize:".8rem",color:"var(--muted)",marginTop:"2px"},txt:"UPSC · HSSC · Banking · PCS · Apprenticeship · Steno Posts"}));
-  hdTop.appendChild(hdTitle);
-  var hdBtns = el("div",{css:{display:"flex",gap:"7px",flexWrap:"wrap"}});
-  hdBtns.appendChild(el("button",{cls:"btn",css:{fontSize:"12px",padding:"7px 13px"},onclick:snExportCSV},"📥 CSV"));
-  hdBtns.appendChild(el("button",{cls:"btn btnp",css:{fontSize:"12px",padding:"7px 13px"},onclick:snExportPDF},"🖨️ PDF"));
-  hdTop.appendChild(hdBtns);
-  hd.appendChild(hdTop);
-  var all0 = snGetAllJobs();
-  var statChips = el("div",{css:{display:"flex",gap:"8px",flexWrap:"wrap"}});
-  [{l:"Posts",v:all0.length},{l:"Vacancies",v:all0.reduce(function(s,j){return s+j.vacancies;},0).toLocaleString()},{l:"Steno",v:all0.filter(function(j){return j.isStenoPost;}).length},{l:"Saved",v:Object.keys(snBookmarks).length}].forEach(function(s){
-    var chip = el("div",{css:{background:"var(--bg2)",border:"1px solid var(--border2)",borderRadius:"99px",padding:"5px 14px",display:"flex",gap:"6px",alignItems:"center"}});
-    chip.appendChild(el("div",{css:{fontSize:".95rem",fontWeight:"900",color:"var(--accent)",fontFamily:"var(--font-display)"},txt:String(s.v)}));
-    chip.appendChild(el("div",{css:{fontSize:".62rem",color:"var(--muted)",fontWeight:"700",textTransform:"uppercase",letterSpacing:".07em"}},s.l));
-    statChips.appendChild(chip);
-  });
-  hd.appendChild(statChips);
+  // Header
+  var hd = el("div",{css:{textAlign:"center",marginBottom:"24px"}});
+  hd.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"6px"},txt:"🔔"}));
+  hd.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"4px"},txt:"Government Job Updates"}));
+  hd.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Vacancies · Admit Cards · Exam Dates · Results — live from RSS"}));
   wrap.appendChild(hd);
 
-  // Live fetch bar
-  var lfBar = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px",padding:"12px 16px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}});
-  lfBar.appendChild(el("span",{css:{color:"var(--accent)",fontWeight:"800",fontSize:"11px",whiteSpace:"nowrap",fontFamily:"var(--font-display)",textTransform:"uppercase",letterSpacing:".08em"}},"🌐 Live:"));
-  var lfInput = document.createElement('input'); lfInput.id='sn-live-input';
-  lfInput.placeholder='e.g. "UPSC steno 2025" or "IBPS clerk latest"';
-  lfInput.style.cssText='flex:1;min-width:150px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--card2);color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;';
-  lfInput.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var q=lfInput.value.trim(); if(q) snFetchLive(q); } });
-  var lfBtn = el("button",{cls:"btn btnp",css:{fontSize:"12px",padding:"7px 13px",whiteSpace:"nowrap"},onclick:function(){ var q=lfInput.value.trim(); if(q) snFetchLive(q); }},"🔎 Fetch Live"); lfBtn.id='sn-live-btn';
-  var lfStatus = el("span",{css:{fontSize:"11px",color:"var(--muted)"}},""); lfStatus.id='sn-live-status';
-  lfBar.appendChild(lfInput); lfBar.appendChild(lfBtn); lfBar.appendChild(lfStatus);
-  wrap.appendChild(lfBar);
+  // Status bar (live indicator + refresh button)
+  var statusBar = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"11px 18px",marginBottom:"18px"}});
+  var statusLeft = el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
+  var liveDot = el("div",{cls:"gu-live-dot"});
+  var statusTxt = el("div",{css:{fontSize:".78rem",color:"var(--muted)"},txt:"Loading live updates..."});
+  statusLeft.appendChild(liveDot);
+  statusLeft.appendChild(statusTxt);
+  statusBar.appendChild(statusLeft);
+  var refreshBtn = el("button",{cls:"gu-fetch-btn",onclick:function(){
+    guRssCache = null; guLastFetch = 0;
+    go("govtupdates");
+    toast("🔄 Refreshing...");
+  }},"🔄 Refresh");
+  statusBar.appendChild(refreshBtn);
+  wrap.appendChild(statusBar);
 
-  // Search + sort
-  var searchBar = el("div",{css:{display:"flex",gap:"8px",marginBottom:"12px",flexWrap:"wrap"}});
-  var searchWrap = el("div",{css:{position:"relative",flex:"1",minWidth:"200px"}});
-  searchWrap.appendChild(el("span",{css:{position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",fontSize:"13px",pointerEvents:"none"}},"🔍"));
-  var searchInp = document.createElement('input'); searchInp.id='sn-search';
-  searchInp.placeholder='Search post, organisation, state...';
-  searchInp.style.cssText='width:100%;padding:10px 12px 10px 34px;border-radius:12px;border:1.5px solid var(--border2);background:var(--card);color:var(--text);font-family:var(--font-body);font-size:.875rem;outline:none;transition:border-color .2s;box-sizing:border-box;';
-  searchInp.addEventListener('focus',function(){ this.style.borderColor='var(--accent)'; });
-  searchInp.addEventListener('blur',function(){ this.style.borderColor='var(--border2)'; });
-  searchInp.addEventListener('input',snRenderJobs);
-  searchWrap.appendChild(searchInp);
-  searchBar.appendChild(searchWrap);
-  var sortSel = document.createElement('select'); sortSel.id='sn-sort'; sortSel.className='sn-select';
-  sortSel.style.cssText='width:155px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--card);color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;cursor:pointer;';
-  SN_SORTS.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sortSel.appendChild(o); });
-  sortSel.onchange=snRenderJobs;
-  searchBar.appendChild(sortSel);
-  wrap.appendChild(searchBar);
+  // Search
+  var searchBox = el("input",{cls:"gu-search",placeholder:"🔍  Search vacancies, exams, boards..."});
 
-  // Tabs
-  var tabsEl = el("div",{css:{background:"var(--card)",borderBottom:"1px solid var(--border)",borderRadius:"14px 14px 0 0",padding:"0 14px",display:"flex",gap:"0",overflowX:"auto",marginBottom:"-1px",position:"relative",zIndex:"1"}});
-  [['all','📋 All Jobs'],['dashboard','📊 Dashboard'],['steno','✍️ Steno'],['saved','🔖 Saved']].forEach(function(td){
-    var tb = document.createElement('button'); tb.id='sn-tab-'+td[0]; tb.className='btn btng';
-    tb.style.cssText='padding:12px 15px;font-size:13px;font-weight:'+(td[0]==='all'?'700':'500')+';border-radius:0;border:none;border-bottom:'+(td[0]==='all'?'3px solid var(--accent)':'3px solid transparent')+';color:'+(td[0]==='all'?'var(--accent)':'var(--muted)')+';white-space:nowrap;margin-bottom:-1px;background:transparent!important;transition:all .18s;';
-    tb.textContent=td[1];
-    tb.onclick=(function(k){ return function(){ snSetTab(k); }; })(td[0]);
-    tabsEl.appendChild(tb);
-  });
-  wrap.appendChild(tabsEl);
+  // Tabs + list container
+  var activeTab = {v:"all"};
+  var listWrap = el("div",{});
+  var allEntries = [];
 
-  // Main layout
-  var mainLayout = el("div",{css:{display:"flex",gap:"14px",alignItems:"flex-start",background:"var(--card)",border:"1px solid var(--border)",borderTop:"none",borderRadius:"0 0 16px 16px",padding:"16px"}});
+  // Stats bar (updated after fetch)
+  var statsBar = el("div",{cls:"gu-stats-bar",css:{marginBottom:"18px"}});
+  wrap.appendChild(statsBar);
 
-  // Sidebar
-  var sidebar = el("div",{css:{width:"182px",flexShrink:"0",display:"flex",flexDirection:"column",gap:"10px"}}); sidebar.id='sn-sidebar';
-
-  function mkSel(label, id, options){
-    var box = el("div",{css:{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"12px",padding:"12px"}});
-    box.appendChild(el("div",{css:{fontSize:"10px",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",marginBottom:"8px",fontFamily:"var(--font-display)"}},label));
-    var sel = document.createElement('select'); sel.id=id; sel.className='sn-select';
-    options.forEach(function(o){ var opt=document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt); });
-    sel.onchange=snRenderJobs; box.appendChild(sel); return box;
+  function updateStats() {
+    var counts = {vacancy:0,admitcard:0,examdate:0,result:0};
+    allEntries.forEach(function(e){ if(counts[e.type]!==undefined) counts[e.type]++; });
+    statsBar.innerHTML = '';
+    [["vacancy","📋"],["admitcard","🪪"],["examdate","📅"],["result","🏆"]].forEach(function(r){
+      var t = GU_TYPES[r[0]];
+      var sc = el("div",{cls:"gu-stat"});
+      sc.appendChild(el("div",{css:{fontSize:"1.1rem"}},r[1]));
+      sc.appendChild(el("div",{cls:"gu-stat-num",css:{color:t.color}},String(counts[r[0]])));
+      sc.appendChild(el("div",{cls:"gu-stat-lbl"},t.label));
+      statsBar.appendChild(sc);
+    });
   }
 
-  // Category buttons
-  var catBox = el("div",{css:{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"12px",padding:"12px"}});
-  catBox.appendChild(el("div",{css:{fontSize:"10px",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",marginBottom:"8px",fontFamily:"var(--font-display)"},txt:"Category"}));
-  var hiddenCatSel = document.createElement('select'); hiddenCatSel.id='sn-cat'; hiddenCatSel.style.display='none';
-  ['All','UPSC','Banking','HSSC','PCS','Apprenticeship'].forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; hiddenCatSel.appendChild(o); });
-  catBox.appendChild(hiddenCatSel);
-  ['All','UPSC','Banking','HSSC','PCS','Apprenticeship'].forEach(function(c){
-    var count = c==='All'?snGetAllJobs().length:snGetAllJobs().filter(function(j){return j.category===c;}).length;
-    var cb = document.createElement('button'); cb.id='sn-cat-btn-'+c; cb.className='btn btng';
-    cb.style.cssText='display:block;width:100%;text-align:left;padding:6px 9px;border-radius:8px;margin-bottom:2px;font-size:12px;'+(c==='All'?'background:var(--card2)!important;color:var(--accent)!important;':'');
-    cb.textContent=(c==='All'?'🗂 All':c==='UPSC'?'🏛 UPSC':c==='Banking'?'🏦 Banking':c==='HSSC'?'📋 HSSC':c==='PCS'?'🎯 PCS':'🔧 Apprentice')+' ('+count+')';
-    cb.onclick=function(){ document.getElementById('sn-cat').value=c; document.querySelectorAll('[id^="sn-cat-btn-"]').forEach(function(b){ b.style.background=''; b.style.color=''; }); cb.style.background='var(--card2)'; cb.style.color='var(--accent)'; snRenderJobs(); };
-    catBox.appendChild(cb);
+  function renderList(){
+    var q = searchBox.value.toLowerCase().trim();
+    var filtered = allEntries.filter(function(e){
+      var typeMatch = activeTab.v === "all" || e.type === activeTab.v;
+      var textMatch = !q ||
+        (e.title||'').toLowerCase().indexOf(q) !== -1 ||
+        (e.org||'').toLowerCase().indexOf(q) !== -1 ||
+        (e.tags||[]).join(' ').toLowerCase().indexOf(q) !== -1;
+      return typeMatch && textMatch;
+    });
+    listWrap.innerHTML = '';
+    if(!filtered.length){
+      var emp = el("div",{cls:"gu-empty"});
+      emp.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"}},activeTab.v!=='all'?(GU_TYPES[activeTab.v]||{icon:'📭'}).icon:'📭'));
+      emp.appendChild(el("div",{css:{fontWeight:"600",marginBottom:"6px"}},q?'No results for "'+q+'"':'Nothing here yet'));
+      emp.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)"}},'Try another tab or refresh'));
+      listWrap.appendChild(emp);
+      return;
+    }
+    filtered.forEach(function(entry, idx){
+      var t = GU_TYPES[entry.type] || GU_TYPES.vacancy;
+      var card = el("div",{cls:"gu-card"});
+      card.style.setProperty("--gu-color", t.color);
+      card.style.animationDelay = (idx*30)+"ms";
+      // Badge
+      var badge = el("span",{cls:"gu-badge"},t.icon+" "+t.label);
+      badge.style.background = t.color+"20";
+      badge.style.color = t.color;
+      card.appendChild(badge);
+      // Title
+      card.appendChild(el("div",{cls:"gu-title"},entry.title));
+      // Meta
+      var meta = el("div",{cls:"gu-meta"});
+      if(entry.org)      meta.appendChild(el("span",{},"🏛 "+entry.org));
+      if(entry.date)     meta.appendChild(el("span",{},"📅 "+entry.date));
+      if(entry.lastDate) meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
+      if(entry.examDate) meta.appendChild(el("span",{css:{color:"#f59e0b"}},"📝 Exam: "+entry.examDate));
+      card.appendChild(meta);
+      // Tags
+      if(entry.tags && entry.tags.length){
+        var tagWrap = el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"10px"}});
+        entry.tags.filter(Boolean).forEach(function(tag){
+          tagWrap.appendChild(el("span",{css:{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"99px",padding:"2px 9px",fontSize:".68rem",color:"var(--muted)",fontWeight:"600"}},tag));
+        });
+        card.appendChild(tagWrap);
+      }
+      // Footer
+      var foot = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between"}});
+      foot.appendChild(entry.link ? el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener",css:{color:t.color}},"View / Apply ↗") : el("span",{}));
+      // Source badge
+      if(entry._ai){
+        foot.appendChild(el("span",{css:{fontSize:".65rem",color:"#8b5cf6",fontWeight:"600",background:"rgba(139,92,246,0.12)",padding:"2px 8px",borderRadius:"6px"}},"🤖 AI"));
+      }
+      // Remove button for manually added entries
+      if(entry._user){
+        (function(eid){
+          foot.appendChild(el("button",{cls:"btng",css:{fontSize:".72rem",padding:"4px 10px"},onclick:function(){
+            var s = Sv.get("gu_entries")||[];
+            Sv.set("gu_entries", s.filter(function(x){ return x.id!==eid; }));
+            go("govtupdates");
+            toast("Entry removed");
+          }},"✕ Remove"));
+        })(entry.id);
+      }
+      card.appendChild(foot);
+      listWrap.appendChild(card);
+    });
+  }
+
+  // Tabs
+  var tabs = el("div",{cls:"gu-tabs"});
+  [["all","🔔 All"],["vacancy","📋 Vacancy"],["admitcard","🪪 Admit Card"],["examdate","📅 Exam Date"],["result","🏆 Result"]].forEach(function(td){
+    var tb = el("button",{cls:"gu-tab"+(activeTab.v===td[0]?" gu-active":""),onclick:function(){
+      activeTab.v = td[0];
+      tabs.querySelectorAll(".gu-tab").forEach(function(b){ b.classList.remove("gu-active"); });
+      tb.classList.add("gu-active");
+      renderList();
+    }},td[1]);
+    tabs.appendChild(tb);
   });
-  sidebar.appendChild(catBox);
-  sidebar.appendChild(mkSel('🎓 Qualification','sn-qual',SN_QUALS));
-  sidebar.appendChild(mkSel('📍 State','sn-state',SN_STATES));
-  sidebar.appendChild(mkSel('💰 Pay Range','sn-pay',SN_PAY));
-  sidebar.appendChild(mkSel('📅 Application Status','sn-appstatus',SN_APP_STATUS));
 
-  // Steno toggle box
-  var stenoBox = el("div",{css:{background:"rgba(251,191,36,0.06)",border:"1.5px solid rgba(251,191,36,0.25)",borderRadius:"12px",padding:"12px"}});
-  stenoBox.appendChild(el("div",{css:{fontSize:"10px",fontWeight:"700",color:"#fbbf24",textTransform:"uppercase",letterSpacing:".12em",marginBottom:"8px",fontFamily:"var(--font-display)"},txt:"✍️ Steno Filter"}));
-  var stenoLabel = el("label",{css:{display:"flex",alignItems:"center",gap:"8px",cursor:"pointer"}});
-  var stenoChk = document.createElement('input'); stenoChk.type='checkbox'; stenoChk.id='sn-steno-chk'; stenoChk.style.cssText='width:16px;height:16px;accent-color:var(--accent);'; stenoChk.onchange=snRenderJobs;
-  stenoLabel.appendChild(stenoChk);
-  stenoLabel.appendChild(el("span",{css:{fontSize:"13px",color:"var(--text)",fontWeight:"600"},txt:"Steno Only"}));
-  stenoBox.appendChild(stenoLabel);
-  sidebar.appendChild(stenoBox);
-  mainLayout.appendChild(sidebar);
+  searchBox.addEventListener("input", renderList);
 
-  // Right panel
-  var rightPanel = el("div",{css:{flex:"1",minWidth:"0"}});
+  wrap.appendChild(searchBox);
+  wrap.appendChild(tabs);
 
-  // Dashboard section
-  var dashSection = el("div",{css:{display:"none"}}); dashSection.id='sn-dashboard-section';
-  var dashInner = el("div"); dashInner.id='sn-dashboard';
-  dashSection.appendChild(dashInner);
-  rightPanel.appendChild(dashSection);
+  // Loading skeleton
+  var skeleton = el("div",{css:{padding:"40px",textAlign:"center",color:"var(--muted)",fontSize:".85rem"}});
+  skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
+  wrap.appendChild(skeleton);
+  wrap.appendChild(listWrap);
 
-  // Jobs section
-  var jobsSection = el("div",{css:{display:"flex",flexDirection:"column"}}); jobsSection.id='sn-jobs-section';
-  var countRow = el("div",{css:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px",flexWrap:"wrap",gap:"6px"}});
-  var countEl = el("span",{css:{color:"var(--muted)",fontSize:"13px"}},"Showing 20 results"); countEl.id='sn-count';
-  countRow.appendChild(countEl);
-  jobsSection.appendChild(countRow);
-  var listEl = el("div"); listEl.id='sn-list';
-  jobsSection.appendChild(listEl);
-  rightPanel.appendChild(jobsSection);
-  mainLayout.appendChild(rightPanel);
-  wrap.appendChild(mainLayout);
+  // ── Fetch Live Government Updates ──
+  (async function(){
+    // Use cache if less than 10 minutes old
+    if(guRssCache && (Date.now()-guLastFetch) < 600000){
+      allEntries = guRssCache;
+      skeleton.style.display = 'none';
+      updateStats();
+      renderList();
+      statusTxt.textContent = '✅ Cached — '+allEntries.length+' updates loaded';
+      return;
+    }
+
+    skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
+
+    // Merge with manually added entries from localStorage
+    var stored = Sv.get("gu_entries") || [];
+
+    // Try RSS feeds with timeout
+    var fetchPromises = GU_RSS_FEEDS.slice(0, 3).map(function(feed){
+      return Promise.race([
+        guFetchFeed(feed),
+        new Promise(function(_, reject) { 
+          setTimeout(function(){ reject(new Error('timeout')); }, 5000); 
+        })
+      ]).catch(function(){ return []; });
+    });
+
+    var results = await Promise.allSettled(fetchPromises);
+    var fetchedEntries = [];
+    results.forEach(function(r){
+      if(r.status === 'fulfilled' && Array.isArray(r.value)){
+        fetchedEntries = fetchedEntries.concat(r.value);
+      }
+    });
+
+    if(fetchedEntries.length >= 3){
+      // RSS succeeded — deduplicate + sort
+      var seen = {};
+      fetchedEntries = fetchedEntries.filter(function(e){
+        var key = (e.title||'').slice(0,40).toLowerCase();
+        if(seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+      fetchedEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
+      allEntries = stored.concat(fetchedEntries);
+      guRssCache = allEntries;
+      guLastFetch = Date.now();
+      statusTxt.textContent = '● Live — '+fetchedEntries.length+' updates from RSS';
+      liveDot.style.background = '#4ade80';
+    } else {
+      // RSS failed — use fallback
+      allEntries = stored.concat(GU_FALLBACK);
+      guRssCache = allEntries;
+      guLastFetch = Date.now();
+      statusTxt.textContent = '📋 Offline Mode — '+GU_FALLBACK.length+' curated updates';
+      liveDot.style.background = '#f59e0b';
+    }
+
+    skeleton.style.display = 'none';
+    updateStats();
+    renderList();
+  })();
+
+  // ── Manual Add Panel ──
+  var adminToggle = el("div",{css:{marginTop:"28px",marginBottom:"12px",display:"flex",alignItems:"center",gap:"10px",cursor:"pointer",userSelect:"none"},onclick:function(){
+    adminPanel.style.display = adminPanel.style.display==="none"?"block":"none";
+    arrow.textContent = adminPanel.style.display==="none"?"▶":"▼";
+  }});
+  adminToggle.appendChild(el("span",{css:{fontSize:".72rem",fontWeight:"700",textTransform:"uppercase",letterSpacing:".1em",color:"var(--muted)"}},"✏️ Add Entry Manually"));
+  var arrow = el("span",{css:{fontSize:".75rem",color:"var(--subtle)"}},"▶");
+  adminToggle.appendChild(arrow);
+  wrap.appendChild(adminToggle);
+
+  var adminPanel = el("div",{cls:"gu-admin-panel"});
+  adminPanel.style.display = "none";
+  adminPanel.appendChild(el("div",{css:{fontSize:".78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"14px"}},"Add New Entry"));
+
+  var inpTitle = el("input",{placeholder:"Title / Notification name *"});
+  var inpOrg   = el("input",{placeholder:"Organisation (e.g. UPSC, SSC, RRB)"});
+  var inpType  = document.createElement("select");
+  inpType.style.cssText = "width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;font-size:.875rem;margin-bottom:10px;outline:none;";
+  [["vacancy","📋 New Vacancy"],["admitcard","🪪 Admit Card"],["examdate","📅 Exam Date / Schedule"],["result","🏆 Result"]].forEach(function(o){
+    var opt = document.createElement("option"); opt.value=o[0]; opt.textContent=o[1]; inpType.appendChild(opt);
+  });
+  var inpDate  = el("input",{type:"date"});
+  var inpLast  = el("input",{placeholder:"Last Date to Apply – optional"});
+  var inpExam  = el("input",{placeholder:"Exam Date – optional"});
+  var inpLink  = el("input",{placeholder:"Official link (https://...) – optional"});
+  var inpTags  = el("input",{placeholder:"Tags – comma separated (e.g. UPSC, IAS)"});
+
+  var addBtn = el("button",{cls:"btn btnp",css:{marginTop:"4px"},onclick:function(){
+    var title = inpTitle.value.trim();
+    if(!title){ toast("Title is required","#f87171"); return; }
+    var entry = {
+      id: Date.now()+"_u",
+      _user: true,
+      type: inpType.value,
+      title: title,
+      org: inpOrg.value.trim()||null,
+      date: inpDate.value || new Date().toISOString().slice(0,10),
+      lastDate: inpLast.value.trim()||null,
+      examDate: inpExam.value.trim()||null,
+      link: inpLink.value.trim()||null,
+      tags: inpTags.value.split(",").map(function(t){return t.trim();}).filter(Boolean)
+    };
+    var s = Sv.get("gu_entries")||[];
+    s.unshift(entry);
+    Sv.set("gu_entries", s);
+    guRssCache = null; // clear cache so new entry shows
+    go("govtupdates");
+    toast("✅ Entry added!");
+  }},"➕ Add Entry");
+
+  [inpTitle,inpOrg,inpType,inpDate,inpLast,inpExam,inpLink,inpTags,addBtn].forEach(function(c){ adminPanel.appendChild(c); });
+  wrap.appendChild(adminPanel);
   w.appendChild(wrap);
-
-  setTimeout(function(){ snRenderJobs(); },50);
   return w;
 }
-
 
 render();
 
