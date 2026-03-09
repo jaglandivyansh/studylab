@@ -1437,12 +1437,7 @@ var Sv={
 window.currentUser = Sv.get("guest_user") || null;
 
 window.signOut = function() {
-  if(confirm("Sign out of StudyLab?")) {
-    Sv.set("guest_user", null);
-    window.currentUser = null;
-    toast("Signed out successfully");
-    render();
-  }
+  showSignOutModal();
 };
 function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
 var tt;
@@ -1579,21 +1574,505 @@ function showLoginModal(){
   gBtn.style.cssText="width:100%;padding:13px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:Poppins,inherit;font-size:.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .2s;";
   gBtn.innerHTML='👤 Continue as Guest';
   gBtn.addEventListener("click",function(){
-    var guestName = prompt("Enter your name (optional):") || "Guest User";
-    window.currentUser = {
-      displayName: guestName,
-      email: "guest@studylab.local",
-      photoURL: null,
-      isGuest: true
-    };
-    Sv.set("guest_user", window.currentUser);
     document.body.removeChild(overlay);
-    toast("Welcome, " + guestName + "! 👋");
-    render();
+    showNameInputModal();
   });
   card.appendChild(gBtn);
   card.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--subtle)",marginTop:"14px"}},'\uD83D\uDD12 Secure login via Google. We never share your data.'));
   overlay.appendChild(card);document.body.appendChild(overlay);
+}
+
+// Beautiful Name Input Modal
+function showNameInputModal() {
+  var overlay = el("div", {
+    css: {
+      position: "fixed",
+      inset: "0",
+      background: "rgba(4,8,16,0.85)",
+      backdropFilter: "blur(12px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: "10000",
+      animation: "fade-in 0.3s ease"
+    }
+  });
+  
+  var card = el("div", {
+    css: {
+      background: "var(--card)",
+      border: "1.5px solid var(--border2)",
+      borderRadius: "24px",
+      padding: "40px 36px",
+      maxWidth: "460px",
+      width: "90%",
+      boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+      animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+      position: "relative"
+    }
+  });
+  
+  // Header with icon
+  var header = el("div", {
+    css: {
+      textAlign: "center",
+      marginBottom: "32px"
+    }
+  });
+  
+  var icon = el("div", {
+    css: {
+      width: "80px",
+      height: "80px",
+      margin: "0 auto 20px",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "2.5rem",
+      boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
+      animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    }
+  }, "👋");
+  
+  header.appendChild(icon);
+  header.appendChild(el("h2", {
+    css: {
+      fontFamily: "var(--font-display)",
+      fontSize: "1.6rem",
+      fontWeight: "700",
+      color: "var(--text)",
+      marginBottom: "8px"
+    }
+  }, "Welcome to StudyLab!"));
+  
+  header.appendChild(el("p", {
+    css: {
+      fontSize: ".9rem",
+      color: "var(--muted)",
+      lineHeight: "1.5"
+    }
+  }, "Let's personalize your learning experience"));
+  
+  card.appendChild(header);
+  
+  // Input container with floating label effect
+  var inputWrapper = el("div", {
+    css: {
+      position: "relative",
+      marginBottom: "28px"
+    }
+  });
+  
+  var input = document.createElement("input");
+  input.type = "text";
+  input.id = "name-input";
+  input.placeholder = " ";
+  input.autocomplete = "name";
+  input.style.cssText = `
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 2px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .95rem;
+    outline: none;
+    transition: all 0.3s ease;
+  `;
+  
+  var label = el("label", {
+    css: {
+      position: "absolute",
+      left: "18px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: "var(--muted)",
+      fontSize: ".9rem",
+      pointerEvents: "none",
+      transition: "all 0.3s ease",
+      background: "var(--bg2)",
+      padding: "0 6px"
+    }
+  }, "Your Name");
+  label.setAttribute("for", "name-input");
+  
+  // Floating label animation
+  input.addEventListener("focus", function() {
+    this.style.borderColor = "var(--accent)";
+    this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
+    label.style.top = "0";
+    label.style.fontSize = ".75rem";
+    label.style.color = "var(--accent)";
+    label.style.fontWeight = "600";
+  });
+  
+  input.addEventListener("blur", function() {
+    this.style.borderColor = "var(--border2)";
+    this.style.boxShadow = "none";
+    if (!this.value) {
+      label.style.top = "50%";
+      label.style.fontSize = ".9rem";
+      label.style.color = "var(--muted)";
+      label.style.fontWeight = "400";
+    }
+  });
+  
+  input.addEventListener("input", function() {
+    if (this.value) {
+      label.style.top = "0";
+      label.style.fontSize = ".75rem";
+      label.style.color = "var(--accent)";
+      label.style.fontWeight = "600";
+    }
+  });
+  
+  inputWrapper.appendChild(input);
+  inputWrapper.appendChild(label);
+  card.appendChild(inputWrapper);
+  
+  // Helper text
+  card.appendChild(el("p", {
+    css: {
+      fontSize: ".78rem",
+      color: "var(--subtle)",
+      marginBottom: "24px",
+      textAlign: "center"
+    }
+  }, "✨ We'll use this to personalize your experience"));
+  
+  // Buttons
+  var btnContainer = el("div", {
+    css: {
+      display: "flex",
+      gap: "12px"
+    }
+  });
+  
+  var skipBtn = el("button", {
+    css: {
+      flex: "1",
+      padding: "14px",
+      borderRadius: "12px",
+      border: "1.5px solid var(--border2)",
+      background: "transparent",
+      color: "var(--muted)",
+      fontFamily: "var(--font-body)",
+      fontSize: ".88rem",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.2s ease"
+    },
+    onclick: function() {
+      finishGuestLogin("Guest User");
+      document.body.removeChild(overlay);
+    }
+  }, "Skip");
+  
+  skipBtn.addEventListener("mouseenter", function() {
+    this.style.borderColor = "var(--accent)";
+    this.style.color = "var(--text)";
+  });
+  
+  skipBtn.addEventListener("mouseleave", function() {
+    this.style.borderColor = "var(--border2)";
+    this.style.color = "var(--muted)";
+  });
+  
+  var continueBtn = el("button", {
+    css: {
+      flex: "2",
+      padding: "14px",
+      borderRadius: "12px",
+      border: "none",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
+      color: "#fff",
+      fontFamily: "var(--font-body)",
+      fontSize: ".92rem",
+      fontWeight: "700",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+      boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px"
+    },
+    onclick: function() {
+      var name = input.value.trim() || "Guest User";
+      finishGuestLogin(name);
+      document.body.removeChild(overlay);
+    }
+  }, "Continue 🚀");
+  
+  continueBtn.addEventListener("mouseenter", function() {
+    this.style.transform = "translateY(-2px)";
+    this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)";
+  });
+  
+  continueBtn.addEventListener("mouseleave", function() {
+    this.style.transform = "translateY(0)";
+    this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)";
+  });
+  
+  // Enter key support
+  input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+      continueBtn.click();
+    }
+  });
+  
+  btnContainer.appendChild(skipBtn);
+  btnContainer.appendChild(continueBtn);
+  card.appendChild(btnContainer);
+  
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  
+  // Focus input after animation
+  setTimeout(function() {
+    input.focus();
+  }, 400);
+  
+  // Add animations
+  var style = document.createElement('style');
+  style.textContent = `
+    @keyframes bounce-in {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function finishGuestLogin(name) {
+  window.currentUser = {
+    displayName: name,
+    email: "guest@studylab.local",
+    photoURL: null,
+    isGuest: true
+  };
+  Sv.set("guest_user", window.currentUser);
+  toast("Welcome, " + name + "! 👋", "#4ade80");
+  render();
+}
+
+// Beautiful Sign Out Confirmation Modal
+function showSignOutModal() {
+  var userName = window.currentUser ? window.currentUser.displayName : "User";
+  
+  var overlay = el("div", {
+    css: {
+      position: "fixed",
+      inset: "0",
+      background: "rgba(4,8,16,0.85)",
+      backdropFilter: "blur(12px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: "10000",
+      animation: "fade-in 0.3s ease"
+    }
+  });
+  
+  // Close on overlay click
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+  
+  var card = el("div", {
+    css: {
+      background: "var(--card)",
+      border: "1.5px solid var(--border2)",
+      borderRadius: "24px",
+      padding: "40px 36px",
+      maxWidth: "440px",
+      width: "90%",
+      boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+      animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+      position: "relative"
+    }
+  });
+  
+  // Prevent card click from closing modal
+  card.addEventListener("click", function(e) {
+    e.stopPropagation();
+  });
+  
+  // Header with icon
+  var header = el("div", {
+    css: {
+      textAlign: "center",
+      marginBottom: "28px"
+    }
+  });
+  
+  var icon = el("div", {
+    css: {
+      width: "80px",
+      height: "80px",
+      margin: "0 auto 20px",
+      background: "linear-gradient(135deg, #f59e0b, #ef4444)",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "2.5rem",
+      boxShadow: "0 8px 24px rgba(239,68,68,0.3)",
+      animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    }
+  }, "👋");
+  
+  header.appendChild(icon);
+  header.appendChild(el("h2", {
+    css: {
+      fontFamily: "var(--font-display)",
+      fontSize: "1.5rem",
+      fontWeight: "700",
+      color: "var(--text)",
+      marginBottom: "8px"
+    }
+  }, "Sign Out?"));
+  
+  header.appendChild(el("p", {
+    css: {
+      fontSize: ".9rem",
+      color: "var(--muted)",
+      lineHeight: "1.5"
+    }
+  }, "See you soon, " + userName + "!"));
+  
+  card.appendChild(header);
+  
+  // Info box
+  var infoBox = el("div", {
+    css: {
+      background: "var(--bg2)",
+      border: "1px solid var(--border)",
+      borderRadius: "14px",
+      padding: "18px",
+      marginBottom: "28px"
+    }
+  });
+  
+  var infoItems = [
+    "📊 Your progress will be saved",
+    "🔖 Bookmarks remain intact",
+    "🔄 Sign back in anytime"
+  ];
+  
+  infoItems.forEach(function(item) {
+    infoBox.appendChild(el("div", {
+      css: {
+        padding: "6px 0",
+        fontSize: ".82rem",
+        color: "var(--muted)",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+      }
+    }, item));
+  });
+  
+  card.appendChild(infoBox);
+  
+  // Buttons
+  var btnContainer = el("div", {
+    css: {
+      display: "flex",
+      gap: "12px",
+      flexDirection: "column"
+    }
+  });
+  
+  var signOutBtn = el("button", {
+    css: {
+      width: "100%",
+      padding: "14px",
+      borderRadius: "12px",
+      border: "none",
+      background: "linear-gradient(135deg, #ef4444, #dc2626)",
+      color: "#fff",
+      fontFamily: "var(--font-body)",
+      fontSize: ".92rem",
+      fontWeight: "700",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+      boxShadow: "0 4px 14px rgba(239,68,68,0.35)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px"
+    },
+    onclick: function() {
+      // Perform sign out
+      Sv.set("guest_user", null);
+      window.currentUser = null;
+      document.body.removeChild(overlay);
+      toast("👋 Signed out successfully", "#f59e0b");
+      render();
+    }
+  }, "Yes, Sign Out");
+  
+  signOutBtn.addEventListener("mouseenter", function() {
+    this.style.transform = "translateY(-2px)";
+    this.style.boxShadow = "0 6px 20px rgba(239,68,68,0.45)";
+  });
+  
+  signOutBtn.addEventListener("mouseleave", function() {
+    this.style.transform = "translateY(0)";
+    this.style.boxShadow = "0 4px 14px rgba(239,68,68,0.35)";
+  });
+  
+  var cancelBtn = el("button", {
+    css: {
+      width: "100%",
+      padding: "14px",
+      borderRadius: "12px",
+      border: "1.5px solid var(--border2)",
+      background: "transparent",
+      color: "var(--text)",
+      fontFamily: "var(--font-body)",
+      fontSize: ".88rem",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.2s ease"
+    },
+    onclick: function() {
+      document.body.removeChild(overlay);
+    }
+  }, "Cancel");
+  
+  cancelBtn.addEventListener("mouseenter", function() {
+    this.style.borderColor = "var(--accent)";
+    this.style.background = "var(--bg2)";
+  });
+  
+  cancelBtn.addEventListener("mouseleave", function() {
+    this.style.borderColor = "var(--border2)";
+    this.style.background = "transparent";
+  });
+  
+  btnContainer.appendChild(signOutBtn);
+  btnContainer.appendChild(cancelBtn);
+  card.appendChild(btnContainer);
+  
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  
+  // ESC key to close
+  var escHandler = function(e) {
+    if (e.key === "Escape") {
+      document.body.removeChild(overlay);
+      document.removeEventListener("keydown", escHandler);
+    }
+  };
+  document.addEventListener("keydown", escHandler);
 }
 
 function makeLogo(sz){sz=sz||40;var s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("width",sz);s.setAttribute("height",sz);s.setAttribute("viewBox","0 0 40 40");s.innerHTML='<rect width="40" height="40" rx="10" fill="url(#slg)"/><text x="20" y="27" text-anchor="middle" font-size="20" font-family="Syne,sans-serif" font-weight="800" fill="#fff">S</text>';return s;}
@@ -1612,7 +2091,7 @@ function makeNav(active){
     
     var user = window.currentUser;
     if(user){
-      var pill = el("div",{cls:"nb-user-pill",onclick:function(){if(confirm("Sign out of StudyLab?")){window.signOut();}}});
+      var pill = el("div",{cls:"nb-user-pill",onclick:function(){window.signOut();}});
       if(user.photoURL){var img=document.createElement("img");img.src=user.photoURL;img.className="user-avatar";img.alt="avatar";pill.appendChild(img);}
       else{var av=el("div",{css:{width:"30px",height:"30px",borderRadius:"50%",background:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"700",fontSize:".8rem",color:"#fff"}},user.displayName?user.displayName[0]:"U");pill.appendChild(av);}
       pill.appendChild(el("div",{css:{fontSize:".78rem",fontWeight:"600"},txt:user.displayName?user.displayName.split(" ")[0]:"User"}));
@@ -2954,24 +3433,32 @@ function showInstallButton() {
   // Check if button already exists
   if (installButton) return;
   
+  // Detect device type
+  var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
   // Create install button
   installButton = el("button", {
     cls: "btn btnp",
     css: {
       display: "flex",
       alignItems: "center",
+      justifyContent: "center",
       gap: "6px",
-      fontSize: ".82rem",
-      padding: "8px 16px",
+      fontSize: isMobile ? ".75rem" : ".82rem",
+      padding: isMobile ? "6px 12px" : "8px 16px",
       background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
       border: "none",
       boxShadow: "0 4px 12px rgba(79,142,247,0.3)",
-      animation: "pulse-glow 2s ease-in-out infinite"
+      animation: "pulse-glow 2s ease-in-out infinite",
+      whiteSpace: "nowrap",
+      minWidth: "fit-content"
     },
-    onclick: function() {
-      installApp();
+    onclick: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showInstallModal();
     }
-  }, "📲 Install App");
+  }, isMobile ? "📲 Install" : "📲 Install App");
   
   // Add to navbar user area
   var userArea = document.getElementById('nb-user-area');
@@ -2986,14 +3473,343 @@ function showInstallButton() {
       0%, 100% { box-shadow: 0 4px 12px rgba(79,142,247,0.3); }
       50% { box-shadow: 0 4px 20px rgba(79,142,247,0.5), 0 0 30px rgba(79,142,247,0.2); }
     }
+    
+    @media (max-width: 768px) {
+      #nb-user-area {
+        gap: 6px !important;
+      }
+    }
   `;
   document.head.appendChild(style);
 }
 
-async function installApp() {
+// Beautiful Install Modal (Mobile-Optimized)
+function showInstallModal() {
+  var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  var isAndroid = /Android/i.test(navigator.userAgent);
+  
+  var overlay = el("div", {
+    css: {
+      position: "fixed",
+      inset: "0",
+      background: "rgba(4,8,16,0.9)",
+      backdropFilter: "blur(12px)",
+      display: "flex",
+      alignItems: isMobile ? "flex-end" : "center",
+      justifyContent: "center",
+      zIndex: "10000",
+      animation: "fade-in 0.3s ease",
+      padding: isMobile ? "0" : "20px"
+    }
+  });
+  
+  // Close on overlay click
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+  
+  var card = el("div", {
+    css: {
+      background: "var(--card)",
+      border: "1.5px solid var(--border2)",
+      borderRadius: isMobile ? "24px 24px 0 0" : "24px",
+      padding: isMobile ? "32px 24px 40px" : "40px 36px",
+      maxWidth: "460px",
+      width: isMobile ? "100%" : "90%",
+      boxShadow: "0 -8px 32px rgba(0,0,0,0.6)",
+      animation: isMobile ? "slide-up-mobile 0.4s cubic-bezier(0.2,0.8,0.2,1)" : "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+      position: "relative",
+      maxHeight: isMobile ? "90vh" : "auto",
+      overflowY: "auto"
+    }
+  });
+  
+  // Prevent card click from closing modal
+  card.addEventListener("click", function(e) {
+    e.stopPropagation();
+  });
+  
+  // Mobile swipe down to close
+  if (isMobile) {
+    var startY = 0;
+    var currentY = 0;
+    
+    card.addEventListener("touchstart", function(e) {
+      startY = e.touches[0].clientY;
+    });
+    
+    card.addEventListener("touchmove", function(e) {
+      currentY = e.touches[0].clientY;
+      var diff = currentY - startY;
+      
+      if (diff > 0 && card.scrollTop === 0) {
+        e.preventDefault();
+        card.style.transform = "translateY(" + diff + "px)";
+      }
+    });
+    
+    card.addEventListener("touchend", function(e) {
+      var diff = currentY - startY;
+      
+      if (diff > 100) {
+        document.body.removeChild(overlay);
+      } else {
+        card.style.transform = "translateY(0)";
+      }
+    });
+  }
+  
+  // Drag indicator for mobile
+  if (isMobile) {
+    var dragIndicator = el("div", {
+      css: {
+        width: "40px",
+        height: "4px",
+        background: "var(--border2)",
+        borderRadius: "2px",
+        margin: "0 auto 24px",
+        opacity: "0.5"
+      }
+    });
+    card.appendChild(dragIndicator);
+  }
+  
+  // Header with icon
+  var header = el("div", {
+    css: {
+      textAlign: "center",
+      marginBottom: "28px"
+    }
+  });
+  
+  var iconSize = isMobile ? "70px" : "80px";
+  var icon = el("div", {
+    css: {
+      width: iconSize,
+      height: iconSize,
+      margin: "0 auto 20px",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: isMobile ? "2rem" : "2.5rem",
+      boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
+      animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    }
+  }, "📲");
+  
+  header.appendChild(icon);
+  header.appendChild(el("h2", {
+    css: {
+      fontFamily: "var(--font-display)",
+      fontSize: isMobile ? "1.4rem" : "1.6rem",
+      fontWeight: "700",
+      color: "var(--text)",
+      marginBottom: "8px"
+    }
+  }, "Install StudyLab"));
+  
+  header.appendChild(el("p", {
+    css: {
+      fontSize: isMobile ? ".85rem" : ".9rem",
+      color: "var(--muted)",
+      lineHeight: "1.5"
+    }
+  }, "Get the best learning experience"));
+  
+  card.appendChild(header);
+  
+  // Benefits list
+  var benefits = el("div", {
+    css: {
+      background: "var(--bg2)",
+      border: "1px solid var(--border)",
+      borderRadius: "14px",
+      padding: isMobile ? "16px" : "18px",
+      marginBottom: "24px"
+    }
+  });
+  
+  var benefitsList = [
+    "⚡ Instant access from home screen",
+    "📱 Works offline after install",
+    "🚀 Faster loading times",
+    "🔔 Get study reminders",
+    "💾 No storage concerns"
+  ];
+  
+  benefitsList.forEach(function(item) {
+    benefits.appendChild(el("div", {
+      css: {
+        padding: "6px 0",
+        fontSize: isMobile ? ".78rem" : ".82rem",
+        color: "var(--muted)",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+      }
+    }, item));
+  });
+  
+  card.appendChild(benefits);
+  
+  // Platform-specific instructions
+  if (isIOS) {
+    var iosInstructions = el("div", {
+      css: {
+        background: "linear-gradient(135deg, rgba(79,142,247,0.1), rgba(126,179,255,0.1))",
+        border: "1.5px solid var(--accent)",
+        borderRadius: "14px",
+        padding: isMobile ? "16px" : "18px",
+        marginBottom: "24px"
+      }
+    });
+    
+    iosInstructions.appendChild(el("div", {
+      css: {
+        fontSize: isMobile ? ".82rem" : ".88rem",
+        fontWeight: "700",
+        color: "var(--accent)",
+        marginBottom: "12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+      }
+    }, "📱 iOS Installation Steps:"));
+    
+    var steps = [
+      "1. Tap the Share button",
+      "2. Scroll and tap 'Add to Home Screen'",
+      "3. Tap 'Add' to confirm",
+      "4. Open StudyLab from your home screen!"
+    ];
+    
+    steps.forEach(function(step) {
+      iosInstructions.appendChild(el("div", {
+        css: {
+          padding: "4px 0",
+          fontSize: isMobile ? ".78rem" : ".82rem",
+          color: "var(--text)"
+        }
+      }, step));
+    });
+    
+    card.appendChild(iosInstructions);
+  }
+  
+  // Buttons
+  var btnContainer = el("div", {
+    css: {
+      display: "flex",
+      gap: "12px",
+      flexDirection: isMobile ? "column-reverse" : "row"
+    }
+  });
+  
+  var cancelBtn = el("button", {
+    css: {
+      flex: "1",
+      padding: isMobile ? "16px" : "14px",
+      borderRadius: "12px",
+      border: "1.5px solid var(--border2)",
+      background: "transparent",
+      color: "var(--text)",
+      fontFamily: "var(--font-body)",
+      fontSize: isMobile ? ".9rem" : ".88rem",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+      WebkitTapHighlightColor: "transparent"
+    },
+    onclick: function() {
+      document.body.removeChild(overlay);
+    }
+  }, "Maybe Later");
+  
+  cancelBtn.addEventListener("mouseenter", function() {
+    this.style.borderColor = "var(--accent)";
+    this.style.background = "var(--bg2)";
+  });
+  
+  cancelBtn.addEventListener("mouseleave", function() {
+    this.style.borderColor = "var(--border2)";
+    this.style.background = "transparent";
+  });
+  
+  // Install button (only for Android/Chrome)
+  if (!isIOS && deferredPrompt) {
+    var installBtn = el("button", {
+      css: {
+        flex: "2",
+        padding: isMobile ? "16px" : "14px",
+        borderRadius: "12px",
+        border: "none",
+        background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
+        color: "#fff",
+        fontFamily: "var(--font-body)",
+        fontSize: isMobile ? ".95rem" : ".92rem",
+        fontWeight: "700",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        WebkitTapHighlightColor: "transparent"
+      },
+      onclick: function() {
+        installAppNow();
+        document.body.removeChild(overlay);
+      }
+    }, "Install Now 🚀");
+    
+    installBtn.addEventListener("touchstart", function() {
+      this.style.transform = "scale(0.98)";
+    });
+    
+    installBtn.addEventListener("touchend", function() {
+      this.style.transform = "scale(1)";
+    });
+    
+    btnContainer.appendChild(installBtn);
+  }
+  
+  btnContainer.appendChild(cancelBtn);
+  card.appendChild(btnContainer);
+  
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  
+  // ESC key to close (desktop)
+  if (!isMobile) {
+    var escHandler = function(e) {
+      if (e.key === "Escape") {
+        document.body.removeChild(overlay);
+        document.removeEventListener("keydown", escHandler);
+      }
+    };
+    document.addEventListener("keydown", escHandler);
+  }
+  
+  // Add mobile-specific animation
+  var style = document.createElement('style');
+  style.textContent = `
+    @keyframes slide-up-mobile {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+async function installAppNow() {
   if (!deferredPrompt) {
-    // Already installed or not available
-    toast("App is already installed or not available for installation", "#f59e0b");
+    toast("Installation not available", "#f59e0b");
     return;
   }
   
@@ -3018,6 +3834,10 @@ async function installApp() {
   if (installButton) {
     installButton.style.display = 'none';
   }
+}
+
+async function installApp() {
+  showInstallModal();
 }
 
 // Detect if app is installed
@@ -3045,10 +3865,10 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
 
 // Add install prompt for iOS Safari (doesn't support beforeinstallprompt)
 if (isIOS() && !isInStandaloneMode()) {
-  // Show iOS install instructions after 3 seconds
+  // Show iOS install button after 2 seconds
   setTimeout(function() {
-    showIOSInstallPrompt();
-  }, 3000);
+    showInstallButton();
+  }, 2000);
 }
 
 function isIOS() {
@@ -3060,42 +3880,92 @@ function isInStandaloneMode() {
 }
 
 function showIOSInstallPrompt() {
+  // Lightweight banner for iOS
   var iosPrompt = el("div", {
     css: {
       position: "fixed",
-      bottom: "20px",
-      left: "20px",
-      right: "20px",
+      bottom: "80px",
+      left: "16px",
+      right: "16px",
       background: "var(--card)",
       border: "2px solid var(--accent)",
       borderRadius: "16px",
-      padding: "20px",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+      padding: "16px 18px",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       zIndex: "9999",
-      animation: "slide-up 0.4s ease"
+      animation: "slide-up 0.4s ease",
+      display: "flex",
+      alignItems: "center",
+      gap: "12px"
     }
   });
   
-  iosPrompt.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
-      <div style="font-size:.95rem;font-weight:700;color:var(--text);">📲 Install StudyLab</div>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0;line-height:1;">✕</button>
-    </div>
-    <div style="font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:14px;">
-      Install this app on your iPhone: tap <span style="color:var(--accent);font-weight:600;">Share ⎋</span> then 
-      <span style="color:var(--accent);font-weight:600;">Add to Home Screen ➕</span>
+  var iconDiv = el("div", {
+    css: {
+      width: "44px",
+      height: "44px",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
+      borderRadius: "12px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "1.4rem",
+      flexShrink: "0"
+    }
+  }, "📲");
+  
+  var content = el("div", {
+    css: {
+      flex: "1",
+      minWidth: "0"
+    }
+  });
+  
+  content.innerHTML = `
+    <div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:4px;">Install StudyLab</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.4;">
+      Tap to see installation steps
     </div>
   `;
   
+  var closeBtn = el("button", {
+    css: {
+      background: "none",
+      border: "none",
+      color: "var(--muted)",
+      fontSize: "1.3rem",
+      cursor: "pointer",
+      padding: "4px",
+      lineHeight: "1",
+      flexShrink: "0",
+      WebkitTapHighlightColor: "transparent"
+    },
+    onclick: function() {
+      iosPrompt.remove();
+    }
+  }, "✕");
+  
+  iosPrompt.appendChild(iconDiv);
+  iosPrompt.appendChild(content);
+  iosPrompt.appendChild(closeBtn);
+  
+  // Click to show full modal
+  iosPrompt.addEventListener("click", function(e) {
+    if (e.target !== closeBtn) {
+      showInstallModal();
+      iosPrompt.remove();
+    }
+  });
+  
   document.body.appendChild(iosPrompt);
   
-  // Auto-hide after 10 seconds
+  // Auto-hide after 12 seconds
   setTimeout(function() {
     if (iosPrompt.parentElement) {
       iosPrompt.style.animation = "slide-down 0.4s ease";
       setTimeout(function() { iosPrompt.remove(); }, 400);
     }
-  }, 10000);
+  }, 12000);
 }
 
 </script>
