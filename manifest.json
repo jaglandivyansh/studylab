@@ -1,59 +1,23 @@
 {
-  "name": "StudyLab - Your Study Partner",
+  "name": "StudyLab",
   "short_name": "StudyLab",
-  "description": "Free online learning platform for competitive exam preparation. Practice History, Geography, Polity and more.",
-  "start_url": ".",
+  "description": "Your AI Study Partner for Competitive Exams",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#080C12",
-  "theme_color": "#4F8EF7",
-  "orientation": "portrait-primary",
-  "scope": "./",
+  "background_color": "#050505",
+  "theme_color": "#050505",
   "icons": [
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzQ4OEVGNyIvPjx0ZXh0IHg9Ijk2IiB5PSIxMjAiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iODAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TPC90ZXh0Pjwvc3ZnPg==",
+      "src": "logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzQ4OEVGNyIvPjx0ZXh0IHg9IjI1NiIgeT0iMzIwIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlM8L3RleHQ+PC9zdmc+",
+      "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "categories": ["education", "productivity"],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjE5MjAiPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjE5MjAiIGZpbGw9IiMwODBDMTIiLz48dGV4dCB4PSI1NDAiIHk9Ijk2MCIgZmlsbD0iIzRGOEVGNyIgZm9udC1zaXplPSI4MCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlN0dWR5TGFiPC90ZXh0Pjwvc3ZnPg==",
-      "sizes": "1080x1920",
-      "type": "image/svg+xml"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Practice Quiz",
-      "short_name": "Quiz",
-      "description": "Start practicing questions",
-      "url": "./index_real1.html#quiz",
-      "icons": [
-        {
-          "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjNEY4RUY3Ii8+PHRleHQgeD0iNDgiIHk9IjY1IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjUwIj7wn4+vPC90ZXh0Pjwvc3ZnPg==",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Current Affairs",
-      "short_name": "News",
-      "description": "Daily current affairs updates",
-      "url": "./index_real1.html#currentaffairs",
-      "icons": [
-        {
-          "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjNEY4RUY3Ii8+PHRleHQgeD0iNDgiIHk9IjY1IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjUwIj7wn5OQPC90ZXh0Pjwvc3ZnPg==",
-          "sizes": "96x96"
-        }
-      ]
     }
   ]
 }
