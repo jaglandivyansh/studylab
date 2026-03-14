@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>StudyLab — Free Online Masterclass for History, Geography & Polity</title>
-<link rel="icon" type="image/png" href="logo.png" sizes="192x192">
+<title>StudyLab — Your Ultimate Competitive Exam Partner</title>
+<link rel="shortcut icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 <meta property="og:image" content="logo.png">
 
@@ -31,7 +31,7 @@ Practice History, Geography, Polity and more
 
 <!-- ═══ OPEN GRAPH (WhatsApp, Facebook, LinkedIn previews) ═══ -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="StudyLab — Free Online Masterclass for Competitive Exams" />
+<meta property="og:title" content="StudyLab — Your Ultimate Competitive Exam Partner" />
 <meta property="og:description" content="Master History, Geography, Polity and more with thousands of curated questions. Track progress, get daily practice and government exam updates — all for free." />
 <meta property="og:url" content="https://studylab-inky.vercel.app/" />
 <meta property="og:site_name" content="StudyLab" />
@@ -39,7 +39,7 @@ Practice History, Geography, Polity and more
 
 <!-- ═══ TWITTER CARD ═══ -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="StudyLab — Free Online Masterclass" />
+<meta name="twitter:title" content="StudyLab — Your Ultimate Competitive Exam Partner" />
 <meta name="twitter:description" content="Your free study partner for UPSC, SSC, RRB and competitive exams. Practice daily, track progress, get govt updates." />
 <meta name="twitter:site" content="@StudyLab" />
 
@@ -3461,15 +3461,19 @@ function registerInlineSW() {
   }
 }
 
-// Listen for beforeinstallprompt event
+// Listen for beforeinstallprompt event (Works on Desktop & Mobile)
 window.addEventListener('beforeinstallprompt', function(e) {
-  // Prevent Chrome 67 and earlier from automatically showing the prompt
   e.preventDefault();
-  // Stash the event so it can be triggered later
   deferredPrompt = e;
   
-  // Show install button in navbar
-  showInstallButton();
+  // Wait 3 seconds after the page loads, then auto-show the custom popup
+  // We use sessionStorage so it only pops up once per visit and doesn't annoy the user
+  if (!sessionStorage.getItem('installPromptShown')) {
+    setTimeout(function() {
+      showInstallModal();
+      sessionStorage.setItem('installPromptShown', 'true');
+    }, 3000);
+  }
 });
 
 function showInstallButton() {
@@ -3848,6 +3852,13 @@ function showInstallModal() {
     }
   `;
   document.head.appendChild(style);
+  // --- AUTO-CLOSE AFTER 3 SECONDS ---
+  setTimeout(function() {
+    if (document.body.contains(overlay)) {
+      document.body.removeChild(overlay);
+    }
+  }, 3000); 
+  // ----------------------------------
 }
 
 async function installAppNow() {
