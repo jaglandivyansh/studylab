@@ -1030,7 +1030,7 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   <div class="wix-hero-content">
     <h1>Master Your Future</h1>
     <p>Premium online learning for History, Geography, Polity and more. Unlock thousands of curated questions and elevate your knowledge.</p>
-    <button class="btn btnp" onclick="document.getElementById('app').scrollIntoView({behavior: 'smooth'})">Explore Courses</button>
+    <button class="btn btnp" onclick="document.getElementById('ss').scrollIntoView({behavior: 'smooth'})">Explore Courses</button>
   </div>
 </section>
 
@@ -2141,23 +2141,6 @@ function pgHome(){
 
   // Quote of the day
   w.appendChild(makeQuoteCard());
-
-  // Hero
-  var hero=el("div",{css:{marginBottom:"28px",padding:"32px 36px",background:"var(--card)",borderRadius:"18px",border:"1px solid var(--border)",position:"relative",overflow:"hidden"}});
-  var heroAccent=el("div",{css:{position:"absolute",top:"0",left:"0",right:"0",height:"2px",background:"linear-gradient(90deg,var(--accent),var(--accent2),transparent)"}});
-  hero.appendChild(heroAccent);
-  var hrow=el("div",{css:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px"}});
-  hrow.appendChild(makeLogo(44));
-  hrow.appendChild(el("div",{},[
-    el("div",{css:{fontSize:"1.6rem",fontWeight:"800",letterSpacing:"-0.04em",fontFamily:"var(--font-display)"},txt:"StudyLab"}),
-    el("div",{css:{fontSize:".72rem",color:"var(--accent)",fontWeight:"600",letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"var(--font-display)"},txt:"Your Study Partner"})
-  ]));
-  hero.appendChild(hrow);
-  hero.appendChild(el("div",{css:{fontSize:".97rem",color:"var(--muted)",lineHeight:"1.7",maxWidth:"500px",marginBottom:"20px",fontWeight:"300"},txt:tot.toLocaleString()+" curated MCQs across 6 subjects. Flip flashcards, take quizzes, track your progress."}));
-  var hbtns=el("div",{css:{display:"flex",gap:"8px",flexWrap:"wrap"}});
-  hbtns.appendChild(el("button",{cls:"btn btnp",css:{padding:"10px 24px",fontSize:".9rem"},onclick:function(){document.getElementById("ss").scrollIntoView({behavior:"smooth"});}},"Start Studying →"));
-  hero.appendChild(hbtns);
-  w.appendChild(hero);
 
   // Stats
   var st=el("div",{css:{display:"flex",gap:"10px",marginBottom:"28px",flexWrap:"wrap"}});
