@@ -3276,7 +3276,7 @@ var GU_TYPES = {
 // ── RSS feeds via multiple proxy services (tries each until one works)
 var GU_RAW_FEEDS = [
   { raw: 'https://www.freejobalert.com/feed/',                                                        name:'FreeJobAlert' },
-  { raw: 'https://www.sarkarinaukriblog.com/feeds/posts/default',                                     name:'Sarkari Naukri' },
+  { raw: 'https://quicksarkari.com/feed/',                                                            name:'Sarkari Naukri' },
   { raw: 'https://www.rojgarresult.com/feed/',                                                        name:'Rojgar Result' },
   { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',                                         name:'FreshersWorld' },
   { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx',                              name:'Employment News' },
@@ -3320,6 +3320,12 @@ function guExtractOrg(title) {
   }
   return '';
 }
+// Extract 'Last Date' from RSS titles using Regex
+function guExtractLastDate(text) {
+  var match = (text||'').match(/(?:last date|apply till|deadline|closing date)[\s\:-]*(\d{1,2}[\/\-\s](?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|[a-z]+)[\/\-\s]?\d{2,4}|\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i);
+  if(match && match[1]) return match[1].trim();
+  return null;
+}
 
 // Fallback data shown when all RSS feeds fail
 var GU_FALLBACK = [
@@ -3341,7 +3347,7 @@ function guParseXml(xmlStr, feedName) {
   var doc = parser.parseFromString(xmlStr, 'text/xml');
   var items = Array.from(doc.querySelectorAll('item'));
   if (!items.length) throw new Error('No items in XML');
-  return items.slice(0, 20).map(function(item, idx) {
+  return items.slice(0, 50).map(function(item, idx) {
     var title = (item.querySelector('title')||{}).textContent || '';
     title = title.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
     var link  = (item.querySelector('link')||{}).textContent || (item.querySelector('guid')||{}).textContent || '#';
@@ -3354,7 +3360,7 @@ function guParseXml(xmlStr, feedName) {
       title: title,
       org: guExtractOrg(title) || feedName,
       date: dateStr,
-      lastDate: null, examDate: null,
+      lastDate: guExtractLastDate(title), examDate: null,
       link: link.trim() || '#',
       tags: [guExtractOrg(title)].filter(Boolean),
       _rss: true
@@ -3380,7 +3386,7 @@ async function guFetchFeed(primaryFeed) {
       if (strategy.type === 'r2j') {
         var data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length) {
-          return data.items.slice(0,20).map(function(item, idx) {
+          return data.items.slice(0,50).map(function(item, idx) {
             var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
             return {
               id: strategy.name+'_'+idx+'_'+Date.now(),
@@ -3388,7 +3394,7 @@ async function guFetchFeed(primaryFeed) {
               title: title,
               org: guExtractOrg(title) || strategy.name,
               date: item.pubDate ? item.pubDate.slice(0,10) : new Date().toISOString().slice(0,10),
-              lastDate: null, examDate: null,
+              lastDate: guExtractLastDate(title), examDate: null,
               link: item.link || item.url || '#',
               tags: [guExtractOrg(title)].filter(Boolean),
               _rss: true
@@ -3548,7 +3554,26 @@ function pgGovtUpdates(){
       var meta = el("div",{cls:"gu-meta"});
       if(entry.org)      meta.appendChild(el("span",{},"🏛 "+entry.org));
       if(entry.date)     meta.appendChild(el("span",{},"📅 "+entry.date));
-      if(entry.lastDate) meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
+      if(entry.lastDate) {
+  var closingSoon = false;
+  var daysLeft = null;
+  
+  // Attempt to parse standard Indian date formats (DD/MM/YYYY or DD-MM-YYYY)
+  var cleanDateStr = entry.lastDate.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
+  var parsedDate = new Date(cleanDateStr);
+  
+  if(!isNaN(parsedDate)) {
+    var diffMs = parsedDate - new Date();
+    daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if(daysLeft >= 0 && daysLeft <= 5) closingSoon = true;
+  }
+  
+  if(closingSoon) {
+    meta.appendChild(el("span",{css:{color:"#ef4444", fontWeight:"700", background:"rgba(239,68,68,0.15)", padding:"2px 8px", borderRadius:"6px"}},"🚨 Closing Soon: " + entry.lastDate + (daysLeft === 0 ? " (Today!)" : " (" + daysLeft + " days left)")));
+  } else {
+    meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
+  }
+}
       if(entry.examDate) meta.appendChild(el("span",{css:{color:"#f59e0b"}},"📝 Exam: "+entry.examDate));
       card.appendChild(meta);
       // Tags
@@ -3623,7 +3648,7 @@ function pgGovtUpdates(){
     var stored = Sv.get("gu_entries") || [];
 
     // Try RSS feeds with timeout
-    var fetchPromises = GU_RSS_FEEDS.slice(0, 3).map(function(feed){
+    var fetchPromises = GU_RSS_FEEDS.map(function(feed){
       return Promise.race([
         guFetchFeed(feed),
         new Promise(function(_, reject) { 
