@@ -1425,6 +1425,11 @@ window.currentUser = null;
 var SUBJ=["History","Geography","Polity","Economy","Science","GK","Current Affairs"];
 var ICON={History:"\uD83C\uDFDB\uFE0F",Geography:"\uD83C\uDF0D",Polity:"\u2696\uFE0F",Economy:"\uD83D\uDCCA",Science:"\uD83D\uDD2C",GK:"\uD83D\uDCA1","Current Affairs":"\uD83D\uDCF0"};
 var AC={History:"#d97706",Geography:"#059669",Polity:"#7c3aed",Economy:"#db2777",Science:"#0891b2",GK:"#65a30d","Current Affairs":"#3b82f6"};
+
+// This will count every question across all subjects
+const totalQuestions = Object.values(QD).reduce((sum, subjectArray) => sum + subjectArray.length, 0);
+
+console.log("Total questions in file:", totalQuestions);
 var Sv={
   get:function(k){try{return JSON.parse(localStorage.getItem(k)||"null");}catch(e){return null;}},
   set:function(k,v){
@@ -1470,6 +1475,71 @@ function el(t,p,ch){
   if(ch){var a=Array.isArray(ch)?ch:[ch];for(var i=0;i<a.length;i++){var c=a[i];if(c==null||c===false)continue;if(typeof c=="string")e.appendChild(document.createTextNode(c));else e.appendChild(c);}}
   return e;
 }
+
+// ── SARVAM AI TUTOR MODAL ──
+
+function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
+  var overlay = el("div", {
+    css: {
+      position: "fixed", inset: "0", background: "rgba(8, 12, 18, 0.9)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000"
+    }
+  });
+
+  var card = el("div", {
+    css: {
+      background: "#111827", border: "1.5px solid #b87333", borderRadius: "12px",
+      padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 16px 40px rgba(0,0,0,0.8)"
+    }
+  });
+  
+  var header = el("div", {css:{display:"flex", justifyContent:"space-between", marginBottom:"16px"}});
+  header.appendChild(el("h3", {css:{margin:0, color:"#EEF2FF", fontFamily:"var(--font-display)"}, txt: "💡 AI Tutor Analysis"}));
+  var closeBtn = el("button", {css:{background:"none", border:"none", color:"var(--subtle)", cursor:"pointer", fontSize:"1.2rem"}, txt:"✕", onclick: () => document.body.removeChild(overlay)});
+  header.appendChild(closeBtn);
+  card.appendChild(header);
+
+  var contentArea = el("div", {css:{fontSize:"0.95rem", color:"var(--muted)", lineHeight:"1.6", maxHeight:"60vh", overflowY:"auto"}});
+  contentArea.innerHTML = "<div style='text-align:center; padding: 20px;'>Analyzing problem...</div>";
+  card.appendChild(contentArea);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  var correctAns = optionsArr ? optionsArr[correctIndex] : "Not provided";
+  var prompt = `You are a technical tutor. The student is reviewing a ${subject} question. 
+Question: ${questionText}
+Options: ${optionsArr ? optionsArr.join(", ") : ""}
+Correct Answer: ${correctAns}
+
+Briefly explain the underlying logic of why this is the correct answer. Keep it analytical, straightforward, and under 50 words in English.`;
+
+  // Notice we are now calling our own local API route
+  fetch("/api/tutor", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "sarvam-30b",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.2,
+      max_tokens: 150
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.choices && data.choices.length > 0) {
+      contentArea.style.color = "#EEF2FF";
+      contentArea.innerText = data.choices[0].message.content;
+    } else {
+      contentArea.innerText = "Explanation unavailable at this time.";
+    }
+  })
+  .catch(err => {
+    contentArea.innerText = "Connection error. Please try again.";
+  });
+}
+// ───────────────────────────
 
 var pg="home",sub=null;
 
@@ -2576,6 +2646,18 @@ function pgQZ(){
       var isBm=isBookmarked(s, q.q);
       var bmBtn=el("button",{css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"},txt:isBm?"⭐":"☆"});
       bmBtn.onclick=function(e){ e.preventDefault(); isBm=toggleBookmark(s, q); this.textContent=isBm?"⭐":"☆"; this.style.transform="scale(1.2)"; var btn=this; setTimeout(function(){btn.style.transform="scale(1)";}, 200); };
+      var rside=el("div",{css:{display:"flex",alignItems:"center",gap:"10px"}});
+      if(isSk)rside.appendChild(el("span",{css:{fontSize:".72rem",color:"var(--subtle)",background:"var(--bg2)",padding:"2px 8px",borderRadius:"4px"},txt:"Skipped"}));
+      var isBm=isBookmarked(s, q.q);
+      var bmBtn=el("button",{css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"},txt:isBm?"⭐":"☆"});
+      bmBtn.onclick=function(e){ e.preventDefault(); isBm=toggleBookmark(s, q); this.textContent=isBm?"⭐":"☆"; this.style.transform="scale(1.2)"; var btn=this; setTimeout(function(){btn.style.transform="scale(1)";}, 200); };
+      
+      // --- ADDED AI BUTTON ---
+      var aiBtn = el("button", {css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"}, txt:"💡"});
+      aiBtn.onclick = function(e){ e.preventDefault(); openSarvamAIModal(q.q, q.o, q.a, s); };
+      rside.appendChild(aiBtn);
+      // -----------------------
+
       rside.appendChild(bmBtn);
       qtop.appendChild(rside);
 
