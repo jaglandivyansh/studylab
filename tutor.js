@@ -1,12 +1,9 @@
-// This file runs securely on the server, hiding your API key.
 export default async function handler(req, res) {
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  // 1. Log the method to Vercel logs so we can see what's happening
+  console.log("Request Method:", req.method);
 
   try {
-    // Forward the request to Sarvam using the hidden environment variable
+    // 2. Forward the request to Sarvam using your hidden environment variable
     const sarvamRes = await fetch("https://api.sarvam.ai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -18,7 +15,7 @@ export default async function handler(req, res) {
 
     const data = await sarvamRes.json();
     
-    // Send the AI's response back to your frontend
+    // 3. Send the AI's response back to your StudyLab frontend
     res.status(200).json(data);
     
   } catch (error) {
