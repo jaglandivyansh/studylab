@@ -992,17 +992,21 @@ body::after {
   .gu-stat-num { font-size: 1.1rem; }
 }
 /* ── ULTIMATE GLASSMORPHISM BUG FIX (CROSSFADE) ── */
-/* Disable the buggy 3D rotation entirely */
-.ci, .ci.fl, .cw .cb { transform: none !important; }
+/* 1. Completely destroy the buggy 3D rendering context */
+.cw { perspective: none !important; }
+.ci { transform-style: flat !important; transform: none !important; }
+.cw .cf, .cw .cb { backface-visibility: visible !important; }
 
-/* Use a smooth fade & scale effect instead */
+/* 2. Use a smooth 2D fade & scale effect instead */
 .cw .cf, .cw .cb {
   transition: opacity 0.25s ease, transform 0.25s ease !important;
   left: 0; right: 0; top: 0; bottom: 0;
 }
+
+/* 3. Default State (Front card visible, back card hidden) */
 .cw .cf { opacity: 1; z-index: 2; transform: scale(1) !important; }
 .cw .cb { opacity: 0; z-index: 1; pointer-events: none; transform: scale(0.95) !important; }
 
-/* When flipped, smoothly swap them */
+/* 4. Flipped State (Smoothly swap them) */
 .ci.fl .cf { opacity: 0; pointer-events: none; transform: scale(0.95) !important; }
 .ci.fl .cb { opacity: 1; pointer-events: auto; z-index: 3; transform: scale(1) !important; }
