@@ -313,12 +313,19 @@ function pgQZ(){
       bmBtn.onclick=function(e){ e.preventDefault(); isBm=toggleBookmark(s, q); this.textContent=isBm?"⭐":"☆"; this.style.transform="scale(1.2)"; var btn=this; setTimeout(function(){btn.style.transform="scale(1)";}, 200); };
       var rside=el("div",{css:{display:"flex",alignItems:"center",gap:"10px"}});
       if(isSk)rside.appendChild(el("span",{css:{fontSize:".72rem",color:"var(--subtle)",background:"var(--bg2)",padding:"2px 8px",borderRadius:"4px"},txt:"Skipped"}));
-      var isBm=isBookmarked(s, q.q);
-      var bmBtn=el("button",{css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"},txt:isBm?"⭐":"☆"});
-      bmBtn.onclick=function(e){ e.preventDefault(); isBm=toggleBookmark(s, q); this.textContent=isBm?"⭐":"☆"; this.style.transform="scale(1.2)"; var btn=this; setTimeout(function(){btn.style.transform="scale(1)";}, 200); };
+      var isBm = isBookmarked(s, q.q);
+      var bmBtn = el("button", {cls: "icon-action-btn" + (isBm ? " bm-active" : ""), txt: isBm ? "⭐" : "☆"});
+      bmBtn.onclick = function(e){ 
+        e.preventDefault(); 
+        isBm = toggleBookmark(s, q); 
+        this.textContent = isBm ? "⭐" : "☆"; 
+        this.className = "icon-action-btn" + (isBm ? " bm-active" : "");
+        this.style.transform = "scale(1.1)"; 
+        var btn = this; setTimeout(function(){ btn.style.transform = ""; }, 200); 
+      };
       
       // --- ADDED AI BUTTON ---
-      var aiBtn = el("button", {css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"}, txt:"💡"});
+      var aiBtn = el("button", {cls: "icon-action-btn", txt: "💡"});
       aiBtn.onclick = function(e){ e.preventDefault(); openSarvamAIModal(q.q, q.o, q.a, s); };
       rside.appendChild(aiBtn);
       // -----------------------

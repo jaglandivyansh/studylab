@@ -50,7 +50,7 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
       model: "sarvam-30b",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.2,
-      max_tokens: 150
+      max_tokens: 300 // <-- Increased to prevent mid-sentence cutoffs
     })
   })
   .then(res => res.json())
