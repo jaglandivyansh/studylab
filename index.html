@@ -1528,21 +1528,21 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
   })
   .then(res => res.json())
   .then(data => {
-    // Debug: This will show the real result in your Browser Console (F12)
-    console.log("Sarvam Data:", data);
-
-    if(data.choices && data.choices[i] && data.choices[0].message) {
+    // Check if Sarvam returned a successful choice
+    if (data.choices && data.choices[0] && data.choices[0].message) {
       contentArea.style.color = "#EEF2FF";
       contentArea.innerText = data.choices[0].message.content;
-    } else if (data.error) {
-      contentArea.innerText = "API Error: " + data.error;
-    } else {
-      contentArea.innerText = "The AI Tutor is busy. Please try again in a moment.";
+    } 
+    // Handle error messages returned from the backend
+    else if (data.error) {
+      contentArea.innerText = "Error: " + data.error;
+    } 
+    else {
+      contentArea.innerText = "The AI is thinking... please try again in a second.";
     }
   })
   .catch(err => {
-    console.error("Fetch Error:", err);
-    contentArea.innerText = "Connection lost. Check your internet.";
+    contentArea.innerText = "Connection lost. Please check your internet.";
   });
 }
 // ───────────────────────────
