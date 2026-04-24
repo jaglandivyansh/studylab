@@ -534,9 +534,9 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   transition: transform 0.05s !important;
 }
 
-/* Flashcard Soft Glow */
-.cw:hover .ci {
-  filter: drop-shadow(0 0 24px rgba(79,142,247,0.15));
+/* Flashcard Soft Glow - FIXED for glassmorphism */
+.cw:hover .cf, .cw:hover .cb {
+  box-shadow: 0 0 24px rgba(79,142,247,0.15) !important;
 }
 
 /* Skeleton Loading Shimmer */
