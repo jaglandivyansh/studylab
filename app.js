@@ -839,6 +839,7 @@ function makeDeadlineWidget() {
   widget.appendChild(right);
   return widget;
 }
+// ─────────────────────────────────────────────────────────────────
 
 // ─── PRO SCROLL REVEAL ENGINE ───
 window.globalRevealObserver = new IntersectionObserver(function(entries) {
@@ -853,7 +854,7 @@ window.globalRevealObserver = new IntersectionObserver(function(entries) {
 function triggerReveal(container) {
   var root = container || document;
   // Find all cards that haven't been tracked yet
-  var targets = root.querySelectorAll('.subj-row:not(.reveal-up), .stb:not(.reveal-up), .gu-card:not(.reveal-up), .news-card:not(.reveal-up), .cw:not(.reveal-up), .sc:not(.reveal-up), .mc:not(.reveal-up), .htu-step-card:not(.reveal-up), .glass-panel:not(.reveal-up)');
+  var targets = root.querySelectorAll('.subj-row:not(.reveal-up), .stb:not(.reveal-up), .gu-card:not(.reveal-up), .news-card:not(.reveal-up), .cw:not(.reveal-up), .sc:not(.reveal-up), .mc:not(.reveal-up), .htu-step-card:not(.reveal-up)');
   
   targets.forEach(function(t, index) {
     t.classList.add('reveal-up');
@@ -870,26 +871,19 @@ function render(){
   app.innerHTML="";
   if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
   
-  try {
-    if(pg=="home")app.appendChild(pgHome());
-    else if(pg=="sub")app.appendChild(pgSub());
-    else if(pg=="fc")app.appendChild(pgFC());
-    else if(pg=="qz")app.appendChild(pgQZ());
-    else if(pg=="bm")app.appendChild(pgBookmarks()); 
-    else if(pg=="stats")app.appendChild(pgStats());
-    else if(pg=="daily")app.appendChild(pgDaily());
-    else if(pg=="about")app.appendChild(pgAbout());
-    else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
-    else if(pg=="howtouse")app.appendChild(pgHowToUse());
-  } catch(err) {
-    console.error("Render Error:", err);
-    app.innerHTML = "<div style='color:#f87171;padding:40px;text-align:center;background:var(--card);border-radius:16px;border:1px solid #f87171;margin:20px;box-shadow:0 8px 32px rgba(248,113,113,0.1);'><h2>⚠️ Server Glitch</h2><p>The page failed to load because the local server lost connection to the files.</p><p style='margin-top:10px;'><b>Fix:</b> Please Hard Refresh the page (Press Ctrl + F5).</p><p style='font-size:0.75rem;color:var(--muted);margin-top:20px;'>Error: " + err.message + "</p></div>";
-  }
+  if(pg=="home")app.appendChild(pgHome());
+  else if(pg=="sub")app.appendChild(pgSub());
+  else if(pg=="fc")app.appendChild(pgFC());
+  else if(pg=="qz")app.appendChild(pgQZ());
+  else if(pg=="bm")app.appendChild(pgBookmarks()); 
+  else if(pg=="stats")app.appendChild(pgStats());
+  else if(pg=="daily")app.appendChild(pgDaily());
+  else if(pg=="about")app.appendChild(pgAbout());
+  else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
+  else if(pg=="howtouse")app.appendChild(pgHowToUse());
   
   // Trigger reveal for static page content
-  if (typeof triggerReveal === "function") {
-    setTimeout(function(){ triggerReveal(app); }, 40);
-  }
+  setTimeout(function(){ triggerReveal(app); }, 40);
 }
 
 // ═══════════════════════════════════════════════════════════════════

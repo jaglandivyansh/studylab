@@ -1,3 +1,4 @@
+// ─── PROGRESS DASHBOARD ────────────────────────────────────────
 function pgStats(){
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("stats"));

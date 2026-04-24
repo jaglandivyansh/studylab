@@ -96,9 +96,7 @@ Practice History, Geography, Polity and more
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="styles.css">
-
 </head>
 <body>
 
@@ -176,17 +174,29 @@ Practice History, Geography, Polity and more
 
 <div id="tc"></div>
 
-<script src="questions.js"></script>
-<script src="app.js"></script>
-<script src="api.js"></script>
-<script src="page-home.js"></script>
-<script src="page-study.js"></script>
-<script src="page-stats.js"></script>
-<script src="page-daily.js"></script>
-<script src="page-updates.js"></script>
-<script src="page-info.js"></script>
-
 <script>
+window.currentUser = null;
+
+function toast(msg, color) {
+  var t = document.createElement("div");
+  t.className = "toast";
+  t.innerText = msg;
+  document.getElementById("tc").appendChild(t);
+  
+  t.animate([
+    { opacity: 0, transform: 'translate(-50%, 20px)' },
+    { opacity: 1, transform: 'translate(-50%, 0)' }
+  ], { duration: 300, easing: 'cubic-bezier(0.4,0,0.2,1)' });
+
+  setTimeout(function(){ 
+    var anim = t.animate([
+      { opacity: 1, transform: 'translate(-50%, 0)' },
+      { opacity: 0, transform: 'translate(-50%, 20px)' }
+    ], { duration: 300, easing: 'ease' });
+    
+    anim.onfinish = () => t.remove();
+  }, 3000);
+}
 // Native zero-dependency Confetti!
 function throwConfetti() {
   for(let i=0; i<45; i++) {
@@ -200,57 +210,95 @@ function throwConfetti() {
   }
 }
 
-// Mobile Drawer Logic
+// ========================================
+// MOBILE DRAWER & HAMBURGER LOGIC
+// ========================================
 function toggleMobileDrawer() {
   const hamburgerBtn = document.getElementById('nb-hamburger');
   const mobileDrawer = document.getElementById('nb-mobile-drawer');
+  
   if (!mobileDrawer) return;
+
   const isDrawerOpen = mobileDrawer.classList.contains('open');
+
   if (isDrawerOpen) {
+    // Close it
     mobileDrawer.classList.remove('open');
-    if(hamburgerBtn) { hamburgerBtn.classList.remove('active'); hamburgerBtn.setAttribute('aria-expanded', 'false'); }
+    if(hamburgerBtn) {
+        hamburgerBtn.classList.remove('active');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+    }
   } else {
+    // Open it
     mobileDrawer.classList.add('open');
-    if(hamburgerBtn) { hamburgerBtn.classList.add('active'); hamburgerBtn.setAttribute('aria-expanded', 'true'); }
+    if(hamburgerBtn) {
+        hamburgerBtn.classList.add('active');
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
+    }
   }
 }
+
+// Close the drawer if the user presses the Escape key
 document.addEventListener('keydown', function(event) {
   const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  if (event.key === 'Escape' && mobileDrawer && mobileDrawer.classList.contains('open')) toggleMobileDrawer();
-});
-document.addEventListener('click', function(event) {
-  const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  const hamburgerBtn = document.getElementById('nb-hamburger');
-  if (mobileDrawer && mobileDrawer.classList.contains('open') && !mobileDrawer.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+  if (event.key === 'Escape' && mobileDrawer && mobileDrawer.classList.contains('open')) {
     toggleMobileDrawer();
   }
 });
-document.addEventListener("DOMContentLoaded", function() {
+
+// Close the drawer when clicking outside
+document.addEventListener('click', function(event) {
+  const mobileDrawer = document.getElementById('nb-mobile-drawer');
   const hamburgerBtn = document.getElementById('nb-hamburger');
-  if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleMobileDrawer);
+  
+  // Check if drawer is open
+  if (mobileDrawer && mobileDrawer.classList.contains('open')) {
+    // Check if click is outside both the drawer and hamburger button
+    if (!mobileDrawer.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+      toggleMobileDrawer();
+    }
+  }
 });
 
-// Theme System
+// Attach the click event when page loads
+document.addEventListener("DOMContentLoaded", function() {
+  const hamburgerBtn = document.getElementById('nb-hamburger');
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', toggleMobileDrawer);
+  }
+});
+// ========================================
+// THEME SYSTEM
+// ========================================
 var ThemeManager = {
-  isDark: true,
+  isDark: true, // Defaults to Dark Black/Blue mode
+  
   init: function() {
     var saved = localStorage.getItem('theme');
-    if (saved === 'light') this.isDark = false;
+    if (saved === 'light') {
+      this.isDark = false;
+    }
     this.applyTheme();
+    
     var toggle = document.getElementById('themeToggle');
     if (toggle) {
       var self = this;
-      toggle.onclick = function() { self.toggle(); };
+      toggle.onclick = function() {
+        self.toggle();
+      };
     }
   },
+  
   toggle: function() {
     this.isDark = !this.isDark;
     localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
     this.applyTheme();
   },
+  
   applyTheme: function() {
     var root = document.documentElement;
     var toggle = document.getElementById('themeToggle');
+    
     if (this.isDark) {
       root.setAttribute('data-theme', 'dark');
       if (toggle) toggle.innerText = '☀️';
@@ -261,35 +309,65 @@ var ThemeManager = {
   }
 };
 
-// Safe Application Boot
-window.addEventListener('load', function() {
-   try {
-     ThemeManager.init();
-     
-     var nbLogo = document.getElementById('nb-logo-svg');
-     if(nbLogo && typeof makeLogo === 'function') {
-         nbLogo.innerHTML = ""; 
-         nbLogo.appendChild(makeLogo(34));
-     }
-     
-     if (typeof loadCurrentAffairs === 'function') loadCurrentAffairs();
-     
-     if (typeof render === 'function') {
-         render();
-     } else {
-         console.error("CRITICAL: render() function is missing from app.js!");
-         document.getElementById("app").innerHTML = "<h2 style='color:#f87171;padding:20px;text-align:center;'>Error: render() missing. Check app.js</h2>";
-     }
+// ========================================
+// ROBUST START APPLICATION LOGIC
+// ========================================
+function initializeApp() {
+  // 1. Initialize Theme
+  if (typeof ThemeManager !== 'undefined') ThemeManager.init();
+  
+  // 2. Inject Logo safely
+  var nbLogo = document.getElementById('nb-logo-svg');
+  if(nbLogo && typeof makeLogo === 'function') {
+      nbLogo.innerHTML = ""; 
+      nbLogo.appendChild(makeLogo(34));
+  }
+  
+  // 3. Load Current Affairs (PRIORITY)
+  if (typeof loadCurrentAffairs === 'function') {
+      loadCurrentAffairs(); 
+  } else {
+      console.error("loadCurrentAffairs function is missing!");
+  }
+  
+  // 4. Initial Render
+  if (typeof render === "function") {
+      render();
+  } else {
+      console.error("render function is missing! The app will not display correctly.");
+  }
 
-     var loader = document.getElementById('app-loader');
-     if (loader) {
-         loader.style.opacity = '0'; 
-         setTimeout(function() { loader.remove(); }, 400);
-     }
-   } catch (error) {
-     console.error("App failed to initialize:", error);
-   }
-});
+  // 5. Hide Loader Smoothly
+  var loader = document.getElementById('app-loader');
+  if (loader) {
+      loader.style.opacity = '0'; // Triggers the CSS fade out
+      setTimeout(function() { 
+          loader.remove(); // Removes it completely from the DOM
+      }, 400);
+  }
+}
+
+// Ensure execution happens after all scripts (including the second <script> tag) are loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // Add a slight delay to ensure the bottom script tags have been parsed
+  setTimeout(initializeApp, 50); 
+}
 </script>
+
+<script src="questions.js"></script>
+<script src="api.js"></script>
+
+<script src="page-home.js"></script>
+<script src="page-study.js"></script>
+<script src="page-stats.js"></script>
+<script src="page-daily.js"></script>
+<script src="page-updates.js"></script>
+<script src="page-info.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
 </body>
 </html>

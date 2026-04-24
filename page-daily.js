@@ -1,3 +1,4 @@
+// ─── DAILY CHALLENGE ────────────────────────────────────────────
 function pgDaily(){
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("daily"));

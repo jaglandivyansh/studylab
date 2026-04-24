@@ -282,7 +282,6 @@ async function loadCurrentAffairs() {
   // Pre-fetch remaining tabs in background (no await)
   CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
 }
-
 // ═══════════════════════════════════════════
 //   GOVT UPDATES PAGE — RSS SYSTEM
 // ═══════════════════════════════════════════
@@ -726,4 +725,16 @@ function pgGovtUpdates(){
 
   w.appendChild(wrap);
   return w;
+}
+// --- NEW BOOKMARK HELPERS ---
+function getBookmarks(subj) { return Sv.get("bm_"+subj) || []; }
+function isBookmarked(subj, qText) { return getBookmarks(subj).some(function(b){ return b.q === qText; }); }
+function toggleBookmark(subj, qObj) {
+  var bms = getBookmarks(subj);
+  var idx = bms.findIndex(function(b){ return b.q === qObj.q; });
+  var isBm = false;
+  if (idx >= 0) { bms.splice(idx, 1); toast("Bookmark removed"); }
+  else { bms.push(qObj); toast("Saved to Bookmarks! ⭐"); isBm = true; }
+  Sv.set("bm_"+subj, bms);
+  return isBm;
 }
