@@ -697,18 +697,64 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 }
 .theme-toggle:hover { transform: scale(1.08); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-/* ── UI POLISH: VIEW TRANSITIONS ── */
-::view-transition-old(root), ::view-transition-new(root) {
-  animation-duration: 0.25s;
+
+/* ── APPLE-STYLE AMBIENT BACKGROUND (HARDWARE ACCELERATED) ── */
+body { background-color: #02040a !important; position: relative; }
+[data-theme="light"] body { background-color: #f8fafc !important; }
+
+body::before, body::after {
+  content: ''; position: fixed; z-index: -1; opacity: 0.35;
+  pointer-events: none; transition: opacity 1s ease;
+  transform: translateZ(0); 
+  will-change: transform, opacity; 
 }
+body::before {
+  top: -20%; left: -20%; width: 80vw; height: 80vh;
+  background: radial-gradient(circle at center, rgba(49, 116, 246, 0.4) 0%, transparent 60%);
+}
+body::after {
+  bottom: -20%; right: -20%; width: 80vw; height: 80vh;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.4) 0%, transparent 60%);
+}
+[data-theme="light"] body::before { background: radial-gradient(circle at center, rgba(126, 179, 255, 0.6) 0%, transparent 60%); }
+[data-theme="light"] body::after { background: radial-gradient(circle at center, rgba(167, 139, 250, 0.6) 0%, transparent 60%); }
+
+/* ── MAKE CARDS GLASSY TO REVEAL BACKGROUND ── */
+.subj-row, .stb, .gu-card, .news-card, .cw .cf, .cw .cb, .sc, .mc, .htu-step-card {
+  background: rgba(17, 24, 39, 0.45) !important;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  transform: translateZ(0); 
+}
+[data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, [data-theme="light"] .news-card, [data-theme="light"] .cw .cf, [data-theme="light"] .cw .cb, [data-theme="light"] .sc, [data-theme="light"] .mc, [data-theme="light"] .htu-step-card {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── PRO SCROLL REVEAL (STAGGERED) ── */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(35px) scale(0.95);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+/* Prevent transition delays from breaking hover effects after load */
+.reveal-up.is-visible:hover {
+  transition-delay: 0s !important; 
+}
+
 
 /* ── MOBILE BOTTOM NAVBAR ── */
 #bottom-navbar { display: none; }
 @media(max-width: 768px) {
   #bottom-navbar {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(8,12,18,0.85); backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(5, 8, 14, 0.45); backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
     border-top: 1px solid var(--border);
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 9999; justify-content: space-around;
@@ -1306,6 +1352,8 @@ function renderCurrentAffairs(articles, isLive, tabId) {
     <div class="ca-tabs-wrap">${tabsHTML}</div>
     <div class="news-scroller ca-scroller">${cardsHTML || '<div class="ca-empty">No articles found. Try another tab.</div>'}</div>
   `;
+  // Trigger animation for the newly injected news cards
+  setTimeout(function(){ triggerReveal(container); }, 10);
 }
 
 async function switchCATab(tabId) {
@@ -1685,7 +1733,7 @@ function go(p,s) {
   pg=p; if(s!==undefined) sub=s;
   closeMobileDrawer();
   
-  // Smooth App-Like View Transition!
+  // Trigger the simple crossfade transition
   if (document.startViewTransition) {
     document.startViewTransition(function() {
       render(); window.scrollTo(0,0);
@@ -1694,6 +1742,7 @@ function go(p,s) {
     render(); window.scrollTo(0,0);
   }
 }
+
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
 if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
 if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
@@ -3917,6 +3966,8 @@ function pgGovtUpdates(){
       card.appendChild(foot);
       listWrap.appendChild(card);
     });
+    // Trigger animation for the newly injected live data
+    setTimeout(function(){ triggerReveal(listWrap); }, 10);
   }
 
   // Tabs
@@ -4029,6 +4080,31 @@ function toggleBookmark(subj, qObj) {
   return isBm;
 }
 
+
+// ─── PRO SCROLL REVEAL ENGINE ───
+window.globalRevealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      window.globalRevealObserver.unobserve(entry.target); 
+    }
+  });
+}, { rootMargin: "0px 0px -40px 0px", threshold: 0.05 });
+
+function triggerReveal(container) {
+  var root = container || document;
+  // Find all cards that haven't been tracked yet
+  var targets = root.querySelectorAll('.subj-row:not(.reveal-up), .stb:not(.reveal-up), .gu-card:not(.reveal-up), .news-card:not(.reveal-up), .cw:not(.reveal-up), .sc:not(.reveal-up), .mc:not(.reveal-up), .htu-step-card:not(.reveal-up)');
+  
+  targets.forEach(function(t, index) {
+    t.classList.add('reveal-up');
+    // Create a beautiful staggered ripple effect (max 10 items per ripple)
+    var delay = (index % 10) * 0.06; 
+    t.style.transitionDelay = delay + 's';
+    window.globalRevealObserver.observe(t);
+  });
+}
+
 // --- UPDATED RENDER FUNCTION ---
 function render(){
   var app=document.getElementById("app");
@@ -4039,14 +4115,16 @@ function render(){
   else if(pg=="sub")app.appendChild(pgSub());
   else if(pg=="fc")app.appendChild(pgFC());
   else if(pg=="qz")app.appendChild(pgQZ());
-  else if(pg=="bm")app.appendChild(pgBookmarks()); // <-- NEW ROUTE
+  else if(pg=="bm")app.appendChild(pgBookmarks()); 
   else if(pg=="stats")app.appendChild(pgStats());
   else if(pg=="daily")app.appendChild(pgDaily());
   else if(pg=="about")app.appendChild(pgAbout());
   else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
   else if(pg=="howtouse")app.appendChild(pgHowToUse());
+  
+  // Trigger reveal for static page content
+  setTimeout(function(){ triggerReveal(app); }, 40);
 }
-render();
 
 // ═══════════════════════════════════════════════════════════════════
 // PWA INSTALLATION & SERVICE WORKER
