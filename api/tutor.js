@@ -7,19 +7,17 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "sarvam-2b", // Use 'sarvam-2b' as it is currently the most stable for chat
+        // Updated to a supported model ID based on your error message
+        model: "sarvam-m", 
         messages: req.body.messages,
-        temperature: 0.2
+        temperature: 0.2,
+        max_tokens: 150
       })
     });
 
     const data = await sarvamRes.json();
     
-    // If Sarvam sends an error, we pass it to the frontend to see it
-    if (data.error) {
-      return res.status(200).json({ choices: [{ message: { content: "AI Error: " + data.error.message } }] });
-    }
-
+    // Pass the data back to the frontend
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: "Backend failed to connect." });
