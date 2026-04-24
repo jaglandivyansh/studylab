@@ -47,10 +47,9 @@ function pgFC(){
   function persist(){Sv.set("fc_"+s,{c:custom,k:known});}
   var w=el("div",{css:{maxWidth:"700px",margin:"0 auto"}});
   
-  // NEW: Flashcard Session Timer
   var sessionTime = 0;
   var timerInt = setInterval(function(){
-    if(pg !== "fc") { clearInterval(timerInt); return; } // Auto-stop if user leaves page
+    if(pg !== "fc") { clearInterval(timerInt); return; } 
     sessionTime++;
     var te = document.getElementById("fc-timer");
     if(te) {
@@ -67,44 +66,83 @@ function pgFC(){
     var fc=getF(),si=fc.length?idx%fc.length:0,card=fc[si]||null,isK=card&&known[card.id];
     var isBm=card?isBookmarked(s,card.q):false; 
     var kc=Object.keys(known).filter(function(k){return known[k];}).length;
+    
     var hdr=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px",paddingBottom:"16px",borderBottom:"1.5px solid var(--border)"}});
     hdr.appendChild(el("button",{cls:"btn btng",css:{padding:"6px 12px"},onclick:function(){go("sub");}},"\u2190 Back"));
-    
-    // Updated header with timer
     var hInfo = el("div",{css:{flex:"1"}});
     hInfo.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:ICON[s]+" "+s+" \u00b7 Flashcards"}));
     var hSub = el("div",{css:{fontSize:".75rem",color:"var(--subtle)",marginTop:"1px",display:"flex",alignItems:"center",gap:"10px"}});
     hSub.appendChild(el("span",{},(pool.length+custom.length)+" cards \u00b7 "+kc+" known"));
-    hSub.appendChild(el("span",{id:"fc-timer",css:{color:"var(--accent)",fontWeight:"600",background:"var(--bg2)",padding:"2px 8px",borderRadius:"6px"}},"⏱️ 0:00"));
+    hSub.appendChild(el("span",{id:"fc-timer",css:{color:"var(--accent)",fontWeight:"600",background:"var(--bg2)",padding:"2px 8px",borderRadius:"6px"}},"⏱️ "+Math.floor(sessionTime/60)+":"+(sessionTime%60<10?"0":"")+(sessionTime%60)));
     hInfo.appendChild(hSub);
     hdr.appendChild(hInfo);
-
     hdr.appendChild(el("span",{css:{fontSize:".75rem",color:ac,background:ac+"22",padding:"4px 10px",borderRadius:"6px",fontWeight:"500"},txt:fc.length+" cards"}));
     w.appendChild(hdr);
+    
     var tb=el("div",{css:{display:"flex",gap:"4px",background:"var(--bg2)",padding:"4px",borderRadius:"8px",marginBottom:"18px",width:"fit-content"}});
     ["browse","add"].forEach(function(t){tb.appendChild(el("button",{css:{padding:"6px 14px",borderRadius:"6px",fontSize:".8rem",fontWeight:"500",cursor:"pointer",fontFamily:"inherit",background:tab===t?"var(--card)":"transparent",color:tab===t?"var(--text)":"var(--subtle)",border:tab===t?"1px solid #3a3a3a":"none"},onclick:function(){tab=t;build();}},t==="browse"?"Browse":"+ Add Card"));});
     w.appendChild(tb);
+    
     if(tab==="browse"){
       var sr=el("div",{css:{display:"flex",gap:"8px",alignItems:"center",marginBottom:"16px"}});
       var inp=el("input",{cls:"inp",placeholder:"Search "+s+"...",value:srch,type:"text",css:{flex:"1"}});
       inp.addEventListener("input",function(e){srch=e.target.value;idx=0;fl=false;build();});
       sr.appendChild(inp);sr.appendChild(el("span",{css:{fontSize:".8rem",color:"var(--subtle)",whiteSpace:"nowrap"},txt:(si+1)+"/"+fc.length}));w.appendChild(sr);
-      var cw=el("div",{cls:"cw",onclick:function(){fl=!fl;ci.className="ci"+(fl?" fl":"");}});
-      var ci=el("div",{cls:"ci"+(fl?" fl":"")});
-      ci.appendChild(el("div",{cls:"cf"},[el("div",{css:{fontSize:".7rem",textTransform:"uppercase",letterSpacing:".1em",color:"var(--subtle)",marginBottom:"16px",fontWeight:"500"},txt:"Question"}),el("div",{css:{fontSize:"1.05rem",lineHeight:"1.65",maxHeight:"170px",overflow:"hidden"},txt:card?card.q:"No cards"}),el("div",{css:{fontSize:".75rem",color:"var(--subtle)",marginTop:"16px"},txt:"Click to reveal answer"})]));
-      var cbk=el("div",{cls:"cf cb",css:{borderColor:ac+"55"}});
-      cbk.appendChild(el("div",{css:{fontSize:".7rem",textTransform:"uppercase",letterSpacing:".1em",color:"var(--subtle)",marginBottom:"16px",fontWeight:"500"},txt:"Answer"}));
-      cbk.appendChild(el("div",{css:{fontSize:"1.15rem",fontWeight:"600",color:ac},txt:card?card.a:""}));
-      if(isK)cbk.appendChild(el("div",{css:{marginTop:"14px",fontSize:".72rem",color:"#4ade80",background:"rgba(74,222,128,.15)",padding:"4px 10px",borderRadius:"6px"},txt:"\u2713 Marked as known"}));
-      ci.appendChild(cbk);cw.appendChild(ci);w.appendChild(cw);
-      var nr=el("div",{css:{display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap",marginBottom:"12px"}});
-      [["\u2190 Prev",function(){idx=(idx-1+Math.max(1,fc.length))%Math.max(1,fc.length);fl=false;build();},""],
-       [isBm?"⭐ Saved":"☆ Save",function(){if(!card)return; toggleBookmark(s, card.orig); build();}, isBm?"ok":""],
-       [isK?"\u2713 Known":"Mark Known",function(){if(!card)return;known[card.id]=!known[card.id];persist();toast(known[card.id]?"Marked known":"Unmarked");build();},isK?"ok":""],
-       ["Next \u2192",function(){idx=(idx+1)%Math.max(1,fc.length);fl=false;build();},"p"]
-      ].forEach(function(nd){var b=el("button",{cls:"btn"+(nd[2]==="p"?" btnp":""),onclick:nd[1]},nd[0]);if(nd[2]==="ok"){b.style.borderColor=nd[0].includes("Save")?"#f59e0b":"#4ade80";b.style.color=nd[0].includes("Save")?"#f59e0b":"#4ade80";}nr.appendChild(b);});
+      
+      var cw = el("div", {
+          cls: "cw",
+          onclick: function() {
+              fl = !fl;
+              ci.className = "ci" + (fl ? " fl" : "");
+              var std = document.getElementById('srs-standard-btns');
+              var rat = document.getElementById('srs-rating-btns');
+              if(std && rat) {
+                  std.style.display = fl ? 'none' : 'flex';
+                  rat.style.display = fl ? 'flex' : 'none';
+              }
+          }
+      });
+      var ci = el("div", { cls: "ci" + (fl ? " fl" : "") });
+      
+      var cf = el("div", { cls: "cf" });
+      cf.appendChild(el("div", { css: { fontSize: "1.05rem", lineHeight: "1.65", maxHeight: "170px", overflow: "hidden" }, txt: card ? card.q : "No cards" }));
+      cf.appendChild(el("div", { css: { fontSize: ".75rem", color: "var(--subtle)", marginTop: "16px" }, txt: "Click to reveal answer" }));
+      ci.appendChild(cf);
+      
+      var cbk = el("div", { cls: "cf cb", css: { borderColor: ac + "55" } });
+      cbk.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "600", color: ac }, txt: card ? card.a : "" }));
+      if (isK) cbk.appendChild(el("div", { css: { marginTop: "14px", fontSize: ".72rem", color: "#4ade80", background: "rgba(74,222,128,.15)", padding: "4px 10px", borderRadius: "6px" }, txt: "✓ Next review pending" }));
+      ci.appendChild(cbk);
+      
+      cw.appendChild(ci);
+      w.appendChild(cw);
+
+      var nr = el("div", {css: {width: "100%", marginTop: "12px"}});
+
+      var stdBtns = el("div", {id: "srs-standard-btns", css: {display: fl ? "none" : "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap"}});
+      stdBtns.appendChild(el("button", {cls: "btn", onclick: function(){ idx = (idx - 1 + Math.max(1, fc.length)) % Math.max(1, fc.length); fl = false; build(); }}, "← Prev"));
+      stdBtns.appendChild(el("button", {cls: "btn", css: {color: isBm ? "#f59e0b" : "", borderColor: isBm ? "#f59e0b" : ""}, onclick: function(){ if(!card) return; toggleBookmark(s, card.orig); build(); }}, isBm ? "⭐ Saved" : "☆ Save"));
+      stdBtns.appendChild(el("button", {cls: "btn btnp", onclick: function(){ idx = (idx + 1) % Math.max(1, fc.length); fl = false; build(); }}, "Next →"));
+      
+      var ratingBtns = el("div", {id: "srs-rating-btns", css: {display: fl ? "flex" : "none", flexDirection: "column", gap: "8px", width: "100%"}});
+      ratingBtns.appendChild(el("div", {css: {textAlign: "center", fontSize: ".75rem", color: "var(--muted)", marginBottom: "4px"}}, "How hard was this to remember?"));
+      var rRow = el("div", {css: {display: "flex", gap: "10px", width: "100%"}});
+      
+      var rateCard = function(days, msg) {
+        if(!card) return; known[card.id] = Date.now() + (days * 86400000); persist(); toast(msg);
+        idx = (idx + 1) % Math.max(1, fc.length); fl = false; build();
+      };
+      
+      rRow.appendChild(el("button", {cls: "btn btn-srs-hard", css: {flex: "1"}, onclick: function(){ rateCard(1, "Review tomorrow"); }}, "Hard (1d)"));
+      rRow.appendChild(el("button", {cls: "btn btn-srs-good", css: {flex: "1"}, onclick: function(){ rateCard(3, "Review in 3 days"); }}, "Good (3d)"));
+      rRow.appendChild(el("button", {cls: "btn btn-srs-easy", css: {flex: "1"}, onclick: function(){ rateCard(7, "Review in 7 days"); }}, "Easy (7d)"));
+      
+      ratingBtns.appendChild(rRow);
+      nr.appendChild(stdBtns);
+      nr.appendChild(ratingBtns);
+      
       w.appendChild(nr);
-      var pb=el("div",{cls:"pb"});pb.appendChild(el("div",{cls:"pf",css:{width:(fc.length?((si+1)/fc.length)*100:0)+"%",background:ac}}));w.appendChild(pb);
+      var pb=el("div",{cls:"pb",css:{marginTop:"16px"}});pb.appendChild(el("div",{cls:"pf",css:{width:(fc.length?((si+1)/fc.length)*100:0)+"%",background:ac}}));w.appendChild(pb);
     } else {
       var aw=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"20px"}});
       aw.appendChild(el("div",{css:{fontSize:".85rem",fontWeight:"500",marginBottom:"16px"},txt:"Create a custom flashcard"}));

@@ -1,3 +1,85 @@
+// ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
+function makeDeadlineWidget() {
+  var stored = Sv.get("gu_entries") || [];
+  var allData = stored.concat(GU_FALLBACK);
+  
+  var now = new Date();
+  now.setHours(0,0,0,0);
+  var closestEntry = null;
+  var closestDiff = Infinity;
+  var isExam = false;
+
+  // Scan all govt updates for the closest future date
+  allData.forEach(function(e) {
+    var dateStr = e.lastDate || e.examDate;
+    if(!dateStr) return;
+    
+    // Normalize Indian date formats (DD-MM-YYYY to YYYY-MM-DD)
+    var cleanDateStr = dateStr.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
+    var parsed = new Date(cleanDateStr);
+    
+    if (!isNaN(parsed) && parsed >= now) {
+      var diff = parsed - now;
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        closestEntry = e;
+        isExam = !!e.examDate;
+      }
+    }
+  });
+
+  // Hide if no upcoming dates found within 30 days
+  if (!closestEntry || closestDiff === Infinity) return el("div", {css:{display:"none"}});
+  var daysLeft = Math.ceil(closestDiff / (1000 * 60 * 60 * 24));
+  if (daysLeft > 30) return el("div", {css:{display:"none"}});
+
+  // Widget Styling
+  var isUrgent = daysLeft <= 3;
+  var wCol = isUrgent ? "#ef4444" : "#f59e0b"; // Red if urgent, Orange if approaching
+  var wBg = isUrgent ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)";
+
+  var widget = el("div", {
+    css: {
+      background: "var(--card)",
+      border: "1.5px solid " + wCol,
+      borderRadius: "16px",
+      padding: "16px 20px",
+      marginBottom: "28px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      boxShadow: "0 8px 24px " + wBg,
+      cursor: "pointer",
+      transition: "transform 0.2s"
+    },
+    onclick: function() { go("govtupdates"); }
+  });
+  
+  widget.addEventListener("mouseenter", function() { this.style.transform = "translateY(-3px)"; });
+  widget.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; });
+
+  var left = el("div", {css: {display: "flex", alignItems: "center", gap: "14px", flex:"1", minWidth:"0"}});
+  left.appendChild(el("div", {
+    css: {fontSize: "2rem", animation: isUrgent ? "pulse-dot 1.2s infinite" : "none", flexShrink:"0"},
+    txt: isExam ? "📝" : "⏳"
+  }));
+
+  var textWrap = el("div", {css:{minWidth:"0"}});
+  var typeText = isExam ? "Upcoming Exam" : "Application Deadline";
+  textWrap.appendChild(el("div", {css: {fontSize: ".7rem", textTransform: "uppercase", letterSpacing: ".1em", color: wCol, fontWeight: "700", marginBottom: "2px"}}, typeText));
+  textWrap.appendChild(el("div", {css: {fontSize: ".95rem", fontWeight: "700", color: "var(--text)", display: "-webkit-box", WebkitLineClamp: "1", WebkitBoxOrient: "vertical", overflow: "hidden", paddingRight:"10px"}}, closestEntry.org + " — " + closestEntry.title));
+  left.appendChild(textWrap);
+  widget.appendChild(left);
+
+  var right = el("div", {
+    css: {background: wCol, color: "#fff", padding: "6px 14px", borderRadius: "10px", fontWeight: "800", fontSize: ".9rem", whiteSpace: "nowrap", flexShrink:"0"}
+  }, daysLeft === 0 ? "Today!" : daysLeft + " Days");
+  
+  widget.appendChild(right);
+  return widget;
+}
+// ─────────────────────────────────────────────────────────────────
+
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});

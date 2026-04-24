@@ -841,29 +841,7 @@ function makeDeadlineWidget() {
 }
 // ─────────────────────────────────────────────────────────────────
 
-// ─── PRO SCROLL REVEAL ENGINE ───
-window.globalRevealObserver = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      window.globalRevealObserver.unobserve(entry.target); 
-    }
-  });
-}, { rootMargin: "0px 0px -40px 0px", threshold: 0.05 });
 
-function triggerReveal(container) {
-  var root = container || document;
-  // Find all cards that haven't been tracked yet
-  var targets = root.querySelectorAll('.subj-row:not(.reveal-up), .stb:not(.reveal-up), .gu-card:not(.reveal-up), .news-card:not(.reveal-up), .cw:not(.reveal-up), .sc:not(.reveal-up), .mc:not(.reveal-up), .htu-step-card:not(.reveal-up)');
-  
-  targets.forEach(function(t, index) {
-    t.classList.add('reveal-up');
-    // Create a beautiful staggered ripple effect (max 10 items per ripple)
-    var delay = (index % 10) * 0.06; 
-    t.style.transitionDelay = delay + 's';
-    window.globalRevealObserver.observe(t);
-  });
-}
 
 // --- UPDATED RENDER FUNCTION ---
 function render(){
@@ -882,8 +860,7 @@ function render(){
   else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
   else if(pg=="howtouse")app.appendChild(pgHowToUse());
   
-  // Trigger reveal for static page content
-  setTimeout(function(){ triggerReveal(app); }, 40);
+  
 }
 
 // ═══════════════════════════════════════════════════════════════════
