@@ -1049,3 +1049,67 @@ div[style*="background:var(--bg2)"] {
   background: rgba(0, 0, 0, 0.03) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
+/* ══════════════════════════════════════════════════════════
+   📱 THE ULTIMATE RESPONSIVE & BUG FIX PATCH
+   ══════════════════════════════════════════════════════════ */
+
+/* 1. FIX THE OVERLAPPING FLASHCARD TEXT */
+/* Forcibly hides the duplicate labels clashing with the new UI */
+.cw .cf::before, 
+.cw .cb::before { 
+  content: none !important; 
+  display: none !important; 
+}
+
+/* 2. PREVENT HORIZONTAL SCROLLING & OVERFLOW */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+.app-container {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 3. FLUID TYPOGRAPHY (Fixes the massive JS text) */
+/* Forces hardcoded JS sizes to scale down beautifully on smaller screens */
+div[style*="fontSize: 3.5rem"], 
+div[style*="font-size: 3.5rem"],
+div[style*="fontSize: 4rem"], 
+div[style*="font-size: 4rem"] {
+  font-size: clamp(1.8rem, 6vw, 3.5rem) !important;
+  line-height: 1.2 !important;
+}
+div[style*="fontSize: 1.5rem"],
+div[style*="font-size: 1.5rem"],
+div[style*="fontSize: 2.2rem"],
+div[style*="font-size: 2.2rem"] {
+  font-size: clamp(1.2rem, 4vw, 2.2rem) !important;
+}
+
+/* 4. FIX TABLET & LAPTOP NAVBAR CROWDING */
+/* Triggers the mobile hamburger menu earlier so links never squash */
+@media(max-width: 1050px) {
+  #top-navbar .nb-links { display: none !important; }
+  #nb-hamburger { display: flex !important; }
+  #app:has(.subj-row) { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; }
+}
+
+/* 5. PERFECT MOBILE SCALING (Phones) */
+@media(max-width: 600px) {
+  /* Shrink main padding */
+  .app-container { padding: 12px !important; }
+  .glass-panel, .stb, .gu-card, .news-card { padding: 16px !important; }
+  
+  /* Make Subject Cards Vertical for better readability */
+  .subj-row { flex-direction: column !important; height: auto !important; }
+  .sym-panel { height: 110px !important; width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+  .content-panel { padding: 20px !important; border-left: none !important; border-top: none !important; }
+  
+  /* Shrink Flashcards */
+  .cw { height: 260px !important; margin-bottom: 16px !important; }
+  .cw .cf, .cw .cb { padding: 20px 16px !important; font-size: 1rem !important; }
+  
+  /* Fix Stats & Features Grids */
+  .gu-stats-bar { grid-template-columns: repeat(2, 1fr) !important; }
+}
