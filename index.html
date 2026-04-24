@@ -1514,7 +1514,7 @@ Correct Answer: ${correctAns}
 Briefly explain the underlying logic of why this is the correct answer. Keep it analytical, straightforward, and under 50 words in English.`;
 
   // Notice we are now calling our own local API route
-  fetch("tutor", {
+  fetch("api/tutor", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
