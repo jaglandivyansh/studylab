@@ -238,18 +238,15 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 /* ── SUBJECT CARDS ── */
 .subj-row {
   display: flex;
-  flex-direction: column !important;
-  background: var(--card);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.3s ease, border-color 0.3s ease;
-  min-height: auto !important;
-  margin-bottom: 0 !important;
-  position: relative;
+  position: relative; /* Removed the min-height and margin-bottom overrides! */
 }
+
 .subj-row::after {
   content: '';
   position: absolute;
@@ -375,38 +372,7 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 .qo:disabled { cursor: default; opacity: 0.75; }
 
 /* ── FLASHCARDS ── */
-.cw { perspective: 1800px; height: 340px; cursor: pointer; margin-bottom: 28px; }
-.ci { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
-.ci.fl { transform: rotateY(180deg); }
-.cf, .cb {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 44px;
-  text-align: center;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow-card);
-  font-size: 1.15rem;
-  font-weight: 400;
-  font-family: var(--font-body);
-  line-height: 1.7;
-}
-.cf::before {
-  content: 'QUESTION';
-  position: absolute;
-  top: 20px;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  color: var(--subtle);
-  font-weight: 700;
-  font-family: var(--font-display);
-}
+
 .cb {
   transform: rotateY(180deg);
   border-color: rgba(79,142,247,0.25);
@@ -620,16 +586,62 @@ body::after {
 [data-theme="light"] body::before { background: radial-gradient(circle at center, rgba(126, 179, 255, 0.6) 0%, transparent 60%); }
 [data-theme="light"] body::after { background: radial-gradient(circle at center, rgba(167, 139, 250, 0.6) 0%, transparent 60%); }
 
-/* ── MAKE CARDS GLASSY TO REVEAL BACKGROUND ── */
-.subj-row, .stb, .gu-card, .news-card, .cw .cf, .cw .cb, .sc, .mc, .htu-step-card {
+/* ── SAFE GLOBAL GLASS ENGINE ── */
+
+/* 1. Explicit UI Components */
+.subj-row, .stb, .gu-card, .news-card, .sc, .mc, .htu-step-card, .fb-card, .glass-panel {
+  background: rgba(17, 24, 39, 0.45) !important;
+  backdrop-filter: blur(10px) !important; 
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  transform: translateZ(0);
+  min-height: 40px; /* Prevents blank collapse */
+}
+
+/* 2. Auto-convert ANY container heavily relying on solid var(--card) */
+div[style*="background: var(--card)"], 
+div[style*="background:var(--card)"] {
+  background: rgba(17, 24, 39, 0.45) !important;
+  backdrop-filter: blur(10px) !important; 
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* 3. Auto-convert inner grey boxes (var(--bg2)) so glass shines through */
+div[style*="background: var(--bg2)"], 
+div[style*="background:var(--bg2)"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── LIGHT MODE OVERRIDES ── */
+[data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, 
+[data-theme="light"] .news-card, [data-theme="light"] .sc, [data-theme="light"] .mc, 
+[data-theme="light"] .htu-step-card, [data-theme="light"] .fb-card, [data-theme="light"] .glass-panel,
+[data-theme="light"] div[style*="background: var(--card)"],
+[data-theme="light"] div[style*="background:var(--card)"] {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+[data-theme="light"] div[style*="background: var(--bg2)"],
+[data-theme="light"] div[style*="background:var(--bg2)"] {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── FLASHCARD 3D GLASS FIX ── */
+.cw .cf, .cw .cb {
   background: rgba(17, 24, 39, 0.45) !important;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  transform: translateZ(0); 
 }
-[data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, [data-theme="light"] .news-card, [data-theme="light"] .cw .cf, [data-theme="light"] .cw .cb, [data-theme="light"] .sc, [data-theme="light"] .mc, [data-theme="light"] .htu-step-card {
+[data-theme="light"] .cw .cf, [data-theme="light"] .cw .cb {
   background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+/* Force the back card to stay flipped and hidden! */
+.cw .cb {
+  transform: rotateY(180deg) !important;
 }
 
 /* ── PRO SCROLL REVEAL (STAGGERED) ── */
@@ -989,4 +1001,51 @@ body::after {
   /* Gov updates stats — single row of 2 */
   .gu-stat { padding: 10px 8px; }
   .gu-stat-num { font-size: 1.1rem; }
+}
+/* ── SRS FLASHCARD BUTTONS ── */
+.btn-srs-hard { background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+.btn-srs-hard:hover { background: rgba(248, 113, 113, 0.2); }
+.btn-srs-good { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.btn-srs-good:hover { background: rgba(245, 158, 11, 0.2); }
+.btn-srs-easy { background: rgba(74, 222, 128, 0.1); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+.btn-srs-easy:hover { background: rgba(74, 222, 128, 0.2); }
+
+/* ── ULTIMATE FLASHCARD ENGINE ── */
+.cw { height: 340px; cursor: pointer; margin-bottom: 28px; position: relative !important; perspective: none !important; }
+.ci { position: absolute !important; top: 0; left: 0; right: 0; bottom: 0; transform: none !important; }
+
+.cw .cf, .cw .cb {
+  position: absolute !important; top: 0; left: 0; right: 0; bottom: 0;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  transform: none !important; backface-visibility: visible !important;
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 44px; text-align: center;
+  font-size: 1.15rem; font-family: var(--font-body); line-height: 1.7;
+}
+
+/* Front & Back Setup */
+.cw .cf { opacity: 1; z-index: 2; pointer-events: auto; transform: scale(1) !important; }
+.cw .cb { opacity: 0; z-index: 1; pointer-events: none; transform: scale(0.95) !important; background: linear-gradient(160deg, var(--card2), var(--card)); border-color: rgba(79,142,247,0.25); }
+
+/* Flipped State */
+.ci.fl .cf { opacity: 0; pointer-events: none; z-index: 1; transform: scale(0.95) !important; }
+.ci.fl .cb { opacity: 1; pointer-events: auto; z-index: 2; transform: scale(1) !important; }
+
+/* Labels */
+.cf::before { content: 'QUESTION'; position: absolute; top: 20px; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--subtle); font-weight: 700; font-family: var(--font-display); }
+.cb::before { content: 'ANSWER'; position: absolute; top: 20px; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); font-weight: 700; font-family: var(--font-display); }
+
+/* ── LIGHT MODE OVERRIDES ── */
+[data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, 
+[data-theme="light"] .news-card, [data-theme="light"] .sc, [data-theme="light"] .mc, 
+[data-theme="light"] .htu-step-card, [data-theme="light"] .fb-card, [data-theme="light"] .glass-panel,
+[data-theme="light"] div[style*="background: var(--card)"],
+[data-theme="light"] div[style*="background:var(--card)"] {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+[data-theme="light"] div[style*="background: var(--bg2)"],
+[data-theme="light"] div[style*="background:var(--bg2)"] {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
