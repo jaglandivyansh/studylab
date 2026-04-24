@@ -21,9 +21,9 @@ Practice History, Geography, Polity and more
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="description" content="Practice 3000+ MCQs, read Daily Current Affairs & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta property="og:description" content="Practice 3000+ MCQs, read Daily Current Affairs & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta name="twitter:description" content="Practice 3000+ MCQs, read Daily Current Affairs & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta name="description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta property="og:description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta name="twitter:description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
 <meta name="keywords" content="StudyLab, online study, free study app, history questions, geography quiz, polity practice, economics questions, science MCQs, current affairs, daily current affairs, current affairs 2025, general studies, GS paper 1, competitive exam, UPSC, SSC, RRB, state PCS, government exam, 3000+ MCQs, flashcards, study tracker, exam preparation" />
 <meta name="author" content="StudyLab" />
 <meta name="robots" content="index, follow" />
@@ -616,6 +616,45 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   height: 2px;
   background: linear-gradient(90deg, var(--accent), var(--accent2));
 }
+/* ── UI POLISH: GLASS & MICRO-INTERACTIONS ── */
+.glass-modal {
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+[data-theme="light"] .glass-modal {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Tactile Clicks */
+.btn:active, .qo:active:not(:disabled), .gu-tab:active, .news-card:active {
+  transform: scale(0.96) !important;
+  transition: transform 0.05s !important;
+}
+
+/* Flashcard Soft Glow */
+.cw:hover .ci {
+  filter: drop-shadow(0 0 24px rgba(79,142,247,0.15));
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton-box {
+  position: relative;
+  overflow: hidden;
+  background: var(--card2) !important;
+}
+.skeleton-box::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 1.5s infinite;
+}
+[data-theme="light"] .skeleton-box::after {
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
 
 /* ── TOAST ── */
 .toast {
@@ -657,6 +696,39 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   z-index: 1000;
 }
 .theme-toggle:hover { transform: scale(1.08); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+/* ── UI POLISH: VIEW TRANSITIONS ── */
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+/* ── MOBILE BOTTOM NAVBAR ── */
+#bottom-navbar { display: none; }
+@media(max-width: 768px) {
+  #bottom-navbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(8,12,18,0.85); backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 9999; justify-content: space-around;
+  }
+  [data-theme="light"] #bottom-navbar { background: rgba(240,244,255,0.92); }
+  #bottom-navbar button {
+    background: none; border: none; color: var(--muted); padding: 10px 0 6px;
+    font-size: 0.65rem; font-weight: 600; display: flex; flex-direction: column; 
+    align-items: center; gap: 4px; width: 25%; font-family: var(--font-display);
+    transition: all 0.2s; cursor: pointer;
+  }
+  #bottom-navbar button span { font-size: 1.25rem; transition: transform 0.2s; }
+  #bottom-navbar button.active { color: var(--accent); }
+  #bottom-navbar button.active span { transform: translateY(-3px) scale(1.1); }
+  
+  /* Make room for bottom nav on mobile */
+  body { padding-bottom: 70px; }
+  .theme-toggle { bottom: 80px; }
+  .toast { bottom: 85px; }
+}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; }
@@ -1014,6 +1086,13 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   </div>
 </nav>
 
+<div id="bottom-navbar">
+  <button onclick="go('home')" data-page="home"><span>🏠</span>Home</button>
+  <button onclick="go('govtupdates')" data-page="govtupdates"><span>🔔</span>Updates</button>
+  <button onclick="go('daily')" data-page="daily"><span>🎯</span>Daily</button>
+  <button onclick="go('stats')" data-page="stats"><span>📊</span>Progress</button>
+</div>
+
 <!-- ── MOBILE NAVIGATION DRAWER ── -->
 <div id="nb-mobile-drawer">
   <button onclick="go('home');closeMobileDrawer();" data-page="home">🏠 Home</button>
@@ -1064,6 +1143,18 @@ function toast(msg, color) {
     
     anim.onfinish = () => t.remove();
   }, 3000);
+}
+// Native zero-dependency Confetti!
+function throwConfetti() {
+  for(let i=0; i<45; i++) {
+    let conf = document.createElement('div');
+    conf.style.cssText = `position:fixed;width:8px;height:8px;background:hsl(${Math.random()*360},100%,60%);top:-10px;left:${Math.random()*100}vw;z-index:99999;border-radius:${Math.random()>.5?'50%':'2px'};pointer-events:none;transform:rotate(${Math.random()*360}deg);`;
+    document.body.appendChild(conf);
+    conf.animate([
+      { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate3d(${(Math.random()-0.5)*250}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+    ], { duration: 1500 + Math.random()*1200, easing: 'cubic-bezier(.37,0,.63,1)' }).onfinish = () => conf.remove();
+  }
 }
 
 // ========================================
@@ -1487,9 +1578,14 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   });
 
   var card = el("div", {
+    cls: "glass-modal", // <-- Applies the frosted glass
     css: {
-      background: "#111827", border: "1.5px solid #b87333", borderRadius: "12px",
-      padding: "24px", maxWidth: "500px", width: "90%", boxShadow: "0 16px 40px rgba(0,0,0,0.8)"
+      border: "1px solid rgba(184, 115, 51, 0.3)", 
+      borderRadius: "18px",
+      padding: "26px", 
+      maxWidth: "500px", 
+      width: "90%", 
+      boxShadow: "0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)"
     }
   });
   
@@ -1574,15 +1670,30 @@ window.challengeData = null;
 function closeMobileDrawer(){
   var drawer = document.getElementById("nb-mobile-drawer");
   var hamburgerBtn = document.getElementById('nb-hamburger');
+  
   if(drawer) {
-    drawer.classList.remove("open");
+    drawer.classList.remove('open');
   }
+  
   if(hamburgerBtn) {
     hamburgerBtn.classList.remove('active');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
   }
 }
-function go(p,s){pg=p;if(s!==undefined)sub=s;render();window.scrollTo(0,0);closeMobileDrawer();}
+
+function go(p,s) {
+  pg=p; if(s!==undefined) sub=s;
+  closeMobileDrawer();
+  
+  // Smooth App-Like View Transition!
+  if (document.startViewTransition) {
+    document.startViewTransition(function() {
+      render(); window.scrollTo(0,0);
+    });
+  } else {
+    render(); window.scrollTo(0,0);
+  }
+}
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
 if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
 if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
@@ -2211,6 +2322,9 @@ function makeNav(active){
   // Update mobile drawer active state
   var mbtns = document.querySelectorAll('#nb-mobile-drawer button');
   mbtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-page') === active); });
+  // Update bottom navbar active state
+  var bbtns = document.querySelectorAll('#bottom-navbar button');
+  bbtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-page') === active); });
   // Update user area in top navbar
   var ua = document.getElementById('nb-user-area');
   if(ua){
@@ -2231,6 +2345,88 @@ function makeNav(active){
   // Return empty div (layout placeholder, nav is now fixed at top)
   return el("div",{css:{display:"none"}});
 }
+// ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
+function makeDeadlineWidget() {
+  var stored = Sv.get("gu_entries") || [];
+  var allData = stored.concat(GU_FALLBACK);
+  
+  var now = new Date();
+  now.setHours(0,0,0,0);
+  var closestEntry = null;
+  var closestDiff = Infinity;
+  var isExam = false;
+
+  // Scan all govt updates for the closest future date
+  allData.forEach(function(e) {
+    var dateStr = e.lastDate || e.examDate;
+    if(!dateStr) return;
+    
+    // Normalize Indian date formats (DD-MM-YYYY to YYYY-MM-DD)
+    var cleanDateStr = dateStr.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
+    var parsed = new Date(cleanDateStr);
+    
+    if (!isNaN(parsed) && parsed >= now) {
+      var diff = parsed - now;
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        closestEntry = e;
+        isExam = !!e.examDate;
+      }
+    }
+  });
+
+  // Hide if no upcoming dates found within 30 days
+  if (!closestEntry || closestDiff === Infinity) return el("div", {css:{display:"none"}});
+  var daysLeft = Math.ceil(closestDiff / (1000 * 60 * 60 * 24));
+  if (daysLeft > 30) return el("div", {css:{display:"none"}});
+
+  // Widget Styling
+  var isUrgent = daysLeft <= 3;
+  var wCol = isUrgent ? "#ef4444" : "#f59e0b"; // Red if urgent, Orange if approaching
+  var wBg = isUrgent ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)";
+
+  var widget = el("div", {
+    cls: "glass-modal", // <-- Add this line right here
+    css: {
+      background: "var(--card)",
+      border: "1.5px solid " + wCol,
+      borderRadius: "16px",
+      padding: "16px 20px",
+      marginBottom: "28px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      boxShadow: "0 8px 24px " + wBg,
+      cursor: "pointer",
+      transition: "transform 0.2s"
+    },
+    onclick: function() { go("govtupdates"); }
+  });
+  
+  widget.addEventListener("mouseenter", function() { this.style.transform = "translateY(-3px)"; });
+  widget.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; });
+
+  var left = el("div", {css: {display: "flex", alignItems: "center", gap: "14px", flex:"1", minWidth:"0"}});
+  left.appendChild(el("div", {
+    css: {fontSize: "2rem", animation: isUrgent ? "pulse-dot 1.2s infinite" : "none", flexShrink:"0"},
+    txt: isExam ? "📝" : "⏳"
+  }));
+
+  var textWrap = el("div", {css:{minWidth:"0"}});
+  var typeText = isExam ? "Upcoming Exam" : "Application Deadline";
+  textWrap.appendChild(el("div", {css: {fontSize: ".7rem", textTransform: "uppercase", letterSpacing: ".1em", color: wCol, fontWeight: "700", marginBottom: "2px"}}, typeText));
+  textWrap.appendChild(el("div", {css: {fontSize: ".95rem", fontWeight: "700", color: "var(--text)", display: "-webkit-box", WebkitLineClamp: "1", WebkitBoxOrient: "vertical", overflow: "hidden", paddingRight:"10px"}}, closestEntry.org + " — " + closestEntry.title));
+  left.appendChild(textWrap);
+  widget.appendChild(left);
+
+  var right = el("div", {
+    css: {background: wCol, color: "#fff", padding: "6px 14px", borderRadius: "10px", fontWeight: "800", fontSize: ".9rem", whiteSpace: "nowrap", flexShrink:"0"}
+  }, daysLeft === 0 ? "Today!" : daysLeft + " Days");
+  
+  widget.appendChild(right);
+  return widget;
+}
+// ─────────────────────────────────────────────────────────────────
 
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
@@ -2240,8 +2436,12 @@ function pgHome(){
   // Quote of the day
   w.appendChild(makeQuoteCard());
 
+  // NEW: Add the Deadline Widget
+  w.appendChild(makeDeadlineWidget());
+
   // Stats
   var st=el("div",{css:{display:"flex",gap:"10px",marginBottom:"28px",flexWrap:"wrap"}});
+
   [[tot.toLocaleString(),"Questions","📝"],[SUBJ.length,"Subjects","📚"],["Daily","Quotes","✨"],["Auto","Saved","💾"]].forEach(function(r){
     var sc=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px",padding:"16px 18px",flex:"1 1 110px",position:"relative",overflow:"hidden"}});
     sc.appendChild(el("div",{css:{fontSize:"1.2rem",marginBottom:"4px"},txt:r[2]}));
@@ -2529,6 +2729,7 @@ function pgQZ(){
     var pct=pool.length?Math.round((sc/pool.length)*100):0;
     hist=[{date:new Date().toLocaleDateString("en-IN"),pct:pct,correct:sc,skipped:sk,total:pool.length}].concat(hist).slice(0,15);
     if(best===null||pct>best){best=pct;if(pct>0)toast("\uD83C\uDFC6 New best: "+pct+"%!");}
+    if(pct === 100) throwConfetti(); // Boom! Perfect score!
     persist(); qst="result"; build();
   }
 
@@ -2902,6 +3103,7 @@ function pgDaily(){
           else if(streak.last!==todayDay)streak.count=1;
           streak.last=todayDay;
           Sv.set("streak",streak);
+          if(correct) throwConfetti(); // Celebrate maintaining the streak!
         }
         Sv.set(todayKey,{chosen:i,correct:correct});
         done={chosen:i,correct:correct};
@@ -3133,32 +3335,39 @@ function pgHowToUse(){
       desc:"Choose Quiz mode to answer MCQ questions. Select an option — green means correct, red means wrong. Your score and accuracy are saved automatically after every session.",
       tips:["Choose how many questions per quiz (10, 20, or 30)","Your answers are tracked to show weak areas","Review wrong answers at the end of each quiz"]
     },
+    // --- NEW: AI TUTOR STEP ---
     {
-      num:"04", icon:"📊", title:"Track Your Progress",
+      num:"04", icon:"💡", title:"Ask the AI Tutor",
+      color:"#b87333",
+      desc:"Stuck on a difficult question? Click the 💡 icon during any quiz to get an instant, logical explanation from our Sarvam AI Tutor.",
+      tips:["Available on all quiz questions","AI reads the question and options to give specific context","100% free to use"]
+    },
+    {
+      num:"05", icon:"📊", title:"Track Your Progress",
       color:"#f59e0b",
       desc:"Visit the Progress tab (📊) in the navbar to see your performance dashboard. It shows overall accuracy, total questions attempted, quiz sessions, day streak, and subject-wise breakdown.",
       tips:["Subjects where accuracy < 50% are flagged as weak","Subjects with ≥ 80% accuracy are marked as strong","Your streak resets if you skip a day — stay consistent!"]
     },
     {
-      num:"05", icon:"🎯", title:"Use the Daily Challenge",
+      num:"06", icon:"🎯", title:"Use the Daily Challenge",
       color:"#f87171",
       desc:"The Daily tab gives you a fresh mixed-subject quiz every day to keep your preparation on track. It's a great way to maintain your streak and cover all topics consistently.",
       tips:["Daily quiz resets every midnight","Mix of all 6 subjects in one session","Complete it to keep your streak alive 🔥"]
     },
     {
-      num:"06", icon:"🔔", title:"Check Government Updates",
+      num:"07", icon:"🔔", title:"Check Government Updates",
       color:"#34d399",
       desc:"The Gov Updates tab fetches live RSS feeds from UPSC, SSC, RRB, and other boards to show latest vacancies, admit cards, exam dates, and results — all in one place.",
       tips:["Use the filter tabs: All, Vacancy, Admit Card, Exam Date, Result","Search by keyword to find specific updates","You can also add your own entries manually"]
     },
     {
-      num:"07", icon:"☁️", title:"Sign In to Sync Progress",
+      num:"08", icon:"☁️", title:"Sign In to Sync Progress",
       color:"#a78bfa",
       desc:"Click the Sign In button in the top-right corner and log in with Google. Your quiz history, streaks, and scores are saved to the cloud so you never lose progress — even if you switch devices.",
       tips:["One-click Google Sign In — no password needed","Progress syncs automatically across all your devices","You can sign out anytime from the top-right corner"]
     },
     {
-      num:"08", icon:"🌙", title:"Switch Between Dark & Light Mode",
+      num:"09", icon:"🌙", title:"Switch Between Dark & Light Mode",
       color:"#60a5fa",
       desc:"Use the 🌙 / ☀️ toggle button in the navbar to switch between dark and light themes. StudyLab remembers your preference automatically.",
       tips:["Dark mode is easier on the eyes at night","Light mode works better in bright environments","Your theme preference is saved locally"]
@@ -3194,6 +3403,21 @@ function pgHowToUse(){
     card.appendChild(tipsWrap);
     wrap.appendChild(card);
   });
+  // --- NEW AI HIGHLIGHT CARD ---
+  var aiHighlight = el("div", {
+    css: {
+      background: "linear-gradient(145deg, rgba(184, 115, 51, 0.1), rgba(184, 115, 51, 0.03))",
+      border: "1px solid #b87333",
+      borderRadius: "16px",
+      padding: "24px 28px",
+      marginBottom: "24px",
+      textAlign: "center"
+    }
+  });
+  aiHighlight.appendChild(el("div", {css: {fontSize: "1.8rem", marginBottom: "8px"}, txt: "💡"}));
+  aiHighlight.appendChild(el("div", {css: {fontSize: "1.1rem", fontWeight: "800", color: "#b87333", marginBottom: "8px"}, txt: "Powered by Sarvam AI"}));
+  aiHighlight.appendChild(el("div", {css: {fontSize: ".92rem", color: "var(--muted)", lineHeight: "1.6"}, txt: "StudyLab now features a built-in AI Tutor. It analyzes the specific question you are solving and provides a clear breakdown of why an answer is correct, making your preparation smarter and faster."}));
+  wrap.appendChild(aiHighlight);
 
   // Quick Tips footer card
   var footer = el("div",{css:{background:"linear-gradient(135deg,rgba(79,142,247,0.08),rgba(126,179,255,0.04))",border:"1px solid rgba(79,142,247,0.2)",borderRadius:"16px",padding:"24px 28px",marginBottom:"24px",textAlign:"center"}});
@@ -3713,8 +3937,15 @@ function pgGovtUpdates(){
   wrap.appendChild(tabs);
 
   // Loading skeleton
-  var skeleton = el("div",{css:{padding:"40px",textAlign:"center",color:"var(--muted)",fontSize:".85rem"}});
-  skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
+  // ── SKELETON LOADER ──
+  var skeleton = el("div",{css:{display:"flex",flexDirection:"column",gap:"14px",paddingTop:"10px"}});
+  skeleton.innerHTML = Array(4).fill(
+    '<div class="gu-card skeleton-box" style="height:120px;border-color:transparent;box-shadow:none;">' +
+      '<div class="skeleton-box" style="height:22px;width:30%;border-radius:6px;margin-bottom:14px;background:var(--bg)!important"></div>' +
+      '<div class="skeleton-box" style="height:16px;width:85%;border-radius:4px;margin-bottom:10px;background:var(--bg)!important"></div>' +
+      '<div class="skeleton-box" style="height:16px;width:60%;border-radius:4px;background:var(--bg)!important"></div>' +
+    '</div>'
+  ).join('');
   wrap.appendChild(skeleton);
   wrap.appendChild(listWrap);
 
