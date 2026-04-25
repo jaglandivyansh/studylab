@@ -1035,3 +1035,104 @@ body::after {
   border-color: #f59e0b !important;
   background: rgba(245, 158, 11, 0.1) !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   STUDYLAB — NAVBAR ACTIVE HIGHLIGHT PATCH
+   Paste this at the END of your styles.css file.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── DESKTOP NAVBAR — Active button glow ── */
+#top-navbar .nb-links button.active {
+  background: linear-gradient(135deg, var(--accent), #5a9af8) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 0 0 1px rgba(79,142,247,0.5),
+    0 4px 20px rgba(49,116,246,0.45),
+    0 0 40px rgba(49,116,246,0.15) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer sweep animation on active button */
+#top-navbar .nb-links button.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+  animation: nav-shimmer 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nav-shimmer {
+  0%   { left: -100%; }
+  60%  { left: 160%; }
+  100% { left: 160%; }
+}
+
+/* Pulsing dot indicator below active link */
+#top-navbar .nb-links button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(79,142,247,0.8), 0 0 16px rgba(79,142,247,0.5);
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1;   transform: translateX(-50%) scale(1); }
+  50%       { opacity: 0.5; transform: translateX(-50%) scale(1.4); }
+}
+
+/* ── MOBILE DRAWER — Active state ── */
+#nb-mobile-drawer button.active {
+  background: linear-gradient(135deg, var(--accent), #5a9af8) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 0 0 1px rgba(79,142,247,0.4),
+    0 4px 16px rgba(49,116,246,0.35) !important;
+}
+
+/* ── BOTTOM NAVBAR (mobile) — Active tab indicator ── */
+#bottom-navbar button.active {
+  color: var(--accent) !important;
+  text-shadow: 0 0 12px rgba(79,142,247,0.6);
+  position: relative;
+}
+#bottom-navbar button.active::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 50%;
+  transform: translateX(-50%);
+  width: 28px; height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+/* ── AI DOUBT SOLVER ANIMATIONS ──
+   Paste these inside your styles.css (at the end)
+*/
+
+@keyframes msg-pop {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0);   opacity: 0.4; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Scrollbar inside chat */
+#ads-chat-area::-webkit-scrollbar { width: 4px; }
+#ads-chat-area::-webkit-scrollbar-track { background: transparent; }
+#ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }

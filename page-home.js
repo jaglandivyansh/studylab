@@ -80,6 +80,316 @@ function makeDeadlineWidget() {
 }
 // ─────────────────────────────────────────────────────────────────
 
+// ─── AI DOUBT SOLVER ─────────────────────────────────────────────
+// API key is safely stored in Vercel Environment Variables.
+// Set GEMINI_API_KEY in: Vercel Dashboard → Project → Settings → Environment Variables
+// No key needed here — frontend calls /api/doubt securely.
+var ADS_LOADING = false;
+
+function makeAIDoubtSolver() {
+  var wrapper = el("div", {
+    id: "ai-doubt-solver",
+    css: {
+      marginBottom: "28px",
+      borderRadius: "18px",
+      overflow: "hidden",
+      border: "1px solid var(--border2)",
+      background: "var(--card)",
+      boxShadow: "var(--shadow-card)",
+      transition: "box-shadow 0.3s ease"
+    }
+  });
+
+  // ── COLLAPSED BAR ──
+  var bar = el("div", {
+    id: "ads-bar",
+    css: {
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "14px 18px", cursor: "pointer",
+      transition: "background 0.2s ease", userSelect: "none"
+    }
+  });
+
+  var barLeft = el("div", {css: {display: "flex", alignItems: "center", gap: "12px"}});
+
+  var icon = el("div", {
+    css: {
+      width: "40px", height: "40px", flexShrink: "0",
+      background: "linear-gradient(135deg, #1a1a2e, #16213e)",
+      borderRadius: "11px", display: "flex", alignItems: "center",
+      justifyContent: "center",
+      boxShadow: "0 4px 12px rgba(49,116,246,0.35)",
+      overflow: "hidden"
+    }
+  });
+  var geminiImg = document.createElement("img");
+  geminiImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
+  geminiImg.alt = "Gemini";
+  geminiImg.style.cssText = "width:26px;height:26px;object-fit:contain;";
+  icon.appendChild(geminiImg);
+
+  var barText = el("div");
+  barText.appendChild(el("div", {
+    css: {fontFamily: "var(--font-display)", fontSize: ".93rem", fontWeight: "700", color: "var(--text)", letterSpacing: "-0.02em"}
+  }, "AI Doubt Solver"));
+  barText.appendChild(el("div", {
+    css: {fontSize: ".73rem", color: "var(--muted)", marginTop: "2px"}
+  }, "Tap to ask anything about your studies..."));
+
+  barLeft.appendChild(icon);
+  barLeft.appendChild(barText);
+
+  var arrow = el("div", {
+    css: {fontSize: "1.1rem", color: "var(--muted)", transition: "transform 0.3s cubic-bezier(0.2,0.8,0.2,1)", lineHeight: "1"}
+  }, "▾");
+
+  bar.appendChild(barLeft);
+  bar.appendChild(arrow);
+
+  // ── EXPANDED PANEL ──
+  var panel = el("div", {
+    css: {
+      display: "none", flexDirection: "column",
+      borderTop: "1px solid var(--border)"
+    }
+  });
+
+  // Chat area
+  var chatArea = el("div", {
+    id: "ads-chat-area",
+    css: {
+      maxHeight: "300px", overflowY: "auto",
+      padding: "16px 16px 8px",
+      display: "flex", flexDirection: "column", gap: "12px",
+      scrollBehavior: "smooth"
+    }
+  });
+
+  // Welcome state
+  var welcome = el("div", {
+    id: "ads-welcome",
+    css: {textAlign: "center", padding: "20px 16px 12px"}
+  });
+  welcome.appendChild(el("div", {css: {fontSize: "1.8rem", marginBottom: "8px"}}, "🎓"));
+  welcome.appendChild(el("div", {css: {fontWeight: "700", color: "var(--text)", marginBottom: "5px", fontFamily: "var(--font-display)"}}, "Ask me anything!"));
+  welcome.appendChild(el("div", {css: {fontSize: ".8rem", color: "var(--muted)", lineHeight: "1.5"}}, "History, Geography, Polity, Economy, Science, GK — I'm here to help."));
+  chatArea.appendChild(welcome);
+
+  // Messages container
+  var messages = el("div", {id: "ads-messages"});
+  chatArea.appendChild(messages);
+  panel.appendChild(chatArea);
+
+  // Input row
+  var inputRow = el("div", {
+    css: {
+      display: "flex", alignItems: "center", gap: "8px",
+      padding: "10px 14px", borderTop: "1px solid var(--border)"
+    }
+  });
+
+  var input = el("input", {
+    id: "ads-input", type: "text",
+    placeholder: "e.g. What is the Preamble of India?",
+    css: {
+      flex: "1", background: "var(--bg2)",
+      border: "1.5px solid var(--border)", borderRadius: "10px",
+      color: "var(--text)", fontFamily: "var(--font-body)",
+      fontSize: ".85rem", padding: "9px 13px", outline: "none"
+    }
+  });
+  input.addEventListener("focus", function() {
+    this.style.borderColor = "var(--accent)";
+    this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
+  });
+  input.addEventListener("blur", function() {
+    this.style.borderColor = "var(--border)";
+    this.style.boxShadow = "none";
+  });
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendDoubt(messages, welcome, input, sendBtn);
+  });
+
+  var sendBtn = el("button", {
+    css: {
+      width: "38px", height: "38px", flexShrink: "0",
+      background: "linear-gradient(135deg, #3174F6, #5a9af8)",
+      border: "none", borderRadius: "10px", color: "#fff",
+      cursor: "pointer", display: "flex", alignItems: "center",
+      justifyContent: "center", transition: "all 0.18s ease",
+      boxShadow: "0 4px 12px rgba(49,116,246,0.35)"
+    },
+    onclick: function() { sendDoubt(messages, welcome, input, sendBtn); }
+  });
+  sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>';
+  sendBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 16px rgba(49,116,246,0.5)"; });
+  sendBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 12px rgba(49,116,246,0.35)"; });
+
+  inputRow.appendChild(input);
+  inputRow.appendChild(sendBtn);
+  panel.appendChild(inputRow);
+
+  // Footer
+  panel.appendChild(el("div", {
+    css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
+  }, "Powered by Google Gemini · Free AI · No signup needed"));
+
+  // Toggle logic
+  var isOpen = false;
+  bar.addEventListener("click", function() {
+    isOpen = !isOpen;
+    panel.style.display = isOpen ? "flex" : "none";
+    arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+    wrapper.style.boxShadow = isOpen
+      ? "0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px rgba(0,0,0,0.4)"
+      : "var(--shadow-card)";
+    bar.style.background = isOpen ? "var(--card2)" : "transparent";
+    if (isOpen) setTimeout(function() { input.focus(); }, 300);
+  });
+
+  bar.addEventListener("mouseenter", function() { if (!isOpen) this.style.background = "var(--card2)"; });
+  bar.addEventListener("mouseleave", function() { if (!isOpen) this.style.background = "transparent"; });
+
+  wrapper.appendChild(bar);
+  wrapper.appendChild(panel);
+  return wrapper;
+}
+
+async function sendDoubt(messages, welcome, input, sendBtn) {
+  if (ADS_LOADING) return;
+  var question = input.value.trim();
+  if (!question) return;
+
+  // Hide welcome on first message
+  if (welcome) welcome.style.display = "none";
+
+  input.value = "";
+  ADS_LOADING = true;
+  sendBtn.disabled = true;
+  sendBtn.style.opacity = "0.5";
+
+  // User bubble
+  messages.appendChild(adsCreateBubble("user", question));
+  adsScrollChat();
+
+  // Typing indicator
+  var typing = adsCreateTyping();
+  messages.appendChild(typing);
+  adsScrollChat();
+
+  try {
+    var res = await fetch("/api/doubt", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ question: question })
+    });
+
+    var data = await res.json();
+    messages.removeChild(typing);
+
+    if (data.answer) {
+      messages.appendChild(adsCreateBubble("ai", data.answer));
+    } else if (data.error) {
+      messages.appendChild(adsCreateBubble("ai", "⚠️ " + data.error));
+    } else {
+      messages.appendChild(adsCreateBubble("ai", "⚠️ No response. Please try again."));
+    }
+  } catch(err) {
+    messages.removeChild(typing);
+    messages.appendChild(adsCreateBubble("ai", "⚠️ Network error. Check your connection."));
+  }
+
+  ADS_LOADING = false;
+  sendBtn.disabled = false;
+  sendBtn.style.opacity = "1";
+  adsScrollChat();
+  input.focus();
+}
+
+function adsCreateBubble(type, text) {
+  var msg = el("div", {css: {display: "flex", gap: "8px", flexDirection: type === "user" ? "row-reverse" : "row", animation: "msg-pop 0.25s ease"}});
+
+  var avatar = el("div", {
+    css: {
+      width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      marginTop: "2px", fontSize: ".8rem",
+      background: type === "user" ? "var(--accent)" : "linear-gradient(135deg, #1a1a2e, #16213e)",
+      color: "#fff", fontWeight: "700",
+      overflow: "hidden"
+    }
+  });
+  if (type === "user") {
+    avatar.textContent = "U";
+  } else {
+    var avImg = document.createElement("img");
+    avImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
+    avImg.alt = "Gemini";
+    avImg.style.cssText = "width:16px;height:16px;object-fit:contain;";
+    avatar.appendChild(avImg);
+  }
+
+  var bubble = el("div", {
+    css: {
+      maxWidth: "82%", padding: "9px 13px", fontSize: ".85rem", lineHeight: "1.6",
+      color: type === "user" ? "#fff" : "var(--text)",
+      background: type === "user" ? "var(--accent)" : "var(--card2)",
+      border: type === "user" ? "none" : "1px solid var(--border)",
+      borderRadius: type === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px"
+    }
+  });
+  bubble.innerHTML = text.replace(/\n/g, "<br>");
+
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  return msg;
+}
+
+function adsCreateTyping() {
+  var msg = el("div", {css: {display: "flex", gap: "8px", alignItems: "flex-end"}});
+  var avatar = el("div", {
+    css: {
+      width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      background: "linear-gradient(135deg, #1a1a2e, #16213e)",
+      overflow: "hidden"
+    }
+  });
+  var typAvImg = document.createElement("img");
+  typAvImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
+  typAvImg.alt = "Gemini";
+  typAvImg.style.cssText = "width:16px;height:16px;object-fit:contain;";
+  avatar.appendChild(typAvImg);
+
+  var bubble = el("div", {
+    css: {
+      padding: "10px 14px", borderRadius: "14px 14px 14px 4px",
+      background: "var(--card2)", border: "1px solid var(--border)",
+      display: "flex", gap: "4px", alignItems: "center"
+    }
+  });
+  for (var i = 0; i < 3; i++) {
+    var dot = el("span", {
+      css: {
+        width: "6px", height: "6px", borderRadius: "50%",
+        background: "var(--muted)", display: "inline-block",
+        animation: "typing-bounce 1.2s ease-in-out infinite",
+        animationDelay: (i * 0.2) + "s"
+      }
+    });
+    bubble.appendChild(dot);
+  }
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  return msg;
+}
+
+function adsScrollChat() {
+  var area = document.getElementById("ads-chat-area");
+  if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
+}
+// ─────────────────────────────────────────────────────────────────
+
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});
@@ -91,17 +401,8 @@ function pgHome(){
   // NEW: Add the Deadline Widget
   w.appendChild(makeDeadlineWidget());
 
-  // Stats
-  var st=el("div",{css:{display:"flex",gap:"10px",marginBottom:"28px",flexWrap:"wrap"}});
-
-  [[tot.toLocaleString(),"Questions","📝"],[SUBJ.length,"Subjects","📚"],["Daily","Quotes","✨"],["Auto","Saved","💾"]].forEach(function(r){
-    var sc=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px",padding:"16px 18px",flex:"1 1 110px",position:"relative",overflow:"hidden"}});
-    sc.appendChild(el("div",{css:{fontSize:"1.2rem",marginBottom:"4px"},txt:r[2]}));
-    sc.appendChild(el("div",{css:{fontSize:"1.05rem",fontWeight:"700",fontFamily:"var(--font-display)",letterSpacing:"-0.02em"},txt:r[0]}));
-    sc.appendChild(el("div",{css:{fontSize:".7rem",color:"var(--subtle)",marginTop:"2px",textTransform:"uppercase",letterSpacing:"0.06em",fontFamily:"var(--font-display)"},txt:r[1]}));
-    st.appendChild(sc);
-  });
-  w.appendChild(st);
+  // AI Doubt Solver (replaces stats tiles)
+  w.appendChild(makeAIDoubtSolver());
 
   // Subject showcase - alternating layout
   var SD={
