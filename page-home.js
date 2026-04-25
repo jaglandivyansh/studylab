@@ -115,18 +115,14 @@ function makeAIDoubtSolver() {
   var icon = el("div", {
     css: {
       width: "40px", height: "40px", flexShrink: "0",
-      background: "linear-gradient(135deg, #1a1a2e, #16213e)",
+      background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
       borderRadius: "11px", display: "flex", alignItems: "center",
       justifyContent: "center",
-      boxShadow: "0 4px 12px rgba(49,116,246,0.35)",
-      overflow: "hidden"
+      boxShadow: "0 4px 12px rgba(99,102,241,0.45)",
+      fontFamily: "var(--font-display)", fontSize: "1rem",
+      fontWeight: "800", color: "#fff", letterSpacing: "-0.02em"
     }
-  });
-  var geminiImg = document.createElement("img");
-  geminiImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
-  geminiImg.alt = "Gemini";
-  geminiImg.style.cssText = "width:26px;height:26px;object-fit:contain;";
-  icon.appendChild(geminiImg);
+  }, "S");
 
   var barText = el("div");
   barText.appendChild(el("div", {
@@ -232,7 +228,7 @@ function makeAIDoubtSolver() {
   // Footer
   panel.appendChild(el("div", {
     css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
-  }, "Powered by Sarvam AI · Made for India · No signup needed"));
+  }, "Powered by Sarvam AI · Made for India 🇮🇳"));
 
   // Toggle logic
   var isOpen = false;
@@ -320,13 +316,18 @@ function adsCreateBubble(type, text) {
     }
   });
   if (type === "user") {
-    avatar.textContent = "U";
+    // Show first letter of user's display name
+    var userName = (window.currentUser && window.currentUser.displayName)
+      ? window.currentUser.displayName.trim()[0].toUpperCase()
+      : "U";
+    avatar.textContent = userName;
   } else {
-    var avImg = document.createElement("img");
-    avImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
-    avImg.alt = "Gemini";
-    avImg.style.cssText = "width:16px;height:16px;object-fit:contain;";
-    avatar.appendChild(avImg);
+    // Sarvam "S" logo
+    avatar.textContent = "S";
+    avatar.style.background = "linear-gradient(135deg, #6366F1, #8B5CF6)";
+    avatar.style.fontFamily = "var(--font-display)";
+    avatar.style.fontWeight = "800";
+    avatar.style.fontSize = ".75rem";
   }
 
   var bubble = el("div", {
@@ -351,15 +352,16 @@ function adsCreateTyping() {
     css: {
       width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
       display: "flex", alignItems: "center", justifyContent: "center",
-      background: "linear-gradient(135deg, #1a1a2e, #16213e)",
+      background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
       overflow: "hidden"
     }
   });
-  var typAvImg = document.createElement("img");
-  typAvImg.src = "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg";
-  typAvImg.alt = "Gemini";
-  typAvImg.style.cssText = "width:16px;height:16px;object-fit:contain;";
-  avatar.appendChild(typAvImg);
+  avatar.textContent = "S";
+  avatar.style.background = "linear-gradient(135deg, #6366F1, #8B5CF6)";
+  avatar.style.fontFamily = "var(--font-display)";
+  avatar.style.fontWeight = "800";
+  avatar.style.fontSize = ".75rem";
+  avatar.style.color = "#fff";
 
   var bubble = el("div", {
     css: {
