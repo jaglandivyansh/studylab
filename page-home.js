@@ -160,7 +160,7 @@ function makeAIDoubtSolver() {
     css: {
       maxHeight: "300px", overflowY: "auto",
       padding: "16px 16px 8px",
-      display: "flex", flexDirection: "column", gap: "12px",
+      display: "flex", flexDirection: "column", gap: "20px",
       scrollBehavior: "smooth"
     }
   });
@@ -232,7 +232,7 @@ function makeAIDoubtSolver() {
   // Footer
   panel.appendChild(el("div", {
     css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
-  }, "Powered by Google Gemini · Free AI · No signup needed"));
+  }, "Powered by Sarvam AI · Made for India · No signup needed"));
 
   // Toggle logic
   var isOpen = false;
@@ -307,7 +307,7 @@ async function sendDoubt(messages, welcome, input, sendBtn) {
 }
 
 function adsCreateBubble(type, text) {
-  var msg = el("div", {css: {display: "flex", gap: "8px", flexDirection: type === "user" ? "row-reverse" : "row", animation: "msg-pop 0.25s ease"}});
+  var msg = el("div", {css: {display: "flex", gap: "8px", flexDirection: type === "user" ? "row-reverse" : "row", animation: "msg-pop 0.25s ease", marginBottom: "4px"}});
 
   var avatar = el("div", {
     css: {
