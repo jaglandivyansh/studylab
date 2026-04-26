@@ -93,18 +93,32 @@ function closeMobileDrawer(){
   }
 }
 
-function go(p,s) {
-  pg=p; if(s!==undefined) sub=s;
+function go(p, s, skipHistory) {
+  pg = p; if(s !== undefined) sub = s;
   closeMobileDrawer();
-  
-  // Trigger the simple crossfade transition
-  if (document.startViewTransition) {
-    document.startViewTransition(function() {
-      render(); window.scrollTo(0,0);
-    });
-  } else {
-    render(); window.scrollTo(0,0);
+
+  // IMPORTANT NEW LINE: Tell the phone's back button where we are!
+  // We only push history if this was a normal click, NOT if the user actually pressed the back button
+  if (!skipHistory) {
+    history.pushState({ page: p, sub: s }, "");
   }
+
+  // 1. Instantly update the navigation buttons to show the active state
+  var allNavBtns = document.querySelectorAll('#bottom-navbar button, #top-navbar .nb-links button, #nb-mobile-drawer button');
+  allNavBtns.forEach(function(b){ 
+    b.classList.toggle('active', b.getAttribute('data-page') === p); 
+  });
+
+  // 2. Delay the heavy page rendering by 30ms to let the mobile GPU breathe
+  setTimeout(function() {
+    if (document.startViewTransition) {
+      document.startViewTransition(function() {
+        render(); window.scrollTo(0,0);
+      });
+    } else {
+      render(); window.scrollTo(0,0);
+    }
+  }, 30);
 }
 
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
@@ -1492,4 +1506,96 @@ function showIOSInstallPrompt() {
     }
   }, 12000);
 }
+// ═══════════════════════════════════════════════════════════════════
+// HARDWARE BACK BUTTON & EXIT CONFIRMATION ROUTING
+// ═══════════════════════════════════════════════════════════════════
 
+// 1. Initialize the app history on load
+window.addEventListener('load', function() {
+  // Push an invisible "trap" state. 
+  history.replaceState({ page: 'exit_trap' }, "");
+  // Push the actual Home page state on top of it.
+  history.pushState({ page: 'home', sub: null }, "");
+});
+
+// 2. Listen for the mobile hardware Back Button
+window.addEventListener('popstate', function(e) {
+  if (e.state && e.state.page === 'exit_trap') {
+    // 🚨 User pressed back on the Home page! They are trying to leave.
+    showExitConfirmationModal();
+    // Immediately put the home page back in the history so the app doesn't close
+    history.pushState({ page: 'home', sub: null }, "");
+    
+  } else if (e.state && e.state.page) {
+    // 🔄 User pressed back from inside the app (e.g. returning to Home from a Quiz)
+    // We pass 'true' at the end so it doesn't create duplicate history
+    go(e.state.page, e.state.sub, true);
+  }
+});
+
+// 3. The Custom Exit UI
+function showExitConfirmationModal() {
+  var overlay = el("div", {
+    css: {
+      position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
+      backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
+      justifyContent: "center", zIndex: "10000", animation: "fade-in 0.2s ease"
+    }
+  });
+
+  var card = el("div", {
+    css: {
+      background: "var(--card)", border: "1.5px solid var(--border2)",
+      borderRadius: "24px", padding: "32px 28px", maxWidth: "340px", width: "85%",
+      textAlign: "center", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+      animation: "slide-up 0.3s cubic-bezier(0.2,0.8,0.2,1)"
+    }
+  });
+
+  var icon = el("div", {
+    css: { fontSize: "3.2rem", marginBottom: "16px", textShadow: "0 8px 16px rgba(0,0,0,0.3)" }
+  }, "🚪");
+
+  var title = el("h3", {
+    css: { fontFamily: "var(--font-display)", fontSize: "1.4rem", color: "var(--text)", marginBottom: "8px" }
+  }, "Exit StudyLab?");
+
+  var subtext = el("p", {
+    css: { fontSize: "0.9rem", color: "var(--muted)", marginBottom: "24px" }
+  }, "Are you sure you want to close the application?");
+
+  var btnRow = el("div", { css: { display: "flex", gap: "10px" } });
+
+  var stayBtn = el("button", {
+    css: {
+      flex: "1", padding: "13px", borderRadius: "12px", border: "1.5px solid var(--border2)",
+      background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer",
+      fontFamily: "var(--font-body)"
+    },
+    onclick: function() { document.body.removeChild(overlay); }
+  }, "Stay");
+
+  var exitBtn = el("button", {
+    css: {
+      flex: "1", padding: "13px", borderRadius: "12px", border: "none",
+      background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff",
+      fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(239,68,68,0.3)",
+      fontFamily: "var(--font-body)"
+    },
+    onclick: function() {
+      // Temporarily disable our safety net and command the browser to exit natively
+      window.onpopstate = null; 
+      history.back(); 
+      setTimeout(function() { history.back(); }, 20); 
+    }
+  }, "Yes, Exit");
+
+  btnRow.appendChild(stayBtn);
+  btnRow.appendChild(exitBtn);
+  card.appendChild(icon);
+  card.appendChild(title);
+  card.appendChild(subtext);
+  card.appendChild(btnRow);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}

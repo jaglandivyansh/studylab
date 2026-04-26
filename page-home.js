@@ -1,3 +1,4 @@
+window.STUDYLAB_FEEDBACK_URL = "https://formspree.io/f/mzdyqbyz";
 // ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
 function makeDeadlineWidget() {
   var stored = Sv.get("gu_entries") || [];
@@ -509,12 +510,19 @@ function pgHome(){
     fb.appendChild(el("div",{css:{fontSize:"1.1rem",fontWeight:"700",marginBottom:"6px"},txt:"Thank you so much!"}));
     fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 rating has been recorded locally. It means a lot!"}));
     
-    // Optional: Send to backend if FEEDBACK_URL is configured (set in deployment environment)
+    // Formspree Integration
     if(window.STUDYLAB_FEEDBACK_URL) {
       fetch(window.STUDYLAB_FEEDBACK_URL, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({data:{Date:new Date().toLocaleString("en-IN"),Rating:selRating+" stars",Message:selMsg||"(no message)"}})
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          Date: new Date().toLocaleString("en-IN"),
+          Rating: selRating + " stars",
+          Message: selMsg || "(no message)"
+        })
       }).catch(function(){/* Silently fail - already saved locally */});
     }
   }},"Submit Feedback"));
