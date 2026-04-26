@@ -201,6 +201,7 @@ function pgQZ(){
     w.innerHTML="";
     var hdr=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px",paddingBottom:"16px",borderBottom:"1.5px solid var(--border)"}});
     hdr.appendChild(el("button",{cls:"btn btng",css:{padding:"6px 12px"},onclick:function(){
+      if(window.qzTimeout) clearTimeout(window.qzTimeout); // Stop quiz from advancing if we exit
       if(isChallenge) { window.challengeData = null; } 
       go("sub");
     }},"\u2190 Back"));
@@ -339,17 +340,41 @@ function pgQZ(){
         var cls="qo";if(ch!==null){if(i===q.a)cls+=" ok";else if(i===ch)cls+=" no";}
         var ob=el("button",{cls:cls,onclick:function(e){
           e.preventDefault(); if(ch!==null || isSk || lock) return;
+          
+          // FIX: Force browser to drop the 'sticky hover' state
+          this.blur();
+          if (document.activeElement) document.activeElement.blur();
+          
           lock = true; ch=i;
           if(i===q.a)sc++;else wrong.push({q:q.q,correct:q.o[q.a],chosen:opt,orig:q});
           build();
-          setTimeout(function(){ adv(); setTimeout(function(){ lock=false; }, 300); }, 1100);
+          
+          // Save timeout globally so it can be safely cancelled
+          window.qzTimeout = setTimeout(function(){ 
+            adv(); 
+            setTimeout(function(){ lock=false; }, 300); 
+          }, 1100);
         }});
         ob.appendChild(el("span",{css:{fontSize:".75rem",fontWeight:"600",color:"var(--subtle)",minWidth:"20px"},txt:L[i]+"."}));
         ob.appendChild(el("span",{},opt));
         if(ch!==null||isSk)ob.disabled=true;ol.appendChild(ob);
       });
       pw.appendChild(ol);
-      if(ch===null&&!isSk)pw.appendChild(el("button",{cls:"btn btng",css:{width:"100%",fontSize:".85rem"},onclick:function(e){ e.preventDefault(); if(lock) return; lock=true; isSk=true;sk++;build(); setTimeout(function(){ adv(); setTimeout(function(){ lock=false; }, 300); }, 500); }},"\u23e9 Skip"));
+      
+      if(ch===null&&!isSk)pw.appendChild(el("button",{cls:"btn btng",css:{width:"100%",fontSize:".85rem"},onclick:function(e){ 
+        e.preventDefault(); if(lock) return; 
+        
+        // FIX: Drop focus state for the skip button too
+        this.blur();
+        if (document.activeElement) document.activeElement.blur();
+        
+        lock=true; isSk=true; sk++; build(); 
+        
+        window.qzTimeout = setTimeout(function(){ 
+          adv(); 
+          setTimeout(function(){ lock=false; }, 300); 
+        }, 500); 
+      }},"\u23e9 Skip"));
       w.appendChild(pw);
     } else if(qst==="result"){
       var pct=pool.length?Math.round((sc/pool.length)*100):0;
