@@ -110,7 +110,7 @@ function pgFC(){
       ci.appendChild(cf);
       
       var cbk = el("div", { cls: "cf cb", css: { borderColor: ac + "55" } });
-      cbk.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "600", color: ac }, txt: card ? card.a : "" }));
+      cbk.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "600", color: "#22c55e" }, txt: card ? card.a : "" }));
       if (isK) cbk.appendChild(el("div", { css: { marginTop: "14px", fontSize: ".72rem", color: "#4ade80", background: "rgba(74,222,128,.15)", padding: "4px 10px", borderRadius: "6px" }, txt: "✓ Next review pending" }));
       ci.appendChild(cbk);
       
