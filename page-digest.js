@@ -5,7 +5,7 @@
 
 var DIGEST_CACHE_KEY = "digest_cache";
 var GNEWS_KEY = "d0f88b1cc9c75100652874503614091b";
-var GEMINI_KEY = "AIzaSyDZcW7ZBOtP7JDhn-95p85qyWTpN2xh_0w"; // ← paste your Gemini key here
+
 
 function pgDigest() {
   var w = el("div", { css: { maxWidth: "700px", margin: "0 auto" } });
@@ -196,16 +196,23 @@ function pgDigest() {
 
         var prompt = "You are an expert current affairs teacher for Indian competitive exams (UPSC, SSC, RRB).\n\nHere are today's top news articles:\n" + newsContext + "\n\nReturn ONLY a valid JSON object (no markdown, no backticks, no explanation) in this exact format:\n{\"bullets\":[{\"headline\":\"short headline\",\"detail\":\"1 sentence context\",\"tag\":\"ECONOMY\"},{\"headline\":\"short headline\",\"detail\":\"1 sentence context\",\"tag\":\"POLITY\"},{\"headline\":\"short headline\",\"detail\":\"1 sentence context\",\"tag\":\"SCIENCE\"},{\"headline\":\"short headline\",\"detail\":\"1 sentence context\",\"tag\":\"NATIONAL\"},{\"headline\":\"short headline\",\"detail\":\"1 sentence context\",\"tag\":\"WORLD\"}],\"mcqs\":[{\"q\":\"question\",\"o\":[\"A\",\"B\",\"C\",\"D\"],\"a\":0,\"exp\":\"explanation\"},{\"q\":\"question\",\"o\":[\"A\",\"B\",\"C\",\"D\"],\"a\":1,\"exp\":\"explanation\"},{\"q\":\"question\",\"o\":[\"A\",\"B\",\"C\",\"D\"],\"a\":2,\"exp\":\"explanation\"}]}";
 
-        // Step 2: Call Gemini directly from browser
-        fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + GEMINI_KEY, {
+
+        // Call Sarvam AI via api/mcq (same pattern as api/tutor)
+        fetch("api/mcq", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          body: JSON.stringify({
+            messages: [{ role: "user", content: prompt }]
+          })
         })
         .then(function (r) { return r.json(); })
-        .then(function (aiResp) {
+        .then(function (data) {
           try {
-            var text = aiResp.candidates[0].content.parts[0].text.trim();
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+              build("error", { msg: "AI did not respond. Try refreshing." });
+              return;
+            }
+            var text = data.choices[0].message.content.trim();
             text = text.replace(/```json|```/g, "").trim();
             var parsed = JSON.parse(text);
             localStorage.setItem(DIGEST_CACHE_KEY, JSON.stringify({ date: todayKey, data: parsed }));
@@ -215,7 +222,7 @@ function pgDigest() {
           }
         })
         .catch(function () {
-          build("error", { msg: "Could not reach Gemini AI. Check your internet." });
+          build("error", { msg: "Could not reach AI service. Check your internet." });
         });
       })
       .catch(function () {
