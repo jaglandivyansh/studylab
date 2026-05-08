@@ -1,3 +1,18 @@
+// ── UTILITY: TRIGGER REVEAL ANIMATION ──
+function triggerReveal(container) {
+  if (!container) return;
+  var items = container.querySelectorAll(".news-card, .ca-card, .reveal-item");
+  items.forEach(function(item, i) {
+    item.style.opacity = "0";
+    item.style.transform = "translateY(16px)";
+    item.style.transition = "opacity 0.35s ease " + (i * 0.07) + "s, transform 0.35s ease " + (i * 0.07) + "s";
+    setTimeout(function() {
+      item.style.opacity = "1";
+      item.style.transform = "translateY(0)";
+    }, 20);
+  });
+}
+
 // ── SARVAM AI TUTOR MODAL ──
 
 function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
