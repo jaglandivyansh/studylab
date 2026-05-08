@@ -415,8 +415,9 @@ function pgHome(){
     Economy:{color:"#0284c7",bg:"#f0f9ff",desc:"National income, banking, budget, five-year plans, poverty and economic reforms.",topics:["GDP & Growth","Banking","Union Budget","Poverty","Agriculture Economy"],sym:["\uD83D\uDCCA","\uD83D\uDCB0","\uD83C\uDFE6","\uD83D\uDCC8","\uD83D\uDCB9"]},
     Science:{color:"#0891b2",bg:"#ecfeff",desc:"Physics, chemistry, biology, technology, space, inventions and scientific discoveries.",topics:["Physics","Chemistry","Biology","Space Tech","Inventions"],sym:["\uD83D\uDD2C","\u269B\uFE0F","\uD83E\uDDEC","\uD83D\uDE80","\u26A1"]},
     GK:{color:"#d97706",bg:"#fffbeb",desc:"Current affairs, awards, sports, national symbols, important days and miscellaneous facts.",topics:["Current Affairs","Awards","Sports","National Symbols","Important Days"],sym:["\uD83C\uDFC6","\uD83C\uDF1F","\uD83D\uDCA1","\uD83C\uDDEE\uD83C\uDDF3","\uD83D\uDCF0"]},
-  "Current Affairs":{color:"#3b82f6",bg:"#eff6ff",desc:"Stay updated with national, international, economy, sports, and tech news.",topics:["National","International","Economy","Sports","Tech"],sym:["📰","🌐","🏆","🚀","💰","🔥"]}
-};
+    "Current Affairs":{color:"#3b82f6",bg:"#eff6ff",desc:"Stay updated with national, international, economy, sports, and tech news.",topics:["National","International","Economy","Sports","Tech"],sym:["📰","🌐","🏆","🚀","💰","🔥"]},
+    PYQ:{color:"#8b5cf6",bg:"#f5f3ff",desc:"Practice with actual past exam papers to understand patterns and difficulty levels.",topics:["UPSC","SSC CGL","Railways","Banking","State PCS"],sym:["📜","🕰️","🎯","📝","📚","🔍"]}
+  };
   var subjSec=el("div",{id:"ss",css:{marginBottom:"48px"}});
   var subjTitle=el("div",{css:{textAlign:"center",marginBottom:"32px"}});
   subjTitle.appendChild(el("div",{css:{fontSize:".6rem",color:"var(--subtle)",textTransform:"uppercase",letterSpacing:".18em",fontWeight:"700",marginBottom:"10px",fontFamily:"var(--font-display)"},txt:"Choose Your Subject"}));

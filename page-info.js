@@ -141,7 +141,7 @@ function pgHowToUse(){
     {
       num:"01", icon:"🏠", title:"Start from Home",
       color:"#4F8EF7",
-      desc:"The Home page shows all 6 subjects — History, Geography, Polity, Economy, Science, and GK. Each subject card shows the number of available questions. Tap any card to begin.",
+      desc:"The Home page displays all available subjects, including History, Geography, Polity, Economy, Science, GK, and Previous Year Questions. Each subject card shows the number of available questions. Tap any card to begin.",
       tips:["Scroll down to see all subject cards","Each card shows question count and topic emoji","You can study multiple subjects in one session"]
     },
     {
