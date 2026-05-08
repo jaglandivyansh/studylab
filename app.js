@@ -870,6 +870,7 @@ function render(){
   else if(pg=="bm")app.appendChild(pgBookmarks()); 
   else if(pg=="stats")app.appendChild(pgStats());
   else if(pg=="daily")app.appendChild(pgDaily());
+  else if(pg=="digest") app.appendChild(pgDigest());
   else if(pg=="about")app.appendChild(pgAbout());
   else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
   else if(pg=="howtouse")app.appendChild(pgHowToUse());
