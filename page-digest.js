@@ -342,46 +342,19 @@ function pgDigest() {
         var newsContext = gdata.articles.map(function (a, i) {
           return (i + 1) + ". " + a.title + (a.description ? " — " + a.description : "");
         }).join("\n");
+        // Build prompt for Gemini
+        var prompt = "You are an expert current affairs teacher for Indian competitive exams (UPSC, SSC, RRB).\n\nHere are today's top news articles:\n" + newsContext + "\n\nReturn ONLY a valid JSON object (no markdown, no backticks) in this exact format:\n{\n  \"bullets\": [\n    {\"headline\": \"short headline\", \"detail\": \"1 sentence exam-relevant context\", \"tag\": \"ECONOMY\"},\n    {\"headline\": \"short headline\", \"detail\": \"1 sentence exam-relevant context\", \"tag\": \"POLITY\"},\n    {\"headline\": \"short headline\", \"detail\": \"1 sentence exam-relevant context\", \"tag\": \"SCIENCE\"},\n    {\"headline\": \"short headline\", \"detail\": \"1 sentence exam-relevant context\", \"tag\": \"NATIONAL\"},\n    {\"headline\": \"short headline\", \"detail\": \"1 sentence exam-relevant context\", \"tag\": \"WORLD\"}\n  ],\n  \"mcqs\": [\n    {\"q\": \"question text\", \"o\": [\"option A\", \"option B\", \"option C\", \"option D\"], \"a\": 0, \"exp\": \"brief explanation\"},\n    {\"q\": \"question text\", \"o\": [\"option A\", \"option B\", \"option C\", \"option D\"], \"a\": 1, \"exp\": \"brief explanation\"},\n    {\"q\": \"question text\", \"o\": [\"option A\", \"option B\", \"option C\", \"option D\"], \"a\": 2, \"exp\": \"brief explanation\"}\n  ]\n}\n\nRules: bullets exactly 5, mcqs exactly 3, a = correct option index (0-3), keep language exam-oriented.";
 
-        // Call Claude API
-        fetch("https://api.anthropic.com/v1/messages", {
+        // Call Gemini via Vercel API route
+        fetch("/api/mcq", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 1000,
-            messages: [{
-              role: "user",
-              content: `You are an expert current affairs teacher for Indian competitive exams (UPSC, SSC, RRB).
-
-Here are today's top news articles:
-${newsContext}
-
-Return ONLY a valid JSON object (no markdown, no backticks) in this exact format:
-{
-  "bullets": [
-    {"headline": "short headline", "detail": "1 sentence exam-relevant context", "tag": "category like ECONOMY/POLITY/SCIENCE"},
-    ...5 items
-  ],
-  "mcqs": [
-    {"q": "question text", "o": ["option A", "option B", "option C", "option D"], "a": 0, "exp": "brief explanation"},
-    ...3 items
-  ]
-}
-
-Rules:
-- bullets: 5 items, exam-focused, highlight key facts/numbers/names
-- mcqs: 3 questions directly from the news, a = index of correct option (0-3)
-- exp: one sentence explanation of correct answer
-- Keep language simple and exam-oriented`
-            }]
-          })
+          body: JSON.stringify({ newsContext: prompt })
         })
         .then(function (r) { return r.json(); })
         .then(function (aiResp) {
           try {
-            var text = aiResp.content[0].text.trim();
-            // Strip any markdown fences if present
+            var text = aiResp.text.trim();
             text = text.replace(/```json|```/g, "").trim();
             var parsed = JSON.parse(text);
 
