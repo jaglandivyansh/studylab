@@ -1,35 +1,34 @@
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
-};
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
 
   try {
-    let body = req.body;
-    if (typeof body === "string") {
-      body = JSON.parse(body);
+    // Manually read and parse the body stream
+    const rawBody = await new Promise((resolve, reject) => {
+      let data = "";
+      req.on("data", chunk => { data += chunk; });
+      req.on("end", () => resolve(data));
+      req.on("error", reject);
+    });
+
+    let newsContext;
+    try {
+      const parsed = JSON.parse(rawBody);
+      newsContext = parsed.newsContext;
+    } catch(e) {
+      return res.status(400).json({ error: "Invalid JSON body" });
     }
 
-    const newsContext = body && body.newsContext;
-
     if (!newsContext) {
-      return res.status(400).json({ error: "newsContext missing from request body" });
+      return res.status(400).json({ error: "newsContext missing" });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY not set in environment" });
+      return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
     }
 
     const geminiRes = await fetch(
@@ -47,17 +46,17 @@ export default async function handler(req, res) {
     const data = await geminiRes.json();
 
     if (!geminiRes.ok) {
-      return res.status(500).json({ error: "Gemini error", details: data });
+      return res.status(500).json({ error: "Gemini API failed", details: data });
     }
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      return res.status(500).json({ error: "Unexpected Gemini response", raw: JSON.stringify(data) });
+      return res.status(500).json({ error: "Bad Gemini response", raw: JSON.stringify(data) });
     }
 
     const text = data.candidates[0].content.parts[0].text;
     return res.status(200).json({ text });
 
   } catch (e) {
-    return res.status(500).json({ error: e.message, stack: e.stack });
+    return res.status(500).json({ error: e.message });
   }
 }
