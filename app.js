@@ -1,6 +1,15 @@
 
-var SUBJ=["History","Geography","Polity","Economy","Science","GK","Current Affairs"];
-var ICON={History:"\uD83C\uDFDB\uFE0F",Geography:"\uD83C\uDF0D",Polity:"\u2696\uFE0F",Economy:"\uD83D\uDCCA",Science:"\uD83D\uDD2C",GK:"\uD83D\uDCA1","Current Affairs":"\uD83D\uDCF0"};
+var SUBJ = ["History", "Geography", "Polity", "Economy", "Science", "GK", "Current Affairs", "Previous Year Questions"];
+var ICON = {
+  "History": "🏛️",
+  "Geography": "🌍",
+  "Polity": "⚖️",
+  "Economy": "💰",
+  "Science": "🔬",
+  "GK": "💡",
+  "Current Affairs": "📰",
+  "Previous Year Questions": "🕰️"
+};
 var AC={History:"#d97706",Geography:"#059669",Polity:"#7c3aed",Economy:"#db2777",Science:"#0891b2",GK:"#65a30d","Current Affairs":"#3b82f6"};
 
 // This will count every question across all subjects
