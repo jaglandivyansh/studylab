@@ -1,7 +1,7 @@
 function pgAbout(){
   var w = el("div",{cls:"fd"});
   w.appendChild(makeNav("about"));
-  var wrap = el("div",{css:{maxWidth:"700px",margin:"0 auto"}});
+  var wrap = el("div",{css:{maxWidth:"700px",margin:"0 auto", paddingBottom: "40px"}});
 
   // ── Hero card ──
   var hero = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"20px",padding:"36px 28px",marginBottom:"18px",textAlign:"center",position:"relative",overflow:"hidden"}});
@@ -50,11 +50,13 @@ function pgAbout(){
   var fgrid = el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}});
   [
     ["📚", tot.toLocaleString() + "+ MCQs", "Curated and categorized"],
-    ["🃏","Flashcards","Tap-to-flip cards for quick revision"],
+    ["📰","Daily Digest","Live current affairs fetched daily"],
+    ["🤖","AI Doubt Solver","Instant answers to your study queries"],
     ["🎯","Quiz Mode","MCQ sessions with instant feedback"],
     ["🔔","Govt Updates","Live vacancies, admit cards via RSS"],
     ["📊","Progress Tracker","Accuracy, streaks & subject breakdown"],
     ["🎯","Daily Challenge","Fresh mixed quiz every day"],
+    ["🃏","Flashcards","Tap-to-flip cards for quick revision"],
     ["☁️","Cloud Sync","Save progress everywhere"],
     ["🌙","Dark & Light","Easy on the eyes, day or night"]
   ].forEach(function(f){
@@ -74,7 +76,7 @@ function pgAbout(){
     ["Is StudyLab free?", "Yes, completely free. No subscription, no hidden charges, no ads — ever."],
     ["Do I need an account?", "No account needed to study. Sign in with Google only if you want to sync your progress."],
     ["Which exams is this useful for?", "Primarily for UPSC, SSC, RRB, State PCS and other competitive govt exams."],
-    ["Can I use it offline?", "Once loaded, most features work without internet. Gov Updates requires a connection."]
+    ["Can I use it offline?", "Once loaded, most features work without internet. Gov Updates & Daily Digest require a connection."]
   ];
   var faqOpen = {};
   faqs.forEach(function(faq, i){
@@ -126,7 +128,7 @@ function pgAbout(){
 function pgHowToUse(){
   var w = el("div",{cls:"fd"});
   w.appendChild(makeNav("howtouse"));
-  var wrap = el("div",{css:{maxWidth:"760px",margin:"0 auto"}});
+  var wrap = el("div",{css:{maxWidth:"760px",margin:"0 auto", paddingBottom: "40px"}});
 
   // Page header
   var hd = el("div",{css:{textAlign:"center",marginBottom:"36px",padding:"32px 24px",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"18px",position:"relative",overflow:"hidden"}});
@@ -156,39 +158,44 @@ function pgHowToUse(){
       desc:"Choose Quiz mode to answer MCQ questions. Select an option — green means correct, red means wrong. Your score and accuracy are saved automatically after every session.",
       tips:["Choose how many questions per quiz (10, 20, or 30)","Your answers are tracked to show weak areas","Review wrong answers at the end of each quiz"]
     },
-    // --- NEW: AI TUTOR STEP ---
     {
-      num:"04", icon:"💡", title:"Ask the AI Tutor",
+      num:"04", icon:"💡", title:"Ask the AI Tutors",
       color:"#b87333",
-      desc:"Stuck on a difficult question? Click the 💡 icon during any quiz to get an instant, logical explanation from our Sarvam AI Tutor.",
-      tips:["Available on all quiz questions","AI reads the question and options to give specific context","100% free to use"]
+      desc:"Stuck on a question? Click the 💡 icon during any quiz for a specific explanation. Have a general doubt? Use the 'AI Doubt Solver' widget right on your Home screen to ask anything.",
+      tips:["Quiz AI reads the specific question and options","Home AI is great for broad concepts (e.g., 'Explain GDP')","100% free to use"]
     },
     {
-      num:"05", icon:"📊", title:"Track Your Progress",
+      num:"05", icon:"📰", title:"Read the Daily Digest",
+      color:"#f43f5e",
+      desc:"Stay updated with the latest Current Affairs. The Digest fetches live news across National, Economy, Science, and World categories, updating chronologically throughout the day.",
+      tips:["News is cached so it loads instantly when you return","Check the time stamps to see how recently news dropped","Tap any headline to read the full story"]
+    },
+    {
+      num:"06", icon:"📊", title:"Track Your Progress",
       color:"#f59e0b",
       desc:"Visit the Progress tab (📊) in the navbar to see your performance dashboard. It shows overall accuracy, total questions attempted, quiz sessions, day streak, and subject-wise breakdown.",
-      tips:["Subjects where accuracy < 50% are flagged as weak","Subjects with ≥ 80% accuracy are marked as strong","Your streak resets if you skip a day — stay consistent!"]
+      tips:["Subjects where accuracy < 50% are flagged as weak","Subjects with ≥ 80% are marked as strong","Your streak resets if you skip a day — stay consistent!"]
     },
     {
-      num:"06", icon:"🎯", title:"Use the Daily Challenge",
+      num:"07", icon:"🎯", title:"Use the Daily Challenge",
       color:"#f87171",
       desc:"The Daily tab gives you a fresh mixed-subject quiz every day to keep your preparation on track. It's a great way to maintain your streak and cover all topics consistently.",
-      tips:["Daily quiz resets every midnight","Mix of all 6 subjects in one session","Complete it to keep your streak alive 🔥"]
+      tips:["Daily quiz resets every midnight","Mix of all subjects in one session","Complete it to keep your streak alive 🔥"]
     },
     {
-      num:"07", icon:"🔔", title:"Check Government Updates",
+      num:"08", icon:"🔔", title:"Check Government Updates",
       color:"#34d399",
       desc:"The Gov Updates tab fetches live RSS feeds from UPSC, SSC, RRB, and other boards to show latest vacancies, admit cards, exam dates, and results — all in one place.",
-      tips:["Use the filter tabs: All, Vacancy, Admit Card, Exam Date, Result","Search by keyword to find specific updates","You can also add your own entries manually"]
+      tips:["Use the filter tabs: All, Vacancy, Admit Card, Exam Date, Result","Deadlines automatically show up on your Home screen widget","You can also add your own entries manually"]
     },
     {
-      num:"08", icon:"☁️", title:"Sign In to Sync Progress",
+      num:"09", icon:"☁️", title:"Sign In to Sync Progress",
       color:"#a78bfa",
       desc:"Click the Sign In button in the top-right corner and log in with Google. Your quiz history, streaks, and scores are saved to the cloud so you never lose progress — even if you switch devices.",
       tips:["One-click Google Sign In — no password needed","Progress syncs automatically across all your devices","You can sign out anytime from the top-right corner"]
     },
     {
-      num:"09", icon:"🌙", title:"Switch Between Dark & Light Mode",
+      num:"10", icon:"🌙", title:"Switch Between Dark & Light Mode",
       color:"#60a5fa",
       desc:"Use the 🌙 / ☀️ toggle button in the navbar to switch between dark and light themes. StudyLab remembers your preference automatically.",
       tips:["Dark mode is easier on the eyes at night","Light mode works better in bright environments","Your theme preference is saved locally"]
@@ -212,7 +219,7 @@ function pgHowToUse(){
     wrap.appendChild(card);
   });
   
-  // --- NEW AI HIGHLIGHT CARD ---
+  // --- AI HIGHLIGHT CARD ---
   var aiHighlight = el("div", {
     css: {
       background: "linear-gradient(145deg, rgba(184, 115, 51, 0.1), rgba(184, 115, 51, 0.03))",
@@ -225,11 +232,10 @@ function pgHowToUse(){
   });
   aiHighlight.appendChild(el("div", {css: {fontSize: "1.8rem", marginBottom: "8px"}, txt: "💡"}));
   aiHighlight.appendChild(el("div", {css: {fontSize: "1.1rem", fontWeight: "800", color: "#b87333", marginBottom: "8px"}, txt: "Powered by Sarvam AI"}));
-  aiHighlight.appendChild(el("div", {css: {fontSize: ".92rem", color: "var(--muted)", lineHeight: "1.6"}, txt: "StudyLab now features a built-in AI Tutor. It analyzes the specific question you are solving and provides a clear breakdown of why an answer is correct, making your preparation smarter and faster."}));
+  aiHighlight.appendChild(el("div", {css: {fontSize: ".92rem", color: "var(--muted)", lineHeight: "1.6"}, txt: "StudyLab features built-in AI Tutors. Analyze specific quiz questions for step-by-step breakdowns, or use the Home widget to ask any open-ended syllabus question, making your preparation smarter and faster."}));
   wrap.appendChild(aiHighlight);
   
   // Quick Tips footer card
-
   var footer = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px 28px",marginBottom:"24px",textAlign:"center"}});
   footer.appendChild(el("div",{css:{fontSize:"1.4rem",marginBottom:"8px"},txt:"🚀"}));
   footer.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"700",marginBottom:"8px"},txt:"Ready to start?"}));
