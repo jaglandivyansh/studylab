@@ -1,80 +1,97 @@
-// StudyLab Service Worker
-const CACHE_NAME = 'studylab-v1.0';
-const urlsToCache = [
-  './index_real1.html',
-  './',
+// ═══════════════════════════════════════════════════════
+// StudyLab Service Worker — PWA Offline Support
+// ═══════════════════════════════════════════════════════
+
+const CACHE_NAME = "studylab-v1";
+const OFFLINE_URL = "/";
+
+const ASSETS_TO_CACHE = [
+  "/",
+  "/index.html",
+  "/styles.css",
+  "/app.js",
+  "/api.js",
+  "/questions.js",
+  "/page-home.js",
+  "/page-study.js",
+  "/page-updates.js",
+  "/page-stats.js",
+  "/page-info.js",
+  "/page-daily.js",
+  "/page-digest.js",
+  "/logo.png",
+  "/manifest.json"
 ];
 
-// Install event - cache essential files
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('✅ Cache opened');
-        return cache.addAll(urlsToCache);
-      })
-      .catch(err => console.log('Cache install error:', err))
-  );
-  self.skipWaiting();
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+// ── INSTALL: Cache all assets ──
+self.addEventListener("install", function (e) {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(function () {
+      return self.skipWaiting();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
+// ── ACTIVATE: Clean old caches ──
+self.addEventListener("activate", function (e) {
+  e.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.filter(function (key) { return key !== CACHE_NAME; })
+            .map(function (key) { return caches.delete(key); })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
+  );
+});
+
+// ── FETCH: Network first, fallback to cache ──
+self.addEventListener("fetch", function (e) {
+  // Skip non-GET and external requests
+  if (e.request.method !== "GET") return;
+  if (!e.request.url.startsWith(self.location.origin)) return;
+
+  e.respondWith(
+    fetch(e.request)
+      .then(function (response) {
+        // Cache fresh responses
+        if (response && response.status === 200) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(e.request, clone);
+          });
         }
-        
-        // Clone the request
-        const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(response => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          // Clone the response
-          const responseToCache = response.clone();
-          
-          // Cache the fetched response for future use
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          
-          return response;
-        }).catch(err => {
-          console.log('Fetch failed; returning offline page instead.', err);
-          // You can return a custom offline page here if needed
+        return response;
+      })
+      .catch(function () {
+        // Offline fallback
+        return caches.match(e.request).then(function (cached) {
+          return cached || caches.match(OFFLINE_URL);
         });
       })
   );
 });
 
-// Handle messages from the client
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+// ── PUSH NOTIFICATIONS ──
+self.addEventListener("push", function (e) {
+  var data = e.data ? e.data.json() : {};
+  e.waitUntil(
+    self.registration.showNotification(data.title || "StudyLab 📚", {
+      body: data.body || "You have a new update!",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-72.png",
+      vibrate: [200, 100, 200],
+      data: { url: data.url || "/" }
+    })
+  );
+});
+
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  e.waitUntil(
+    clients.openWindow(e.notification.data.url || "/")
+  );
 });

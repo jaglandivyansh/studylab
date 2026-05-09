@@ -376,7 +376,12 @@ if (document.readyState === 'loading') {
 <script src="page-shorts.js"></script>
 <script src="page-skilltree.js"></script>
 <script src="app.js"></script>
-</body>
-</html>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
+</script>
 </body>
 </html>
