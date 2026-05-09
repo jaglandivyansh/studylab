@@ -92,7 +92,7 @@ function openDigestCategory(cat, parentRow) {
   ph.appendChild(closeBtn);
   panel.appendChild(ph);
 
-  // Loading state
+  // Loading state container
   var newsWrap = el("div", {});
   newsWrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:.85rem">⏳ Fetching latest news...</div>';
   panel.appendChild(newsWrap);
@@ -100,7 +100,16 @@ function openDigestCategory(cat, parentRow) {
   // Insert panel after clicked row
   parentRow.parentNode.insertBefore(panel, parentRow.nextSibling);
 
-  // Fetch news
+  // ── DAILY CACHING LOGIC ──
+  var todayStr = new Date().toDateString(); // e.g., "Sat May 09 2026"
+  var cacheKey = "digest_daily_" + cat.id;
+  var cachedData = Sv.get(cacheKey) || { date: "", articles: [] };
+
+  // If the date has changed, reset the cache for a fresh day
+  if (cachedData.date !== todayStr) {
+    cachedData = { date: todayStr, articles: [] };
+  }
+
   var feeds = CA_FEEDS[cat.id] || [];
   var fallback = CA_FALLBACK[cat.id] || [];
 
@@ -110,8 +119,11 @@ function openDigestCategory(cat, parentRow) {
       newsWrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No articles found.</div>';
       return;
     }
-    articles.slice(0, 8).forEach(function (a, i) {
-      var item = el("div", { css: { padding: "12px 0", borderBottom: i < articles.length - 1 ? "1px solid var(--border)" : "none", cursor: "pointer" }, onclick: function () { if (a.url && a.url !== "#") window.open(a.url, "_blank"); } });
+    
+    // Increased from slice(0, 8) to slice(0, 50) to allow the list to grow throughout the day
+    articles.slice(0, 50).forEach(function (a, i) {
+      var isLast = i === Math.min(articles.length, 50) - 1;
+      var item = el("div", { css: { padding: "12px 0", borderBottom: isLast ? "none" : "1px solid var(--border)", cursor: "pointer" }, onclick: function () { if (a.url && a.url !== "#") window.open(a.url, "_blank"); } });
       item.addEventListener("mouseenter", function () { this.style.background = "var(--card2)"; this.style.borderRadius = "8px"; this.style.padding = "12px 8px"; });
       item.addEventListener("mouseleave", function () { this.style.background = ""; this.style.padding = "12px 0"; });
 
@@ -123,7 +135,7 @@ function openDigestCategory(cat, parentRow) {
       if (a.source) meta.appendChild(el("span", { css: { fontSize: ".68rem", color: cat.color, fontWeight: "600", background: cat.color + "15", padding: "2px 7px", borderRadius: "4px" } }, a.source));
       if (a.pubDate) {
         var d = new Date(a.pubDate);
-        if (!isNaN(d)) meta.appendChild(el("span", { css: { fontSize: ".68rem", color: "var(--subtle)" } }, d.toLocaleDateString("en-IN", { day: "numeric", month: "short" })));
+        if (!isNaN(d)) meta.appendChild(el("span", { css: { fontSize: ".68rem", color: "var(--subtle)" } }, d.toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute:"2-digit" })));
       }
       txt.appendChild(meta);
       row.appendChild(txt);
@@ -132,21 +144,57 @@ function openDigestCategory(cat, parentRow) {
     });
   }
 
-  // Try fetching from feeds
-  var tried = 0;
+  // Instantly render whatever we have saved for today while we fetch new updates
+  if (cachedData.articles.length > 0) {
+    renderArticles(cachedData.articles);
+  }
+
+  // Fetch news to update the day's list
   function tryFeed(i) {
-    if (i >= feeds.length) { renderArticles(fallback); return; }
+    if (i >= feeds.length) { 
+      // If we completely failed to fetch and have no cache, use fallback
+      if (cachedData.articles.length === 0) renderArticles(fallback); 
+      return; 
+    }
+    
     fetch(feeds[i].url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.items && data.items.length) {
-          var articles = data.items.map(function (item) {
+          var newArticles = data.items.map(function (item) {
             return { title: item.title, url: item.link, source: feeds[i].name, pubDate: item.pubDate };
           });
-          renderArticles(articles);
+
+          // Combine cached articles with newly fetched ones
+          var allArticles = newArticles.concat(cachedData.articles);
+          
+          // Deduplicate based on URL so we don't show the same news twice
+          var uniqueArticles = [];
+          var seenUrls = {};
+          
+          allArticles.forEach(function(a) {
+            if (a.url && !seenUrls[a.url]) {
+              seenUrls[a.url] = true;
+              uniqueArticles.push(a);
+            }
+          });
+
+          // Sort articles by publication date (newest first)
+          uniqueArticles.sort(function(a, b) {
+            var dateA = new Date(a.pubDate).getTime() || 0;
+            var dateB = new Date(b.pubDate).getTime() || 0;
+            return dateB - dateA;
+          });
+
+          // Save the merged, deduplicated list back to local storage
+          cachedData.articles = uniqueArticles;
+          Sv.set(cacheKey, cachedData);
+
+          renderArticles(uniqueArticles);
         } else { tryFeed(i + 1); }
       })
       .catch(function () { tryFeed(i + 1); });
   }
+  
   tryFeed(0);
 }
