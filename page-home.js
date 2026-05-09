@@ -1,4 +1,133 @@
 window.STUDYLAB_FEEDBACK_URL = "https://formspree.io/f/mzdyqbyz";
+
+// ─── MODERN HERO SECTION ──────────────────────────────────────────
+function makeModernHero() {
+  var wrap = el("div", {
+    css: {
+      position: "relative",
+      borderRadius: "24px",
+      overflow: "hidden",
+      marginBottom: "32px",
+      padding: "48px 20px",
+      textAlign: "center",
+      background: "var(--card)",
+      border: "1px solid var(--border)",
+      boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
+    }
+  });
+
+  // Glowing background orbs for a modern "SaaS" look
+  var glow1 = el("div", { css: { position: "absolute", top: "-50px", left: "-50px", width: "200px", height: "200px", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: "0.15", filter: "blur(30px)", pointerEvents: "none" } });
+  var glow2 = el("div", { css: { position: "absolute", bottom: "-50px", right: "-50px", width: "250px", height: "250px", background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)", opacity: "0.1", filter: "blur(40px)", pointerEvents: "none" } });
+  wrap.appendChild(glow1);
+  wrap.appendChild(glow2);
+
+  var content = el("div", { css: { position: "relative", zIndex: "1", maxWidth: "600px", margin: "0 auto" } });
+
+  // Top Feature Badge
+  var badge = el("div", {
+    css: {
+      display: "inline-flex", alignItems: "center", gap: "6px",
+      padding: "6px 14px", borderRadius: "100px",
+      background: "var(--bg2)", border: "1px solid var(--border2)",
+      fontSize: ".75rem", fontWeight: "700", color: "var(--text)",
+      marginBottom: "20px", cursor: "pointer", transition: "transform 0.2s"
+    },
+    onclick: function() { go("digest"); }
+  });
+  badge.addEventListener("mouseenter", function() { this.style.transform = "scale(1.05)"; });
+  badge.addEventListener("mouseleave", function() { this.style.transform = "scale(1)"; });
+  badge.innerHTML = "<span style='color: #f59e0b'>✨</span> <span>New: Live Daily News Digest</span> <span style='color: var(--muted)'>→</span>";
+  content.appendChild(badge);
+
+  // Main Headline
+  content.appendChild(el("h1", {
+    css: {
+      fontSize: "clamp(2rem, 6vw, 2.8rem)",
+      fontWeight: "800",
+      letterSpacing: "-0.03em",
+      fontFamily: "var(--font-display)",
+      color: "var(--text)",
+      lineHeight: "1.15",
+      marginBottom: "16px"
+    },
+    htm: "Crack Your Exams with <br><span style='background: linear-gradient(135deg, #4F8EF7, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Smarter Practice.</span>"
+  }));
+
+  // Subheadline
+  content.appendChild(el("p", {
+    css: {
+      fontSize: ".95rem",
+      color: "var(--muted)",
+      lineHeight: "1.6",
+      marginBottom: "32px",
+      fontWeight: "400",
+      maxWidth: "90%",
+      margin: "0 auto 32px"
+    },
+    txt: "A free, distraction-free learning lab for UPSC, SSC, and State PCS. Master 3,000+ curated MCQs with instant AI-powered explanations."
+  }));
+
+  // Call to Action Buttons
+  var ctaRow = el("div", { css: { display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginBottom: "40px" } });
+  
+  var primaryBtn = el("button", {
+    css: {
+      padding: "12px 28px", borderRadius: "12px", border: "none",
+      background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", color: "#fff", fontWeight: "700",
+      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)",
+      boxShadow: "0 4px 14px rgba(79,142,247,0.35)", transition: "all 0.2s"
+    },
+    onclick: function() { document.getElementById('ss').scrollIntoView({behavior:'smooth', block:'start'}); }
+  }, "Start Learning");
+  primaryBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; });
+  primaryBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; });
+  
+  var secondaryBtn = el("button", {
+    css: {
+      padding: "12px 28px", borderRadius: "12px", border: "1.5px solid var(--border2)",
+      background: "var(--bg2)", color: "var(--text)", fontWeight: "600",
+      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)",
+      transition: "all 0.2s"
+    },
+    onclick: function() { go("daily"); }
+  }, "🎯 Daily Challenge");
+  secondaryBtn.addEventListener("mouseenter", function() { this.style.background = "var(--border)"; });
+  secondaryBtn.addEventListener("mouseleave", function() { this.style.background = "var(--bg2)"; });
+  
+  ctaRow.appendChild(primaryBtn);
+  ctaRow.appendChild(secondaryBtn);
+  content.appendChild(ctaRow);
+
+  // Bottom Trust Strip
+  var trustStrip = el("div", {
+    css: {
+      display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap",
+      paddingTop: "24px", borderTop: "1px solid var(--border)",
+      fontSize: ".75rem", fontWeight: "600", color: "var(--subtle)",
+      letterSpacing: "0.03em", textTransform: "uppercase"
+    }
+  });
+  
+  var features = [
+    { icon: "📚", text: "4000+ MCQs" },
+    { icon: "🤖", text: "AI Tutors" },
+    { icon: "⚡", text: "100% Free, 0 Ads" }
+  ];
+  
+  features.forEach(function(f) {
+    var item = el("div", { css: { display: "flex", alignItems: "center", gap: "6px" } });
+    item.appendChild(el("span", { css: { fontSize: "1rem" } }, f.icon));
+    item.appendChild(el("span", {}, f.text));
+    trustStrip.appendChild(item);
+  });
+  
+  content.appendChild(trustStrip);
+  wrap.appendChild(content);
+
+  return wrap;
+}
+
 // ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
 function makeDeadlineWidget() {
   var stored = Sv.get("gu_entries") || [];
@@ -10,12 +139,10 @@ function makeDeadlineWidget() {
   var closestDiff = Infinity;
   var isExam = false;
 
-  // Scan all govt updates for the closest future date
   allData.forEach(function(e) {
     var dateStr = e.lastDate || e.examDate;
     if(!dateStr) return;
     
-    // Normalize Indian date formats (DD-MM-YYYY to YYYY-MM-DD)
     var cleanDateStr = dateStr.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
     var parsed = new Date(cleanDateStr);
     
@@ -29,14 +156,12 @@ function makeDeadlineWidget() {
     }
   });
 
-  // Hide if no upcoming dates found within 30 days
   if (!closestEntry || closestDiff === Infinity) return el("div", {css:{display:"none"}});
   var daysLeft = Math.ceil(closestDiff / (1000 * 60 * 60 * 24));
   if (daysLeft > 30) return el("div", {css:{display:"none"}});
 
-  // Widget Styling
   var isUrgent = daysLeft <= 3;
-  var wCol = isUrgent ? "#ef4444" : "#f59e0b"; // Red if urgent, Orange if approaching
+  var wCol = isUrgent ? "#ef4444" : "#f59e0b";
   var wBg = isUrgent ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)";
 
   var widget = el("div", {
@@ -79,12 +204,8 @@ function makeDeadlineWidget() {
   widget.appendChild(right);
   return widget;
 }
-// ─────────────────────────────────────────────────────────────────
 
 // ─── AI DOUBT SOLVER ─────────────────────────────────────────────
-// API key is safely stored in Vercel Environment Variables.
-// Set GEMINI_API_KEY in: Vercel Dashboard → Project → Settings → Environment Variables
-// No key needed here — frontend calls /api/doubt securely.
 var ADS_LOADING = false;
 
 function makeAIDoubtSolver() {
@@ -101,7 +222,6 @@ function makeAIDoubtSolver() {
     }
   });
 
-  // ── COLLAPSED BAR ──
   var bar = el("div", {
     id: "ads-bar",
     css: {
@@ -143,7 +263,6 @@ function makeAIDoubtSolver() {
   bar.appendChild(barLeft);
   bar.appendChild(arrow);
 
-  // ── EXPANDED PANEL ──
   var panel = el("div", {
     css: {
       display: "none", flexDirection: "column",
@@ -151,7 +270,6 @@ function makeAIDoubtSolver() {
     }
   });
 
-  // Chat area
   var chatArea = el("div", {
     id: "ads-chat-area",
     css: {
@@ -162,7 +280,6 @@ function makeAIDoubtSolver() {
     }
   });
 
-  // Welcome state
   var welcome = el("div", {
     id: "ads-welcome",
     css: {textAlign: "center", padding: "20px 16px 12px"}
@@ -172,12 +289,10 @@ function makeAIDoubtSolver() {
   welcome.appendChild(el("div", {css: {fontSize: ".8rem", color: "var(--muted)", lineHeight: "1.5"}}, "History, Geography, Polity, Economy, Science, GK — I'm here to help."));
   chatArea.appendChild(welcome);
 
-  // Messages container
   var messages = el("div", {id: "ads-messages"});
   chatArea.appendChild(messages);
   panel.appendChild(chatArea);
 
-  // Input row
   var inputRow = el("div", {
     css: {
       display: "flex", alignItems: "center", gap: "8px",
@@ -226,12 +341,10 @@ function makeAIDoubtSolver() {
   inputRow.appendChild(sendBtn);
   panel.appendChild(inputRow);
 
-  // Footer
   panel.appendChild(el("div", {
     css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
   }, "Powered by Sarvam AI · Made for India 🇮🇳"));
 
-  // Toggle logic
   var isOpen = false;
   bar.addEventListener("click", function() {
     isOpen = !isOpen;
@@ -257,7 +370,6 @@ async function sendDoubt(messages, welcome, input, sendBtn) {
   var question = input.value.trim();
   if (!question) return;
 
-  // Hide welcome on first message
   if (welcome) welcome.style.display = "none";
 
   input.value = "";
@@ -265,11 +377,9 @@ async function sendDoubt(messages, welcome, input, sendBtn) {
   sendBtn.disabled = true;
   sendBtn.style.opacity = "0.5";
 
-  // User bubble
   messages.appendChild(adsCreateBubble("user", question));
   adsScrollChat();
 
-  // Typing indicator
   var typing = adsCreateTyping();
   messages.appendChild(typing);
   adsScrollChat();
@@ -317,13 +427,11 @@ function adsCreateBubble(type, text) {
     }
   });
   if (type === "user") {
-    // Show first letter of user's display name
     var userName = (window.currentUser && window.currentUser.displayName)
       ? window.currentUser.displayName.trim()[0].toUpperCase()
       : "U";
     avatar.textContent = userName;
   } else {
-    // Sarvam "S" logo
     avatar.textContent = "S";
     avatar.style.background = "linear-gradient(135deg, #6366F1, #8B5CF6)";
     avatar.style.fontFamily = "var(--font-display)";
@@ -391,23 +499,26 @@ function adsScrollChat() {
   var area = document.getElementById("ads-chat-area");
   if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
 }
-// ─────────────────────────────────────────────────────────────────
 
+// ─── MAIN PAGE RENDER ────────────────────────────────────────────
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("home"));
 
-  // Quote of the day
-  w.appendChild(makeQuoteCard());
+  // 1. Modern Hero Section (Replaces the static one from index.html)
+  w.appendChild(makeModernHero());
 
-  // NEW: Add the Deadline Widget
+  // 2. Deadline Widget
   w.appendChild(makeDeadlineWidget());
-
-  // AI Doubt Solver (replaces stats tiles)
+  
+  // 3. AI Doubt Solver
   w.appendChild(makeAIDoubtSolver());
 
-  // Subject showcase - alternating layout
+  // 4. Quote of the Day
+  w.appendChild(makeQuoteCard());
+
+  // 5. Subject showcase
   var SD={
     History:{color:"#7c3aed",bg:"#f5f3ff",desc:"Explore ancient civilizations, medieval kingdoms, freedom struggle, and modern India.",topics:["Indus Valley","Mughal Empire","British Raj","Independence Movement","Ancient India"],sym:["⚔️","🏛️","📜","👑","⚛️","🛡️"]},
     Geography:{color:"#059669",bg:"#ecfdf5",desc:"From Himalayas to coastal plains, rivers, climate zones, and world physical features.",topics:["Rivers & Lakes","Climate","Physical Features","World Map","Agriculture"],sym:["🌍","🏔️","🌊","🌿","🌋","🌎"]},
@@ -430,34 +541,27 @@ function pgHome(){
     row.addEventListener("mouseleave",function(){this.style.transform="translateY(0)";this.style.boxShadow="0 8px 32px rgba(0,0,0,.25)";});
     row.style.transition="all .25s ease";
 
-    // Symbol background panel
     var symPanel=el("div",{css:{width:"180px",flexShrink:"0",background:"var(--card2)",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",order:isOdd?"0":"2",borderRight:isOdd?"1px solid var(--border)":"none",borderLeft:isOdd?"none":"1px solid var(--border)"}});
-    // Big emoji background
     var bigEmoji=el("div",{css:{fontSize:"5rem",opacity:".15",position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)"},txt:ICON[s]});
     symPanel.appendChild(bigEmoji);
-    // Scattered symbols
     var positions=[[10,10],[60,5],[80,55],[15,70],[50,80],[75,20]];
     (d.sym||[]).slice(0,6).forEach(function(sym,si){
       var pos=positions[si]||[50,50];
       var sp=el("div",{css:{position:"absolute",fontSize:"1.3rem",opacity:".25",left:pos[0]+"%",top:pos[1]+"%"}},sym);
       symPanel.appendChild(sp);
     });
-    // Center icon
     var cIcon=el("div",{css:{position:"relative",zIndex:"1",fontSize:"3.5rem",filter:"drop-shadow(0 4px 12px rgba(0,0,0,.2))"},txt:ICON[s]});
     symPanel.appendChild(cIcon);
 
-    // Content panel
     var content=el("div",{css:{flex:"1",background:"var(--card)",padding:"28px 32px",display:"flex",flexDirection:"column",justifyContent:"center",order:"1",borderLeft:isOdd?"none":"3px solid "+d.color,borderRight:isOdd?"3px solid "+d.color:"none"}});
     var ctop=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}});
     ctop.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)",color:"var(--text)"},txt:s}));
     ctop.appendChild(el("span",{css:{fontSize:".65rem",fontWeight:"700",padding:"3px 10px",borderRadius:"6px",background:d.color+"20",color:d.color,letterSpacing:".06em",fontFamily:"var(--font-display)"}},cnt+" Q"));
     content.appendChild(ctop);
     content.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"},txt:d.desc}));
-    // Topic chips
     var chips=el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"16px"}});
     (d.topics||[]).forEach(function(t){chips.appendChild(el("span",{css:{fontSize:".68rem",fontWeight:"600",padding:"3px 10px",borderRadius:"6px",background:d.color+"18",color:d.color,border:"1px solid "+d.color+"28",fontFamily:"var(--font-display)",letterSpacing:"0.02em"}},t));});
     content.appendChild(chips);
-    // CTA
     var cta=el("div",{css:{display:"flex",gap:"8px",alignItems:"center"}});
     cta.appendChild(el("span",{css:{fontSize:".82rem",fontWeight:"700",color:d.color,fontFamily:"var(--font-display)"}},"Start Learning →"));
     content.appendChild(cta);
@@ -468,7 +572,7 @@ function pgHome(){
   });
   w.appendChild(subjSec);
 
-  // Feedback Section
+  // 6. Feedback Section
   var fb=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"18px",padding:"32px 36px",marginBottom:"24px",textAlign:"center",boxShadow:"var(--shadow-card)",position:"relative",overflow:"hidden"}});
   var fbLine=el("div",{css:{position:"absolute",top:"0",left:"0",right:"0",height:"2px",background:"linear-gradient(90deg,var(--accent),var(--accent2),transparent)"}});
   fb.appendChild(fbLine);
@@ -511,7 +615,6 @@ function pgHome(){
     fb.appendChild(el("div",{css:{fontSize:"1.1rem",fontWeight:"700",marginBottom:"6px"},txt:"Thank you so much!"}));
     fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 rating has been recorded locally. It means a lot!"}));
     
-    // Formspree Integration
     if(window.STUDYLAB_FEEDBACK_URL) {
       fetch(window.STUDYLAB_FEEDBACK_URL, {
         method: "POST",
@@ -524,12 +627,12 @@ function pgHome(){
           Rating: selRating + " stars",
           Message: selMsg || "(no message)"
         })
-      }).catch(function(){/* Silently fail - already saved locally */});
+      }).catch(function(){});
     }
   }},"Submit Feedback"));
   w.appendChild(fb);
 
-  // Footer
+  // 7. Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
   frl.appendChild(makeLogo(22));
