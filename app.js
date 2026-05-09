@@ -523,6 +523,22 @@ function finishGuestLogin(name) {
   };
   Sv.set("guest_user", window.currentUser);
   toast("Welcome, " + name + "! 👋", "#4ade80");
+
+  // Subscribe to OneSignal notifications on login
+  try {
+    if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        var permission = await OneSignal.Notifications.permission;
+        if (!permission) {
+          await OneSignal.Notifications.requestPermission();
+        }
+        // Tag user with their name for personalized notifications
+        await OneSignal.User.addTag("name", name);
+        await OneSignal.User.addTag("type", "guest");
+      });
+    }
+  } catch(e) {}
+
   render();
 }
 
