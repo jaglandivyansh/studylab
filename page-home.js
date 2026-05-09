@@ -1,6 +1,7 @@
 window.STUDYLAB_FEEDBACK_URL = "https://formspree.io/f/mzdyqbyz";
 
 // ─── MODERN HERO SECTION ──────────────────────────────────────────
+// ─── MODERN HERO SECTION ──────────────────────────────────────────
 function makeModernHero() {
   var wrap = el("div", {
     css: {
@@ -24,7 +25,7 @@ function makeModernHero() {
 
   var content = el("div", { css: { position: "relative", zIndex: "1", maxWidth: "600px", margin: "0 auto" } });
 
-  // Top Feature Badge
+  // 🌟 UPDATED Top Feature Badge
   var badge = el("div", {
     css: {
       display: "inline-flex", alignItems: "center", gap: "6px",
@@ -33,11 +34,11 @@ function makeModernHero() {
       fontSize: ".75rem", fontWeight: "700", color: "var(--text)",
       marginBottom: "20px", cursor: "pointer", transition: "transform 0.2s"
     },
-    onclick: function() { go("digest"); }
+    onclick: function() { go("skilltree"); }
   });
   badge.addEventListener("mouseenter", function() { this.style.transform = "scale(1.05)"; });
   badge.addEventListener("mouseleave", function() { this.style.transform = "scale(1)"; });
-  badge.innerHTML = "<span style='color: #f59e0b'>✨</span> <span>New: Live Daily News Digest</span> <span style='color: var(--muted)'>→</span>";
+  badge.innerHTML = "<span style='color: #f59e0b'>✨</span> <span>New: RPG Skill Tree & Study Shorts</span> <span style='color: var(--muted)'>→</span>";
   content.appendChild(badge);
 
   // Main Headline
@@ -65,7 +66,7 @@ function makeModernHero() {
       maxWidth: "90%",
       margin: "0 auto 32px"
     },
-    txt: "A free, distraction-free learning lab for UPSC, SSC, and State PCS. Master 3,000+ curated MCQs with instant AI-powered explanations."
+    txt: "A free, distraction-free learning lab for UPSC, SSC, and State PCS. Master 4,000+ curated MCQs with instant AI-powered explanations."
   }));
 
   // Call to Action Buttons
@@ -83,6 +84,7 @@ function makeModernHero() {
   primaryBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; });
   primaryBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; });
   
+  // 🌟 UPDATED Secondary Button to point to Shorts
   var secondaryBtn = el("button", {
     css: {
       padding: "12px 28px", borderRadius: "12px", border: "1.5px solid var(--border2)",
@@ -90,8 +92,8 @@ function makeModernHero() {
       fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)",
       transition: "all 0.2s"
     },
-    onclick: function() { go("daily"); }
-  }, "🎯 Daily Challenge");
+    onclick: function() { go("shorts"); }
+  }, "⚡ Study Shorts");
   secondaryBtn.addEventListener("mouseenter", function() { this.style.background = "var(--border)"; });
   secondaryBtn.addEventListener("mouseleave", function() { this.style.background = "var(--bg2)"; });
   
@@ -109,10 +111,11 @@ function makeModernHero() {
     }
   });
   
+  // 🌟 UPDATED Trust Strip Features
   var features = [
-    { icon: "📚", text: "4000+ MCQs" },
-    { icon: "🤖", text: "AI Tutors" },
-    { icon: "⚡", text: "100% Free, 0 Ads" }
+    { icon: "🗺️", text: "RPG Skill Tree" },
+    { icon: "⚡", text: "Study Shorts" },
+    { icon: "🤖", text: "AI Tutors" }
   ];
   
   features.forEach(function(f) {
@@ -208,6 +211,9 @@ function makeDeadlineWidget() {
 // ─── AI DOUBT SOLVER ─────────────────────────────────────────────
 var ADS_LOADING = false;
 
+// ─── AI DOUBT SOLVER ─────────────────────────────────────────────
+var ADS_LOADING = false;
+
 function makeAIDoubtSolver() {
   var wrapper = el("div", {
     id: "ai-doubt-solver",
@@ -217,7 +223,8 @@ function makeAIDoubtSolver() {
       overflow: "hidden",
       border: "1px solid var(--border2)",
       background: "var(--card)",
-      boxShadow: "var(--shadow-card)",
+      // Set to expanded shadow by default
+      boxShadow: "0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px rgba(0,0,0,0.4)",
       transition: "box-shadow 0.3s ease"
     }
   });
@@ -227,6 +234,8 @@ function makeAIDoubtSolver() {
     css: {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "14px 18px", cursor: "pointer",
+      // Set to expanded background color by default
+      background: "var(--card2)",
       transition: "background 0.2s ease", userSelect: "none"
     }
   });
@@ -251,13 +260,14 @@ function makeAIDoubtSolver() {
   }, "AI Doubt Solver"));
   barText.appendChild(el("div", {
     css: {fontSize: ".73rem", color: "var(--muted)", marginTop: "2px"}
-  }, "Tap to ask anything about your studies..."));
+  }, "Tap to collapse..."));
 
   barLeft.appendChild(icon);
   barLeft.appendChild(barText);
 
   var arrow = el("div", {
-    css: {fontSize: "1.1rem", color: "var(--muted)", transition: "transform 0.3s cubic-bezier(0.2,0.8,0.2,1)", lineHeight: "1"}
+    // Arrow points up by default because the panel is open
+    css: {fontSize: "1.1rem", color: "var(--muted)", transition: "transform 0.3s cubic-bezier(0.2,0.8,0.2,1)", lineHeight: "1", transform: "rotate(180deg)"}
   }, "▾");
 
   bar.appendChild(barLeft);
@@ -265,7 +275,8 @@ function makeAIDoubtSolver() {
 
   var panel = el("div", {
     css: {
-      display: "none", flexDirection: "column",
+      // Set to flex instead of none so it is visible immediately
+      display: "flex", flexDirection: "column",
       borderTop: "1px solid var(--border)"
     }
   });
@@ -345,11 +356,14 @@ function makeAIDoubtSolver() {
     css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
   }, "Powered by Sarvam AI · Made for India 🇮🇳"));
 
-  var isOpen = false;
+  // State is now OPEN by default
+  var isOpen = true; 
+  
   bar.addEventListener("click", function() {
     isOpen = !isOpen;
     panel.style.display = isOpen ? "flex" : "none";
     arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+    barText.children[1].textContent = isOpen ? "Tap to collapse..." : "Tap to ask anything about your studies...";
     wrapper.style.boxShadow = isOpen
       ? "0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px rgba(0,0,0,0.4)"
       : "var(--shadow-card)";
@@ -501,24 +515,61 @@ function adsScrollChat() {
 }
 
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
+// ─── MAIN PAGE RENDER ────────────────────────────────────────────
+// ─── MAIN PAGE RENDER ────────────────────────────────────────────
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("home"));
 
-  // 1. Modern Hero Section (Replaces the static one from index.html)
+  // 1. Modern Hero Section
   w.appendChild(makeModernHero());
 
   // 2. Deadline Widget
   w.appendChild(makeDeadlineWidget());
-  
-  // 3. AI Doubt Solver
-  w.appendChild(makeAIDoubtSolver());
 
-  // 4. Quote of the Day
+  // 3. Quote of the Day
   w.appendChild(makeQuoteCard());
 
-  // 5. Subject showcase
+  // 🌟 4. THE SKILL TREE ENTRY BUTTON 🌟
+  var skillTreeBanner = el("div", {
+    css: {
+      background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+      borderRadius: "18px", padding: "24px 28px", marginBottom: "32px",
+      color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between",
+      cursor: "pointer", boxShadow: "0 12px 32px rgba(124,58,237,0.3)",
+      transition: "transform 0.25s ease, box-shadow 0.25s ease"
+    },
+    onclick: function() { go('skilltree'); }
+  });
+  skillTreeBanner.addEventListener("mouseenter", function() { 
+    this.style.transform = "translateY(-4px)"; 
+    this.style.boxShadow = "0 16px 40px rgba(124,58,237,0.4)";
+  });
+  skillTreeBanner.addEventListener("mouseleave", function() { 
+    this.style.transform = "translateY(0)"; 
+    this.style.boxShadow = "0 12px 32px rgba(124,58,237,0.3)";
+  });
+
+  var stbLeft = el("div", {css: {display: "flex", alignItems: "center", gap: "16px"}});
+  stbLeft.appendChild(el("div", {css: {fontSize: "2.5rem", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))"}}, "🗺️"));
+  
+  var stbText = el("div");
+  stbText.appendChild(el("div", {css:{fontSize:"1.3rem", fontWeight:"800", fontFamily:"var(--font-display)", marginBottom:"4px", letterSpacing: "-0.02em"}}, "RPG Skill Tree"));
+  stbText.appendChild(el("div", {css:{fontSize:".85rem", opacity:"0.85", lineHeight: "1.4"}}, "Master topics sequentially and unlock new levels!"));
+  
+  stbLeft.appendChild(stbText);
+  skillTreeBanner.appendChild(stbLeft);
+  skillTreeBanner.appendChild(el("div", {css:{fontSize:"1.5rem", fontWeight:"800", background: "rgba(255,255,255,0.2)", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%"}}, "→"));
+
+  w.appendChild(skillTreeBanner);
+  // 🌟 END OF SKILL TREE BUTTON 🌟
+
+  // 💡 5. AI DOUBT SOLVER (MOVED HERE!) 💡
+  w.appendChild(makeAIDoubtSolver());
+
+
+  // 6. Subject showcase
   var SD={
     History:{color:"#7c3aed",bg:"#f5f3ff",desc:"Explore ancient civilizations, medieval kingdoms, freedom struggle, and modern India.",topics:["Indus Valley","Mughal Empire","British Raj","Independence Movement","Ancient India"],sym:["⚔️","🏛️","📜","👑","⚛️","🛡️"]},
     Geography:{color:"#059669",bg:"#ecfdf5",desc:"From Himalayas to coastal plains, rivers, climate zones, and world physical features.",topics:["Rivers & Lakes","Climate","Physical Features","World Map","Agriculture"],sym:["🌍","🏔️","🌊","🌿","🌋","🌎"]},
@@ -572,7 +623,7 @@ function pgHome(){
   });
   w.appendChild(subjSec);
 
-  // 6. Feedback Section
+  // 7. Feedback Section
   var fb=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"18px",padding:"32px 36px",marginBottom:"24px",textAlign:"center",boxShadow:"var(--shadow-card)",position:"relative",overflow:"hidden"}});
   var fbLine=el("div",{css:{position:"absolute",top:"0",left:"0",right:"0",height:"2px",background:"linear-gradient(90deg,var(--accent),var(--accent2),transparent)"}});
   fb.appendChild(fbLine);
@@ -632,14 +683,14 @@ function pgHome(){
   }},"Submit Feedback"));
   w.appendChild(fb);
 
-  // 7. Footer
+  // 8. Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
   frl.appendChild(makeLogo(22));
   frl.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"StudyLab \u00b7 Your AI Study Partner"}));
   ft.appendChild(frl);
   var footerCredit = el("div",{css:{fontSize:".75rem",color:"var(--subtle)"}});
-  footerCredit.textContent = "Created by Aman | AI-assisted development";
+  footerCredit.textContent = "Created by Aman";
   ft.appendChild(footerCredit);
   w.appendChild(ft);
   return w;

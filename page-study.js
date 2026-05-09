@@ -180,15 +180,48 @@ function pgQZ(){
   var isChallenge = window.challengeData && window.challengeData.s === s;
   var chal = window.challengeData;
 
+  // --- NEW: RPG SKILL TREE STATE ---
+  var isSkillMode = !!window.activeSkillNode;
+  var skillNode = window.activeSkillNode;
+  
+  if (isSkillMode) {
+      // Find questions that match the exact topic name
+      var filtered = allQ.filter(function(q) { 
+          return q.topic === skillNode.title || (q.tags && q.tags.includes(skillNode.title)); 
+      });
+      // Fallback: If your questions aren't tagged with 'topic' in the database yet, 
+      // just grab 15 random questions to represent the "Boss Fight"
+      if (filtered.length < 5) {
+          filtered = shuf(allQ).slice(0, 15); 
+      }
+      allQ = filtered;
+  }
+  // ---------------------------------
+
   function fmt(sec){ var m=Math.floor(sec/60), secR=sec%60; return m+":"+(secR<10?"0":"")+secR; }
 
   function finishQuiz() {
     if(timerInt) clearInterval(timerInt);
     var pct=pool.length?Math.round((sc/pool.length)*100):0;
     hist=[{date:new Date().toLocaleDateString("en-IN"),pct:pct,correct:sc,skipped:sk,total:pool.length}].concat(hist).slice(0,15);
-    if(best===null||pct>best){best=pct;if(pct>0)toast("\uD83C\uDFC6 New best: "+pct+"%!");}
-    if(pct === 100) throwConfetti(); // Boom! Perfect score!
-    persist(); qst="result"; build();
+    if(best===null||pct>best){best=pct;if(pct>0 && !isSkillMode)toast("🏆 New best: "+pct+"%!");}
+    if(pct === 100) throwConfetti(); 
+    persist(); 
+    
+    // --- EVALUATE SKILL TREE PROGRESS ---
+    if (isSkillMode) {
+        if (pct >= 80) {
+            var userProgress = Sv.get("rpg_progress") || {};
+            userProgress[skillNode.id] = true;
+            Sv.set("rpg_progress", userProgress);
+            toast("🎉 Mastery Achieved! Next level unlocked.", "#10b981");
+        } else {
+            toast("💔 You scored " + pct + "%. You need 80% to master this topic. Try again!", "#ef4444");
+        }
+    }
+    // ------------------------------------
+
+    qst="result"; build();
   }
 
   function adv(){
@@ -201,12 +234,13 @@ function pgQZ(){
     w.innerHTML="";
     var hdr=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px",paddingBottom:"16px",borderBottom:"1.5px solid var(--border)"}});
     hdr.appendChild(el("button",{cls:"btn btng",css:{padding:"6px 12px"},onclick:function(){
-      if(window.qzTimeout) clearTimeout(window.qzTimeout); // Stop quiz from advancing if we exit
+      if(window.qzTimeout) clearTimeout(window.qzTimeout); 
       if(isChallenge) { window.challengeData = null; } 
+      if(isSkillMode) { window.activeSkillNode = null; go("skilltree"); return; } // Go back to Map
       go("sub");
-    }},"\u2190 Back"));
+    }},"← Back"));
     hdr.appendChild(el("div",{css:{flex:"1"}},[
-      el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:ICON[s]+" "+s+(isChallenge?" \u00b7 Challenge":" \u00b7 Quiz")}),
+      el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:ICON[s]+" "+s+(isChallenge?" \u00b7 Challenge":(isSkillMode?" \u00b7 Mastery Challenge":" \u00b7 Quiz"))}),
       el("div",{css:{fontSize:".75rem",color:"var(--subtle)",marginTop:"1px"},txt:isChallenge?"Target: "+chal.sc+" points":allQ.length+" questions available"})
     ]));
     if(qst==="playing")hdr.appendChild(el("span",{css:{fontSize:".8rem",color:"var(--subtle)"},txt:sc+" correct \u00b7 "+sk+" skipped"}));
@@ -226,7 +260,6 @@ function pgQZ(){
             pool = chal.q.map(function(i){ return allQ[i]; }).filter(Boolean);
             qi=0;sc=0;sk=0;ch=null;isSk=false;wrong=[];sRev=false;att++;
             qst="playing"; lock=true; 
-            
             if(timerInt) clearInterval(timerInt);
             timeTaken = 0; isTimed = false; 
             timerInt = setInterval(function(){
@@ -235,10 +268,32 @@ function pgQZ(){
                 var te = document.getElementById("qz-timer");
                 if(te) te.textContent = "⏱️ " + fmt(timeTaken);
             }, 1000);
-            
             build(); setTimeout(function(){ lock=false; }, 300);
          }},"Accept Challenge 🚀"));
          hw.appendChild(cbox);
+
+      } else if (isSkillMode) {
+         // --- SKILL TREE BOSS FIGHT SCREEN ---
+         var skbox=el("div",{css:{background:"var(--card2)",border:"1.5px solid "+ac,borderRadius:"16px",padding:"36px 24px",textAlign:"center",marginBottom:"24px",boxShadow:"0 8px 24px "+ac+"33"}});
+         skbox.appendChild(el("div",{css:{fontSize:"3.5rem",marginBottom:"12px"},txt:skillNode.icon}));
+         skbox.appendChild(el("div",{css:{fontSize:"1.6rem",fontWeight:"800",marginBottom:"8px",color:"var(--text)",fontFamily:"var(--font-display)"},txt:skillNode.title + " Mastery"}));
+         skbox.appendChild(el("div",{css:{fontSize:".95rem",color:"var(--muted)",marginBottom:"28px",lineHeight:"1.6"},txt:"Score 80% or higher on these "+allQ.length+" questions to master the topic and unlock the next level."}));
+         
+         skbox.appendChild(el("button",{cls:"btn btnp",css:{width:"100%",padding:"14px",fontSize:"1.05rem",borderRadius:"10px",background:ac,border:"none",boxShadow:"0 4px 14px "+ac+"40"},onclick:function(){
+            pool = shuf(allQ).slice(0, Math.min(25, allQ.length)); 
+            qi=0;sc=0;sk=0;ch=null;isSk=false;wrong=[];sRev=false;att++;
+            qst="playing"; lock=true; 
+            if(timerInt) clearInterval(timerInt);
+            timeTaken = 0; isTimed = false; 
+            timerInt = setInterval(function(){
+                if(pg !== "qz") { clearInterval(timerInt); return; }
+                timeTaken++;
+                var te = document.getElementById("qz-timer");
+                if(te) te.textContent = "⏱️ " + fmt(timeTaken);
+            }, 1000);
+            build(); setTimeout(function(){ lock=false; }, 300);
+         }},"Start Mastery Test ⚔️"));
+         hw.appendChild(skbox);
 
       } else {
          // --- NORMAL HOME SCREEN ---
@@ -310,11 +365,12 @@ function pgQZ(){
       var rside=el("div",{css:{display:"flex",alignItems:"center",gap:"10px"}});
       if(isSk)rside.appendChild(el("span",{css:{fontSize:".72rem",color:"var(--subtle)",background:"var(--bg2)",padding:"2px 8px",borderRadius:"4px"},txt:"Skipped"}));
       var isBm=isBookmarked(s, q.q);
-      var bmBtn=el("button",{css:{background:"transparent",border:"none",cursor:"pointer",fontSize:"1.2rem",transition:"transform 0.2s"},txt:isBm?"⭐":"☆"});
-      bmBtn.onclick=function(e){ e.preventDefault(); isBm=toggleBookmark(s, q); this.textContent=isBm?"⭐":"☆"; this.style.transform="scale(1.2)"; var btn=this; setTimeout(function(){btn.style.transform="scale(1)";}, 200); };
-      var rside=el("div",{css:{display:"flex",alignItems:"center",gap:"10px"}});
-      if(isSk)rside.appendChild(el("span",{css:{fontSize:".72rem",color:"var(--subtle)",background:"var(--bg2)",padding:"2px 8px",borderRadius:"4px"},txt:"Skipped"}));
-      var isBm = isBookmarked(s, q.q);
+      
+      // AI and Bookmark Buttons
+      var aiBtn = el("button", {cls: "icon-action-btn", txt: "💡"});
+      aiBtn.onclick = function(e){ e.preventDefault(); openSarvamAIModal(q.q, q.o, q.a, s); };
+      rside.appendChild(aiBtn);
+
       var bmBtn = el("button", {cls: "icon-action-btn" + (isBm ? " bm-active" : ""), txt: isBm ? "⭐" : "☆"});
       bmBtn.onclick = function(e){ 
         e.preventDefault(); 
@@ -324,13 +380,6 @@ function pgQZ(){
         this.style.transform = "scale(1.1)"; 
         var btn = this; setTimeout(function(){ btn.style.transform = ""; }, 200); 
       };
-      
-      // --- ADDED AI BUTTON ---
-      var aiBtn = el("button", {cls: "icon-action-btn", txt: "💡"});
-      aiBtn.onclick = function(e){ e.preventDefault(); openSarvamAIModal(q.q, q.o, q.a, s); };
-      rside.appendChild(aiBtn);
-      // -----------------------
-
       rside.appendChild(bmBtn);
       qtop.appendChild(rside);
 
@@ -340,19 +389,14 @@ function pgQZ(){
         var cls="qo";if(ch!==null){if(i===q.a)cls+=" ok";else if(i===ch)cls+=" no";}
         var ob=el("button",{cls:cls,onclick:function(e){
           e.preventDefault(); if(ch!==null || isSk || lock) return;
-          
-          // FIX: Force browser to drop the 'sticky hover' state
-          this.blur();
-          if (document.activeElement) document.activeElement.blur();
+          this.blur(); if (document.activeElement) document.activeElement.blur();
           
           lock = true; ch=i;
           if(i===q.a)sc++;else wrong.push({q:q.q,correct:q.o[q.a],chosen:opt,orig:q});
           build();
           
-          // Save timeout globally so it can be safely cancelled
           window.qzTimeout = setTimeout(function(){ 
-            adv(); 
-            setTimeout(function(){ lock=false; }, 300); 
+            adv(); setTimeout(function(){ lock=false; }, 300); 
           }, 1100);
         }});
         ob.appendChild(el("span",{css:{fontSize:".75rem",fontWeight:"600",color:"var(--subtle)",minWidth:"20px"},txt:L[i]+"."}));
@@ -363,16 +407,11 @@ function pgQZ(){
       
       if(ch===null&&!isSk)pw.appendChild(el("button",{cls:"btn btng",css:{width:"100%",fontSize:".85rem"},onclick:function(e){ 
         e.preventDefault(); if(lock) return; 
-        
-        // FIX: Drop focus state for the skip button too
-        this.blur();
-        if (document.activeElement) document.activeElement.blur();
+        this.blur(); if (document.activeElement) document.activeElement.blur();
         
         lock=true; isSk=true; sk++; build(); 
-        
         window.qzTimeout = setTimeout(function(){ 
-          adv(); 
-          setTimeout(function(){ lock=false; }, 300); 
+          adv(); setTimeout(function(){ lock=false; }, 300); 
         }, 500); 
       }},"\u23e9 Skip"));
       w.appendChild(pw);
@@ -388,7 +427,7 @@ function pgQZ(){
          rbox.appendChild(el("div",{css:{fontSize:"4rem",fontWeight:"700",color:rcol,lineHeight:"1",marginBottom:"8px"},txt:sc+" / "+pool.length}));
          rbox.appendChild(el("div",{css:{fontSize:"1.2rem",fontWeight:"700",marginBottom:"4px"},txt:won?"You beat "+chal.n+"! 🎉":(tie?"It's a tie! 🤝":chal.n+" wins! 💀")}));
          rbox.appendChild(el("div",{css:{fontSize:".9rem",color:"var(--muted)",marginBottom:"20px"},txt:"Your Score: "+sc+" | Their Score: "+chal.sc}));
-         window.challengeData = null; // Clear so the next quiz is normal!
+         window.challengeData = null; 
       } else {
          var rlbl=pct===100?"Perfect!":pct>=80?"Excellent!":pct>=60?"Good job!":pct>=40?"Keep practicing!":"Don't give up!";
          var rcol=pct>=60?"#4ade80":pct>=40?ac:"#f87171";
@@ -404,7 +443,7 @@ function pgQZ(){
 
       var rbts=el("div",{css:{display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap"}});
       
-      if(!isChallenge) {
+      if(!isChallenge && !isSkillMode) {
           var chalBtn = el("button",{cls:"btn btnp",css:{background:"linear-gradient(135deg, #f59e0b, #ef4444)", border:"none", boxShadow:"0 4px 14px rgba(245,158,11,0.3)", width:"100%", marginBottom:"8px"},onclick:function(){
              var qIndices = pool.map(function(q){ return allQ.indexOf(q); }).join('-');
              var uName = window.currentUser && window.currentUser.displayName ? window.currentUser.displayName : "A friend";
@@ -420,32 +459,37 @@ function pgQZ(){
              } else {
                prompt("Copy this link to challenge your friend:", link);
              }
-          }},"⚔️ Challenge a Friend to beat "+sc+"!"); // ✅ Fixed!
-          
+          }},"⚔️ Challenge a Friend to beat "+sc+"!"); 
           rbox.appendChild(chalBtn);
       }
 
-      rbts.appendChild(el("button",{cls:"btn btnp",css:{flex:"1",justifyContent:"center"},onclick:function(){
-        // Fix for the challenge "New Quiz" bug
-        if(isChallenge) { window.challengeData = null; go("qz"); return; }
-        
-        pool=shuf(allQ).slice(0,Math.min(cnt,allQ.length));qi=0;sc=0;sk=0;ch=null;isSk=false;wrong=[];sRev=false;att++; persist();qst="playing"; lock=true; 
-        if(timerInt) clearInterval(timerInt);
-        timeTaken = 0; timeLimit = isTimed ? cnt * 60 : 0; 
-        timerInt = setInterval(function(){
-            if(pg !== "qz") { clearInterval(timerInt); return; }
-            timeTaken++; var te = document.getElementById("qz-timer");
-            if(te) {
-                if(isTimed) {
-                    var rem = timeLimit - timeTaken; te.textContent = "⏱️ " + fmt(rem);
-                    if(rem <= 60) { te.style.color = "#f87171"; te.style.background = "rgba(248,113,113,0.1)"; }
-                    if(rem <= 0) { clearInterval(timerInt); toast("⏰ Time's up!"); finishQuiz(); }
-                } else { te.textContent = "⏱️ " + fmt(timeTaken); }
-            }
-        }, 1000);
-        build(); setTimeout(function(){ lock=false; }, 300);
-      }},"New Quiz"));
-      rbts.appendChild(el("button",{cls:"btn",css:{flex:"1",justifyContent:"center"},onclick:function(){qst="home";build();}},"\u2190 Home"));
+      // Hide the 'New Quiz' button if they are doing an RPG Mastery challenge
+      if (!isSkillMode) {
+          rbts.appendChild(el("button",{cls:"btn btnp",css:{flex:"1",justifyContent:"center"},onclick:function(){
+            pool=shuf(allQ).slice(0,Math.min(cnt,allQ.length));qi=0;sc=0;sk=0;ch=null;isSk=false;wrong=[];sRev=false;att++; persist();qst="playing"; lock=true; 
+            if(timerInt) clearInterval(timerInt);
+            timeTaken = 0; timeLimit = isTimed ? cnt * 60 : 0; 
+            timerInt = setInterval(function(){
+                if(pg !== "qz") { clearInterval(timerInt); return; }
+                timeTaken++; var te = document.getElementById("qz-timer");
+                if(te) {
+                    if(isTimed) {
+                        var rem = timeLimit - timeTaken; te.textContent = "⏱️ " + fmt(rem);
+                        if(rem <= 60) { te.style.color = "#f87171"; te.style.background = "rgba(248,113,113,0.1)"; }
+                        if(rem <= 0) { clearInterval(timerInt); toast("⏰ Time's up!"); finishQuiz(); }
+                    } else { te.textContent = "⏱️ " + fmt(timeTaken); }
+                }
+            }, 1000);
+            build(); setTimeout(function(){ lock=false; }, 300);
+          }},"New Quiz"));
+      }
+
+      rbts.appendChild(el("button",{cls:"btn",css:{flex:"1",justifyContent:"center"},onclick:function(){
+          qst="home"; 
+          if(isSkillMode) { window.activeSkillNode = null; go("skilltree"); return; }
+          build();
+      }}, isSkillMode ? "← Back to Skill Map" : "← Home"));
+      
       rbox.appendChild(rbts);rw.appendChild(rbox);
       
       if(wrong.length){

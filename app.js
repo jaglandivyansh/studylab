@@ -877,7 +877,8 @@ function render(){
   else if(pg=="about")app.appendChild(pgAbout());
   else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());
   else if(pg=="howtouse")app.appendChild(pgHowToUse());
-  
+  else if(pg=="shorts")app.appendChild(pgShorts());
+  else if(pg=="skilltree")app.appendChild(pgSkillTree());
   
 }
 
