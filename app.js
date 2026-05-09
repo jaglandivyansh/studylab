@@ -1,4 +1,3 @@
-
 var SUBJ = ["History", "Geography", "Polity", "Economy", "Science", "GK", "Current Affairs", "Previous Year Questions"];
 var ICON = {"History": "🏛️","Geography": "🌍","Polity": "⚖️","Economy": "💰","Science": "🔬","GK": "💡","Current Affairs": "📰","Previous Year Questions": "🕰️"};
 var AC={History:"#d97706",Geography:"#059669",Polity:"#7c3aed",Economy:"#db2777",Science:"#0891b2",GK:"#65a30d","Current Affairs":"#3b82f6","Previous Year Questions": "#93c5fd"};
@@ -123,7 +122,7 @@ function go(p, s, skipHistory) {
 
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
 if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
-if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
+if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="digest")app.appendChild(pgDigest());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
 
 var QUOTES=[
   {q:"The secret of getting ahead is getting started.",a:"Mark Twain"},
@@ -863,6 +862,10 @@ function render(){
   app.innerHTML="";
   if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
   
+  // Show current-affairs-container only on digest page
+  var cac = document.getElementById("current-affairs-container");
+  if(cac) cac.style.display = (pg=="digest") ? "block" : "none";
+
   if(pg=="home")app.appendChild(pgHome());
   else if(pg=="sub")app.appendChild(pgSub());
   else if(pg=="fc")app.appendChild(pgFC());
