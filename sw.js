@@ -20,7 +20,9 @@ const ASSETS_TO_CACHE = [
   "/page-daily.js",
   "/page-digest.js",
   "/logo.png",
-  "/manifest.json"
+  "/manifest.json",
+  "/page-shorts.js",
+  "/page-skilltree.js",
 ];
 
 // ── INSTALL: Cache all assets ──
