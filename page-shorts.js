@@ -95,7 +95,7 @@ function pgShorts() {
       width: "100%", 
       overflowY: "scroll", 
       scrollSnapType: "y mandatory",
-      background: "#000", 
+      background: "var(--bg)", 
       position: "absolute",
       top: "0", left: "0", zIndex: "10"
     } 
@@ -106,12 +106,12 @@ function pgShorts() {
     css: {
       position: "fixed", top: "15px", left: "20px", right: "20px",
       display: "flex", justifyContent: "space-between", alignItems: "center",
-      zIndex: "20", color: "#fff", textShadow: "0 2px 4px rgba(0,0,0,0.5)"
+      zIndex: "20", color: "var(--text)", textShadow: "0 2px 4px rgba(0,0,0,0.2)"
     }
   });
   header.appendChild(el("div", {css: {fontSize: "1.2rem", fontWeight: "800", fontFamily: "var(--font-display)"}}, "Study Shorts ⚡"));
   header.appendChild(el("button", {
-    css: { background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", padding: "6px 12px", borderRadius: "20px", backdropFilter: "blur(4px)", fontSize: ".8rem", cursor: "pointer" },
+    css: { background: "var(--card)", border: "1px solid var(--border)", color: "var(--text)", padding: "6px 12px", borderRadius: "20px", backdropFilter: "blur(4px)", fontSize: ".8rem", cursor: "pointer" },
     onclick: function(){ go("home"); }
   }, "✕ Close"));
   w.appendChild(header);
@@ -129,7 +129,8 @@ function pgShorts() {
 
     var cardWrap = el("div", {
       css: {
-        width: "100%", maxWidth: "400px", height: "65%",
+        width: "100%", maxWidth: "420px",
+        height: "clamp(320px, 68vh, 520px)",
         perspective: "1000px", cursor: "pointer"
       }
     });
@@ -151,23 +152,30 @@ function pgShorts() {
     var faceCss = {
       position: "absolute", width: "100%", height: "100%",
       backfaceVisibility: "hidden", borderRadius: "24px",
-      padding: "32px", display: "flex", flexDirection: "column",
+      padding: "28px 24px", display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-      color: "#fff"
+      color: "#fff", overflow: "hidden", boxSizing: "border-box"
     };
 
     // Front of card
     var front = el("div", { css: Object.assign({}, faceCss, { background: item.bg }) });
-    front.appendChild(el("div", {css: {background: "rgba(255,255,255,0.2)", padding: "4px 12px", borderRadius: "20px", fontSize: ".7rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700", marginBottom: "auto"}}, item.subj));
-    var qFontSize = item.q.length > 100 ? "1.1rem" : "1.4rem";
-    front.appendChild(el("div", {css: {fontSize: qFontSize, fontWeight: "700", lineHeight: "1.5", marginTop: "auto", marginBottom: "auto", fontFamily: "var(--font-display)"}}, item.q));
+    front.appendChild(el("div", {css: {background: "rgba(255,255,255,0.18)", padding: "4px 12px", borderRadius: "20px", fontSize: ".7rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700", marginBottom: "auto", color: "#fff"}}, item.subj));
+    var qFontSize = item.q.length > 180 ? "0.85rem" : item.q.length > 100 ? "1rem" : "1.3rem";
+    front.appendChild(el("div", {css: {
+      fontSize: qFontSize, fontWeight: "700", lineHeight: "1.6",
+      marginTop: "auto", marginBottom: "auto",
+      fontFamily: "var(--font-display)",
+      overflowY: "auto", maxHeight: "65%",
+      wordBreak: "break-word", padding: "4px 2px"
+    }}, item.q));
     front.appendChild(el("div", {css: {fontSize: ".8rem", opacity: "0.8", marginTop: "auto"}}, "👆 Tap to reveal"));
 
     // Back of card
     var back = el("div", { css: Object.assign({}, faceCss, { background: "var(--card)", border: "2px solid var(--border)", color: "var(--text)", transform: "rotateY(180deg)", padding: "24px" }) });
-    back.appendChild(el("div", {css: {fontSize: "1.6rem", fontWeight: "800", color: "var(--accent)", marginBottom: "16px", fontFamily: "var(--font-display)", lineHeight: "1.3"}}, item.a));
-    var extraWrap = el("div", {css: {maxHeight: "50%", overflowY: "auto", paddingRight: "4px"}});
+    var ansFontSize = item.a.length > 80 ? "1.1rem" : "1.5rem";
+    back.appendChild(el("div", {css: {fontSize: ansFontSize, fontWeight: "800", color: "var(--accent)", marginBottom: "12px", fontFamily: "var(--font-display)", lineHeight: "1.4", wordBreak: "break-word", overflowY: "auto", maxHeight: "40%"}}, item.a));
+    var extraWrap = el("div", {css: {maxHeight: "45%", overflowY: "auto", paddingRight: "4px"}});
     extraWrap.appendChild(el("div", {css: {fontSize: ".9rem", color: "var(--muted)", lineHeight: "1.6"}}, item.extra));
     back.appendChild(extraWrap);
 
@@ -181,7 +189,7 @@ function pgShorts() {
       slide.appendChild(el("div", {
         css: {
           position: "absolute", bottom: "30px", left: "50%", transform: "translateX(-50%)",
-          color: "#fff", fontSize: ".8rem", display: "flex", flexDirection: "column", alignItems: "center",
+          color: "var(--muted)", fontSize: ".8rem", display: "flex", flexDirection: "column", alignItems: "center",
           opacity: "0.7", animation: "bounce-up 2s infinite"
         },
         htm: "<span>Swipe up for next</span><span style='font-size:1.5rem'>⌃</span>"
@@ -195,7 +203,7 @@ function pgShorts() {
   var endSlide = el("div", {
     css: {
       height: "100%", width: "100%", scrollSnapAlign: "start", display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center", color: "#fff"
+      alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center", color: "var(--text)"
     }
   });
   endSlide.appendChild(el("div", {css: {fontSize: "3rem", marginBottom: "10px"}}, "🎉"));
