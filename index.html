@@ -103,6 +103,25 @@ Practice History, Geography, Polity and more
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "0ea19fa4-b7fd-4f6f-8031-7b536a14b7a0",
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: true,
+            text: {
+              actionMessage: "StudyLab se daily exam updates aur current affairs paao!",
+              acceptButton: "Allow",
+              cancelButton: "No Thanks"
+            },
+            delay: {
+              pageViews: 1,
+              timeDelay: 5
+            }
+          }]
+        }
+      },
+      serviceWorkerParam: { scope: "/" },
+      serviceWorkerPath: "OneSignalSDKWorker.js"
     });
   });
 </script>
