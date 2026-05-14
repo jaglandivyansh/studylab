@@ -216,18 +216,18 @@ var ADS_LOADING = false;
 
 function makeAIDoubtSolver() {
   var wrapper = el("div", {
-    id: "ai-doubt-solver",
-    css: {
-      marginBottom: "28px",
-      borderRadius: "18px",
-      overflow: "hidden",
-      border: "1px solid var(--border2)",
-      background: "var(--card)",
-      // Set to expanded shadow by default
-      boxShadow: "0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px rgba(0,0,0,0.4)",
-      transition: "box-shadow 0.3s ease"
-    }
-  });
+  id: "ai-doubt-solver",
+  css: {
+    marginBottom: "28px",
+    borderRadius: "18px",
+    overflow: "hidden",
+    border: "1px solid var(--border2)",
+    background: "var(--card)",
+    // Uses a softer shadow for bright mode, or a variable if you have one defined
+    boxShadow: "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))",
+    transition: "box-shadow 0.3s ease"
+  }
+});
 
   var bar = el("div", {
     id: "ads-bar",
@@ -360,16 +360,18 @@ function makeAIDoubtSolver() {
   var isOpen = true; 
   
   bar.addEventListener("click", function() {
-    isOpen = !isOpen;
-    panel.style.display = isOpen ? "flex" : "none";
-    arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
-    barText.children[1].textContent = isOpen ? "Tap to collapse..." : "Tap to ask anything about your studies...";
-    wrapper.style.boxShadow = isOpen
-      ? "0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px rgba(0,0,0,0.4)"
-      : "var(--shadow-card)";
-    bar.style.background = isOpen ? "var(--card2)" : "transparent";
-    if (isOpen) setTimeout(function() { input.focus(); }, 300);
-  });
+  isOpen = !isOpen;
+  panel.style.display = isOpen ? "flex" : "none";
+  arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+  barText.children[1].textContent = isOpen ? "Tap to collapse..." : "Tap to ask anything about your studies...";
+  
+  wrapper.style.boxShadow = isOpen
+    ? "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))" 
+    : "var(--shadow-card)";
+    
+  bar.style.background = isOpen ? "var(--card2)" : "transparent";
+  if (isOpen) setTimeout(function() { input.focus(); }, 300);
+});
 
   bar.addEventListener("mouseenter", function() { if (!isOpen) this.style.background = "var(--card2)"; });
   bar.addEventListener("mouseleave", function() { if (!isOpen) this.style.background = "transparent"; });
@@ -435,7 +437,8 @@ function adsCreateBubble(type, text) {
       width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
       display: "flex", alignItems: "center", justifyContent: "center",
       marginTop: "2px", fontSize: ".8rem",
-      background: type === "user" ? "var(--accent)" : "linear-gradient(135deg, #1a1a2e, #16213e)",
+      // Set the correct purple AI background immediately
+      background: type === "user" ? "var(--accent)" : "linear-gradient(135deg, #6366F1, #8B5CF6)", 
       color: "#fff", fontWeight: "700",
       overflow: "hidden"
     }
@@ -447,7 +450,7 @@ function adsCreateBubble(type, text) {
     avatar.textContent = userName;
   } else {
     avatar.textContent = "S";
-    avatar.style.background = "linear-gradient(135deg, #6366F1, #8B5CF6)";
+    // Redundant background assignment removed from here
     avatar.style.fontFamily = "var(--font-display)";
     avatar.style.fontWeight = "800";
     avatar.style.fontSize = ".75rem";

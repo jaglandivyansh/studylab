@@ -1541,6 +1541,9 @@ window.addEventListener('load', function() {
 
 // 2. Listen for the mobile hardware Back Button
 window.addEventListener('popstate', function(e) {
+  // If the user clicked the Exit button, ignore this event and let the app close natively
+  if (window.allowNativeExit) return; 
+
   if (e.state && e.state.page === 'exit_trap') {
     // 🚨 User pressed back on the Home page! They are trying to leave.
     showExitConfirmationModal();
@@ -1604,10 +1607,11 @@ function showExitConfirmationModal() {
       fontFamily: "var(--font-body)"
     },
     onclick: function() {
-      // Temporarily disable our safety net and command the browser to exit natively
-      window.onpopstate = null; 
-      history.back(); 
-      setTimeout(function() { history.back(); }, 20); 
+      // Set the bypass flag so the popstate listener ignores the navigation
+      window.allowNativeExit = true; 
+      
+      // Jump back 2 steps in history to bypass both 'home' and 'exit_trap'
+      history.go(-2); 
     }
   }, "Yes, Exit");
 
