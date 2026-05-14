@@ -437,12 +437,12 @@ function adsCreateBubble(type, text) {
       width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
       display: "flex", alignItems: "center", justifyContent: "center",
       marginTop: "2px", fontSize: ".8rem",
-      // Set the correct purple AI background immediately
       background: type === "user" ? "var(--accent)" : "linear-gradient(135deg, #6366F1, #8B5CF6)", 
       color: "#fff", fontWeight: "700",
       overflow: "hidden"
     }
   });
+  
   if (type === "user") {
     var userName = (window.currentUser && window.currentUser.displayName)
       ? window.currentUser.displayName.trim()[0].toUpperCase()
@@ -450,7 +450,6 @@ function adsCreateBubble(type, text) {
     avatar.textContent = userName;
   } else {
     avatar.textContent = "S";
-    // Redundant background assignment removed from here
     avatar.style.fontFamily = "var(--font-display)";
     avatar.style.fontWeight = "800";
     avatar.style.fontSize = ".75rem";
@@ -458,14 +457,22 @@ function adsCreateBubble(type, text) {
 
   var bubble = el("div", {
     css: {
-      maxWidth: "82%", padding: "9px 13px", fontSize: ".85rem", lineHeight: "1.6",
-      color: type === "user" ? "#fff" : "var(--text)",
-      background: type === "user" ? "var(--accent)" : "var(--card2)",
-      border: type === "user" ? "none" : "1px solid var(--border)",
-      borderRadius: type === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px"
+      maxWidth: "82%", padding: "10px 14px", fontSize: ".9rem", lineHeight: "1.6",
+      color: type === "user" ? "#fff" : "var(--text)", 
+      fontWeight: "500", // Makes the text slightly thicker so it stops fading
+      background: type === "user" ? "var(--accent)" : "var(--card)", // Uses pure card background for max contrast
+      border: type === "user" ? "none" : "1.5px solid var(--border2)", // Stronger border to frame it cleanly
+      borderRadius: type === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
+      boxShadow: type === "user" ? "0 4px 12px rgba(0,0,0,0.15)" : "0 2px 10px rgba(0,0,0,0.04)"
     }
   });
-  bubble.innerHTML = text.replace(/\n/g, "<br>");
+  
+  // Parse markdown bolding (**text**) into actual bold HTML tags so important facts pop!
+  var formattedText = text
+    .replace(/\n/g, "<br>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong style='color: var(--text); font-weight: 800;'>$1</strong>");
+    
+  bubble.innerHTML = formattedText;
 
   msg.appendChild(avatar);
   msg.appendChild(bubble);

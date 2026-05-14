@@ -1607,11 +1607,21 @@ function showExitConfirmationModal() {
       fontFamily: "var(--font-body)"
     },
     onclick: function() {
-      // Set the bypass flag so the popstate listener ignores the navigation
       window.allowNativeExit = true; 
       
-      // Jump back 2 steps in history to bypass both 'home' and 'exit_trap'
-      history.go(-2); 
+      // 1. Instantly remove the modal from the screen
+      document.body.removeChild(overlay);
+      
+      // 2. Try the native close command (Works perfectly in installed Android PWAs/TWAs)
+      try { window.close(); } catch(e) {}
+      
+      // 3. Fallback for normal browser tabs: 
+      // Drain the history stack to the very bottom so the browser naturally exits
+      setTimeout(function() {
+        if (history.length > 1) {
+          history.go(-(history.length - 1));
+        }
+      }, 50);
     }
   }, "Yes, Exit");
 
