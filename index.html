@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>StudyLab — Your Ultimate Competitive Exam Partner</title>
@@ -21,10 +22,10 @@ Practice History, Geography, Polity and more
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta property="og:description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta name="twitter:description" content="Practice 3000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta name="keywords" content="StudyLab, online study, free study app, history questions, geography quiz, polity practice, economics questions, science MCQs, current affairs, daily current affairs, current affairs 2025, general studies, GS paper 1, competitive exam, UPSC, SSC, RRB, state PCS, government exam, 3000+ MCQs, flashcards, study tracker, exam preparation" />
+<meta name="description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta property="og:description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta name="twitter:description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
+<meta name="keywords" content="StudyLab, online study, free study app, history questions, geography quiz, polity practice, economics questions, science MCQs, current affairs, daily current affairs, current affairs 2025, general studies, GS paper 1, competitive exam, UPSC, SSC, RRB, state PCS, government exam, 4000+ MCQs, flashcards, study tracker, exam preparation" />
 <meta name="author" content="StudyLab" />
 <meta name="robots" content="index, follow" />
 <link rel="canonical" href="https://studylab-inky.vercel.app/" />
@@ -347,16 +348,56 @@ function initializeApp() {
   }
 }
 
-// Ensure execution happens after all scripts (including the second <script> tag) are loaded
+// Create a global empty object for our questions
+window.QD = {}; 
+
+function fetchQuestionsAndStart() {
+  // 🚨 PASTE YOUR GOOGLE SHEETS CSV LINK HERE 🚨
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTj8Mcj82i7dhdMyI5ikQwA1iG94wPkpqXTHIroNieHaSyKaATwOn7SKfrbr7ac5AbxgLe0Y547cNgu/pub?gid=1671510774&single=true&output=csv"; 
+  
+  Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      // Convert the spreadsheet rows back into the exact format StudyLab needs
+      results.data.forEach(function(row) {
+        let subject = row["Subject"];
+        if (!subject) return; // Skip empty rows
+        
+        if (!window.QD[subject]) window.QD[subject] = [];
+        
+        window.QD[subject].push({
+          q: row["Question"],
+          o: [row["Option 1"], row["Option 2"], row["Option 3"], row["Option 4"]],
+          a: parseInt(row["Correct Answer (0-3)"])
+        });
+      });
+      
+      console.log("✅ Live questions loaded from Google Sheets!");
+      
+      // Calculate total questions dynamically for the rest of the app to use
+      window.totalQuestions = Object.values(window.QD).reduce((sum, subjectArray) => sum + subjectArray.length, 0);
+      
+      // NOW that we have the data, clear the loader and start the app!
+      initializeApp();
+    },
+    error: function(err) {
+      console.error("❌ Failed to fetch questions from Google Sheets:", err);
+      alert("Failed to load study material. Please check your connection.");
+    }
+  });
+}
+
+// Start the fetch process as soon as the HTML is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
+  document.addEventListener('DOMContentLoaded', fetchQuestionsAndStart);
 } else {
-  // Add a slight delay to ensure the bottom script tags have been parsed
-  setTimeout(initializeApp, 50); 
+  fetchQuestionsAndStart(); 
 }
 </script>
 
-<script src="questions.js"></script>
+
 <script src="api.js"></script>
 
 <script src="page-home.js"></script>
