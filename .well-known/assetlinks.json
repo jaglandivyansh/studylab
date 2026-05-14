@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.vercel.studylab_inky.twa",
-        "sha256_cert_fingerprints": ["2C:38:9A:CE:19:DB:84:DC:DD:6E:B4:AF:FD:20:C0:1F:EB:4A:69:5D:51:6C:16:B4:E1:57:F2:FD:03:2C:79:0C"]
-      }
-    }]
+  "relation": [
+    "delegate_permission/common.handle_all_urls",
+    "delegate_permission/common.use_as_origin"
+  ],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.studylab_inky.twa",
+    "sha256_cert_fingerprints": ["2C:38:9A:CE:19:DB:84:DC:DD:6E:B4:AF:FD:20:C0:1F:EB:4A:69:5D:51:6C:16:B4:E1:57:F2:FD:03:2C:79:0C"]
+  }
+}]
