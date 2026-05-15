@@ -52,6 +52,7 @@ function el(t,p,ch){
 
 
 var pg="home",sub=null;
+window.currentPage = "home"; // expose for swipe navigation
 
 // --- NEW: CHALLENGE URL PARSER ---
 window.challengeData = null;
@@ -90,7 +91,7 @@ function closeMobileDrawer(){
 }
 
 function go(p, s, skipHistory) {
-  pg = p; if(s !== undefined) sub = s;
+  pg = p; window.currentPage = p; if(s !== undefined) sub = s;
   closeMobileDrawer();
 
   // IMPORTANT NEW LINE: Tell the phone's back button where we are!

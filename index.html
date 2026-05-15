@@ -526,8 +526,9 @@ if (document.readyState === 'loading') {
 </script>
 
 
-<!-- ── SWIPE NAVIGATION ── -->
+<!-- ── SWIPE NAVIGATION v4 ── -->
 <style>
+/* ── Page dots ── */
 #sl-page-dots {
   position: fixed;
   bottom: 70px;
@@ -545,74 +546,73 @@ if (document.readyState === 'loading') {
 #sl-page-dots .sl-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.22);
   transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 #sl-page-dots .sl-dot.active {
   width: 20px;
   border-radius: 4px;
   background: var(--accent, #6366f1);
-  box-shadow: 0 0 8px var(--accent, #6366f1);
+  box-shadow: 0 0 10px var(--accent, #6366f1);
 }
 
-/* Ripple that appears on swipe edge */
-#sl-swipe-ripple {
+/* ── Drawer peek overlay (right-swipe from edge) ── */
+#sl-drawer-peek {
   position: fixed;
-  top: 50%;
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
-  transform: translateY(-50%) scale(0);
-  z-index: 9001;
+  top: 0; right: 0;
+  width: 80vw; max-width: 320px;
+  height: 100%;
+  z-index: 9999;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
   pointer-events: none;
-  transition: none;
 }
-#sl-swipe-ripple.pop {
-  animation: sl-ripple-pop 0.4s ease-out forwards;
+#sl-drawer-peek.open {
+  transform: translateX(0);
+  pointer-events: all;
 }
-#sl-swipe-ripple.left-side  { left: 8px; }
-#sl-swipe-ripple.right-side { right: 8px; }
-@keyframes sl-ripple-pop {
-  0%   { transform: translateY(-50%) scale(0);   opacity: 1; }
-  60%  { transform: translateY(-50%) scale(1.8); opacity: 0.7; }
-  100% { transform: translateY(-50%) scale(2.4); opacity: 0; }
+#sl-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s ease;
+  backdrop-filter: blur(2px);
+}
+#sl-drawer-scrim.visible {
+  opacity: 1;
+  pointer-events: all;
 }
 </style>
 
 <script>
-// ═══════════════════════════════════════════════
-//  StudyLab — Swipe Navigation v3
-//  Strategy: poll window.currentPage every frame
-//  during swipe — no go() patching needed at all.
-// ═══════════════════════════════════════════════
 (function () {
-  var PAGES  = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
-  var THRESH = 52;   // min px to count as swipe
-  var VMAX   = 0.65; // dy/dx ratio — above this = vertical scroll, ignore
+  // ═══════════════════════════════════════════
+  //  CONFIG
+  // ═══════════════════════════════════════════
+  var NAV_PAGES  = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
 
-  // ── DOM: dots ──
+  // Pages where left-edge swipe opens right-side drawer menu
+  // Right-edge swipe (from left side) → go back / go prev page
+  var EDGE_ZONE  = 30; // px from edge that counts as "edge swipe"
+  var SWIPE_MIN  = 60; // min px total to count as swipe
+  var TIME_MAX   = 500;
+
+  // ── Build page dots ──
   var bar = document.createElement('div');
   bar.id  = 'sl-page-dots';
-  PAGES.forEach(function (_, i) {
+  NAV_PAGES.forEach(function () {
     var d = document.createElement('div');
     d.className = 'sl-dot';
     bar.appendChild(d);
   });
   document.body.appendChild(bar);
 
-  // ── DOM: ripple ──
-  var ripple = document.createElement('div');
-  ripple.id  = 'sl-swipe-ripple';
-  document.body.appendChild(ripple);
-
-  var _lastPage = null;
-  var _dotTimer  = null;
-
-  function refreshDots() {
-    var page = window.currentPage || 'home';
-    if (page === _lastPage) return;
-    _lastPage = page;
-    var idx = PAGES.indexOf(page);
+  var _dotTimer = null;
+  function showDots(page) {
+    var idx = NAV_PAGES.indexOf(page);
     if (idx === -1) { bar.classList.remove('visible'); return; }
     bar.classList.add('visible');
     bar.querySelectorAll('.sl-dot').forEach(function (d, i) {
@@ -622,58 +622,132 @@ if (document.readyState === 'loading') {
     _dotTimer = setTimeout(function () { bar.classList.remove('visible'); }, 2200);
   }
 
-  // Poll currentPage every 200ms — works regardless of how go() is defined
-  setInterval(refreshDots, 200);
+  // Poll window.currentPage — now correctly set by app.js go()
+  var _lastPage = null;
+  setInterval(function () {
+    var p = window.currentPage || 'home';
+    if (p !== _lastPage) { _lastPage = p; showDots(p); }
+  }, 150);
 
-  // ── Touch state ──
+  // ── Build right-side drawer (mirrors the existing mobile drawer) ──
+  var scrim = document.createElement('div');
+  scrim.id  = 'sl-drawer-scrim';
+  document.body.appendChild(scrim);
+
+  var drawer = document.createElement('div');
+  drawer.id  = 'sl-drawer-peek';
+  // Clone the existing mobile nav drawer content into our swipe drawer
+  // We wait for DOM ready to clone it
+  document.addEventListener('DOMContentLoaded', function () {
+    var orig = document.getElementById('nb-mobile-drawer');
+    if (orig) {
+      var clone = orig.cloneNode(true);
+      clone.id  = 'sl-drawer-inner';
+      clone.removeAttribute('style');
+      clone.style.cssText = [
+        'height:100%',
+        'background:var(--card)',
+        'border-left:1px solid var(--border2)',
+        'padding:60px 20px 40px',
+        'display:flex',
+        'flex-direction:column',
+        'gap:6px',
+        'overflow-y:auto',
+        'box-shadow:-8px 0 32px rgba(0,0,0,0.4)'
+      ].join(';');
+      // Make cloned buttons also navigate
+      clone.querySelectorAll('button[data-page]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = btn.getAttribute('data-page');
+          closeRightDrawer();
+          if (typeof go === 'function') go(p);
+        });
+      });
+      drawer.appendChild(clone);
+    }
+  });
+  document.body.appendChild(drawer);
+
+  function openRightDrawer()  {
+    drawer.classList.add('open');
+    scrim.classList.add('visible');
+  }
+  function closeRightDrawer() {
+    drawer.classList.remove('open');
+    scrim.classList.remove('visible');
+  }
+  scrim.addEventListener('click', closeRightDrawer);
+
+  // ═══════════════════════════════════════════
+  //  TOUCH LOGIC
+  // ═══════════════════════════════════════════
   var sx = 0, sy = 0, st = 0;
-  var blocked = false;
+  var locked = false;       // true = vertical scroll detected, abort
+  var isEdge = false;       // started from screen edge
+  var edgeSide = '';        // 'left' or 'right'
+  var drawerOpen = false;
 
   document.addEventListener('touchstart', function (e) {
     sx = e.touches[0].clientX;
     sy = e.touches[0].clientY;
     st = Date.now();
-    blocked = false;
+    locked   = false;
+    isEdge   = false;
+    edgeSide = '';
+    drawerOpen = drawer.classList.contains('open');
+
+    var W = window.innerWidth;
+    if (sx < EDGE_ZONE)       { isEdge = true; edgeSide = 'left';  }
+    else if (sx > W - EDGE_ZONE) { isEdge = true; edgeSide = 'right'; }
   }, { passive: true });
 
   document.addEventListener('touchmove', function (e) {
-    if (blocked) return;
+    if (locked) return;
     var dx = Math.abs(e.touches[0].clientX - sx);
     var dy = Math.abs(e.touches[0].clientY - sy);
-    // Lock out if predominantly vertical before 20px of horizontal movement
-    if (dy > 14 && dy > dx * 1.3) blocked = true;
+    if (dy > 14 && dy > dx * 1.4) locked = true;
   }, { passive: true });
 
   document.addEventListener('touchend', function (e) {
-    if (blocked) return;
-    var dx  = e.changedTouches[0].clientX - sx;
+    if (locked) return;
+    var ex  = e.changedTouches[0].clientX;
+    var dx  = ex - sx;
     var dy  = e.changedTouches[0].clientY - sy;
     var dt  = Date.now() - st;
+    var adx = Math.abs(dx);
+    var ady = Math.abs(dy);
 
-    // Quality checks
-    if (Math.abs(dx) < THRESH) return;              // too short
-    if (dt > 500) return;                            // too slow
-    if (Math.abs(dy) / Math.abs(dx) > VMAX) return; // too diagonal
+    if (dt > TIME_MAX) return;
+    if (adx < SWIPE_MIN) return;
+    if (ady / adx > 0.7) return; // too diagonal
 
+    // ── Drawer close: swipe left on open right drawer ──
+    if (drawerOpen && dx < 0) { closeRightDrawer(); return; }
+
+    // ── Edge swipe: right-edge → open right drawer ──
+    if (isEdge && edgeSide === 'right' && dx < 0) {
+      openRightDrawer(); return;
+    }
+
+    // ── Edge swipe: left-edge → go back ──
+    if (isEdge && edgeSide === 'left' && dx > 0) {
+      history.back(); return;
+    }
+
+    // ── Regular page swipe (only on nav pages, not in quiz/study etc) ──
     var page = window.currentPage || 'home';
-    var idx  = PAGES.indexOf(page);
-    if (idx === -1) return; // not a swipeable page
+    var idx  = NAV_PAGES.indexOf(page);
+    if (idx === -1) return;
 
-    var next = dx < 0 ? idx + 1 : idx - 1; // left→next, right→prev
-    if (next < 0 || next >= PAGES.length) return;
-
-    // Fire ripple on appropriate edge
-    ripple.className = '';
-    void ripple.offsetWidth; // reflow to restart animation
-    ripple.className = 'pop ' + (dx < 0 ? 'right-side' : 'left-side');
-
-    // Show dots immediately on swipe
-    bar.classList.add('visible');
-    clearTimeout(_dotTimer);
-
-    // Navigate — go() is defined by app.js which loads after this script
-    // By the time the user swipes, app.js is always loaded.
-    if (typeof go === 'function') go(PAGES[next]);
+    if (dx < 0 && idx < NAV_PAGES.length - 1) {
+      // Swipe LEFT → next page
+      showDots(NAV_PAGES[idx + 1]);
+      if (typeof go === 'function') go(NAV_PAGES[idx + 1]);
+    } else if (dx > 0 && idx > 0) {
+      // Swipe RIGHT → prev page
+      showDots(NAV_PAGES[idx - 1]);
+      if (typeof go === 'function') go(NAV_PAGES[idx - 1]);
+    }
   }, { passive: true });
 
 })();
