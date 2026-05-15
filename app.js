@@ -1604,21 +1604,31 @@ function showExitConfirmationModal() {
       fontFamily: "var(--font-body)"
     },
     onclick: function() {
-      window.allowNativeExit = true; 
-      
-      // 1. Instantly remove the modal from the screen
+      window.allowNativeExit = true;
+
+      // 1. Remove the modal
       document.body.removeChild(overlay);
-      
-      // 2. Try the native close command (Works perfectly in installed Android PWAs/TWAs)
+
+      // 2. Show a "Closing…" visual so user knows something happened
+      var bye = document.createElement('div');
+      bye.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+      bye.innerHTML = '<div style="font-size:3rem;margin-bottom:16px;">👋</div><div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text);">Goodbye!</div><div style="font-size:.85rem;color:var(--muted);margin-top:8px;">See you next time</div>';
+      document.body.appendChild(bye);
+
+      // 3. Try native close (works in TWA/Android PWA)
       try { window.close(); } catch(e) {}
-      
-      // 3. Fallback for normal browser tabs: 
-      // Drain the history stack to the very bottom so the browser naturally exits
+
+      // 4. For browser fallback: use replaceState to kill our trap, then go back
       setTimeout(function() {
-        if (history.length > 1) {
-          history.go(-(history.length - 1));
-        }
-      }, 50);
+        // Replace current state with a real "exit" marker
+        history.replaceState({ page: 'exit_trap' }, '');
+        // Now go back — browser exits if nothing behind
+        history.back();
+        // If still alive after 800ms, show a friendly message
+        setTimeout(function() {
+          bye.innerHTML = '<div style="font-size:2.5rem;margin-bottom:16px;">🌐</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text);text-align:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button onclick="window.location.reload()" style="margin-top:20px;padding:10px 24px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text);font-size:.9rem;font-weight:600;cursor:pointer;">Go Back Instead</button>';
+        }, 800);
+      }, 100);
     }
   }, "Yes, Exit");
 

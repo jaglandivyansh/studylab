@@ -98,6 +98,86 @@ Practice History, Geography, Polity and more
 
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+
+<style>
+/* ═══ AI DOUBT SOLVER — LIGHT MODE FIX ════════════════════════════
+   api.js creates the AI modal dynamically. These overrides ensure
+   all text/backgrounds respect the active theme (light OR dark).   */
+
+/* The overlay backdrop */
+.ai-modal-overlay,
+#sarvam-modal-overlay,
+[id*="ai-overlay"],
+[id*="doubt-overlay"] {
+  background: rgba(4,8,16,0.85) !important;
+}
+
+/* The modal card itself */
+.ai-modal-card,
+#sarvam-modal,
+[id*="ai-modal"],
+[id*="doubt-modal"] {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border2) !important;
+}
+
+/* ALL text nodes inside any AI / doubt modal */
+.ai-modal-card *,
+#sarvam-modal *,
+[id*="ai-modal"] *,
+[id*="doubt-modal"] * {
+  color: var(--text) !important;
+}
+
+/* Muted helper text */
+.ai-modal-card .muted,
+.ai-modal-card small,
+#sarvam-modal .muted,
+#sarvam-modal small {
+  color: var(--muted) !important;
+}
+
+/* The scrollable answer / stream area */
+#sarvam-response,
+#ai-response-box,
+.ai-response-area,
+[id*="ai-answer"],
+[id*="ai-response"],
+[id*="ai-output"],
+[id*="doubt-answer"] {
+  background: var(--bg2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Section headers inside the response (e.g. "Explanation:", "Tip:") */
+#sarvam-response strong,
+#sarvam-response b,
+.ai-response-area strong,
+.ai-response-area b {
+  color: var(--text) !important;
+}
+
+/* Loading / thinking state text */
+.ai-loading-text,
+.ai-thinking,
+[id*="ai-status"],
+[id*="ai-loading"] {
+  color: var(--muted) !important;
+}
+
+/* Inline code / mono spans inside AI response */
+#sarvam-response code,
+.ai-response-area code {
+  background: var(--bg2) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+/* ═══ END AI DOUBT SOLVER FIX ══════════════════════════════════*/
+</style>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script src="onesignal-init.js" defer></script>
 </head>
@@ -399,7 +479,6 @@ if (document.readyState === 'loading') {
 
 
 <script src="api.js"></script>
-
 <script src="page-home.js"></script>
 <script src="page-study.js"></script>
 <script src="page-stats.js"></script>

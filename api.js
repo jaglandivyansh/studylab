@@ -18,7 +18,7 @@ function triggerReveal(container) {
 function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   var overlay = el("div", {
     css: {
-      position: "fixed", inset: "0", background: "rgba(8, 12, 18, 0.9)", backdropFilter: "blur(4px)",
+      position: "fixed", inset: "0", background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)",
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000"
     }
   });
@@ -26,17 +26,17 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   var card = el("div", {
     cls: "glass-modal", // <-- Applies the frosted glass
     css: {
-      border: "1px solid rgba(184, 115, 51, 0.3)", 
+      border: "1px solid var(--border2)", 
       borderRadius: "18px",
       padding: "26px", 
       maxWidth: "500px", 
       width: "90%", 
-      boxShadow: "0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)"
+      boxShadow: "0 24px 60px rgba(0,0,0,0.4)"
     }
   });
   
   var header = el("div", {css:{display:"flex", justifyContent:"space-between", marginBottom:"16px"}});
-  header.appendChild(el("h3", {css:{margin:0, color:"#EEF2FF", fontFamily:"var(--font-display)"}, txt: "💡 AI Tutor Analysis"}));
+  header.appendChild(el("h3", {css:{margin:0, color:"var(--text)", fontFamily:"var(--font-display)"}, txt: "💡 AI Tutor Analysis"}));
   var closeBtn = el("button", {css:{background:"none", border:"none", color:"var(--subtle)", cursor:"pointer", fontSize:"1.2rem"}, txt:"✕", onclick: () => document.body.removeChild(overlay)});
   header.appendChild(closeBtn);
   card.appendChild(header);
@@ -72,7 +72,7 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
   .then(data => {
     // Check if Sarvam returned a successful choice
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      contentArea.style.color = "#EEF2FF";
+      contentArea.style.color = "var(--text)";
       contentArea.innerText = data.choices[0].message.content;
     } 
     // Handle error messages returned from the backend

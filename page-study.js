@@ -80,7 +80,7 @@ function pgFC(){
     w.appendChild(hdr);
     
     var tb=el("div",{css:{display:"flex",gap:"4px",background:"var(--bg2)",padding:"4px",borderRadius:"8px",marginBottom:"18px",width:"fit-content"}});
-    ["browse","add"].forEach(function(t){tb.appendChild(el("button",{css:{padding:"6px 14px",borderRadius:"6px",fontSize:".8rem",fontWeight:"500",cursor:"pointer",fontFamily:"inherit",background:tab===t?"var(--card)":"transparent",color:tab===t?"var(--text)":"var(--subtle)",border:tab===t?"1px solid #3a3a3a":"none"},onclick:function(){tab=t;build();}},t==="browse"?"Browse":"+ Add Card"));});
+    ["browse","add"].forEach(function(t){tb.appendChild(el("button",{css:{padding:"6px 14px",borderRadius:"6px",fontSize:".8rem",fontWeight:"500",cursor:"pointer",fontFamily:"inherit",background:tab===t?"var(--card)":"transparent",color:tab===t?"var(--text)":"var(--subtle)",border:tab===t?"1px solid var(--border2)":"none"},onclick:function(){tab=t;build();}},t==="browse"?"Browse":"+ Add Card"));});
     w.appendChild(tb);
     
     if(tab==="browse"){
