@@ -526,6 +526,58 @@ if (document.readyState === 'loading') {
 </script>
 
 
+<!-- ── SWIPE NAVIGATION ── -->
+<script>
+(function() {
+  // Pages in swipe order — matches bottom navbar order
+  var SWIPE_PAGES = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
+
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchStartTime = 0;
+  var SWIPE_THRESHOLD = 60;   // min px horizontal
+  var ANGLE_LIMIT = 35;        // max degrees from horizontal
+  var TIME_LIMIT = 400;        // max ms for a swipe gesture
+
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    var dt = Date.now() - touchStartTime;
+
+    // Ignore slow gestures or near-vertical swipes
+    if (dt > TIME_LIMIT) return;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    var angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
+    if (angle > ANGLE_LIMIT && angle < (180 - ANGLE_LIMIT)) return;
+
+    // Don't swipe if user is scrolling inside a scrollable element
+    var target = e.target;
+    while (target && target !== document.body) {
+      if (target.scrollWidth > target.clientWidth + 5) return;
+      target = target.parentElement;
+    }
+
+    var currentPage = window.currentPage || 'home';
+    var idx = SWIPE_PAGES.indexOf(currentPage);
+    if (idx === -1) return; // swipe only on known pages
+
+    if (dx < 0) {
+      // Swipe LEFT → go to next page
+      if (idx < SWIPE_PAGES.length - 1) go(SWIPE_PAGES[idx + 1]);
+    } else {
+      // Swipe RIGHT → go to previous page
+      if (idx > 0) go(SWIPE_PAGES[idx - 1]);
+    }
+  }, { passive: true });
+})();
+</script>
+
 <script src="api.js"></script>
 <script src="page-home.js"></script>
 <script src="page-study.js"></script>
