@@ -528,10 +528,9 @@ if (document.readyState === 'loading') {
 
 <!-- ── SWIPE NAVIGATION ── -->
 <style>
-/* Page indicator dots */
 #sl-page-dots {
   position: fixed;
-  bottom: 72px; /* just above bottom navbar */
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -540,159 +539,143 @@ if (document.readyState === 'loading') {
   z-index: 9000;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.35s ease;
 }
-#sl-page-dots.visible {
-  opacity: 1;
-}
+#sl-page-dots.visible { opacity: 1; }
 #sl-page-dots .sl-dot {
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.3);
-  transition: all 0.25s ease;
+  background: rgba(255,255,255,0.25);
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 #sl-page-dots .sl-dot.active {
-  width: 18px;
+  width: 20px;
   border-radius: 4px;
   background: var(--accent, #6366f1);
+  box-shadow: 0 0 8px var(--accent, #6366f1);
 }
 
-/* Swipe hint arrows that flash on edges */
-#sl-swipe-hint {
+/* Ripple that appears on swipe edge */
+#sl-swipe-ripple {
   position: fixed;
   top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
+  width: 48px; height: 48px;
   border-radius: 50%;
-  background: rgba(99,102,241,0.18);
-  border: 1.5px solid rgba(99,102,241,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  color: var(--accent, #6366f1);
+  background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+  transform: translateY(-50%) scale(0);
   z-index: 9001;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: none;
 }
-#sl-swipe-hint.show { opacity: 1; }
-#sl-swipe-hint.left  { left: 10px; }
-#sl-swipe-hint.right { right: 10px; }
+#sl-swipe-ripple.pop {
+  animation: sl-ripple-pop 0.4s ease-out forwards;
+}
+#sl-swipe-ripple.left-side  { left: 8px; }
+#sl-swipe-ripple.right-side { right: 8px; }
+@keyframes sl-ripple-pop {
+  0%   { transform: translateY(-50%) scale(0);   opacity: 1; }
+  60%  { transform: translateY(-50%) scale(1.8); opacity: 0.7; }
+  100% { transform: translateY(-50%) scale(2.4); opacity: 0; }
+}
 </style>
 
 <script>
-(function() {
-  var SWIPE_PAGES   = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
-  var SWIPE_LABELS  = ['🏠', '🔔', '⚡', '🗞️', '🎯'];
-  var SWIPE_THRESHOLD = 55;
-  var TIME_LIMIT      = 420;
+// ═══════════════════════════════════════════════
+//  StudyLab — Swipe Navigation v3
+//  Strategy: poll window.currentPage every frame
+//  during swipe — no go() patching needed at all.
+// ═══════════════════════════════════════════════
+(function () {
+  var PAGES  = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
+  var THRESH = 52;   // min px to count as swipe
+  var VMAX   = 0.65; // dy/dx ratio — above this = vertical scroll, ignore
 
-  // ── Build dots bar ──
-  var dotsBar = document.createElement('div');
-  dotsBar.id = 'sl-page-dots';
-  SWIPE_PAGES.forEach(function(_, i) {
+  // ── DOM: dots ──
+  var bar = document.createElement('div');
+  bar.id  = 'sl-page-dots';
+  PAGES.forEach(function (_, i) {
     var d = document.createElement('div');
     d.className = 'sl-dot';
-    d.setAttribute('data-i', i);
-    dotsBar.appendChild(d);
+    bar.appendChild(d);
   });
-  document.body.appendChild(dotsBar);
+  document.body.appendChild(bar);
 
-  // ── Build swipe hint bubble ──
-  var hint = document.createElement('div');
-  hint.id = 'sl-swipe-hint';
-  document.body.appendChild(hint);
-  var hintTimer = null;
+  // ── DOM: ripple ──
+  var ripple = document.createElement('div');
+  ripple.id  = 'sl-swipe-ripple';
+  document.body.appendChild(ripple);
 
-  function showHint(dir, label) {
-    hint.className = 'sl-swipe-hint show ' + dir;
-    hint.textContent = dir === 'right' ? '←' : '→';
-    clearTimeout(hintTimer);
-    hintTimer = setTimeout(function() { hint.className = 'sl-swipe-hint'; }, 350);
-  }
+  var _lastPage = null;
+  var _dotTimer  = null;
 
-  // ── Update dots ──
-  function updateDots(page) {
-    var idx = SWIPE_PAGES.indexOf(page);
-    if (idx === -1) { dotsBar.classList.remove('visible'); return; }
-    dotsBar.classList.add('visible');
-    dotsBar.querySelectorAll('.sl-dot').forEach(function(d, i) {
+  function refreshDots() {
+    var page = window.currentPage || 'home';
+    if (page === _lastPage) return;
+    _lastPage = page;
+    var idx = PAGES.indexOf(page);
+    if (idx === -1) { bar.classList.remove('visible'); return; }
+    bar.classList.add('visible');
+    bar.querySelectorAll('.sl-dot').forEach(function (d, i) {
       d.classList.toggle('active', i === idx);
     });
-    // Auto-hide dots after 2s of no interaction
-    clearTimeout(dotsBar._hideTimer);
-    dotsBar._hideTimer = setTimeout(function() {
-      dotsBar.classList.remove('visible');
-    }, 2000);
+    clearTimeout(_dotTimer);
+    _dotTimer = setTimeout(function () { bar.classList.remove('visible'); }, 2200);
   }
 
-  // ── Expose updater globally so go() can call it ──
-  window.slUpdateSwipeDots = updateDots;
+  // Poll currentPage every 200ms — works regardless of how go() is defined
+  setInterval(refreshDots, 200);
 
-  // ── Touch handling ──
-  var touchStartX = 0, touchStartY = 0, touchStartTime = 0;
-  var isDragging = false, dragBlocked = false;
+  // ── Touch state ──
+  var sx = 0, sy = 0, st = 0;
+  var blocked = false;
 
-  document.addEventListener('touchstart', function(e) {
-    touchStartX    = e.touches[0].clientX;
-    touchStartY    = e.touches[0].clientY;
-    touchStartTime = Date.now();
-    isDragging     = false;
-    dragBlocked    = false;
+  document.addEventListener('touchstart', function (e) {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    st = Date.now();
+    blocked = false;
   }, { passive: true });
 
-  document.addEventListener('touchmove', function(e) {
-    if (dragBlocked) return;
-    var dx = e.touches[0].clientX - touchStartX;
-    var dy = e.touches[0].clientY - touchStartY;
-    // If clearly more vertical than horizontal early on — block swipe
-    if (!isDragging && Math.abs(dy) > Math.abs(dx) * 1.4 && Math.abs(dy) > 12) {
-      dragBlocked = true;
-      return;
-    }
-    if (Math.abs(dx) > 12) isDragging = true;
+  document.addEventListener('touchmove', function (e) {
+    if (blocked) return;
+    var dx = Math.abs(e.touches[0].clientX - sx);
+    var dy = Math.abs(e.touches[0].clientY - sy);
+    // Lock out if predominantly vertical before 20px of horizontal movement
+    if (dy > 14 && dy > dx * 1.3) blocked = true;
   }, { passive: true });
 
-  document.addEventListener('touchend', function(e) {
-    if (dragBlocked) return;
-    var dx = e.changedTouches[0].clientX - touchStartX;
-    var dy = e.changedTouches[0].clientY - touchStartY;
-    var dt = Date.now() - touchStartTime;
+  document.addEventListener('touchend', function (e) {
+    if (blocked) return;
+    var dx  = e.changedTouches[0].clientX - sx;
+    var dy  = e.changedTouches[0].clientY - sy;
+    var dt  = Date.now() - st;
 
-    if (dt > TIME_LIMIT) return;
-    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-    // Must be more horizontal than vertical
-    if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
+    // Quality checks
+    if (Math.abs(dx) < THRESH) return;              // too short
+    if (dt > 500) return;                            // too slow
+    if (Math.abs(dy) / Math.abs(dx) > VMAX) return; // too diagonal
 
-    var currentPage = window.currentPage || 'home';
-    var idx = SWIPE_PAGES.indexOf(currentPage);
-    if (idx === -1) return;
+    var page = window.currentPage || 'home';
+    var idx  = PAGES.indexOf(page);
+    if (idx === -1) return; // not a swipeable page
 
-    if (dx < 0 && idx < SWIPE_PAGES.length - 1) {
-      // Swipe LEFT → next
-      showHint('left', SWIPE_LABELS[idx + 1]);
-      go(SWIPE_PAGES[idx + 1]);
-    } else if (dx > 0 && idx > 0) {
-      // Swipe RIGHT → prev
-      showHint('right', SWIPE_LABELS[idx - 1]);
-      go(SWIPE_PAGES[idx - 1]);
-    }
+    var next = dx < 0 ? idx + 1 : idx - 1; // left→next, right→prev
+    if (next < 0 || next >= PAGES.length) return;
+
+    // Fire ripple on appropriate edge
+    ripple.className = '';
+    void ripple.offsetWidth; // reflow to restart animation
+    ripple.className = 'pop ' + (dx < 0 ? 'right-side' : 'left-side');
+
+    // Show dots immediately on swipe
+    bar.classList.add('visible');
+    clearTimeout(_dotTimer);
+
+    // Navigate — go() is defined by app.js which loads after this script
+    // By the time the user swipes, app.js is always loaded.
+    if (typeof go === 'function') go(PAGES[next]);
   }, { passive: true });
 
-  // ── Trigger dot update whenever go() is called ──
-  // Patch after DOM ready so go() is already defined
-  document.addEventListener('DOMContentLoaded', function() {
-    var _origGo = window.go;
-    if (typeof _origGo === 'function') {
-      window.go = function(page, sub) {
-        _origGo.call(this, page, sub);
-        updateDots(page);
-      };
-    }
-  });
 })();
 </script>
 
