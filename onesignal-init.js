@@ -1,7 +1,7 @@
 // ============================================================
 //  StudyLab — OneSignal Push Notification System
 //  No Bell | Custom Popup | Auto Prompt
-//  Version: 4.0 | Production Ready
+//  Version: 5.0 | Always Prompt Until Subscribed
 // ============================================================
 
 window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -13,16 +13,11 @@ function slGet(key) {
 function slSet(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
-function daysSince(ts) {
-  if (!ts) return Infinity;
-  return (Date.now() - ts) / (1000 * 60 * 60 * 24);
-}
 function shouldPrompt() {
+  // Only skip if user has ACTUALLY subscribed successfully
   const d = slGet("sl_notif") || {};
   if (d.subscribed) return false;
-  if (d.permanentlyDenied) return false;
-  if (d.lastDismissed && daysSince(d.lastDismissed) < 3) return false;
-  return true;
+  return true; // Show popup every visit until subscribed
 }
 
 // ── STYLES ───────────────────────────────────────────────────
@@ -103,6 +98,18 @@ function injectStyles() {
       color: var(--accent, #6366f1);
       font-weight: 500;
     }
+    /* Browser-blocked notice */
+    #sl-popup-card .sl-blocked-msg {
+      font-size: 0.78rem;
+      color: #f59e0b;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+      text-align: left;
+    }
     #sl-popup-card .sl-btn-allow {
       width: 100%;
       padding: 13px;
@@ -141,8 +148,16 @@ function injectStyles() {
 }
 
 // ── POPUP ────────────────────────────────────────────────────
-function showPopup(onAllow, onDeny) {
+function showPopup(onAllow, onDeny, browserBlocked) {
   injectStyles();
+
+  // Extra message if browser has hard-blocked notifications
+  const blockedHtml = browserBlocked ? `
+    <div class="sl-blocked-msg">
+      ⚠️ Your browser has blocked notifications. To fix:<br>
+      Click the 🔒 lock icon in the address bar → <strong>Notifications → Allow</strong>, then reload.
+    </div>
+  ` : "";
 
   const overlay = document.createElement("div");
   overlay.id = "sl-popup-overlay";
@@ -161,8 +176,9 @@ function showPopup(onAllow, onDeny) {
         <span class="sl-tag">🎯 Exam Alerts</span>
         <span class="sl-tag">🏛️ Govt Updates</span>
       </div>
+      ${blockedHtml}
       <button class="sl-btn-allow" id="sl-allow">🔔 Enable Notifications</button>
-      <button class="sl-btn-deny" id="sl-deny">No thanks, I'll miss out</button>
+      <button class="sl-btn-deny" id="sl-deny">Not now</button>
     </div>
   `;
 
@@ -204,41 +220,47 @@ OneSignalDeferred.push(async function (OneSignal) {
       autoPrompt: false
     });
 
-    // Already subscribed — skip everything
-    if (OneSignal.Notifications.permission) return;
+    // Already subscribed via OneSignal — skip everything
+    if (OneSignal.Notifications.permission) {
+      const d = slGet("sl_notif") || {};
+      d.subscribed = true;
+      slSet("sl_notif", d);
+      return;
+    }
 
-    // Already hard blocked by browser — skip
-    if (Notification.permission === "denied") return;
-
-    // Should we show prompt?
+    // Should we show prompt? (only skips if truly subscribed)
     if (!shouldPrompt()) return;
 
-    // Show our custom popup after 5 seconds
+    const browserBlocked = (Notification.permission === "denied");
+
+    // Show popup after 4 seconds
     setTimeout(function () {
       showPopup(
-        // Allow clicked
+        // ── Allow clicked ──
         async function () {
+          if (browserBlocked) {
+            // Can't do anything programmatically — user must fix in browser settings
+            // Popup already showed them instructions, just return
+            return;
+          }
           try {
             await OneSignal.Notifications.requestPermission();
             const granted = OneSignal.Notifications.permission;
-            const d = slGet("sl_notif") || {};
             if (granted) {
+              const d = slGet("sl_notif") || {};
               d.subscribed = true;
-            } else {
-              // Browser denied after our popup — mark permanent
-              d.permanentlyDenied = true;
+              slSet("sl_notif", d);
             }
-            slSet("sl_notif", d);
+            // If browser denies: do NOT mark anything — popup will show again next visit
           } catch(e) {}
         },
-        // Deny clicked
+        // ── Deny clicked ──
         function () {
-          const d = slGet("sl_notif") || {};
-          d.lastDismissed = Date.now();
-          slSet("sl_notif", d);
-        }
+          // Do NOT store anything — popup will show again next visit
+        },
+        browserBlocked
       );
-    }, 5000);
+    }, 4000);
 
   } catch (err) {
     // Silently fail — never break the app
