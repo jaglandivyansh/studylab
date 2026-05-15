@@ -14,10 +14,11 @@ function slSet(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
 function shouldPrompt() {
-  // Only skip if user has ACTUALLY subscribed successfully
   const d = slGet("sl_notif") || {};
-  if (d.subscribed) return false;
-  return true; // Show popup every visit until subscribed
+  if (d.subscribed) return false;                                      // subscribed — never show
+  if (d.permanentlyDenied) return false;                               // browser hard blocked — never show
+  if (d.lastDismissed && (Date.now() - d.lastDismissed) < 86400000 * 1) return false; // dismissed < 1 day ago — skip
+  return true;
 }
 
 // ── STYLES ───────────────────────────────────────────────────
@@ -256,7 +257,9 @@ OneSignalDeferred.push(async function (OneSignal) {
         },
         // ── Deny clicked ──
         function () {
-          // Do NOT store anything — popup will show again next visit
+          const d = slGet("sl_notif") || {};
+          d.lastDismissed = Date.now(); // wait 1 day before showing again
+          slSet("sl_notif", d);
         },
         browserBlocked
       );
