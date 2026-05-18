@@ -14,6 +14,13 @@ function pgSub(){
   c1.appendChild(el("div",{css:{fontSize:"2.2rem",marginBottom:"10px"},txt:"\uD83C\uDCCF"}));
   c1.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600",marginBottom:"4px"},txt:"Flashcards"}));
   c1.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--subtle)"},txt:"Learn with flip cards"}));
+
+  var c4=el("div",{cls:"mc",onclick:function(){go("swipefc");}});
+  c4.addEventListener("mouseenter",function(){this.style.borderColor="#8b5cf6";this.style.background="var(--card2)";});
+  c4.addEventListener("mouseleave",function(){this.style.borderColor="var(--border)";this.style.background="var(--card)";});
+  c4.appendChild(el("div",{css:{fontSize:"2.2rem",marginBottom:"10px"},txt:"⚡"}));
+  c4.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600",marginBottom:"4px"},txt:"Swipe Mode"}));
+  c4.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--subtle)"},txt:"Shorts-style flashcards"}));
   
   var c2=el("div",{cls:"mc",onclick:function(){go("qz");}});
   c2.addEventListener("mouseenter",function(){this.style.borderColor=ac;this.style.background="var(--card2)";});
@@ -34,8 +41,8 @@ function pgSub(){
   ctr.appendChild(el("div",{css:{fontSize:"3.5rem",marginBottom:"12px"},txt:ICON[s]}));
   ctr.appendChild(el("div",{css:{fontSize:"1.5rem",fontWeight:"700",marginBottom:"6px"},txt:s}));
   ctr.appendChild(el("div",{css:{fontSize:".9rem",color:"var(--muted)",marginBottom:"36px"},txt:qs.length+" questions ready"}));
-  var mrow=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(190px, 1fr))",gap:"16px",justifyContent:"center"}});
-  mrow.appendChild(c1);mrow.appendChild(c2);mrow.appendChild(c3);
+  var mrow=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",gap:"16px",justifyContent:"center"}});
+  mrow.appendChild(c1);mrow.appendChild(c4);mrow.appendChild(c2);mrow.appendChild(c3);
   ctr.appendChild(mrow);w.appendChild(ctr);
   return w;
 }
@@ -565,5 +572,181 @@ function pgBookmarks(){
   }
   
   build();
+  return w;
+}
+// ═══════════════════════════════════════════════════════════════════
+// SWIPE MODE — Shorts-style vertical flashcards per subject
+// ═══════════════════════════════════════════════════════════════════
+function pgSwipeFC() {
+  var s = sub, ac = AC[s], allQ = QD[s] || [];
+
+  var bgGradients = {
+    "History":                  "linear-gradient(135deg, #7c3aed, #4c1d95)",
+    "Geography":                "linear-gradient(135deg, #059669, #064e3b)",
+    "Polity":                   "linear-gradient(135deg, #ea580c, #9a3412)",
+    "Economy":                  "linear-gradient(135deg, #db2777, #831843)",
+    "Science":                  "linear-gradient(135deg, #0891b2, #164e63)",
+    "GK":                       "linear-gradient(135deg, #d97706, #78350f)",
+    "Current Affairs":          "linear-gradient(135deg, #2563eb, #1e3a8a)",
+    "Previous Year Questions":  "linear-gradient(135deg, #4f46e5, #312e81)"
+  };
+  var bg = bgGradients[s] || "linear-gradient(135deg, #4b5563, #1f2937)";
+
+  // Build card data from QD[s]
+  var cards = shuf(allQ).slice(0, 80).map(function(q) {
+    var ans = q.o ? q.o[q.a] : (q.options ? q.options[q.a] : String(q.a));
+    return {
+      q: q.q || q.question || "",
+      a: ans || "",
+      extra: q.explanation || q.exp || q.desc || "Keep going! 🔥"
+    };
+  }).filter(function(c) { return c.q && c.a && c.a !== c.q; });
+
+  if (!cards.length) {
+    var empty = el("div", {css:{padding:"40px",textAlign:"center",color:"var(--muted)"}});
+    empty.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"12px"}}, "😕"));
+    empty.appendChild(el("div",{css:{fontSize:"1rem"}}, "No cards found for this subject."));
+    return empty;
+  }
+
+  // Inject styles once
+  if (!document.getElementById("swipefc-styles")) {
+    var st = document.createElement("style");
+    st.id = "swipefc-styles";
+    st.innerHTML = [
+      "@keyframes swipefc-bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}",
+      ".swipefc-front,.swipefc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.3);overflow:hidden;box-sizing:border-box;}",
+      ".swipefc-back{transform:rotateY(180deg);background:var(--card);border:2px solid var(--border2);color:var(--text);}",
+      ".swipefc-inner{width:100%;height:100%;position:relative;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d;}"
+    ].join("");
+    document.head.appendChild(st);
+  }
+
+  var w = el("div", {
+    id: "swipefc-container",
+    css: {
+      height: "calc(100vh - 65px)",
+      width: "100%",
+      overflowY: "scroll",
+      scrollSnapType: "y mandatory",
+      background: "var(--bg)",
+      position: "absolute",
+      top: "0", left: "0", zIndex: "10"
+    }
+  });
+
+  // Header overlay
+  var hdr = el("div", {css:{
+    position:"fixed", top:"15px", left:"20px", right:"20px",
+    display:"flex", justifyContent:"space-between", alignItems:"center",
+    zIndex:"20", color:"var(--text)"
+  }});
+  hdr.appendChild(el("div", {css:{fontSize:"1.1rem",fontWeight:"800",fontFamily:"var(--font-display)",
+    background:"var(--card)",padding:"6px 14px",borderRadius:"20px",border:"1px solid var(--border2)"}},
+    ICON[s] + " " + s + " ⚡"));
+  hdr.appendChild(el("button", {
+    css:{background:"var(--card)",border:"1px solid var(--border2)",color:"var(--text)",
+      padding:"6px 14px",borderRadius:"20px",fontSize:".8rem",cursor:"pointer",
+      display:"flex",alignItems:"center",gap:"6px"},
+    onclick: function(){ go("sub"); }
+  }, "← Back"));
+  w.appendChild(hdr);
+
+  cards.forEach(function(item, idx) {
+    var slide = el("div", {css:{
+      height:"100%", width:"100%",
+      scrollSnapAlign:"start",
+      display:"flex", flexDirection:"column",
+      alignItems:"center", justifyContent:"center",
+      padding:"20px", position:"relative"
+    }});
+
+    var cardWrap = el("div", {css:{
+      width:"100%", maxWidth:"420px",
+      height:"clamp(300px, 65vh, 500px)",
+      perspective:"1000px", cursor:"pointer"
+    }});
+
+    var cardInner = el("div", {cls:"swipefc-inner"});
+    var flipped = false;
+    cardWrap.onclick = function() {
+      flipped = !flipped;
+      cardInner.style.transform = flipped ? "rotateY(180deg)" : "rotateY(0deg)";
+    };
+
+    // Front
+    var front = el("div", {cls:"swipefc-front", css:{background:bg}});
+    front.appendChild(el("div", {css:{
+      background:"rgba(255,255,255,0.18)", padding:"4px 14px", borderRadius:"20px",
+      fontSize:".7rem", textTransform:"uppercase", letterSpacing:"1px",
+      fontWeight:"700", marginBottom:"auto", color:"#fff"
+    }}, s));
+    var qSize = item.q.length > 180 ? "0.85rem" : item.q.length > 100 ? "1rem" : "1.25rem";
+    front.appendChild(el("div", {css:{
+      fontSize:qSize, fontWeight:"700", lineHeight:"1.6",
+      margin:"auto 0", fontFamily:"var(--font-display)", color:"#fff",
+      overflowY:"auto", maxHeight:"62%", wordBreak:"break-word", padding:"4px 2px"
+    }}, item.q));
+    front.appendChild(el("div", {css:{fontSize:".8rem",opacity:"0.75",marginTop:"auto",color:"#fff"}}, "👆 Tap to reveal"));
+
+    // Back
+    var back = el("div", {cls:"swipefc-back"});
+    var aSize = item.a.length > 80 ? "1.1rem" : "1.45rem";
+    back.appendChild(el("div", {css:{
+      fontSize:aSize, fontWeight:"800", color:"var(--accent)",
+      marginBottom:"14px", fontFamily:"var(--font-display)",
+      lineHeight:"1.4", wordBreak:"break-word",
+      overflowY:"auto", maxHeight:"38%"
+    }}, item.a));
+    var expWrap = el("div", {css:{maxHeight:"42%",overflowY:"auto",paddingRight:"4px"}});
+    expWrap.appendChild(el("div", {css:{fontSize:".88rem",color:"var(--muted)",lineHeight:"1.6"}}, item.extra));
+    back.appendChild(expWrap);
+
+
+
+    cardInner.appendChild(front);
+    cardInner.appendChild(back);
+    cardWrap.appendChild(cardInner);
+    slide.appendChild(cardWrap);
+
+    // Swipe hint on first card
+    if (idx === 0) {
+      slide.appendChild(el("div", {css:{
+        position:"absolute", bottom:"28px", left:"50%", transform:"translateX(-50%)",
+        color:"var(--muted)", fontSize:".78rem", display:"flex",
+        flexDirection:"column", alignItems:"center",
+        opacity:"0.65", animation:"swipefc-bounce 2s infinite"
+      }, htm:"<span>Swipe up for next</span><span style='font-size:1.4rem'>⌃</span>"}));
+    }
+
+    w.appendChild(slide);
+  });
+
+  // End slide
+  var endSlide = el("div", {css:{
+    height:"100%", width:"100%", scrollSnapAlign:"start",
+    display:"flex", flexDirection:"column",
+    alignItems:"center", justifyContent:"center",
+    padding:"20px", textAlign:"center", color:"var(--text)"
+  }});
+  endSlide.appendChild(el("div", {css:{fontSize:"3rem",marginBottom:"10px"}}, "🎉"));
+  endSlide.appendChild(el("div", {css:{fontSize:"1.4rem",fontWeight:"800",marginBottom:"8px"}}, "Session Done!"));
+  endSlide.appendChild(el("div", {css:{fontSize:".9rem",color:"var(--muted)",marginBottom:"24px"}},
+    "You reviewed " + cards.length + " flashcards."));
+  var btnRow = el("div", {css:{display:"flex",gap:"10px",flexWrap:"wrap",justifyContent:"center"}});
+  btnRow.appendChild(el("button", {
+    css:{padding:"11px 22px",background:"var(--accent)",color:"#fff",border:"none",
+      borderRadius:"12px",fontWeight:"700",cursor:"pointer",fontFamily:"var(--font-body)"},
+    onclick: function(){ go("swipefc"); }
+  }, "🔄 New Batch"));
+  btnRow.appendChild(el("button", {
+    css:{padding:"11px 22px",background:"var(--card)",color:"var(--text)",
+      border:"1px solid var(--border2)",borderRadius:"12px",fontWeight:"600",
+      cursor:"pointer",fontFamily:"var(--font-body)"},
+    onclick: function(){ go("sub"); }
+  }, "← Back"));
+  endSlide.appendChild(btnRow);
+  w.appendChild(endSlide);
+
   return w;
 }

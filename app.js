@@ -120,7 +120,7 @@ function go(p, s, skipHistory) {
 
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
 if(pg=="home"){document.body.classList.remove("hide-top-sections");}else{document.body.classList.add("hide-top-sections");}
-if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="digest")app.appendChild(pgDigest());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
+if(pg=="home")app.appendChild(pgHome());else if(pg=="sub")app.appendChild(pgSub());else if(pg=="fc")app.appendChild(pgFC());else if(pg=="swipefc")app.appendChild(pgSwipeFC());else if(pg=="qz")app.appendChild(pgQZ());else if(pg=="stats")app.appendChild(pgStats());else if(pg=="daily")app.appendChild(pgDaily());else if(pg=="digest")app.appendChild(pgDigest());else if(pg=="about")app.appendChild(pgAbout());else if(pg=="govtupdates")app.appendChild(pgGovtUpdates());else if(pg=="howtouse")app.appendChild(pgHowToUse());}
 
 var QUOTES=[
   {q:"The secret of getting ahead is getting started.",a:"Mark Twain"},
@@ -883,6 +883,7 @@ function render(){
   if(pg=="home")app.appendChild(pgHome());
   else if(pg=="sub")app.appendChild(pgSub());
   else if(pg=="fc")app.appendChild(pgFC());
+  else if(pg=="swipefc")app.appendChild(pgSwipeFC());
   else if(pg=="qz")app.appendChild(pgQZ());
   else if(pg=="bm")app.appendChild(pgBookmarks()); 
   else if(pg=="stats")app.appendChild(pgStats());
