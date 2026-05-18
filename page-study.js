@@ -8,19 +8,12 @@ function pgSub(){
   nb.appendChild(makeLogo(24));nb.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:"StudyLab"}));
   nr.appendChild(nb);w.appendChild(nr);
   
-  var c1=el("div",{cls:"mc",onclick:function(){go("fc");}});
+  var c1=el("div",{cls:"mc",onclick:function(){go("fcmenu");}});
   c1.addEventListener("mouseenter",function(){this.style.borderColor=ac;this.style.background="var(--card2)";});
   c1.addEventListener("mouseleave",function(){this.style.borderColor="var(--border)";this.style.background="var(--card)";});
   c1.appendChild(el("div",{css:{fontSize:"2.2rem",marginBottom:"10px"},txt:"\uD83C\uDCCF"}));
   c1.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600",marginBottom:"4px"},txt:"Flashcards"}));
-  c1.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--subtle)"},txt:"Learn with flip cards"}));
-
-  var c4=el("div",{cls:"mc",onclick:function(){go("swipefc");}});
-  c4.addEventListener("mouseenter",function(){this.style.borderColor="#8b5cf6";this.style.background="var(--card2)";});
-  c4.addEventListener("mouseleave",function(){this.style.borderColor="var(--border)";this.style.background="var(--card)";});
-  c4.appendChild(el("div",{css:{fontSize:"2.2rem",marginBottom:"10px"},txt:"⚡"}));
-  c4.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600",marginBottom:"4px"},txt:"Swipe Mode"}));
-  c4.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--subtle)"},txt:"Shorts-style flashcards"}));
+  c1.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--subtle)"},txt:"Classical or Swipe Mode"}));
   
   var c2=el("div",{cls:"mc",onclick:function(){go("qz");}});
   c2.addEventListener("mouseenter",function(){this.style.borderColor=ac;this.style.background="var(--card2)";});
@@ -42,8 +35,83 @@ function pgSub(){
   ctr.appendChild(el("div",{css:{fontSize:"1.5rem",fontWeight:"700",marginBottom:"6px"},txt:s}));
   ctr.appendChild(el("div",{css:{fontSize:".9rem",color:"var(--muted)",marginBottom:"36px"},txt:qs.length+" questions ready"}));
   var mrow=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",gap:"16px",justifyContent:"center"}});
-  mrow.appendChild(c1);mrow.appendChild(c4);mrow.appendChild(c2);mrow.appendChild(c3);
+  mrow.appendChild(c1);mrow.appendChild(c2);mrow.appendChild(c3);
   ctr.appendChild(mrow);w.appendChild(ctr);
+  return w;
+}
+
+function pgFCMenu(){
+  var s=sub, ac=AC[s], qs=QD[s]||[];
+  var w=el("div",{cls:"fd",css:{maxWidth:"700px",margin:"0 auto"}});
+
+  // Header
+  var hdr=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",marginBottom:"32px",paddingBottom:"16px",borderBottom:"1.5px solid var(--border)"}});
+  hdr.appendChild(el("button",{cls:"btn btng",css:{padding:"6px 12px"},onclick:function(){go("sub");}},"\u2190 Back"));
+  hdr.appendChild(el("div",{css:{flex:"1"}},[
+    el("div",{css:{fontSize:"1rem",fontWeight:"600"},txt:ICON[s]+" "+s+" \u00b7 Flashcards"}),
+    el("div",{css:{fontSize:".75rem",color:"var(--subtle)",marginTop:"1px"},txt:qs.length+" cards available"})
+  ]));
+  w.appendChild(hdr);
+
+  // Title
+  var ttl=el("div",{css:{textAlign:"center",marginBottom:"32px"}});
+  ttl.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"10px"},txt:"\uD83C\uDCCF"}));
+  ttl.appendChild(el("div",{css:{fontSize:"1.3rem",fontWeight:"800",fontFamily:"var(--font-display)",letterSpacing:"-.02em",marginBottom:"6px"},txt:"Choose Your Mode"}));
+  ttl.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"How do you want to study today?"}));
+  w.appendChild(ttl);
+
+  // Classical Mode card
+  var optClassic=el("div",{css:{
+    background:"var(--card)",border:"1.5px solid var(--border)",borderRadius:"20px",
+    padding:"28px 24px",marginBottom:"16px",cursor:"pointer",
+    transition:"all 0.2s",display:"flex",alignItems:"center",gap:"20px",
+    boxShadow:"var(--shadow-card)"
+  },onclick:function(){go("fc");}});
+  optClassic.addEventListener("mouseenter",function(){this.style.borderColor=ac;this.style.transform="translateY(-2px)";this.style.boxShadow="0 8px 24px rgba(0,0,0,0.2)";});
+  optClassic.addEventListener("mouseleave",function(){this.style.borderColor="var(--border)";this.style.transform="translateY(0)";this.style.boxShadow="var(--shadow-card)";});
+  var iconClassic=el("div",{css:{
+    width:"56px",height:"56px",borderRadius:"16px",flexShrink:"0",
+    background:ac+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem"
+  }},"\uD83C\uDCCF");
+  var infoClassic=el("div",{css:{flex:"1"}});
+  infoClassic.appendChild(el("div",{css:{fontSize:"1.05rem",fontWeight:"700",marginBottom:"4px"},txt:"Classical Mode"}));
+  infoClassic.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)",lineHeight:"1.5"},txt:"Browse cards one by one, search, add custom cards & use spaced repetition ratings."}));
+  var tagsClassic=el("div",{css:{display:"flex",gap:"6px",marginTop:"10px",flexWrap:"wrap"}});
+  ["🔍 Search","✏️ Custom Cards","📊 SRS"].forEach(function(t){
+    tagsClassic.appendChild(el("span",{css:{fontSize:".7rem",padding:"3px 8px",borderRadius:"6px",background:ac+"14",color:ac,fontWeight:"600"}},t));
+  });
+  infoClassic.appendChild(tagsClassic);
+  optClassic.appendChild(iconClassic);
+  optClassic.appendChild(infoClassic);
+  optClassic.appendChild(el("div",{css:{color:"var(--subtle)",fontSize:"1.2rem",flexShrink:"0"}},"→"));
+  w.appendChild(optClassic);
+
+  // Swipe Mode card
+  var optSwipe=el("div",{css:{
+    background:"var(--card)",border:"1.5px solid var(--border)",borderRadius:"20px",
+    padding:"28px 24px",marginBottom:"16px",cursor:"pointer",
+    transition:"all 0.2s",display:"flex",alignItems:"center",gap:"20px",
+    boxShadow:"var(--shadow-card)"
+  },onclick:function(){go("swipefc");}});
+  optSwipe.addEventListener("mouseenter",function(){this.style.borderColor="#8b5cf6";this.style.transform="translateY(-2px)";this.style.boxShadow="0 8px 24px rgba(0,0,0,0.2)";});
+  optSwipe.addEventListener("mouseleave",function(){this.style.borderColor="var(--border)";this.style.transform="translateY(0)";this.style.boxShadow="var(--shadow-card)";});
+  var iconSwipe=el("div",{css:{
+    width:"56px",height:"56px",borderRadius:"16px",flexShrink:"0",
+    background:"rgba(139,92,246,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem"
+  }},"⚡");
+  var infoSwipe=el("div",{css:{flex:"1"}});
+  infoSwipe.appendChild(el("div",{css:{fontSize:"1.05rem",fontWeight:"700",marginBottom:"4px"},txt:"Swipe Mode"}));
+  infoSwipe.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)",lineHeight:"1.5"},txt:"Shorts-style vertical swipe cards. Tap to flip, then rate Hard / Good / Easy."}));
+  var tagsSwipe=el("div",{css:{display:"flex",gap:"6px",marginTop:"10px",flexWrap:"wrap"}});
+  ["👆 Tap to Flip","😅 Hard","👍 Good","🔥 Easy"].forEach(function(t){
+    tagsSwipe.appendChild(el("span",{css:{fontSize:".7rem",padding:"3px 8px",borderRadius:"6px",background:"rgba(139,92,246,0.1)",color:"#8b5cf6",fontWeight:"600"}},t));
+  });
+  infoSwipe.appendChild(tagsSwipe);
+  optSwipe.appendChild(iconSwipe);
+  optSwipe.appendChild(infoSwipe);
+  optSwipe.appendChild(el("div",{css:{color:"var(--subtle)",fontSize:"1.2rem",flexShrink:"0"}},"→"));
+  w.appendChild(optSwipe);
+
   return w;
 }
 
