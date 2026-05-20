@@ -429,97 +429,63 @@ function initializeApp() {
 // Create a global empty object for our questions
 window.QD = {}; 
 
+// Create a global empty object for our questions
+window.QD = {}; 
+
 function fetchQuestionsAndStart() {
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=531099395&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=263668087&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=767959018&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1407790517&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=337186880&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=216502792&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1795942396&single=true&output=csv";
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=393325687&single=true&output=csv";
-  const CACHE_KEY = "sl_questions_cache";
+  // 🚨 PASTE ALL YOUR INDIVIDUAL TAB LINKS HERE 🚨
+  const SHEET_URLS = [
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=263668087&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=767959018&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=531099395&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1407790517&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=337186880&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=216502792&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1795942396&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=393325687&single=true&output=csv",
+    // Add as many links as you have tabs. Just make sure each line ends with a comma!
+  ];
+  
+  let completedRequests = 0;
+  let hasErrors = false;
 
-  // Helper: build QD from parsed rows
-  function buildQD(rows) {
-    window.QD = {};
-    rows.forEach(function(row) {
-      // Trim all keys/values to handle accidental spaces in column headers
-      var cleanRow = {};
-      Object.keys(row).forEach(function(k) { cleanRow[k.trim()] = (row[k] || "").trim(); });
-
-      var subject = cleanRow["Subject"];
-      if (!subject) return;
-
-      var ans = parseInt(cleanRow["Correct Answer (0-3)"], 10);
-      if (isNaN(ans) || ans < 0 || ans > 3) return; // skip malformed rows
-
-      var q  = cleanRow["Question"];
-      var o1 = cleanRow["Option 1"];
-      var o2 = cleanRow["Option 2"];
-      var o3 = cleanRow["Option 3"];
-      var o4 = cleanRow["Option 4"];
-      if (!q || !o1 || !o2 || !o3 || !o4) return; // skip incomplete rows
-
-      if (!window.QD[subject]) window.QD[subject] = [];
-      window.QD[subject].push({ q: q, o: [o1, o2, o3, o4], a: ans });
-    });
-    window.totalQuestions = Object.values(window.QD).reduce(function(sum, arr) { return sum + arr.length; }, 0);
-  }
-
-  // Try cache first (instant start on repeat visits)
-  function loadFromCache() {
-    try {
-      var cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        buildQD(JSON.parse(cached));
-        if (window.totalQuestions > 0) {
-          console.log("\u26a1 Questions from cache (" + window.totalQuestions + ")");
-          initializeApp();
-          return true;
-        }
-      }
-    } catch(e) {}
-    return false;
-  }
-
-  // Fetch fresh from Sheets
-  function fetchFromSheets(onSuccess, onFail) {
-    Papa.parse(SHEET_CSV_URL, {
+  // Loop through every link and download them simultaneously
+  SHEET_URLS.forEach(function(url) {
+    Papa.parse(url, {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: function(results) {
-        if (!results.data || !results.data.length) { onFail("Empty data"); return; }
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(results.data)); } catch(e) {}
-        buildQD(results.data);
-        console.log("\u2705 Live questions loaded! (" + window.totalQuestions + " total)");
-        onSuccess();
+        results.data.forEach(function(row) {
+          let subject = row["Subject"];
+          if (!subject) return; 
+          
+          if (!window.QD[subject]) window.QD[subject] = [];
+          
+          window.QD[subject].push({
+            q: row["Question"],
+            o: [row["Option 1"], row["Option 2"], row["Option 3"], row["Option 4"]],
+            a: parseInt(row["Correct Answer (0-3)"])
+          });
+        });
+        
+        // Track how many sheets have finished downloading
+        completedRequests++;
+        
+        // Only start the app once ALL sheets have successfully loaded
+        if (completedRequests === SHEET_URLS.length && !hasErrors) {
+          console.log("✅ All subject sheets loaded successfully!");
+          window.totalQuestions = Object.values(window.QD).reduce((sum, subjectArray) => sum + subjectArray.length, 0);
+          initializeApp();
+        }
       },
-      error: function(err) { onFail(err); }
+      error: function(err) {
+        console.error("❌ Failed to fetch a sheet:", err);
+        hasErrors = true;
+        alert("Failed to load some study material. Please check your connection.");
+      }
     });
-  }
-
-  var hadCache = loadFromCache();
-
-  if (hadCache) {
-    // App started from cache — silently refresh in background
-    fetchFromSheets(function() {
-      console.log("\uD83D\uDD04 Questions refreshed in background.");
-    }, function(err) {
-      console.warn("Background refresh failed (using cache):", err);
-    });
-  } else {
-    // No cache — must fetch before starting
-    fetchFromSheets(function() {
-      initializeApp();
-    }, function(err) {
-      console.error("\u274C Failed to fetch questions:", err);
-      window.QD = {};
-      window.totalQuestions = 0;
-      initializeApp(); // start app anyway so UI loads
-    });
-  }
+  });
 }
 
 // Start the fetch process as soon as the HTML is ready
