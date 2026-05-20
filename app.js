@@ -90,8 +90,11 @@ function closeMobileDrawer(){
   }
 }
 
-function go(p, s, skipHistory) {
-  pg = p; window.currentPage = p; if(s !== undefined) sub = s;
+function go(p,s,skipHistory){
+  // 🛡️ Clear RPG mode memory if navigating anywhere EXCEPT the quiz page
+  if (p !== "qz") window.activeSkillNode = null;
+
+  pg=p; if(s!==undefined)sub=s;
   closeMobileDrawer();
 
   // IMPORTANT NEW LINE: Tell the phone's back button where we are!

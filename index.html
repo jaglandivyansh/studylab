@@ -463,6 +463,7 @@ function fetchQuestionsAndStart() {
           if (!window.QD[subject]) window.QD[subject] = [];
           
           window.QD[subject].push({
+            topic: row["Topic"],
             q: row["Question"],
             o: [row["Option 1"], row["Option 2"], row["Option 3"], row["Option 4"]],
             a: parseInt(row["Correct Answer (0-3)"])

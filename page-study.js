@@ -1,5 +1,17 @@
 function pgSub(){
   var s=sub,ac=AC[s],qs=QD[s]||[];
+  // 🛡️ RPG SKILL TREE FILTER 🛡️
+  if (window.activeSkillNode) {
+    var filteredQs = qs.filter(function(q) {
+      return q.topic && q.topic.toLowerCase().trim() === window.activeSkillNode.title.toLowerCase().trim();
+    });
+    
+    if (filteredQs.length > 0) {
+      qs = filteredQs; // Overwrite the main question list with just the boss fight questions!
+    } else {
+      toast("⚠️ No specific questions found for: " + window.activeSkillNode.title, "#ef4444");
+    }
+  }
   var bms=getBookmarks(s); // Get saved bookmarks count
   var w=el("div",{cls:"fd",css:{maxWidth:"700px",margin:"0 auto"}});
   var nr=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",marginBottom:"32px",paddingBottom:"16px",borderBottom:"1.5px solid var(--border)"}});
