@@ -194,7 +194,7 @@ Practice History, Geography, Polity and more
     <div id="nb-logo-svg"></div>
     <div>
       <div class="nb-brand-name">Study<span style="color:var(--accent)">Lab</span></div>
-      <div class="nb-brand-sub">Your Study Partner</div>
+      <div class="nb-brand-sub">Your Ultimate Competitive Exam Partner</div>
     </div>
   </div>
   <div class="nb-links" id="nb-links">
@@ -459,6 +459,8 @@ function fetchQuestionsAndStart() {
         results.data.forEach(function(row) {
           let subject = row["Subject"];
           if (!subject) return; 
+
+          subject = subject.trim();
           
           if (!window.QD[subject]) window.QD[subject] = [];
           

@@ -697,11 +697,18 @@ function pgHome(){
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
   frl.appendChild(makeLogo(22));
-  frl.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"StudyLab \u00b7 Your AI Study Partner"}));
+  frl.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"StudyLab — Your Ultimate Competitive Exam Partner"}));
   ft.appendChild(frl);
-  var footerCredit = el("div",{css:{fontSize:".75rem",color:"var(--subtle)"}});
-  footerCredit.textContent = "Created by Aman";
+  
+  // Updated Creator Link
+  var footerCredit = el("a",{
+    href: "https://aratt.ai/user/@jaglan_aman", 
+    target: "_blank",
+    css: {fontSize:".75rem", color:"var(--accent)", textDecoration:"none", fontWeight:"600"}
+  });
+  footerCredit.textContent = "Created by Aman (@jaglan_aman)";
   ft.appendChild(footerCredit);
+  
   w.appendChild(ft);
   return w;
 }
