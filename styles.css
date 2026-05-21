@@ -1,4 +1,3 @@
-
 /* ═══════════════════════════════════════════
    STUDYLAB — REFINED DARK EDITORIAL THEME
    ═══════════════════════════════════════════ */
@@ -73,7 +72,7 @@ body.no-transition * {
 
 /* ── HEADER ── */
 .wix-header {
-  background: rgba(8,12,18,0.85);
+  background: rgba(14, 20, 32, 0.88);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border);
@@ -86,7 +85,11 @@ body.no-transition * {
   top: 0;
   z-index: 100;
 }
-[data-theme="light"] .wix-header { background: rgba(240,244,255,0.88); }
+[data-theme="light"] .wix-header { 
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.10) !important;
+  box-shadow: 0 2px 16px rgba(45,111,232,0.08);
+}
 .wix-header .logo {
   font-family: var(--font-display);
   font-size: 1.5rem;
@@ -101,22 +104,66 @@ body.no-transition * {
   position: fixed;
   top: 0; left: 0; right: 0;
   height: 64px;
-  background: rgba(8,12,18,0.92);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   z-index: 9999;
-  box-shadow: 0 2px 24px rgba(0,0,0,0.4);
-  transition: background 0.35s ease;
+  background: rgba(8, 12, 20, 0.98) !important;
+  border: none !important;
+  border-bottom: 1.5px solid rgba(255,255,255,0.07) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.25) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* Thin accent line at bottom */
+#top-navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 50%, transparent 100%);
+  opacity: 0.6;
+}
+
 [data-theme="light"] #top-navbar {
-  background: rgba(240,244,255,0.93);
-  box-shadow: 0 2px 16px rgba(45,111,232,0.08);
+  background: rgba(255, 255, 255, 1) !important;
+  border-bottom: 1.5px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.08), 0 8px 24px rgba(37,99,235,0.06) !important;
 }
+[data-theme="light"] #top-navbar::after {
+  background: linear-gradient(90deg, #2563EB 0%, #60A5FA 50%, transparent 100%);
+  opacity: 0.5;
+}
+
+/* Ensure brand name is readable in light mode */
+[data-theme="light"] #top-navbar .nb-brand-name {
+  color: #0D1B3E !important;
+}
+
+[data-theme="light"] #top-navbar .nb-links button {
+  color: #5A6A8A !important;
+}
+
+[data-theme="light"] #top-navbar .nb-links button:hover,
+[data-theme="light"] #top-navbar .nb-links button.active {
+  color: #0D1B3E !important;
+}
+
+[data-theme="light"] #top-navbar #themeToggle {
+  background: #F0F4FF !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0D1B3E !important;
+}
+
+[data-theme="light"] #top-navbar .nb-user-pill {
+  background: #F0F4FF !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
 #top-navbar .nb-logo {
   display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0;
 }
@@ -130,41 +177,65 @@ body.no-transition * {
   letter-spacing: 0.1em; text-transform: uppercase;
   font-family: var(--font-display); margin-top: 1px;
 }
-#top-navbar .nb-links {
-  display: flex; align-items: center; gap: 4px;
-}
-#top-navbar .nb-links button {
-  font-family: var(--font-body);
-  background: transparent; border: 1px solid transparent;
-  color: var(--muted); font-size: 0.82rem; font-weight: 500;
-  padding: 6px 14px; border-radius: 9px; cursor: pointer;
-  transition: all 0.18s ease; letter-spacing: 0.01em;
-}
-#top-navbar .nb-links button:hover {
-  background: var(--card2); color: var(--text); border-color: var(--border);
-}
-#top-navbar .nb-links button.active {
-  background: var(--accent); color: #fff; border-color: var(--accent);
-  font-weight: 600;
-  box-shadow: 0 4px 14px var(--accent-glow);
-}
+
 #top-navbar .nb-right {
   display: flex; align-items: center; gap: 8px;
 }
 #top-navbar #themeToggle {
   background: var(--card2); border: 1px solid var(--border);
-  border-radius: 9px; padding: 6px 10px; cursor: pointer;
+  border-radius: 6px; padding: 6px 10px; cursor: pointer;
   font-size: 1rem; transition: all 0.18s ease;
 }
 #top-navbar #themeToggle:hover { background: var(--border2); }
 #top-navbar .nb-user-pill {
   display: flex; align-items: center; gap: 8px;
   background: var(--card2); border: 1px solid var(--border);
-  border-radius: 99px; padding: 4px 12px 4px 4px; cursor: pointer;
+  border-radius: 8px; padding: 4px 12px 4px 4px; cursor: pointer;
 }
 #top-navbar .nb-user-pill:hover { border-color: var(--accent); }
 
-body { padding-top: 64px; }
+/* ── SLEEK NAVIGATION LINKS ── */
+#top-navbar .nb-links {
+  display: flex; align-items: center; gap: 4px;
+}
+#top-navbar .nb-links button {
+  font-family: var(--font-body);
+  background: transparent !important; 
+  border: none !important;
+  border-radius: 0 !important;
+  color: var(--muted); 
+  font-size: 0.85rem; /* Slightly larger for readability */
+  font-weight: 600;
+  padding: 8px 6px; /* A bit more horizontal padding */
+  margin: 0 10px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: none !important;
+  transition: color 0.2s ease;
+}
+
+#top-navbar .nb-links button:hover,
+#top-navbar .nb-links button.active {
+  color: var(--text) !important;
+}
+
+/* Minimalist animated underline */
+#top-navbar .nb-links button::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--accent);
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#top-navbar .nb-links button:hover::before,
+#top-navbar .nb-links button.active::before {
+  width: 100%;
+}
 
 /* ── HERO ── */
 .wix-hero {
@@ -222,8 +293,8 @@ body.hide-top-sections .wix-hero,
 body.hide-top-sections #current-affairs-container { display: none !important; }
 
 /* ── LAYOUT ── */
-.app-container { max-width: 1180px; margin: 0 auto; padding: 24px 24px; position: relative; z-index: 1; }
-#app { padding-top: 8px; padding-bottom: 80px; }
+.app-container { max-width: 1180px; margin: 0 auto; padding: 88px 24px 24px; position: relative; z-index: 1; }
+#app { padding-top: 0; padding-bottom: 80px; }
 #app:has(.subj-row) { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 24px; }
 
 /* ── SUBJECT CARDS ── */
@@ -642,26 +713,67 @@ body::after {
 
 /* ── MOBILE BOTTOM NAVBAR ── */
 #bottom-navbar { display: none; }
+
 @media(max-width: 768px) {
   #bottom-navbar {
-    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-    /* Replaced heavy glass effect with a solid, sleek background */
-    background: var(--bg); 
-    border-top: 1px solid var(--border);
+    display: flex; 
+    position: fixed; 
+    bottom: 0; left: 0; right: 0;
+    background: rgba(14, 20, 32, 0.97) !important; 
+    border-top: 1px solid rgba(255,255,255,0.10) !important;
     padding-bottom: env(safe-area-inset-bottom);
-    z-index: 9999; justify-content: space-around;
+    z-index: 99999 !important;
+    justify-content: space-around;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   }
-  [data-theme="light"] #bottom-navbar { background: rgba(240,244,255,0.92); }
+
+  /* ✅ LIGHT MODE FIX: Solid white, fully opaque, strong border */
+  [data-theme="light"] #bottom-navbar { 
+    background: #FFFFFF !important; 
+    border-top: 1.5px solid rgba(0,0,0,0.14) !important; 
+    box-shadow: 0 -4px 24px rgba(45,111,232,0.10), 0 -1px 0 rgba(0,0,0,0.08) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   #bottom-navbar button {
-    background: none; border: none; color: var(--muted); padding: 10px 0 6px;
-    font-size: 0.65rem; font-weight: 600; display: flex; flex-direction: column; 
-    align-items: center; gap: 4px; width: 25%; font-family: var(--font-display);
-    transition: all 0.2s; cursor: pointer;
+    background: none; border: none; 
+    color: var(--muted) !important; 
+    padding: 12px 0 8px; 
+    font-size: 0.65rem; font-weight: 600; 
+    display: flex; flex-direction: column; 
+    align-items: center; gap: 4px; width: 25%; 
+    font-family: var(--font-display);
+    cursor: pointer;
+    transition: color 0.2s ease;
   }
-  #bottom-navbar button span { font-size: 1.25rem; transition: transform 0.2s; }
-  #bottom-navbar button.active { color: var(--accent); }
-  #bottom-navbar button.active span { transform: translateY(-3px) scale(1.1); }
   
+  /* Solid, readable gray text in light mode — never invisible */
+  [data-theme="light"] #bottom-navbar button {
+    color: #6B7280 !important; 
+  }
+
+  #bottom-navbar button span { 
+    font-size: 1.3rem; 
+    transition: transform 0.2s; 
+  }
+  
+  /* Active State Styling */
+  #bottom-navbar button.active { 
+    color: var(--accent) !important; 
+  }
+  
+  /* Bold blue for active tab in light mode — always visible */
+  [data-theme="light"] #bottom-navbar button.active {
+    color: #2D6FE8 !important;
+  }
+  
+  #bottom-navbar button.active span { 
+    transform: translateY(-4px) scale(1.15); 
+  }
+
   /* Make room for bottom nav on mobile */
   body { padding-bottom: 70px; }
   .theme-toggle { bottom: 80px; }
@@ -920,7 +1032,7 @@ body::after {
   .wix-header { padding: 0 20px; height: 60px; }
   .wix-hero { padding: 72px 16px 80px; }
   .wix-hero h1 { font-size: 2.4rem; }
-  .app-container { padding: 12px; }
+  .app-container { padding: 80px 12px 12px; }
   #app:has(.subj-row) { grid-template-columns: 1fr; }
   .theme-toggle { bottom: 20px; right: 20px; width: 46px; height: 46px; }
 
@@ -968,7 +1080,7 @@ body::after {
 @media(max-width: 480px) {
   #top-navbar .nb-brand-name { font-size: 1rem; }
   .wix-hero h1 { font-size: 2rem; }
-  .app-container { padding: 8px; }
+  .app-container { padding: 76px 8px 8px; }
   /* Progress top stats stay 2x2 */
   /* About feature grid → single col on tiny screens */
   #app > .fd > div > div[style*="grid-template-columns: 1fr 1fr"] {
@@ -1026,88 +1138,7 @@ body::after {
   background: rgba(245, 158, 11, 0.1) !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   STUDYLAB — NAVBAR ACTIVE HIGHLIGHT PATCH
-   Paste this at the END of your styles.css file.
-   ═══════════════════════════════════════════════════════════════ */
 
-/* ── DESKTOP NAVBAR — Active button glow ── */
-#top-navbar .nb-links button.active {
-  background: linear-gradient(135deg, var(--accent), #5a9af8) !important;
-  border-color: transparent !important;
-  color: #fff !important;
-  font-weight: 700 !important;
-  box-shadow:
-    0 0 0 1px rgba(79,142,247,0.5),
-    0 4px 20px rgba(49,116,246,0.45),
-    0 0 40px rgba(49,116,246,0.15) !important;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Shimmer sweep animation on active button */
-#top-navbar .nb-links button.active::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-  animation: nav-shimmer 2.5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes nav-shimmer {
-  0%   { left: -100%; }
-  60%  { left: 160%; }
-  100% { left: 160%; }
-}
-
-/* Pulsing dot indicator below active link */
-#top-navbar .nb-links button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px; left: 50%;
-  transform: translateX(-50%);
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px rgba(79,142,247,0.8), 0 0 16px rgba(79,142,247,0.5);
-  animation: dot-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1;   transform: translateX(-50%) scale(1); }
-  50%       { opacity: 0.5; transform: translateX(-50%) scale(1.4); }
-}
-
-/* ── MOBILE DRAWER — Active state ── */
-#nb-mobile-drawer button.active {
-  background: linear-gradient(135deg, var(--accent), #5a9af8) !important;
-  border-color: transparent !important;
-  color: #fff !important;
-  font-weight: 700 !important;
-  box-shadow:
-    0 0 0 1px rgba(79,142,247,0.4),
-    0 4px 16px rgba(49,116,246,0.35) !important;
-}
-
-/* ── BOTTOM NAVBAR (mobile) — Active tab indicator ── */
-#bottom-navbar button.active {
-  color: var(--accent) !important;
-  text-shadow: 0 0 12px rgba(79,142,247,0.6);
-  position: relative;
-}
-#bottom-navbar button.active::before {
-  content: '';
-  position: absolute;
-  top: 4px; left: 50%;
-  transform: translateX(-50%);
-  width: 28px; height: 3px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  box-shadow: 0 0 10px var(--accent-glow);
-}
 /* ── AI DOUBT SOLVER ANIMATIONS ──
    Paste these inside your styles.css (at the end)
 */
@@ -1127,27 +1158,7 @@ body::after {
 #ads-chat-area::-webkit-scrollbar-track { background: transparent; }
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ── ROUNDED "FLOATING PILL" NAV BARS ── */
-
-/* 1. Top Navbar (Desktop & Mobile) */
-#top-navbar {
-  top: 16px;
-  left: 20px;
-  right: 20px;
-  max-width: 1180px;
-  margin: 0 auto;
-  border-radius: 24px;
-  border: 1px solid var(--border) !important;
-  /* Solid backgrounds ensure smooth scrolling without performance drops */
-  background: var(--bg2) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Push the main content down a bit more to clear the floating top nav */
-body { 
-  padding-top: 100px; 
-}
+/* ── ROUNDED "FLOATING" NAV BARS ── */
 
 /* 2. Bottom Navbar (Mobile Only) */
 @media(max-width: 768px) {
@@ -1157,18 +1168,19 @@ body {
     right: 16px;
     border-radius: 24px;
     border: 1px solid var(--border) !important;
-    background: var(--bg2) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    /* Adjust padding to fit the new rounded shape */
-    padding-bottom: 8px;
-    padding-top: 8px;
+  }
+
+  /* Light mode: solid pill with crisp border */
+  [data-theme="light"] #bottom-navbar {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(0,0,0,0.12) !important;
+    box-shadow: 0 4px 24px rgba(45,111,232,0.10), 0 1px 4px rgba(0,0,0,0.08) !important;
   }
   
-  /* Push the mobile drawer down to align with the new top nav position */
+  /* Reset the mobile drawer to attach sharply to the top navbar */
   #nb-mobile-drawer {
-    top: 80px;
-    border-radius: 20px;
-    margin: 0 16px;
+    top: 64px;
+    border-radius: 0px;
+    margin: 0;
   }
 }
