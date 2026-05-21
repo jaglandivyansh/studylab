@@ -563,20 +563,15 @@ if (document.readyState === 'loading') {
 
 <script>
 (function () {
-  // ═══════════════════════════════════════════
-  //  CONFIG
-  // ═══════════════════════════════════════════
-  var NAV_PAGES  = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
+  var NAV_PAGES = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
+  var EDGE_ZONE = 28;  // px from screen edge
+  var SWIPE_MIN = 48;  // lower = more responsive
+  var TIME_MAX  = 400; // ms max for a swipe gesture
+  var _swipeLock = false; // prevent double-fire
 
-  // Pages where left-edge swipe opens right-side drawer menu
-  // Right-edge swipe (from left side) → go back / go prev page
-  var EDGE_ZONE  = 30; // px from edge that counts as "edge swipe"
-  var SWIPE_MIN  = 60; // min px total to count as swipe
-  var TIME_MAX   = 500;
-
-  // ── Build page dots ──
+  // ── Page indicator dots ──
   var bar = document.createElement('div');
-  bar.id  = 'sl-page-dots';
+  bar.id = 'sl-page-dots';
   NAV_PAGES.forEach(function () {
     var d = document.createElement('div');
     d.className = 'sl-dot';
@@ -593,134 +588,136 @@ if (document.readyState === 'loading') {
       d.classList.toggle('active', i === idx);
     });
     clearTimeout(_dotTimer);
-    _dotTimer = setTimeout(function () { bar.classList.remove('visible'); }, 2200);
+    _dotTimer = setTimeout(function () { bar.classList.remove('visible'); }, 2000);
   }
 
-  // Poll window.currentPage — now correctly set by app.js go()
+  // Sync dots to currentPage — poll is fine, it's cheap
   var _lastPage = null;
   setInterval(function () {
     var p = window.currentPage || 'home';
     if (p !== _lastPage) { _lastPage = p; showDots(p); }
-  }, 150);
+  }, 100);
 
-  // ── Build right-side drawer (mirrors the existing mobile drawer) ──
+  // ── Right-side swipe drawer ──
   var scrim = document.createElement('div');
-  scrim.id  = 'sl-drawer-scrim';
+  scrim.id = 'sl-drawer-scrim';
   document.body.appendChild(scrim);
 
   var drawer = document.createElement('div');
-  drawer.id  = 'sl-drawer-peek';
-  // Clone the existing mobile nav drawer content into our swipe drawer
-  // We wait for DOM ready to clone it
-  document.addEventListener('DOMContentLoaded', function () {
-    var orig = document.getElementById('nb-mobile-drawer');
-    if (orig) {
-      var clone = orig.cloneNode(true);
-      clone.id  = 'sl-drawer-inner';
-      clone.removeAttribute('style');
-      clone.style.cssText = [
-        'height:100%',
-        'background:var(--card)',
-        'border-left:1px solid var(--border2)',
-        'padding:60px 20px 40px',
-        'display:flex',
-        'flex-direction:column',
-        'gap:6px',
-        'overflow-y:auto',
-        'box-shadow:-8px 0 32px rgba(0,0,0,0.4)'
-      ].join(';');
-      // Make cloned buttons also navigate
-      clone.querySelectorAll('button[data-page]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var p = btn.getAttribute('data-page');
-          closeRightDrawer();
-          if (typeof go === 'function') go(p);
-        });
-      });
-      drawer.appendChild(clone);
-    }
-  });
+  drawer.id = 'sl-drawer-peek';
   document.body.appendChild(drawer);
 
-  function openRightDrawer()  {
-    drawer.classList.add('open');
-    scrim.classList.add('visible');
-  }
-  function closeRightDrawer() {
-    drawer.classList.remove('open');
-    scrim.classList.remove('visible');
-  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var orig = document.getElementById('nb-mobile-drawer');
+    if (!orig) return;
+    var clone = orig.cloneNode(true);
+    clone.id = 'sl-drawer-inner';
+    clone.removeAttribute('style');
+    clone.style.cssText = 'height:100%;background:var(--card);border-left:1px solid var(--border2);padding:60px 20px 40px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.4)';
+    clone.querySelectorAll('button[data-page]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var p = btn.getAttribute('data-page');
+        closeRightDrawer();
+        // Wait for go() to be defined (app.js loads after this script)
+        if (typeof go === 'function') go(p);
+      });
+    });
+    drawer.appendChild(clone);
+  });
+
+  function openRightDrawer()  { drawer.classList.add('open');  scrim.classList.add('visible'); }
+  function closeRightDrawer() { drawer.classList.remove('open'); scrim.classList.remove('visible'); }
   scrim.addEventListener('click', closeRightDrawer);
 
-  // ═══════════════════════════════════════════
-  //  TOUCH LOGIC
-  // ═══════════════════════════════════════════
+  // ── Safe navigation — always calls go() directly, never history.back() ──
+  // history.back() goes through popstate → go() = double render + lag
+  // Instead we read history state directly and call go() ourselves
+  function safeBack() {
+    // Try to get previous state from history
+    // If we have a state, use it; otherwise go home
+    if (window.history.state && window.history.state.page && window.history.state.page !== window.currentPage) {
+      var prevPage = window.history.state.page;
+      var prevSub  = window.history.state.sub;
+      if (typeof go === 'function') go(prevPage, prevSub, false);
+    } else {
+      // Fall back to history.back() only as last resort
+      window.history.back();
+    }
+  }
+
+  // ── Touch state ──
   var sx = 0, sy = 0, st = 0;
-  var locked = false;       // true = vertical scroll detected, abort
-  var isEdge = false;       // started from screen edge
-  var edgeSide = '';        // 'left' or 'right'
+  var locked = false;
+  var isEdge = false;
+  var edgeSide = '';
   var drawerOpen = false;
 
   document.addEventListener('touchstart', function (e) {
-    sx = e.touches[0].clientX;
-    sy = e.touches[0].clientY;
-    st = Date.now();
-    locked   = false;
-    isEdge   = false;
-    edgeSide = '';
+    var t = e.touches[0];
+    sx = t.clientX; sy = t.clientY; st = Date.now();
+    locked = false; isEdge = false; edgeSide = '';
     drawerOpen = drawer.classList.contains('open');
-
+    _swipeLock = false;
     var W = window.innerWidth;
-    if (sx < EDGE_ZONE)       { isEdge = true; edgeSide = 'left';  }
-    else if (sx > W - EDGE_ZONE) { isEdge = true; edgeSide = 'right'; }
+    if (sx < EDGE_ZONE)         { isEdge = true; edgeSide = 'left'; }
+    else if (sx > W - EDGE_ZONE){ isEdge = true; edgeSide = 'right'; }
   }, { passive: true });
 
   document.addEventListener('touchmove', function (e) {
     if (locked) return;
     var dx = Math.abs(e.touches[0].clientX - sx);
     var dy = Math.abs(e.touches[0].clientY - sy);
-    if (dy > 14 && dy > dx * 1.4) locked = true;
+    // Lock out if clearly vertical scroll
+    if (dy > 10 && dy > dx * 1.5) locked = true;
   }, { passive: true });
 
   document.addEventListener('touchend', function (e) {
-    if (locked) return;
-    var ex  = e.changedTouches[0].clientX;
-    var dx  = ex - sx;
-    var dy  = e.changedTouches[0].clientY - sy;
+    if (locked || _swipeLock) return;
+    var t   = e.changedTouches[0];
+    var dx  = t.clientX - sx;
+    var dy  = t.clientY - sy;
     var dt  = Date.now() - st;
     var adx = Math.abs(dx);
     var ady = Math.abs(dy);
 
-    if (dt > TIME_MAX) return;
-    if (adx < SWIPE_MIN) return;
-    if (ady / adx > 0.7) return; // too diagonal
+    if (dt  > TIME_MAX)      return; // too slow
+    if (adx < SWIPE_MIN)     return; // too short
+    if (ady / adx > 0.65)   return; // too diagonal
 
-    // ── Drawer close: swipe left on open right drawer ──
+    _swipeLock = true; // block any double-fire within same gesture
+
+    // 1. Close open drawer with left swipe
     if (drawerOpen && dx < 0) { closeRightDrawer(); return; }
 
-    // ── Edge swipe: right-edge → open right drawer ──
+    // 2. Right-edge swipe LEFT → open nav drawer
     if (isEdge && edgeSide === 'right' && dx < 0) {
       openRightDrawer(); return;
     }
 
-    // ── Edge swipe: left-edge → go back ──
+    // 3. Left-edge swipe RIGHT → go back
+    // Call go() directly instead of history.back() — zero lag, no double render
     if (isEdge && edgeSide === 'left' && dx > 0) {
-      history.back(); return;
+      if (typeof go === 'function') {
+        window.history.back(); // let popstate in app.js handle it cleanly
+      }
+      return;
     }
 
-    // ── Regular page swipe (only on nav pages, not in quiz/study etc) ──
+    // 4. Regular page swipe (only on main nav pages)
     var page = window.currentPage || 'home';
     var idx  = NAV_PAGES.indexOf(page);
-    if (idx === -1) return;
+    if (idx === -1) return; // not a swipeable page (quiz, flashcards etc)
 
     if (dx < 0 && idx < NAV_PAGES.length - 1) {
       // Swipe LEFT → next page
-      showDots(NAV_PAGES[idx + 1]);
-      if (typeof go === 'function') go(NAV_PAGES[idx + 1]);
+      var next = NAV_PAGES[idx + 1];
+      showDots(next);
+      if (typeof go === 'function') go(next);
     } else if (dx > 0 && idx > 0) {
-      // Swipe RIGHT → prev page
-      showDots(NAV_PAGES[idx - 1]);
-      if (typeof go === 'function') go(NAV_PAGES[idx - 1]);
+      // Swipe RIGHT → previous page
+      var prev = NAV_PAGES[idx - 1];
+      showDots(prev);
+      if (typeof go === 'function') go(prev);
     }
   }, { passive: true });
 

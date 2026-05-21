@@ -109,16 +109,14 @@ function go(p,s,skipHistory){
     b.classList.toggle('active', b.getAttribute('data-page') === p); 
   });
 
-  // 2. Delay the heavy page rendering by 30ms to let the mobile GPU breathe
-  setTimeout(function() {
+  // Render immediately — requestAnimationFrame lets GPU finish current frame first
+  requestAnimationFrame(function() {
     if (document.startViewTransition) {
-      document.startViewTransition(function() {
-        render(); window.scrollTo(0,0);
-      });
+      document.startViewTransition(function() { render(); window.scrollTo(0,0); });
     } else {
       render(); window.scrollTo(0,0);
     }
-  }, 30);
+  });
 }
 
 function render(){var app=document.getElementById("app");app.innerHTML="";// Show hero banner and current affairs ONLY on home page
