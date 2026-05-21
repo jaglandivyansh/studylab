@@ -95,6 +95,10 @@ function go(p,s,skipHistory){
   if (p !== "qz") window.activeSkillNode = null;
 
   pg=p; if(s!==undefined)sub=s;
+  
+  // ✅ THE BUG FIX: Tell the swipe script which page we are actually on!
+  window.currentPage = p; 
+
   closeMobileDrawer();
 
   // IMPORTANT NEW LINE: Tell the phone's back button where we are!

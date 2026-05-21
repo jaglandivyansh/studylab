@@ -41,6 +41,17 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px -8px rgba(0,0,0,0.12);
   --shadow-hover: 0 0 0 1px rgba(45,111,232,0.25), 0 20px 48px -12px rgba(45,111,232,0.15);
 }
+/* ── PREVENT MOBILE SCROLL BOUNCE & LAG ── */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  /* ... rest of your body css ... */
+}
 
 body {
   background: var(--bg);
@@ -727,6 +738,11 @@ body::after {
     box-shadow: 0 -8px 32px rgba(0,0,0,0.4) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    
+    /* ADDED: Forces GPU rendering to stop lag */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
   }
 
   /* ✅ LIGHT MODE FIX: Solid white, fully opaque, strong border */
