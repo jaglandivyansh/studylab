@@ -1200,3 +1200,69 @@ body::after {
     margin: 0;
   }
 }
+/* ── PROFESSIONAL WALKTHROUGH TOUR ENGINE ── */
+#sl-tour-backdrop {
+  position: fixed; inset: 0;
+  z-index: 100000; /* Sits above everything */
+  background: transparent;
+  pointer-events: none;
+}
+#sl-tour-backdrop.active {
+  pointer-events: all; /* Intercepts background clicks so user can't break the app */
+}
+
+/* The Spotlight Hole */
+#sl-tour-highlight {
+  position: fixed;
+  z-index: 100001;
+  border-radius: 12px;
+  /* The massive shadow darkens the screen, the box itself is transparent! */
+  box-shadow: 0 0 0 9999px rgba(4, 8, 16, 0.85), 0 0 0 3px var(--accent);
+  pointer-events: none; 
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* Ensure Light Mode has a bright, frosted spotlight feel */
+[data-theme="light"] #sl-tour-highlight {
+  box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8), 0 0 0 3px var(--accent);
+}
+#sl-tour-highlight.active {
+  opacity: 1;
+}
+
+/* Tooltip Box */
+#sl-tour-tooltip {
+  position: fixed;
+  z-index: 100002;
+  background: var(--card);
+  border: 1.5px solid var(--accent);
+  border-radius: 16px;
+  padding: 24px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+  opacity: 0;
+  pointer-events: none;
+  /* Transitions dynamically follow the target element */
+  transition: opacity 0.3s ease, top 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform: translateX(-50%);
+}
+#sl-tour-tooltip.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#sl-tour-tooltip h3 {
+  font-family: var(--font-display); font-size: 1.15rem; font-weight: 800;
+  color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px;
+}
+#sl-tour-tooltip p {
+  font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin: 0 0 8px 0;
+}
+.tour-btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.tour-dots { display: flex; gap: 4px; }
+.tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); transition: all 0.2s; }
+.tour-dot.active { background: var(--accent); width: 16px; border-radius: 4px; }

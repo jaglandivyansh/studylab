@@ -1649,3 +1649,167 @@ function showExitConfirmationModal() {
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// ONBOARDING TOUR ENGINE (PRO VERSION)
+// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// ONBOARDING TOUR ENGINE (PRO VERSION w/ ADVANCED SELECTORS)
+// ═══════════════════════════════════════════════════════════════════
+var AppTour = {
+  steps: [
+    { id: 'themeToggle', icon: '☀️', title: 'Study Anywhere', text: 'Protect your eyes during late-night study sessions. Toggle between Light and Dark mode anytime.' },
+    { id: 'ai-doubt-solver', icon: '🤖', title: 'Sarvam AI Tutor', text: 'Stuck on a tricky concept? Open the AI Doubt Solver for instant, contextual explanations.' },
+    
+    // 🌟 NEW STEPS ADDED HERE 🌟
+    { selector: 'button[data-page="govtupdates"]', icon: '🔔', title: 'Govt Updates', text: 'Never miss a deadline. Track upcoming government job notifications and exam dates.' },
+    { selector: 'button[data-page="shorts"]', icon: '⚡', title: 'Study Shorts', text: 'Short on time? Swipe through quick, vertical flashcards to keep your streak alive.' },
+    { selector: 'button[data-page="digest"]', icon: '🗞️', title: 'Daily Digest', text: 'Stay informed with bite-sized daily current affairs, optimized for competitive exams.' },
+    
+    { id: 'ss', icon: '📚', title: 'Pick Your Subject', text: 'Dive into History, Geography, and more. Master 4,000+ questions and unlock your RPG Skill Tree.' }
+  ],
+  currentIndex: 0,
+  activeTarget: null,
+  
+  init: function() {
+    if (localStorage.getItem('studylab_tour_done')) return;
+    if (pg !== "home") return;
+
+    // Prevent duplicate injections
+    if (document.getElementById('sl-tour-backdrop')) return;
+
+    this.backdrop = el("div", { id: "sl-tour-backdrop" });
+    this.highlight = el("div", { id: "sl-tour-highlight" });
+    this.tooltip = el("div", { id: "sl-tour-tooltip" });
+    
+    document.body.appendChild(this.backdrop);
+    document.body.appendChild(this.highlight);
+    document.body.appendChild(this.tooltip);
+
+    this.resizeHandler = () => this.updatePositions();
+    window.addEventListener('resize', this.resizeHandler);
+    window.addEventListener('scroll', this.resizeHandler, { passive: true });
+
+    setTimeout(() => this.start(), 1500);
+  },
+
+  start: function() {
+    this.currentIndex = 0;
+    this.backdrop.classList.add('active');
+    this.highlight.classList.add('active');
+    this.showStep();
+  },
+
+  showStep: function() {
+    if (this.currentIndex >= this.steps.length) {
+      this.end();
+      return;
+    }
+
+    var step = this.steps[this.currentIndex];
+    var targetEl = null;
+
+    // 💡 NEW LOGIC: Smartly find the visible element based on device
+    if (step.id) {
+      targetEl = document.getElementById(step.id);
+    } else if (step.selector) {
+      var els = document.querySelectorAll(step.selector);
+      for (var i = 0; i < els.length; i++) {
+        // Pick the first one that is actually visible on the screen
+        if (els[i].offsetParent !== null && window.getComputedStyle(els[i]).display !== 'none') {
+          targetEl = els[i];
+          break;
+        }
+      }
+    }
+
+    var isHidden = !targetEl || window.getComputedStyle(targetEl).display === 'none' || (targetEl.offsetWidth === 0 && targetEl.offsetHeight === 0);
+    
+    if (isHidden) {
+      this.currentIndex++;
+      this.showStep();
+      return;
+    }
+
+    this.activeTarget = targetEl;
+    
+    var style = window.getComputedStyle(targetEl);
+    if (style.position !== 'fixed' && style.position !== 'sticky') {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    this.tooltip.innerHTML = '';
+    this.tooltip.appendChild(el("h3", {}, [el("span", {}, step.icon), el("span", {}, step.title)]));
+    this.tooltip.appendChild(el("p", {}, step.text));
+
+    var btnRow = el("div", { cls: "tour-btn-row" });
+    var dots = el("div", { cls: "tour-dots" });
+    for (var i = 0; i < this.steps.length; i++) {
+      dots.appendChild(el("div", { cls: "tour-dot" + (i === this.currentIndex ? " active" : "") }));
+    }
+    btnRow.appendChild(dots);
+
+    var isLast = this.currentIndex === this.steps.length - 1;
+    var nextBtn = el("button", { 
+      cls: "btn btnp", 
+      css: { padding: "8px 16px", fontSize: ".85rem" },
+      onclick: () => {
+        this.currentIndex++;
+        this.showStep();
+      }
+    }, isLast ? "Get Started 🚀" : "Next →");
+    
+    btnRow.appendChild(nextBtn);
+    this.tooltip.appendChild(btnRow);
+    
+    this.tooltip.classList.add('active');
+
+    this.updatePositions();
+    setTimeout(() => this.updatePositions(), 50);
+    setTimeout(() => this.updatePositions(), 350);
+  },
+
+  updatePositions: function() {
+    if (!this.activeTarget) return;
+    
+    var rect = this.activeTarget.getBoundingClientRect();
+    
+    var padX = rect.width < 50 ? 8 : 4;
+    var padY = rect.height < 50 ? 8 : 4;
+
+    this.highlight.style.top = (rect.top - padY) + "px";
+    this.highlight.style.left = (rect.left - padX) + "px";
+    this.highlight.style.width = (rect.width + (padX * 2)) + "px";
+    this.highlight.style.height = (rect.height + (padY * 2)) + "px";
+
+    var tooltipH = this.tooltip.offsetHeight || 150;
+    var topPos = rect.bottom + 16; 
+    
+    if (topPos + tooltipH > window.innerHeight) topPos = rect.top - tooltipH - 16;
+    if (topPos < 10) topPos = rect.bottom + 16; 
+
+    var centerLeft = rect.left + (rect.width / 2);
+    var minLeft = 170; 
+    var maxLeft = window.innerWidth - 170;
+    var clampedLeft = Math.max(minLeft, Math.min(centerLeft, maxLeft));
+    
+    this.tooltip.style.top = topPos + "px";
+    this.tooltip.style.left = clampedLeft + "px";
+  },
+
+  end: function() {
+    if (this.backdrop) this.backdrop.classList.remove('active');
+    if (this.highlight) this.highlight.classList.remove('active');
+    if (this.tooltip) this.tooltip.classList.remove('active');
+    
+    localStorage.setItem('studylab_tour_done', 'true');
+    window.removeEventListener('resize', this.resizeHandler);
+    window.removeEventListener('scroll', this.resizeHandler);
+    
+    setTimeout(() => {
+      if(this.backdrop) this.backdrop.remove();
+      if(this.highlight) this.highlight.remove();
+      if(this.tooltip) this.tooltip.remove();
+    }, 400);
+  }
+};
