@@ -633,80 +633,66 @@ function pgHome(){
   });
   w.appendChild(subjSec);
 
- // 7. Feedback Section
-  var fb=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"18px",padding:"32px 36px",marginBottom:"24px",textAlign:"center",boxShadow:"var(--shadow-card)",position:"relative",overflow:"hidden"}});
-  var fbLine=el("div",{css:{position:"absolute",top:"0",left:"0",right:"0",height:"2px",background:"linear-gradient(90deg,var(--accent),var(--accent2),transparent)"}});
-  fb.appendChild(fbLine);
-  fb.appendChild(el("div",{css:{fontSize:"1.8rem",marginBottom:"10px"},txt:"\uD83D\uDCAC"}));
-  fb.appendChild(el("div",{css:{fontSize:"1.1rem",fontWeight:"700",marginBottom:"6px",fontFamily:"var(--font-display)",letterSpacing:"-0.02em"},txt:"How are we doing?"}));
-  fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)",marginBottom:"20px"},txt:"Your feedback helps us improve StudyLab for everyone"}));
+ 
+---
 
-  // --- NEW: Name Field ---
-  fb.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)",marginBottom:"5px",textAlign:"left"},txt:"Your Name \u002A"}));
-  var ftName=el("input",{cls:"inp",placeholder:"Enter your full name",type:"text",css:{marginBottom:"12px",textAlign:"left",width:"100%",boxSizing:"border-box"}});
-  ftName.value=Sv.get("fb_name")||"";
-  ftName.addEventListener("input",function(e){Sv.set("fb_name",e.target.value);});
-  fb.appendChild(ftName);
+### Step 2: Update `page-home.js` (The Feedback Widget)
+Now we need to rip out the bulky feedback form and replace it with the smart widget.
 
-  // --- NEW: Phone Field ---
-  fb.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)",marginBottom:"5px",textAlign:"left"},txt:"Phone Number \u002A"}));
-  var ftPhone=el("input",{cls:"inp",placeholder:"10-digit mobile number",type:"tel",maxlength:"10",css:{marginBottom:"18px",textAlign:"left",width:"100%",boxSizing:"border-box"}});
-  ftPhone.value=Sv.get("fb_phone")||"";
-  ftPhone.addEventListener("input",function(e){
-    var v=e.target.value.replace(/\D/g,"").slice(0,10);
-    e.target.value=v;
-    Sv.set("fb_phone",v);
-  });
-  fb.appendChild(ftPhone);
+**What to do:**
+1. Open `page-home.js`.
+2. Find the section of code that creates the old feedback form (look for inputs related to "Your Name *" and "Phone Number *"). **Delete that entire chunk of code.**
+3. Paste this new function anywhere inside `page-home.js`:
 
-  // --- Stars ---
-  var stars=el("div",{css:{display:"flex",gap:"6px",justifyContent:"center",marginBottom:"18px"}});
-  var selRating=Sv.get("fb_rating")||0;
-  var selMsg=Sv.get("fb_msg")||"";
-  for(var si=1;si<=5;si++){
-    (function(i){
-      var s=el("span",{cls:"star"+(i<=selRating?" lit":"")},i<=selRating?"\u2605":"\u2606");
-      s.addEventListener("click",function(){selRating=i;Sv.set("fb_rating",i);rebuildStars();});
-      s.addEventListener("mouseenter",function(){tempHighlight(i);});
-      s.addEventListener("mouseleave",function(){rebuildStars();});
-      stars.appendChild(s);
-    })(si);
-  }
-  function tempHighlight(n){var ss=stars.querySelectorAll(".star");ss.forEach(function(s,i){s.textContent=i<n?"\u2605":"\u2606";s.classList.toggle("lit",i<n);});}
-  function rebuildStars(){var ss=stars.querySelectorAll(".star");ss.forEach(function(s,i){s.textContent=i<selRating?"\u2605":"\u2606";s.classList.toggle("lit",i<selRating);});}
-  fb.appendChild(stars);
-  if(selRating>0){
-    var rLabel=["","Needs Improvement","Could Be Better","It\'s Good!","Really Loving It!","Absolutely Amazing!"][selRating];
-    fb.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--accent)",fontWeight:"600",marginBottom:"14px"}},rLabel));
-  }
+```javascript
+// --- ADD THIS TO PAGE-HOME.JS ---
+function createSmartFeedbackWidget() {
+    var widgetWrap = el("div", { 
+        css: { background: "var(--card)", border: "2px solid var(--border)", borderRadius: "16px", padding: "20px", margin: "20px 16px", textAlign: "center" } 
+    });
 
-  // --- Message Textarea ---
-  var fta=el("textarea",{cls:"inp",placeholder:"Tell us what you think or suggest a feature... (optional)",rows:"3",css:{marginBottom:"12px",textAlign:"left"}});
-  fta.value=selMsg;
-  fta.addEventListener("input",function(e){selMsg=e.target.value;});
-  fb.appendChild(fta);
+    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 8px 0", fontSize: "1.2rem", color: "var(--text)" }, txt: "How are we doing?" }));
+    
+    var textArea = el("textarea", { 
+        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginTop: "12px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
+    });
+    textArea.placeholder = "Tell us what you think or suggest a feature...";
+    
+    var submitBtn = el("button", { 
+        css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "1rem" }, 
+        txt: "Submit Feedback" 
+    });
 
-  // --- Submit Button ---
-  fb.appendChild(el("button",{cls:"btn btnp",css:{width:"100%",padding:"11px"},onclick:function(){
-    var nameVal=(ftName.value||"").trim();
-    var phoneVal=(ftPhone.value||"").trim();
+    submitBtn.onclick = function() {
+        var feedbackText = textArea.value.trim();
+        if(feedbackText === "") return;
 
-    if(!nameVal){toast("Please enter your name \uD83D\uDE4F","#f87171");ftName.focus();return;}
-    if(!/^[6-9][0-9]{9}$/.test(phoneVal)){toast("Enter a valid 10-digit mobile number","#f87171");ftPhone.focus();return;}
-    if(!selRating){toast("Please select a star rating first","#f87171");return;}
+        // Pull stored user data
+        var savedData = localStorage.getItem('sl_user');
+        var user = savedData ? JSON.parse(savedData) : { name: "Student", phone: "Unknown" };
 
-    Sv.set("fb_name", nameVal);
-    Sv.set("fb_phone", phoneVal);
-    Sv.set("fb_msg",selMsg);
-    Sv.set("fb_done",true);
-    Sv.set("fb_rating_stored", selRating);
-    Sv.set("fb_timestamp", new Date().toISOString());
+        var payload = { name: user.name, phone: user.phone, message: feedbackText };
+        
+        // TODO: Send 'payload' to your backend here
+        console.log("Submitting feedback:", payload);
 
-    toast("Thank you for your feedback! \u2764\uFE0F");
-    fb.innerHTML="";
-    fb.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"},txt:"\uD83C\uDF89"}));
-    fb.appendChild(el("div",{css:{fontSize:"1.1rem",fontWeight:"700",marginBottom:"6px"},txt:"Thank you so much!"}));
-    fb.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Your "+selRating+"\u2605 rating has been recorded. It means a lot!"}));
+        // Personalized Thank You
+        var firstName = user.name.split(' ')[0];
+        widgetWrap.innerHTML = `
+            <div style="padding: 24px; text-align: center;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">🎉</div>
+                <div style="font-weight: 800; font-size: 1.2rem; color: var(--text); margin-bottom: 8px;">Thank you, ${firstName}!</div>
+                <div style="font-size: .9rem; color: var(--muted);">Your feedback has been sent to our team.</div>
+            </div>
+        `;
+    };
+
+    widgetWrap.appendChild(textArea);
+    widgetWrap.appendChild(submitBtn);
+    return widgetWrap;
+}
+// Add this line where you want the widget to show up on the home page
+contentWrap.appendChild(createSmartFeedbackWidget());
 
     if(window.STUDYLAB_FEEDBACK_URL) {
       fetch(window.STUDYLAB_FEEDBACK_URL, {
