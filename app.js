@@ -54,6 +54,64 @@ function el(t,p,ch){
 var pg="home",sub=null;
 window.currentPage = "home"; // expose for swipe navigation
 
+
+// --- PASTE THIS HERE ---
+function checkSignIn(onSuccess) {
+    var storedUser = localStorage.getItem('sl_user');
+    if (storedUser) {
+        onSuccess();
+        return;
+    }
+
+    var wrap = el("div", { 
+        css: { 
+            position: "fixed", top: "0", left: "0", width: "100%", height: "100%", 
+            background: "var(--bg)", display: "flex", alignItems: "center", 
+            justifyContent: "center", zIndex: "99999", padding: "20px", boxSizing: "border-box" 
+        } 
+    });
+
+    var card = el("div", { 
+        css: { 
+            background: "var(--card)", border: "2px solid var(--border)", 
+            borderRadius: "16px", padding: "32px 24px", width: "100%", maxWidth: "400px", 
+            textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.1)" 
+        } 
+    });
+
+    card.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "16px" }, txt: "👋" }));
+    card.appendChild(el("h2", { css: { margin: "0 0 8px 0", fontSize: "1.8rem", color: "var(--text)" }, txt: "Welcome to StudyLab" }));
+    card.appendChild(el("p", { css: { margin: "0 0 24px 0", fontSize: ".9rem", color: "var(--muted)" }, txt: "Enter your details to start preparing." }));
+
+    var nameInput = el("input", { css: { width: "100%", padding: "14px", borderRadius: "8px", border: "1px solid var(--border)", marginBottom: "16px", background: "var(--bg2)", color: "var(--text)", boxSizing: "border-box", fontSize: "1rem" } });
+    nameInput.placeholder = "Enter your full name";
+
+    var phoneInput = el("input", { type: "number", css: { width: "100%", padding: "14px", borderRadius: "8px", border: "1px solid var(--border)", marginBottom: "24px", background: "var(--bg2)", color: "var(--text)", boxSizing: "border-box", fontSize: "1rem" } });
+    phoneInput.placeholder = "10-digit mobile number";
+
+    var btn = el("button", { css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", fontSize: "1rem", cursor: "pointer" }, txt: "Continue" });
+
+    btn.onclick = function() {
+        if(nameInput.value.trim() === "" || phoneInput.value.trim() === "") {
+            alert("Please enter both Name and Phone number.");
+            return;
+        }
+        var userData = { name: nameInput.value.trim(), phone: phoneInput.value.trim() };
+        localStorage.setItem('sl_user', JSON.stringify(userData));
+        
+        wrap.remove(); // Remove overlay
+        onSuccess();   // Load the app!
+    };
+
+    card.appendChild(nameInput);
+    card.appendChild(phoneInput);
+    card.appendChild(btn);
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+}
+// -----------------------
+
+
 // --- NEW: CHALLENGE URL PARSER ---
 window.challengeData = null;
 (function(){
@@ -251,247 +309,156 @@ function showLoginModal(){
   overlay.appendChild(card);document.body.appendChild(overlay);
 }
 
-// Beautiful Name Input Modal
+// Beautiful Name & Phone Input Modal
 function showNameInputModal() {
   var overlay = el("div", {
     css: {
-      position: "fixed",
-      inset: "0",
-      background: "rgba(4,8,16,0.85)",
-      backdropFilter: "blur(12px)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: "10000",
-      animation: "fade-in 0.3s ease"
+      position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
+      backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
+      justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease"
     }
   });
   
   var card = el("div", {
     css: {
-      background: "var(--card)",
-      border: "1.5px solid var(--border2)",
-      borderRadius: "24px",
-      padding: "40px 36px",
-      maxWidth: "460px",
-      width: "90%",
-      boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-      animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)",
-      position: "relative"
+      background: "var(--card)", border: "1.5px solid var(--border2)",
+      borderRadius: "24px", padding: "40px 36px", maxWidth: "460px",
+      width: "90%", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+      animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)", position: "relative"
     }
   });
   
   // Header with icon
-  var header = el("div", {
-    css: {
-      textAlign: "center",
-      marginBottom: "32px"
-    }
-  });
-  
+  var header = el("div", { css: { textAlign: "center", marginBottom: "32px" } });
   var icon = el("div", {
     css: {
-      width: "80px",
-      height: "80px",
-      margin: "0 auto 20px",
-      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "2.5rem",
-      boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
+      width: "80px", height: "80px", margin: "0 auto 20px",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", borderRadius: "50%",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: "2.5rem", boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
       animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
     }
   }, "👋");
   
   header.appendChild(icon);
   header.appendChild(el("h2", {
-    css: {
-      fontFamily: "var(--font-display)",
-      fontSize: "1.6rem",
-      fontWeight: "700",
-      color: "var(--text)",
-      marginBottom: "8px"
-    }
+    css: { fontFamily: "var(--font-display)", fontSize: "1.6rem", fontWeight: "700", color: "var(--text)", marginBottom: "8px" }
   }, "Welcome to StudyLab!"));
-  
   header.appendChild(el("p", {
-    css: {
-      fontSize: ".9rem",
-      color: "var(--muted)",
-      lineHeight: "1.5"
-    }
+    css: { fontSize: ".9rem", color: "var(--muted)", lineHeight: "1.5" }
   }, "Let's personalize your learning experience"));
-  
   card.appendChild(header);
   
-  // Input container with floating label effect
-  var inputWrapper = el("div", {
-    css: {
-      position: "relative",
-      marginBottom: "28px"
-    }
-  });
+  // --- 1. NAME INPUT ---
+  var nameWrapper = el("div", { css: { position: "relative", marginBottom: "20px" } });
+  var nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.placeholder = " ";
+  nameInput.style.cssText = "width: 100%; padding: 16px 18px; border-radius: 14px; border: 2px solid var(--border2); background: var(--bg2); color: var(--text); font-family: var(--font-body); font-size: .95rem; outline: none; transition: all 0.3s ease; box-sizing: border-box;";
   
-  var input = document.createElement("input");
-  input.type = "text";
-  input.id = "name-input";
-  input.placeholder = " ";
-  input.autocomplete = "name";
-  input.style.cssText = `
-    width: 100%;
-    padding: 16px 18px;
-    border-radius: 14px;
-    border: 2px solid var(--border2);
-    background: var(--bg2);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: .95rem;
-    outline: none;
-    transition: all 0.3s ease;
-  `;
-  
-  var label = el("label", {
+  var nameLabel = el("label", {
     css: {
-      position: "absolute",
-      left: "18px",
-      top: "50%",
-      transform: "translateY(-50%)",
-      color: "var(--muted)",
-      fontSize: ".9rem",
-      pointerEvents: "none",
-      transition: "all 0.3s ease",
-      background: "var(--bg2)",
-      padding: "0 6px"
+      position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)",
+      color: "var(--muted)", fontSize: ".9rem", pointerEvents: "none",
+      transition: "all 0.3s ease", background: "var(--bg2)", padding: "0 6px"
     }
   }, "Your Name");
-  label.setAttribute("for", "name-input");
   
-  // Floating label animation
-  input.addEventListener("focus", function() {
-    this.style.borderColor = "var(--accent)";
-    this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
-    label.style.top = "0";
-    label.style.fontSize = ".75rem";
-    label.style.color = "var(--accent)";
-    label.style.fontWeight = "600";
+  nameInput.addEventListener("focus", function() {
+    this.style.borderColor = "var(--accent)"; this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
+    nameLabel.style.top = "0"; nameLabel.style.fontSize = ".75rem"; nameLabel.style.color = "var(--accent)"; nameLabel.style.fontWeight = "600";
+  });
+  nameInput.addEventListener("blur", function() {
+    this.style.borderColor = "var(--border2)"; this.style.boxShadow = "none";
+    if (!this.value) { nameLabel.style.top = "50%"; nameLabel.style.fontSize = ".9rem"; nameLabel.style.color = "var(--muted)"; nameLabel.style.fontWeight = "400"; }
+  });
+  nameInput.addEventListener("input", function() {
+    if (this.value) { nameLabel.style.top = "0"; nameLabel.style.fontSize = ".75rem"; nameLabel.style.color = "var(--accent)"; nameLabel.style.fontWeight = "600"; }
   });
   
-  input.addEventListener("blur", function() {
-    this.style.borderColor = "var(--border2)";
-    this.style.boxShadow = "none";
-    if (!this.value) {
-      label.style.top = "50%";
-      label.style.fontSize = ".9rem";
-      label.style.color = "var(--muted)";
-      label.style.fontWeight = "400";
+  nameWrapper.appendChild(nameInput);
+  nameWrapper.appendChild(nameLabel);
+  card.appendChild(nameWrapper);
+
+  // --- 2. PHONE INPUT ---
+  var phoneWrapper = el("div", { css: { position: "relative", marginBottom: "28px" } });
+  var phoneInput = document.createElement("input");
+  phoneInput.type = "tel"; // Shows number keyboard on mobile
+  phoneInput.placeholder = " ";
+  phoneInput.style.cssText = "width: 100%; padding: 16px 18px; border-radius: 14px; border: 2px solid var(--border2); background: var(--bg2); color: var(--text); font-family: var(--font-body); font-size: .95rem; outline: none; transition: all 0.3s ease; box-sizing: border-box;";
+  
+  var phoneLabel = el("label", {
+    css: {
+      position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)",
+      color: "var(--muted)", fontSize: ".9rem", pointerEvents: "none",
+      transition: "all 0.3s ease", background: "var(--bg2)", padding: "0 6px"
     }
+  }, "Phone Number");
+  
+  phoneInput.addEventListener("focus", function() {
+    this.style.borderColor = "var(--accent)"; this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
+    phoneLabel.style.top = "0"; phoneLabel.style.fontSize = ".75rem"; phoneLabel.style.color = "var(--accent)"; phoneLabel.style.fontWeight = "600";
+  });
+  phoneInput.addEventListener("blur", function() {
+    this.style.borderColor = "var(--border2)"; this.style.boxShadow = "none";
+    if (!this.value) { phoneLabel.style.top = "50%"; phoneLabel.style.fontSize = ".9rem"; phoneLabel.style.color = "var(--muted)"; phoneLabel.style.fontWeight = "400"; }
+  });
+  phoneInput.addEventListener("input", function() {
+    if (this.value) { phoneLabel.style.top = "0"; phoneLabel.style.fontSize = ".75rem"; phoneLabel.style.color = "var(--accent)"; phoneLabel.style.fontWeight = "600"; }
   });
   
-  input.addEventListener("input", function() {
-    if (this.value) {
-      label.style.top = "0";
-      label.style.fontSize = ".75rem";
-      label.style.color = "var(--accent)";
-      label.style.fontWeight = "600";
-    }
-  });
-  
-  inputWrapper.appendChild(input);
-  inputWrapper.appendChild(label);
-  card.appendChild(inputWrapper);
+  phoneWrapper.appendChild(phoneInput);
+  phoneWrapper.appendChild(phoneLabel);
+  card.appendChild(phoneWrapper);
   
   // Helper text
   card.appendChild(el("p", {
-    css: {
-      fontSize: ".78rem",
-      color: "var(--subtle)",
-      marginBottom: "24px",
-      textAlign: "center"
-    }
+    css: { fontSize: ".78rem", color: "var(--subtle)", marginBottom: "24px", textAlign: "center" }
   }, "✨ We'll use this to personalize your experience"));
   
   // Buttons
-  var btnContainer = el("div", {
-    css: {
-      display: "flex",
-      gap: "12px"
-    }
-  });
+  var btnContainer = el("div", { css: { display: "flex", gap: "12px" } });
   
   var skipBtn = el("button", {
     css: {
-      flex: "1",
-      padding: "14px",
-      borderRadius: "12px",
-      border: "1.5px solid var(--border2)",
-      background: "transparent",
-      color: "var(--muted)",
-      fontFamily: "var(--font-body)",
-      fontSize: ".88rem",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.2s ease"
+      flex: "1", padding: "14px", borderRadius: "12px", border: "1.5px solid var(--border2)",
+      background: "transparent", color: "var(--muted)", fontFamily: "var(--font-body)",
+      fontSize: ".88rem", fontWeight: "600", cursor: "pointer", transition: "all 0.2s ease"
     },
     onclick: function() {
-      finishGuestLogin("Guest User");
+      finishGuestLogin("Guest User", "");
       document.body.removeChild(overlay);
     }
   }, "Skip");
   
-  skipBtn.addEventListener("mouseenter", function() {
-    this.style.borderColor = "var(--accent)";
-    this.style.color = "var(--text)";
-  });
-  
-  skipBtn.addEventListener("mouseleave", function() {
-    this.style.borderColor = "var(--border2)";
-    this.style.color = "var(--muted)";
-  });
+  skipBtn.addEventListener("mouseenter", function() { this.style.borderColor = "var(--accent)"; this.style.color = "var(--text)"; });
+  skipBtn.addEventListener("mouseleave", function() { this.style.borderColor = "var(--border2)"; this.style.color = "var(--muted)"; });
   
   var continueBtn = el("button", {
     css: {
-      flex: "2",
-      padding: "14px",
-      borderRadius: "12px",
-      border: "none",
-      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
-      color: "#fff",
-      fontFamily: "var(--font-body)",
-      fontSize: ".92rem",
-      fontWeight: "700",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "8px"
+      flex: "2", padding: "14px", borderRadius: "12px", border: "none",
+      background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff",
+      fontFamily: "var(--font-body)", fontSize: ".92rem", fontWeight: "700",
+      cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
+      display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
     },
     onclick: function() {
-      var name = input.value.trim() || "Guest User";
-      finishGuestLogin(name);
+      var name = nameInput.value.trim() || "Guest User";
+      var phone = phoneInput.value.trim() || "";
+      
+      // Basic validation if they try to click continue without typing
+      if(nameInput.value.trim() === "" || phoneInput.value.trim() === "") {
+          alert("Please enter both Name and Phone number to continue.");
+          return;
+      }
+
+      finishGuestLogin(name, phone);
       document.body.removeChild(overlay);
     }
   }, "Continue 🚀");
   
-  continueBtn.addEventListener("mouseenter", function() {
-    this.style.transform = "translateY(-2px)";
-    this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)";
-  });
-  
-  continueBtn.addEventListener("mouseleave", function() {
-    this.style.transform = "translateY(0)";
-    this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)";
-  });
-  
-  // Enter key support
-  input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-      continueBtn.click();
-    }
-  });
+  continueBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; });
+  continueBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; });
   
   btnContainer.appendChild(skipBtn);
   btnContainer.appendChild(continueBtn);
@@ -500,42 +467,31 @@ function showNameInputModal() {
   overlay.appendChild(card);
   document.body.appendChild(overlay);
   
-  // Focus input after animation
-  setTimeout(function() {
-    input.focus();
-  }, 400);
-  
-  // Add animations
-  var style = document.createElement('style');
-  style.textContent = `
-    @keyframes bounce-in {
-      0% { transform: scale(0); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-  `;
-  document.head.appendChild(style);
+  setTimeout(function() { nameInput.focus(); }, 400);
 }
 
-function finishGuestLogin(name) {
+// Updated Login Finisher to handle Phone Number
+function finishGuestLogin(name, phone) {
   window.currentUser = {
     displayName: name,
+    phoneNumber: phone,
     email: "guest@studylab.local",
     photoURL: null,
     isGuest: true
   };
+  
   Sv.set("guest_user", window.currentUser);
+  
+  // This explicitly saves it so the Feedback Widget can find it effortlessly!
+  localStorage.setItem('sl_user', JSON.stringify({ name: name, phone: phone }));
+  
   toast("Welcome, " + name + "! 👋", "#4ade80");
 
-  // Subscribe to OneSignal notifications on login
   try {
     if (window.OneSignalDeferred) {
       window.OneSignalDeferred.push(async function(OneSignal) {
         var permission = await OneSignal.Notifications.permission;
-        if (!permission) {
-          await OneSignal.Notifications.requestPermission();
-        }
-        // Tag user with their name for personalized notifications
+        if (!permission) await OneSignal.Notifications.requestPermission();
         await OneSignal.User.addTag("name", name);
         await OneSignal.User.addTag("type", "guest");
       });
@@ -544,6 +500,8 @@ function finishGuestLogin(name) {
 
   render();
 }
+
+
 
 // Beautiful Sign Out Confirmation Modal
 function showSignOutModal() {
@@ -1538,11 +1496,17 @@ function showIOSInstallPrompt() {
 
 // 1. Initialize the app history on load
 window.addEventListener('load', function() {
-  // Push an invisible "trap" state. 
-  history.replaceState({ page: 'exit_trap' }, "");
-  // Push the actual Home page state on top of it.
-  history.pushState({ page: 'home', sub: null }, "");
+  checkSignIn(function() {
+      // Push an invisible "trap" state. 
+      history.replaceState({ page: 'exit_trap' }, "");
+      // Push the actual Home page state on top of it.
+      history.pushState({ page: 'home', sub: null }, "");
+      
+      // Start the app!
+      render();
+  });
 });
+
 
 // 2. Listen for the mobile hardware Back Button
 window.addEventListener('popstate', function(e) {
