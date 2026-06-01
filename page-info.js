@@ -115,118 +115,203 @@ function pgAbout(){
   contactBox.appendChild(contactLinks);
   wrap.appendChild(contactBox);
 
-// ── Share card ──
+// ── Share card (Premium) ──
 var APP_URL = "https://studylab-inky.vercel.app";
 var QR_IMG = "https://raw.githubusercontent.com/jaglandivyansh/studylab/main/assets/studylab-qr.png";
 
-var shareBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"20px",padding:"0",marginBottom:"18px",overflow:"hidden",position:"relative"}});
+var shareBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"24px",marginBottom:"18px",overflow:"hidden",position:"relative"}});
 
 // Top gradient bar
-shareBox.appendChild(el("div",{css:{height:"3px",background:"linear-gradient(90deg,var(--accent),#7EB3FF,#a78bfa,transparent)"}}));
+shareBox.appendChild(el("div",{css:{height:"3px",background:"linear-gradient(90deg,#4F8EF7,#a78bfa,#f472b6,transparent)"}}));
 
-var sharePad = el("div",{css:{padding:"24px"}});
+var sharePad = el("div",{css:{padding:"24px 20px"}});
 
-// Header row
-var shareHeader = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"6px"}});
-shareHeader.appendChild(el("div",{css:{fontSize:".65rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",fontWeight:"700",fontFamily:"var(--font-display)"}},  "✦ Share StudyLab"));
-shareHeader.appendChild(el("div",{css:{fontSize:".72rem",background:"var(--accent)22",color:"var(--accent)",padding:"3px 10px",borderRadius:"99px",fontWeight:"700",letterSpacing:".04em"}},"FREE · NO ADS"));
-sharePad.appendChild(shareHeader);
+// ── Hero header ──
+var heroHead = el("div",{css:{textAlign:"center",marginBottom:"20px",position:"relative"}});
 
-sharePad.appendChild(el("div",{css:{fontSize:".88rem",color:"var(--muted)",marginBottom:"20px",lineHeight:"1.65",fontWeight:"300"}},"Help a fellow aspirant discover StudyLab. Share it — it's completely free. 🎯"));
+// Sparkles
+var sp1 = el("span",{css:{position:"absolute",top:"0",right:"30px",fontSize:"1.2rem",color:"#a78bfa"}},"✦");
+var sp2 = el("span",{css:{position:"absolute",top:"18px",right:"12px",fontSize:".7rem",color:"#f472b6"}},"✦");
+var sp3 = el("span",{css:{position:"absolute",top:"4px",left:"20px",fontSize:"1rem",color:"#4F8EF7"}},"✦");
+heroHead.appendChild(sp1); heroHead.appendChild(sp2); heroHead.appendChild(sp3);
 
-// ── Button row ──
-var shareRow = el("div",{css:{display:"flex",gap:"10px",flexWrap:"wrap",marginBottom:"20px"}});
+// Paper plane icon
+heroHead.appendChild(el("div",{css:{fontSize:"1.8rem",marginBottom:"6px"}},"✉️"));
 
-// 📤 Share App (native)
-var shareBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"linear-gradient(135deg,var(--accent),#7EB3FF)",border:"none",color:"#fff",fontSize:".85rem",fontWeight:"700",cursor:"pointer",boxShadow:"0 4px 14px rgba(79,142,247,0.35)"},onclick:function(){
+// Title
+var titleRow = el("div",{css:{fontSize:"1.6rem",fontWeight:"800",letterSpacing:"-.03em",fontFamily:"var(--font-display)",marginBottom:"8px",lineHeight:"1.2"}});
+titleRow.appendChild(el("span",{},"Share "));
+titleRow.appendChild(el("span",{css:{color:"var(--accent)"}},"StudyLab"));
+heroHead.appendChild(titleRow);
+
+heroHead.appendChild(el("div",{css:{fontSize:".88rem",color:"var(--muted)",lineHeight:"1.65",maxWidth:"320px",margin:"0 auto",fontWeight:"300"}},"Help students discover free study resources, notes, PYQs, and exam updates."));
+
+// Chips row
+var chipsRow = el("div",{css:{display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"center",marginTop:"14px"}});
+[
+  {icon:"✅",label:"Free Forever",color:"#22c55e"},
+  {icon:"🛡️",label:"No Ads",color:"#4F8EF7"},
+  {icon:"⚡",label:"Instant Access",color:"#f59e0b"},
+  {icon:"🎓",label:"Student Friendly",color:"#a78bfa"}
+].forEach(function(c){
+  var chip = el("div",{css:{display:"inline-flex",alignItems:"center",gap:"5px",padding:"5px 12px",borderRadius:"99px",background:"var(--bg2)",border:"1px solid var(--border2)",fontSize:".72rem",fontWeight:"600"}});
+  chip.appendChild(el("span",{css:{fontSize:".8rem"}},c.icon));
+  chip.appendChild(el("span",{css:{color:c.color}},c.label));
+  chipsRow.appendChild(chip);
+});
+heroHead.appendChild(chipsRow);
+sharePad.appendChild(heroHead);
+
+// ── QR + Scan info row ──
+var qrRow = el("div",{css:{display:"flex",alignItems:"center",gap:"0",background:"var(--bg2)",borderRadius:"20px",border:"1px solid var(--border2)",overflow:"hidden",marginBottom:"16px"}});
+
+// Left: QR with scanner corners
+var qrLeft = el("div",{css:{flex:"0 0 auto",padding:"16px",position:"relative",display:"flex",alignItems:"center",justifyContent:"center"}});
+
+// Scanner corner SVG overlay
+var scannerWrap = el("div",{css:{position:"relative",display:"inline-block"}});
+
+// Corner brackets
+var cornerCSS = {position:"absolute",width:"22px",height:"22px",borderColor:"#4F8EF7",borderStyle:"solid",borderWidth:"0"};
+var tl = el("div",{css:Object.assign({},cornerCSS,{top:"-2px",left:"-2px",borderTopWidth:"3px",borderLeftWidth:"3px",borderRadius:"4px 0 0 0"})});
+var tr = el("div",{css:Object.assign({},cornerCSS,{top:"-2px",right:"-2px",borderTopWidth:"3px",borderRightWidth:"3px",borderRadius:"0 4px 0 0"})});
+var bl = el("div",{css:Object.assign({},cornerCSS,{bottom:"-2px",left:"-2px",borderBottomWidth:"3px",borderLeftWidth:"3px",borderRadius:"0 0 0 4px"})});
+var br = el("div",{css:Object.assign({},cornerCSS,{bottom:"-2px",right:"-2px",borderBottomWidth:"3px",borderRightWidth:"3px",borderRadius:"0 0 4px 0"})});
+
+var qrImgEl = el("img",{css:{width:"140px",height:"140px",display:"block",borderRadius:"12px"}});
+qrImgEl.src = QR_IMG;
+qrImgEl.alt = "StudyLab QR";
+
+scannerWrap.appendChild(tl);
+scannerWrap.appendChild(tr);
+scannerWrap.appendChild(bl);
+scannerWrap.appendChild(br);
+scannerWrap.appendChild(qrImgEl);
+qrLeft.appendChild(scannerWrap);
+qrRow.appendChild(qrLeft);
+
+// Right: Scan info + feature icons
+var qrRight = el("div",{css:{flex:"1",padding:"16px 16px 16px 8px"}});
+
+// Scan icon circle
+var scanIcon = el("div",{css:{width:"44px",height:"44px",borderRadius:"50%",background:"#a78bfa18",border:"1.5px solid #a78bfa44",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",marginBottom:"10px"}},"⬛");
+qrRight.appendChild(scanIcon);
+
+qrRight.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"4px",fontFamily:"var(--font-display)"}},"Scan & Start Learning"));
+qrRight.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--muted)",lineHeight:"1.5",marginBottom:"12px",fontWeight:"300"}},"Open StudyLab instantly on any device."));
+
+// Feature mini icons
+var featRow = el("div",{css:{display:"flex",gap:"8px",flexWrap:"wrap"}});
+[
+  {icon:"📚",label:"MCQs"},
+  {icon:"📰",label:"Current Affairs"},
+  {icon:"⚡",label:"Quiz"},
+  {icon:"🎯",label:"Exam Prep"}
+].forEach(function(f){
+  var fc = el("div",{css:{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"10px",padding:"8px 6px",minWidth:"48px"}});
+  fc.appendChild(el("span",{css:{fontSize:"1.1rem"}},f.icon));
+  fc.appendChild(el("span",{css:{fontSize:".6rem",color:"var(--muted)",fontWeight:"600",textAlign:"center",lineHeight:"1.2"}},f.label));
+  featRow.appendChild(fc);
+});
+qrRight.appendChild(featRow);
+qrRow.appendChild(qrRight);
+sharePad.appendChild(qrRow);
+
+// ── Share buttons grid ──
+var btnGrid = el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"10px"}});
+
+// Share StudyLab (full width native share)
+var mainShareBtn = el("button",{css:{gridColumn:"1 / -1",display:"flex",alignItems:"center",gap:"14px",padding:"14px 20px",borderRadius:"14px",background:"linear-gradient(135deg,#4F8EF7,#3b82f6)",border:"none",color:"#fff",cursor:"pointer",textAlign:"left",boxShadow:"0 4px 18px rgba(79,142,247,0.4)"},onclick:function(){
   if(navigator.share){
-    navigator.share({title:"StudyLab — Free Govt Exam Prep",text:"📚 Free MCQ app for UPSC, SSC, RRB & State PCS. No ads, no paywall!\n",url:APP_URL}).catch(function(){});
+    navigator.share({title:"StudyLab — Free Govt Exam Prep",text:"📚 Free MCQ app for UPSC, SSC, RRB & State PCS. No ads, no paywall!",url:APP_URL}).catch(function(){});
   } else {
     navigator.clipboard.writeText(APP_URL).then(function(){
-      copyBtn.innerHTML="✅ Copied!";
-      setTimeout(function(){copyBtn.innerHTML="🔗 Copy Link";},2000);
+      mainShareBtn.style.background="linear-gradient(135deg,#22c55e,#16a34a)";
+      setTimeout(function(){mainShareBtn.style.background="linear-gradient(135deg,#4F8EF7,#3b82f6)";},2000);
     });
   }
 }});
-shareBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"📤"));
-shareBtn.appendChild(el("span",{},"Share App"));
-shareRow.appendChild(shareBtn);
+var msIconBox = el("div",{css:{width:"42px",height:"42px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:"0"}},"📤");
+mainShareBtn.appendChild(msIconBox);
+var msText = el("div",{css:{flex:"1"}});
+msText.appendChild(el("div",{css:{fontSize:".95rem",fontWeight:"800",letterSpacing:"-.01em"}},"Share StudyLab"));
+msText.appendChild(el("div",{css:{fontSize:".75rem",opacity:".8",fontWeight:"300"}},"Share with friends"));
+mainShareBtn.appendChild(msText);
+mainShareBtn.appendChild(el("span",{css:{fontSize:".85rem",opacity:".7"}},"›"));
+btnGrid.appendChild(mainShareBtn);
 
-// 🔗 Copy Link
-var copyBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"var(--bg2)",border:"1px solid var(--border2)",color:"var(--text)",fontSize:".85rem",fontWeight:"600",cursor:"pointer"},onclick:function(){
+// Copy Link
+var copyBtn2 = el("button",{css:{display:"flex",alignItems:"center",gap:"12px",padding:"14px 16px",borderRadius:"14px",background:"var(--bg2)",border:"1px solid var(--border2)",color:"var(--text)",cursor:"pointer",textAlign:"left"},onclick:function(){
   navigator.clipboard.writeText(APP_URL).then(function(){
-    copyBtn.innerHTML="✅ Copied!";
-    setTimeout(function(){copyBtn.innerHTML="🔗 Copy Link";},2000);
+    copyBtn2.style.borderColor="#22c55e";
+    cpLabel.textContent="Copied!";
+    setTimeout(function(){copyBtn2.style.borderColor="var(--border2)"; cpLabel.textContent="Copy Link";},2000);
   });
 }});
-copyBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"🔗"));
-copyBtn.appendChild(el("span",{},"Copy Link"));
-shareRow.appendChild(copyBtn);
+var cpIconBox = el("div",{css:{width:"38px",height:"38px",borderRadius:"50%",background:"#4F8EF718",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"🔗");
+copyBtn2.appendChild(cpIconBox);
+var cpText = el("div",{css:{flex:"1"}});
+var cpLabel = el("div",{css:{fontSize:".88rem",fontWeight:"700"}},"Copy Link");
+cpText.appendChild(cpLabel);
+cpText.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",fontWeight:"300"}},"Copy and share anywhere"));
+copyBtn2.appendChild(cpText);
+copyBtn2.appendChild(el("span",{css:{fontSize:".85rem",color:"var(--muted)"}},"›"));
+btnGrid.appendChild(copyBtn2);
 
-// 💬 WhatsApp
-var waBtn = el("a",{href:"https://wa.me/?text="+encodeURIComponent("📚 *StudyLab* — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads  ✅ No paywall  ✅ AI Doubt Solver\n\n👉 "+APP_URL),target:"_blank",rel:"noopener",css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"#25d36618",border:"1px solid #25d36640",color:"#25d366",fontSize:".85rem",fontWeight:"600",textDecoration:"none"}});
-waBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"💬"));
-waBtn.appendChild(el("span",{},"WhatsApp"));
-shareRow.appendChild(waBtn);
+// WhatsApp
+var waBtn2 = el("a",{href:"https://wa.me/?text="+encodeURIComponent("📚 *StudyLab* — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads  ✅ No paywall  ✅ AI Doubt Solver\n\n👉 "+APP_URL),target:"_blank",rel:"noopener",css:{display:"flex",alignItems:"center",gap:"12px",padding:"14px 16px",borderRadius:"14px",background:"#25d36614",border:"1px solid #25d36630",color:"var(--text)",textDecoration:"none",textAlign:"left"}});
+var waIconBox = el("div",{css:{width:"38px",height:"38px",borderRadius:"50%",background:"#25d366",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"💬");
+waBtn2.appendChild(waIconBox);
+var waText = el("div",{css:{flex:"1"}});
+waText.appendChild(el("div",{css:{fontSize:".88rem",fontWeight:"700",color:"#25d366"}},"WhatsApp"));
+waText.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",fontWeight:"300"}},"Share on WhatsApp"));
+waBtn2.appendChild(waText);
+waBtn2.appendChild(el("span",{css:{fontSize:".85rem",color:"var(--muted)"}},"›"));
+btnGrid.appendChild(waBtn2);
 
-// 📱 Telegram
-var tgBtn = el("a",{href:"https://t.me/share/url?url="+encodeURIComponent(APP_URL)+"&text="+encodeURIComponent("📚 StudyLab — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads ✅ No paywall ✅ AI Doubt Solver"),target:"_blank",rel:"noopener",css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"#229ED918",border:"1px solid #229ED940",color:"#229ED9",fontSize:".85rem",fontWeight:"600",textDecoration:"none"}});
-tgBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"✈️"));
-tgBtn.appendChild(el("span",{},"Telegram"));
-shareRow.appendChild(tgBtn);
+// Telegram
+var tgBtn2 = el("a",{href:"https://t.me/share/url?url="+encodeURIComponent(APP_URL)+"&text="+encodeURIComponent("📚 StudyLab — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads ✅ No paywall ✅ AI Doubt Solver"),target:"_blank",rel:"noopener",css:{display:"flex",alignItems:"center",gap:"12px",padding:"14px 16px",borderRadius:"14px",background:"#229ED914",border:"1px solid #229ED930",color:"var(--text)",textDecoration:"none",textAlign:"left"}});
+var tgIconBox = el("div",{css:{width:"38px",height:"38px",borderRadius:"50%",background:"#229ED9",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"✈️");
+tgBtn2.appendChild(tgIconBox);
+var tgText = el("div",{css:{flex:"1"}});
+tgText.appendChild(el("div",{css:{fontSize:".88rem",fontWeight:"700",color:"#229ED9"}},"Telegram"));
+tgText.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",fontWeight:"300"}},"Share on Telegram"));
+tgBtn2.appendChild(tgText);
+tgBtn2.appendChild(el("span",{css:{fontSize:".85rem",color:"var(--muted)"}},"›"));
+btnGrid.appendChild(tgBtn2);
 
-sharePad.appendChild(shareRow);
+sharePad.appendChild(btnGrid);
 
-// ── QR Section ──
-var qrVisible = false;
+// ── Save QR row ──
+var saveRow = el("div",{css:{display:"flex",alignItems:"center",gap:"14px",padding:"14px 16px",borderRadius:"14px",background:"var(--bg2)",border:"1px solid var(--border2)",marginBottom:"16px"}});
+var saveIconBox = el("div",{css:{width:"38px",height:"38px",borderRadius:"50%",background:"#a78bfa18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"⬇️");
+saveRow.appendChild(saveIconBox);
+var saveText = el("div",{css:{flex:"1"}});
+saveText.appendChild(el("div",{css:{fontSize:".88rem",fontWeight:"700"}},"Save QR Code"));
+saveText.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",fontWeight:"300"}},"Download and share anywhere"));
+saveRow.appendChild(saveText);
+var pngBtn = el("a",{href:QR_IMG,download:"studylab-qr.png",css:{display:"inline-flex",alignItems:"center",gap:"6px",padding:"8px 16px",borderRadius:"10px",background:"var(--card)",border:"1px solid #a78bfa55",color:"#a78bfa",fontSize:".8rem",fontWeight:"700",textDecoration:"none",flexShrink:"0"}});
+pngBtn.appendChild(el("span",{css:{fontSize:".9rem"}},"🖼️"));
+pngBtn.appendChild(el("span",{},"PNG"));
+saveRow.appendChild(pngBtn);
+sharePad.appendChild(saveRow);
 
-var qrToggleRow = el("div",{css:{display:"flex",alignItems:"center",gap:"12px",cursor:"pointer",padding:"14px 16px",borderRadius:"14px",background:"var(--bg2)",border:"1px solid var(--border2)",transition:"border-color .2s"},onclick:function(){
-  qrVisible = !qrVisible;
-  qrPanel.style.display = qrVisible ? "block" : "none";
-  qrArrow.textContent = qrVisible ? "▲" : "▼";
-  qrToggleRow.style.borderColor = qrVisible ? "var(--accent)" : "var(--border2)";
-}});
-
-var qrIconBox = el("div",{css:{width:"36px",height:"36px",borderRadius:"10px",background:"var(--accent)18",border:"1px solid var(--accent)33",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"▦");
-qrToggleRow.appendChild(qrIconBox);
-
-var qrTextBlock = el("div",{css:{flex:"1"}});
-qrTextBlock.appendChild(el("div",{css:{fontSize:".88rem",fontWeight:"700",marginBottom:"2px"}},"Show QR Code"));
-qrTextBlock.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--muted)",fontWeight:"300"}},"Scan to open StudyLab instantly"));
-qrToggleRow.appendChild(qrTextBlock);
-
-var qrArrow = el("span",{css:{fontSize:".65rem",color:"var(--muted)",flexShrink:"0"}},"▼");
-qrToggleRow.appendChild(qrArrow);
-sharePad.appendChild(qrToggleRow);
-
-// QR Panel (hidden by default)
-var qrPanel = el("div",{css:{display:"none",marginTop:"14px",borderRadius:"16px",border:"1px solid var(--border)",overflow:"hidden"}});
-
-// QR inner — two column layout
-var qrInner = el("div",{css:{display:"flex",alignItems:"center",gap:"0",flexWrap:"wrap"}});
-
-// Left: QR image
-var qrImgWrap = el("div",{css:{flex:"0 0 auto",padding:"20px",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}});
-var qrImg = el("img",{css:{width:"150px",height:"150px",display:"block",borderRadius:"8px"}});
-qrImg.src = QR_IMG;
-qrImg.alt = "StudyLab QR Code";
-qrImgWrap.appendChild(qrImg);
-qrInner.appendChild(qrImgWrap);
-
-// Right: Info
-var qrInfo = el("div",{css:{flex:"1",padding:"20px",minWidth:"160px",background:"var(--bg2)"}});
-qrInfo.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"6px",fontFamily:"var(--font-display)"}},"StudyLab"));
-qrInfo.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"}},"Point your camera at the QR code to open StudyLab instantly on any device."));
-
-// Download QR button
-var dlBtn = el("a",{href:QR_IMG,download:"studylab-qr.png",css:{display:"inline-flex",alignItems:"center",gap:"6px",padding:"8px 14px",borderRadius:"10px",background:"var(--accent)18",border:"1px solid var(--accent)33",color:"var(--accent)",fontSize:".78rem",fontWeight:"700",textDecoration:"none"}});
-dlBtn.appendChild(el("span",{},"⬇"));
-dlBtn.appendChild(el("span",{},"Save QR"));
-qrInfo.appendChild(dlBtn);
-
-qrInner.appendChild(qrInfo);
-qrPanel.appendChild(qrInner);
-sharePad.appendChild(qrPanel);
+// ── Bottom stats row ──
+var statsRow2 = el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"8px"}});
+var tot2 = SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
+[
+  {val:tot2+"+" ,label:"Resources",color:"#a78bfa",icon:"📚"},
+  {val:"Daily",label:"Updates",color:"#f59e0b",icon:"⚡"},
+  {val:"Exam",label:"Focused",color:"#f472b6",icon:"🎯"},
+  {val:"100%",label:"Free · No Ads",color:"#22c55e",icon:"🎁"}
+].forEach(function(s){
+  var sc = el("div",{css:{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"14px",padding:"12px 8px",textAlign:"center"}});
+  sc.appendChild(el("div",{css:{fontSize:"1.2rem",marginBottom:"4px"}},s.icon));
+  sc.appendChild(el("div",{css:{fontSize:".9rem",fontWeight:"800",color:s.color,fontFamily:"var(--font-display)",letterSpacing:"-.02em"}},s.val));
+  sc.appendChild(el("div",{css:{fontSize:".62rem",color:"var(--muted)",fontWeight:"600",marginTop:"2px"}},s.label));
+  statsRow2.appendChild(sc);
+});
+sharePad.appendChild(statsRow2);
 
 shareBox.appendChild(sharePad);
 wrap.appendChild(shareBox);
