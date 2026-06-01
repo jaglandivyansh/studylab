@@ -1154,15 +1154,16 @@ function showExitConfirmationModal() {
             
             var bye = document.createElement('div');
             bye.style.cssText = 'position:fixed;inset:0; background:var(--bg);z-index:999999;display:flex; flex-direction:column; alignItems:center; justify-content:center;';
-            bye.innerHTML = '<div style="font-size:3rem; margin-bottom: 16px;">👋</div><div style="font-family:var(--font-display); font-size:1.2rem;font-weight:700;color:var(--text);">Goodbye!</div><div style="font-size:.85rem;color:var(--muted); margin-top:8px;">See you next time</div>';
-            document.body.appendChild(bye);
+bye.innerHTML = '<div style="font-size:3rem; margin-bottom: 16px;">👋</div><div style="font-family:var(--font-display); font-size:1.2rem;font-weight:700;color:var(--text);">Goodbye!</div><div style="font-size:.85rem;color:var(--muted); margin-top:8px;">See you next time</div>';
+document.body.appendChild(bye);
 
-            try { window.close(); } catch(e) {}
-            setTimeout(function() {
-                history.replaceState({ page: 'exit_trap' }, "");
-                history.back();
-                setTimeout(function() {
-                    bye.innerHTML = '<div style="font-size:2.5rem; margin-bottom: 16px;">🚪</div><div style="font-family:var(--font-display); font-size:1.1rem;font-weight:700;color:var(--text);text-align:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button onclick="window.location.reload()" style="margin-top:20px;padding:10px 24px;border-radius: 10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text); font-size:.9rem;font-weight:600;cursor:pointer;">Go Back Instead</button>';
+try { window.close(); } catch(e) {}
+setTimeout(function() {
+history.replaceState({ page: 'exit_trap' }, "");
+history.back();
+setTimeout(function() {
+
+bye.innerHTML = '<div style="font-size:2.5rem; margin-bottom: 16px;">🚪</div><div style="font-family:var(--font-display); font-size:1.1rem;font-weight:700;color:var(--text);text-align:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button onclick="window.location.reload()" style="margin-top:20px;padding:10px 24px;border-radius: 10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text); font-size:.9rem;font-weight:600;cursor:pointer;">Go Back Instead</button>';
                 }, 800);
             }, 100);
         }
