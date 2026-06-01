@@ -1578,18 +1578,17 @@ var AppTour = {
   currentIndex: 0,
   activeTarget: null,
   
-  prompt: function() {
-    // STRICT LOCK: If tour is done OR if user is signed in OR not on home page -> SKIP EVERYTHING
+   prompt: function() {
+    // 1. THE STRICT LOCK: Skip if tour is done OR if user is signed in
     var isTourDone = localStorage.getItem('studylab_tour_done');
     var isUserSaved = localStorage.getItem('sl_user');
-    var isGuest = Sv.get("guest_user");
 
-    if (isTourDone || isUserSaved || isGuest || pg !== "home") {
+    if (isTourDone || isUserSaved || pg !== "home") {
       this.triggerNextStep(); 
       return;
     }
 
-    // Lock it immediately so it NEVER shows again on refresh
+    // 2. INSTANT MEMORY: Mark as seen instantly so it never bothers them again
     localStorage.setItem('studylab_tour_done', 'true');
 
     var overlay = el("div", {
@@ -1609,13 +1608,19 @@ var AppTour = {
     var skipBtn = el("button", { 
       css: { flex: "1", padding: "12px", borderRadius: "12px", border: "1.5px solid var(--border2)", background: "transparent", color: "var(--muted)", fontWeight: "600", cursor: "pointer" }, 
       txt: "Skip", 
-      onclick: () => { document.body.removeChild(overlay); this.triggerNextStep(); } 
+      onclick: () => { 
+          document.body.removeChild(overlay); 
+          this.triggerNextStep(); // Route to Login/Install
+      } 
     });
     
     var startBtn = el("button", { 
       css: { flex: "2", padding: "12px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(79,142,247,0.3)" }, 
       txt: "Start Tour 🚀", 
-      onclick: () => { document.body.removeChild(overlay); this.init(); } 
+      onclick: () => { 
+          document.body.removeChild(overlay); 
+          this.init(); 
+      } 
     });
 
     btnRow.appendChild(skipBtn);
