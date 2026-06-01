@@ -116,7 +116,7 @@ function pgAbout(){
   wrap.appendChild(contactBox);
 
 // ── Share card ──
-var APP_URL = "https://jaglandivyansh.github.io/studylab/";
+var APP_URL = "https://studylab-inky.vercel.app";
 var QR_IMG = "https://raw.githubusercontent.com/jaglandivyansh/studylab/main/assets/studylab-qr.png";
 
 var shareBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"20px",padding:"0",marginBottom:"18px",overflow:"hidden",position:"relative"}});
