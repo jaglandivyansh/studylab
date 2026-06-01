@@ -55,62 +55,6 @@ var pg="home",sub=null;
 window.currentPage = "home"; // expose for swipe navigation
 
 
-// --- PASTE THIS HERE ---
-function checkSignIn(onSuccess) {
-    var storedUser = localStorage.getItem('sl_user');
-    if (storedUser) {
-        onSuccess();
-        return;
-    }
-
-    var wrap = el("div", { 
-        css: { 
-            position: "fixed", top: "0", left: "0", width: "100%", height: "100%", 
-            background: "var(--bg)", display: "flex", alignItems: "center", 
-            justifyContent: "center", zIndex: "99999", padding: "20px", boxSizing: "border-box" 
-        } 
-    });
-
-    var card = el("div", { 
-        css: { 
-            background: "var(--card)", border: "2px solid var(--border)", 
-            borderRadius: "16px", padding: "32px 24px", width: "100%", maxWidth: "400px", 
-            textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.1)" 
-        } 
-    });
-
-    card.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "16px" }, txt: "👋" }));
-    card.appendChild(el("h2", { css: { margin: "0 0 8px 0", fontSize: "1.8rem", color: "var(--text)" }, txt: "Welcome to StudyLab" }));
-    card.appendChild(el("p", { css: { margin: "0 0 24px 0", fontSize: ".9rem", color: "var(--muted)" }, txt: "Enter your details to start preparing." }));
-
-    var nameInput = el("input", { css: { width: "100%", padding: "14px", borderRadius: "8px", border: "1px solid var(--border)", marginBottom: "16px", background: "var(--bg2)", color: "var(--text)", boxSizing: "border-box", fontSize: "1rem" } });
-    nameInput.placeholder = "Enter your full name";
-
-    var phoneInput = el("input", { type: "number", css: { width: "100%", padding: "14px", borderRadius: "8px", border: "1px solid var(--border)", marginBottom: "24px", background: "var(--bg2)", color: "var(--text)", boxSizing: "border-box", fontSize: "1rem" } });
-    phoneInput.placeholder = "10-digit mobile number";
-
-    var btn = el("button", { css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", fontSize: "1rem", cursor: "pointer" }, txt: "Continue" });
-
-    btn.onclick = function() {
-        if(nameInput.value.trim() === "" || phoneInput.value.trim() === "") {
-            alert("Please enter both Name and Phone number.");
-            return;
-        }
-        var userData = { name: nameInput.value.trim(), phone: phoneInput.value.trim() };
-        localStorage.setItem('sl_user', JSON.stringify(userData));
-        
-        wrap.remove(); // Remove overlay
-        onSuccess();   // Load the app!
-    };
-
-    card.appendChild(nameInput);
-    card.appendChild(phoneInput);
-    card.appendChild(btn);
-    wrap.appendChild(card);
-    document.body.appendChild(wrap);
-}
-// -----------------------
-
 
 // --- NEW: CHALLENGE URL PARSER ---
 window.challengeData = null;
@@ -481,10 +425,7 @@ function finishGuestLogin(name, phone) {
   };
   
   Sv.set("guest_user", window.currentUser);
-  
-  // This explicitly saves it so the Feedback Widget can find it effortlessly!
   localStorage.setItem('sl_user', JSON.stringify({ name: name, phone: phone }));
-  
   toast("Welcome, " + name + "! 👋", "#4ade80");
 
   try {
@@ -497,6 +438,11 @@ function finishGuestLogin(name, phone) {
       });
     }
   } catch(e) {}
+
+  // Trigger the install prompt now that they are logged in!
+  if (typeof triggerSmartInstallPrompt === "function") {
+      setTimeout(triggerSmartInstallPrompt, 1000); 
+  }
 
   render();
 }
@@ -930,17 +876,18 @@ function registerInlineSW() {
 // Listen for beforeinstallprompt event (Works on Desktop & Mobile)
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
-  deferredPrompt = e;
-  
-  // Wait 3 seconds after the page loads, then auto-show the custom popup
-  // We use sessionStorage so it only pops up once per visit and doesn't annoy the user
-  if (!sessionStorage.getItem('installPromptShown')) {
+  deferredPrompt = e; // Just save it quietly, do NOT show it automatically yet
+});
+
+// Create a helper function to call later
+function triggerSmartInstallPrompt() {
+  if (deferredPrompt && !sessionStorage.getItem('installPromptShown')) {
     setTimeout(function() {
       showInstallModal();
       sessionStorage.setItem('installPromptShown', 'true');
-    }, 3000);
+    }, 1500); // Small delay after the tour finishes so it feels natural
   }
-});
+}
 
 function showInstallButton() {
   // Check if button already exists
@@ -1497,13 +1444,16 @@ function showIOSInstallPrompt() {
 // 1. Initialize the app history on load
 window.addEventListener('load', function() {
   checkSignIn(function() {
-      // Push an invisible "trap" state. 
       history.replaceState({ page: 'exit_trap' }, "");
-      // Push the actual Home page state on top of it.
       history.pushState({ page: 'home', sub: null }, "");
       
-      // Start the app!
+      // Start the app
       render();
+      
+      // Ask if they want a tour (which chains to the Install Prompt afterwards)
+      setTimeout(function() {
+          AppTour.prompt();
+      }, 800); // Wait just under a second so the home page finishes loading visually
   });
 });
 
@@ -1613,39 +1563,64 @@ function showExitConfirmationModal() {
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 }
-
 // ═══════════════════════════════════════════════════════════════════
-// ONBOARDING TOUR ENGINE (PRO VERSION)
-// ═══════════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════════
-// ONBOARDING TOUR ENGINE (PRO VERSION w/ ADVANCED SELECTORS)
+// ONBOARDING TOUR ENGINE (PRO VERSION w/ SEQUENTIAL FUNNEL)
 // ═══════════════════════════════════════════════════════════════════
 var AppTour = {
   steps: [
     { id: 'themeToggle', icon: '☀️', title: 'Study Anywhere', text: 'Protect your eyes during late-night study sessions. Toggle between Light and Dark mode anytime.' },
     { id: 'ai-doubt-solver', icon: '🤖', title: 'Sarvam AI Tutor', text: 'Stuck on a tricky concept? Open the AI Doubt Solver for instant, contextual explanations.' },
-    
-    // 🌟 NEW STEPS ADDED HERE 🌟
     { selector: 'button[data-page="govtupdates"]', icon: '🔔', title: 'Govt Updates', text: 'Never miss a deadline. Track upcoming government job notifications and exam dates.' },
     { selector: 'button[data-page="shorts"]', icon: '⚡', title: 'Study Shorts', text: 'Short on time? Swipe through quick, vertical flashcards to keep your streak alive.' },
     { selector: 'button[data-page="digest"]', icon: '🗞️', title: 'Daily Digest', text: 'Stay informed with bite-sized daily current affairs, optimized for competitive exams.' },
-    
     { id: 'ss', icon: '📚', title: 'Pick Your Subject', text: 'Dive into History, Geography, and more. Master 4,000+ questions and unlock your RPG Skill Tree.' }
   ],
   currentIndex: 0,
   activeTarget: null,
   
+  prompt: function() {
+    if (localStorage.getItem('studylab_tour_done') || pg !== "home") {
+      this.triggerNextStep(); // Skip tour, go straight to login/install checks
+      return;
+    }
+
+    var overlay = el("div", {
+      css: { position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease" }
+    });
+    
+    var card = el("div", {
+      css: { background: "var(--card)", borderRadius: "24px", padding: "32px 24px", maxWidth: "340px", width: "85%", textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.4)", animation: "slide-up 0.4s ease" }
+    });
+
+    card.innerHTML = `<div style="font-size:3.5rem; margin-bottom:12px;">🗺️</div>
+                      <h3 style="font-size:1.4rem; margin-bottom:8px; color:var(--text); font-family:var(--font-display); font-weight:800;">Welcome Aboard!</h3>
+                      <p style="font-size:.9rem; color:var(--muted); margin-bottom:24px; line-height:1.5;">Would you like a quick 30-second tour to see how to use StudyLab effectively?</p>`;
+
+    var btnRow = el("div", { css: { display: "flex", gap: "10px" } });
+    
+    var skipBtn = el("button", { 
+      css: { flex: "1", padding: "12px", borderRadius: "12px", border: "1.5px solid var(--border2)", background: "transparent", color: "var(--muted)", fontWeight: "600", cursor: "pointer" }, 
+      txt: "Skip", 
+      onclick: () => { document.body.removeChild(overlay); this.end(); } 
+    });
+    
+    var startBtn = el("button", { 
+      css: { flex: "2", padding: "12px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(79,142,247,0.3)" }, 
+      txt: "Start Tour 🚀", 
+      onclick: () => { document.body.removeChild(overlay); this.init(); } 
+    });
+
+    btnRow.appendChild(skipBtn);
+    btnRow.appendChild(startBtn);
+    card.appendChild(btnRow);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  },
+
   init: function() {
-    if (localStorage.getItem('studylab_tour_done')) return;
-    if (pg !== "home") return;
-
-    // Prevent duplicate injections
-    if (document.getElementById('sl-tour-backdrop')) return;
-
     this.backdrop = el("div", { id: "sl-tour-backdrop" });
     this.highlight = el("div", { id: "sl-tour-highlight" });
     this.tooltip = el("div", { id: "sl-tour-tooltip" });
-    
     document.body.appendChild(this.backdrop);
     document.body.appendChild(this.highlight);
     document.body.appendChild(this.tooltip);
@@ -1654,7 +1629,7 @@ var AppTour = {
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('scroll', this.resizeHandler, { passive: true });
 
-    setTimeout(() => this.start(), 1500);
+    setTimeout(() => this.start(), 300);
   },
 
   start: function() {
@@ -1665,67 +1640,48 @@ var AppTour = {
   },
 
   showStep: function() {
-    if (this.currentIndex >= this.steps.length) {
-      this.end();
-      return;
-    }
+    if (this.currentIndex >= this.steps.length) { this.end(); return; }
 
     var step = this.steps[this.currentIndex];
     var targetEl = null;
 
-    // 💡 NEW LOGIC: Smartly find the visible element based on device
-    if (step.id) {
-      targetEl = document.getElementById(step.id);
-    } else if (step.selector) {
+    if (step.id) targetEl = document.getElementById(step.id);
+    else if (step.selector) {
       var els = document.querySelectorAll(step.selector);
       for (var i = 0; i < els.length; i++) {
-        // Pick the first one that is actually visible on the screen
-        if (els[i].offsetParent !== null && window.getComputedStyle(els[i]).display !== 'none') {
-          targetEl = els[i];
-          break;
-        }
+        if (els[i].offsetParent !== null && window.getComputedStyle(els[i]).display !== 'none') { targetEl = els[i]; break; }
       }
     }
 
-    var isHidden = !targetEl || window.getComputedStyle(targetEl).display === 'none' || (targetEl.offsetWidth === 0 && targetEl.offsetHeight === 0);
-    
-    if (isHidden) {
-      this.currentIndex++;
-      this.showStep();
-      return;
+    if (!targetEl || window.getComputedStyle(targetEl).display === 'none' || (targetEl.offsetWidth === 0 && targetEl.offsetHeight === 0)) {
+      this.currentIndex++; this.showStep(); return;
     }
 
     this.activeTarget = targetEl;
-    
     var style = window.getComputedStyle(targetEl);
-    if (style.position !== 'fixed' && style.position !== 'sticky') {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (style.position !== 'fixed' && style.position !== 'sticky') targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     this.tooltip.innerHTML = '';
+    
+    var skipLink = el("div", { css: { position: "absolute", top: "12px", right: "16px", fontSize: ".75rem", color: "var(--muted)", fontWeight: "600", cursor: "pointer" }, txt: "Skip", onclick: () => this.end() });
+    this.tooltip.appendChild(skipLink);
+
     this.tooltip.appendChild(el("h3", {}, [el("span", {}, step.icon), el("span", {}, step.title)]));
     this.tooltip.appendChild(el("p", {}, step.text));
 
     var btnRow = el("div", { cls: "tour-btn-row" });
     var dots = el("div", { cls: "tour-dots" });
-    for (var i = 0; i < this.steps.length; i++) {
-      dots.appendChild(el("div", { cls: "tour-dot" + (i === this.currentIndex ? " active" : "") }));
-    }
+    for (var i = 0; i < this.steps.length; i++) dots.appendChild(el("div", { cls: "tour-dot" + (i === this.currentIndex ? " active" : "") }));
     btnRow.appendChild(dots);
 
     var isLast = this.currentIndex === this.steps.length - 1;
     var nextBtn = el("button", { 
-      cls: "btn btnp", 
-      css: { padding: "8px 16px", fontSize: ".85rem" },
-      onclick: () => {
-        this.currentIndex++;
-        this.showStep();
-      }
+      cls: "btn btnp", css: { padding: "8px 16px", fontSize: ".85rem" },
+      onclick: () => { this.currentIndex++; this.showStep(); }
     }, isLast ? "Get Started 🚀" : "Next →");
     
     btnRow.appendChild(nextBtn);
     this.tooltip.appendChild(btnRow);
-    
     this.tooltip.classList.add('active');
 
     this.updatePositions();
@@ -1735,12 +1691,8 @@ var AppTour = {
 
   updatePositions: function() {
     if (!this.activeTarget) return;
-    
     var rect = this.activeTarget.getBoundingClientRect();
-    
-    var padX = rect.width < 50 ? 8 : 4;
-    var padY = rect.height < 50 ? 8 : 4;
-
+    var padX = rect.width < 50 ? 8 : 4, padY = rect.height < 50 ? 8 : 4;
     this.highlight.style.top = (rect.top - padY) + "px";
     this.highlight.style.left = (rect.left - padX) + "px";
     this.highlight.style.width = (rect.width + (padX * 2)) + "px";
@@ -1748,17 +1700,13 @@ var AppTour = {
 
     var tooltipH = this.tooltip.offsetHeight || 150;
     var topPos = rect.bottom + 16; 
-    
     if (topPos + tooltipH > window.innerHeight) topPos = rect.top - tooltipH - 16;
     if (topPos < 10) topPos = rect.bottom + 16; 
 
     var centerLeft = rect.left + (rect.width / 2);
-    var minLeft = 170; 
-    var maxLeft = window.innerWidth - 170;
-    var clampedLeft = Math.max(minLeft, Math.min(centerLeft, maxLeft));
-    
+    var minLeft = 170, maxLeft = window.innerWidth - 170;
     this.tooltip.style.top = topPos + "px";
-    this.tooltip.style.left = clampedLeft + "px";
+    this.tooltip.style.left = Math.max(minLeft, Math.min(centerLeft, maxLeft)) + "px";
   },
 
   end: function() {
@@ -1774,6 +1722,39 @@ var AppTour = {
       if(this.backdrop) this.backdrop.remove();
       if(this.highlight) this.highlight.remove();
       if(this.tooltip) this.tooltip.remove();
+      
+      this.triggerNextStep();
     }, 400);
+  },
+
+  // THIS IS THE BRAIN OF THE FUNNEL
+  triggerNextStep: function() {
+      var storedUser = localStorage.getItem('sl_user');
+      
+      if (!storedUser) {
+          // If they haven't signed in yet, pop the beautiful Name/Phone modal!
+          showNameInputModal();
+      } else {
+          // If they are already signed in, check if they need the Install App prompt
+          if (typeof triggerSmartInstallPrompt === "function") {
+              triggerSmartInstallPrompt();
+          }
+      }
   }
 };
+
+// 1. Initialize the app history on load
+window.addEventListener('load', function() {
+  history.replaceState({ page: 'exit_trap' }, "");
+  history.pushState({ page: 'home', sub: null }, "");
+  
+  // Render the app immediately so they see the beautiful home screen!
+  render();
+  
+  // Start the professional funnel after a tiny 1-second delay
+  setTimeout(function() {
+      AppTour.prompt();
+  }, 1000);
+});
+
+
