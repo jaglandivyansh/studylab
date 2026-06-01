@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-DIGEST.JS — Daily Current Affairs Digest (Premium UI)
+// PAGE-DIGEST.JS — Daily Current Affairs Digest (Premium UI - Mobile Fixed)
 // ═══════════════════════════════════════════════════════════════════
 
 function pgDigest() {
@@ -10,7 +10,7 @@ function pgDigest() {
         w.appendChild(makeNav("digest"));
     }
 
-    // 2. Inject Premium CSS Variables (Safe, won't duplicate)
+    // 2. Inject Premium CSS Variables
     if (!document.getElementById('studylab-digest-styles')) {
         var style = document.createElement('style');
         style.id = 'studylab-digest-styles';
@@ -21,6 +21,13 @@ function pgDigest() {
             .swipe-container { -ms-overflow-style: none; scrollbar-width: none; }
         `;
         document.head.appendChild(style);
+    }
+
+    // Helper to fix weird text like "F&amp;amp;O"
+    function decodeHTML(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
     }
 
     // 3. Your Original Categories
@@ -50,7 +57,8 @@ function pgDigest() {
     // 5. MAIN VIEW
     function showMain() {
         contentWrap.innerHTML = "";
-        var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "48px", paddingTop: "20px" } });
+        // Increased paddingBottom to 100px so the grid doesn't hide behind the navbar
+        var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "100px", paddingTop: "20px" } });
 
         var hd = el("div", { css: { textAlign: "center", marginBottom: "32px" } });
         hd.appendChild(el("div", { css: { fontSize: ".65rem", color: "var(--subtle)", textTransform: "uppercase", letterSpacing: ".18em", fontWeight: "700", marginBottom: "10px", fontFamily: "var(--font-display)" }, txt: "StudyLab — Your Ultimate Competitive Exam Partner" }));
@@ -83,13 +91,13 @@ function pgDigest() {
         window.scrollTo(0, 0);
     }
 
-    // 6. SUB VIEW & FETCHING (Using your original feed logic)
+    // 6. SUB VIEW & FETCHING
     function showSub(cat) {
         history.pushState({ page: "digest", sub: null, digestView: "main" }, "");
         contentWrap.innerHTML = "";
         window.scrollTo(0, 0);
 
-        var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "48px", paddingTop: "20px" } });
+        var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "100px", paddingTop: "20px" } });
 
         var topBar = el("div", { css: { display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" } });
         var backBtn = el("button", { css: { padding: "10px 18px", borderRadius: "12px", border: "1.5px solid var(--border)", background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }, onclick: function () { history.back(); } });
@@ -102,9 +110,10 @@ function pgDigest() {
         wrap.appendChild(topBar);
 
         var newsWrap = el("div", {});
+        // Skeleton loader height fixed for mobile navbars
         newsWrap.innerHTML = `
-            <div style="height: 75vh; border: 2px solid var(--border); border-radius: 16px; background: var(--card); overflow: hidden; display: flex; flex-direction: column;">
-                <div style="height: 45%; background: var(--border); opacity: 0.3;"></div>
+            <div style="height: calc(100dvh - 240px); min-height: 400px; border: 2px solid var(--border); border-radius: 16px; background: var(--card); overflow: hidden; display: flex; flex-direction: column;">
+                <div style="height: 30%; background: var(--border); opacity: 0.3;"></div>
                 <div style="padding: 24px; flex: 1;">
                     <div style="width: 30%; height: 12px; background: var(--border); margin-bottom: 20px; border-radius: 4px;"></div>
                     <div style="width: 90%; height: 24px; background: var(--border); margin-bottom: 12px; border-radius: 4px;"></div>
@@ -115,7 +124,6 @@ function pgDigest() {
         wrap.appendChild(newsWrap);
         contentWrap.appendChild(wrap);
 
-        // Your Original Fetch Logic Structure
         var todayStr = new Date().toDateString();
         var cacheKey = "digest_daily_" + cat.id;
         var cachedData = (typeof Sv !== 'undefined' && Sv.get) ? Sv.get(cacheKey) : null;
@@ -138,11 +146,11 @@ function pgDigest() {
                         if (data.items && data.items.length) {
                             var newArticles = data.items.map(function (item) {
                                 return { 
-                                    title: item.title, 
+                                    title: decodeHTML(item.title), 
                                     url: item.link, 
                                     source: feeds[i].name, 
                                     pubDate: item.pubDate,
-                                    description: item.description || item.contentSnippet || "",
+                                    description: decodeHTML(item.description || item.contentSnippet || ""),
                                     image: item.thumbnail || (item.enclosure && item.enclosure.link) || "" 
                                 };
                             });
@@ -159,7 +167,7 @@ function pgDigest() {
         }
     }
 
-    // 7. INSHORTS-STYLE SWIPE CARDS UI
+    // 7. INSHORTS-STYLE SWIPE CARDS UI (Mobile Fixed)
     function renderArticles(articles, cat, newsWrap) {
         newsWrap.innerHTML = "";
         if (!articles || !articles.length) {
@@ -169,36 +177,73 @@ function pgDigest() {
 
         var swipeContainer = el("div", {
             className: "swipe-container",
-            css: { height: "75vh", maxHeight: "800px", overflowY: "scroll", scrollSnapType: "y mandatory", borderRadius: "16px", border: "2px solid var(--border)", background: "var(--card)", position: "relative" }
+            css: { 
+                height: "calc(100dvh - 240px)", // Fixed height: Calculates viewport minus header & navbar
+                minHeight: "450px", // Prevents crushing on very small phones
+                overflowY: "scroll", 
+                scrollSnapType: "y mandatory", 
+                borderRadius: "16px", 
+                border: "2px solid var(--border)", 
+                background: "var(--card)", 
+                position: "relative" 
+            }
         });
 
         articles.slice(0, 15).forEach(function (a) {
             var card = el("div", { css: { height: "100%", width: "100%", scrollSnapAlign: "start", display: "flex", flexDirection: "column", borderBottom: "2px solid var(--border)", background: "var(--card)" } });
 
-            var imgUrl = a.image || "https://via.placeholder.com/600x300/" + cat.color.replace('#','') + "/FFFFFF?text=" + encodeURIComponent(cat.label + " News");
-            var hero = el("div", { css: { height: "45%", width: "100%", backgroundImage: "url('" + imgUrl + "')", backgroundSize: "cover", backgroundPosition: "center", borderBottom: "2px solid var(--border)" } });
+            // FIXED HERO SECTION: Reduced height & beautiful gradient fallback
+            var heroCss = {
+                height: "28%", // Reduced from 45% to save screen space
+                width: "100%",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderBottom: "2px solid var(--border)",
+                flexShrink: "0" // Prevents the image from squishing
+            };
+
+            if (a.image && a.image !== "") {
+                heroCss.backgroundImage = "url('" + a.image + "')";
+            } else {
+                // If no image, create a soft gradient background based on the category color
+                heroCss.background = "linear-gradient(135deg, " + cat.color + "30, var(--bg2))";
+                heroCss.display = "flex";
+                heroCss.alignItems = "center";
+                heroCss.justifyContent = "center";
+            }
+            
+            var hero = el("div", { css: heroCss });
+            
+            // Add a ghost icon if there is no image
+            if (!a.image || a.image === "") {
+                hero.appendChild(el("div", { css: { fontSize: "3rem", opacity: "0.6" }, txt: cat.icon }));
+            }
+            
             card.appendChild(hero);
 
-            var content = el("div", { css: { padding: "24px", flex: "1", display: "flex", flexDirection: "column" } });
+            var content = el("div", { css: { padding: "20px", flex: "1", display: "flex", flexDirection: "column", overflow: "hidden" } });
             
-            var meta = el("div", { css: { display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: ".75rem", fontWeight: "700", textTransform: "uppercase" } });
+            var meta = el("div", { css: { display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: ".75rem", fontWeight: "700", textTransform: "uppercase" } });
             meta.appendChild(el("span", { css: { color: cat.color }, txt: a.source || cat.label }));
             
             var d = new Date(a.pubDate);
             meta.appendChild(el("span", { css: { color: "var(--subtle)" }, txt: !isNaN(d) ? d.toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today" }));
             content.appendChild(meta);
 
-            content.appendChild(el("div", { css: { fontSize: "1.3rem", fontWeight: "800", lineHeight: "1.3", marginBottom: "16px", color: "var(--text)", fontFamily: "var(--font-display)" }, txt: a.title }));
+            // Slightly reduced font size so long titles fit nicely on mobile
+            content.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "800", lineHeight: "1.3", marginBottom: "16px", color: "var(--text)", fontFamily: "var(--font-display)" }, txt: a.title }));
 
-            var summaryBox = el("div", { css: { background: "var(--bg2)", padding: "16px", borderLeft: "4px solid " + cat.color, marginBottom: "auto", borderRadius: "0 8px 8px 0" } });
-            summaryBox.appendChild(el("div", { css: { fontSize: ".7rem", fontWeight: "800", color: cat.color, marginBottom: "8px", textTransform: "uppercase" }, txt: "💡 Context & Details" }));
+            var summaryBox = el("div", { css: { background: "var(--bg2)", padding: "12px 16px", borderLeft: "4px solid " + cat.color, marginBottom: "auto", borderRadius: "0 8px 8px 0" } });
+            summaryBox.appendChild(el("div", { css: { fontSize: ".7rem", fontWeight: "800", color: cat.color, marginBottom: "6px", textTransform: "uppercase" }, txt: "💡 Context & Details" }));
+            
             var cleanDesc = (a.description || "").replace(/<\/?[^>]+(>|$)/g, ""); 
-            summaryBox.appendChild(el("div", { css: { fontSize: ".9rem", lineHeight: "1.6", color: "var(--text)" }, txt: cleanDesc ? (cleanDesc.substring(0, 140) + "...") : "Tap to read the full update and understand its impact." }));
+            summaryBox.appendChild(el("div", { css: { fontSize: ".85rem", lineHeight: "1.5", color: "var(--text)" }, txt: cleanDesc ? (cleanDesc.substring(0, 110) + "...") : "Tap to read the full update and understand its impact." }));
             content.appendChild(summaryBox);
 
-            var actionBar = el("div", { css: { display: "flex", marginTop: "20px" } });
-            var readBtn = el("button", { css: { flex: "1", padding: "14px", background: cat.color, color: "#fff", fontWeight: "700", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: ".95rem" }, txt: "Read Full Article →", onclick: function() { updateDailyProgress(); if (a.url) window.open(a.url, "_blank"); } });
+            var actionBar = el("div", { css: { display: "flex", marginTop: "16px" } });
+            var readBtn = el("button", { css: { flex: "1", padding: "12px", background: cat.color, color: "#fff", fontWeight: "700", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: ".9rem" }, txt: "Read Full Article →", onclick: function() { updateDailyProgress(); if (a.url) window.open(a.url, "_blank"); } });
             actionBar.appendChild(readBtn);
+            
             content.appendChild(actionBar);
             card.appendChild(content);
             swipeContainer.appendChild(card);
@@ -208,7 +253,7 @@ function pgDigest() {
         newsWrap.appendChild(el("div", { css: { textAlign: "center", fontSize: ".8rem", color: "var(--muted)", marginTop: "12px", fontWeight: "600" }, txt: "↕ Scroll vertically to view next article" }));
     }
 
-    // 8. Popstate Listener (from your original code)
+    // 8. Popstate Listener
     function onPopState(e) {
         if (!w.isConnected) { window.removeEventListener("popstate", onPopState); return; }
         if (e.state && e.state.digestView === "main") showMain();
