@@ -458,8 +458,7 @@ function adsScrollChat() {
   if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
 }
 
-// ─── SMART FEEDBACK WIDGET ─────────────────────────────────────────
-// ─── UPGRADED INTERACTIVE FEEDBACK WIDGET ─────────────────────────
+// ─── INTERACTIVE EMOJI FEEDBACK WIDGET (STABLE VERSION) ───────────
 function createSmartFeedbackWidget() {
     var widgetWrap = el("div", { 
         css: { 
@@ -480,7 +479,6 @@ function createSmartFeedbackWidget() {
     });
     var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
     var ratingText = ["Tap a star", "Needs Work", "It's Okay", "Good", "Great!", "Absolutely Amazing!"];
-    
     var statusText = el("div", { css: { fontSize: ".9rem", fontWeight: "700", color: "var(--accent)", marginBottom: "16px", minHeight: "20px" }, txt: "Tap a star" });
 
     widgetWrap.appendChild(emojiDisplay);
@@ -489,20 +487,14 @@ function createSmartFeedbackWidget() {
     var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "8px", fontSize: "2.5rem", color: "var(--border2)", cursor: "pointer", marginBottom: "20px" } });
     var stars = [];
     var currentRating = 0; 
-
-    // Hidden form that only reveals AFTER a star is clicked
     var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease" } });
 
     for (let i = 1; i <= 5; i++) {
-        let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)", textShadow: "none" } });
-        
-        star.onmouseenter = function() { if(currentRating === 0) this.style.transform = "scale(1.2)"; };
-        star.onmouseleave = function() { if(currentRating === 0) this.style.transform = "scale(1)"; };
+        let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)" } });
         
         star.onclick = function() {
             currentRating = i;
             
-            // Pop Animation for Emoji
             emojiDisplay.style.transform = "scale(1.3) rotate(5deg)";
             setTimeout(() => { emojiDisplay.style.transform = "scale(1) rotate(0deg)"; }, 200);
             
@@ -510,10 +502,9 @@ function createSmartFeedbackWidget() {
             statusText.textContent = ratingText[i];
             statusText.style.color = (i <= 2) ? "#ef4444" : (i <= 4) ? "#f59e0b" : "#10b981";
 
-            // Colorize stars with a glow effect
             stars.forEach((s, index) => {
                 if (index < currentRating) {
-                    s.style.color = "#f59e0b"; // Golden yellow
+                    s.style.color = "#f59e0b";
                     s.style.textShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
                     s.style.transform = "scale(1.1)";
                 } else {
@@ -523,7 +514,6 @@ function createSmartFeedbackWidget() {
                 }
             });
 
-            // Reveal the text area natively
             formReveal.style.display = "block";
         };
         stars.push(star);
@@ -539,23 +529,27 @@ function createSmartFeedbackWidget() {
     });
     textArea.placeholder = "Tell us what you loved or what we can improve... (Optional)";
     
-    textArea.addEventListener("focus", function() { this.style.borderColor = "var(--accent)"; });
-    textArea.addEventListener("blur", function() { this.style.borderColor = "var(--border2)"; });
-
     var submitBtn = el("button", { 
         css: { width: "100%", padding: "16px", background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "800", cursor: "pointer", fontSize: "1.05rem", boxShadow: "0 4px 15px rgba(79,142,247,0.3)", transition: "transform 0.2s" }, 
         txt: "Send Feedback 🚀" 
     });
-    
-    submitBtn.onmousedown = function() { this.style.transform = "scale(0.98)"; };
-    submitBtn.onmouseup = function() { this.style.transform = "scale(1)"; };
 
     submitBtn.onclick = function() {
+        if (currentRating === 0) return;
+        
         var feedbackText = textArea.value.trim();
-        var savedData = localStorage.getItem('sl_user');
-        var user = savedData ? JSON.parse(savedData) : { name: "Guest User", phone: "Unknown" };
-
-        if(window.STUDYLAB_FEEDBACK_URL) {
+        
+        // SAFE DATA FETCHING: Prevents app crash if localStorage is corrupted
+        var user = { name: "Guest User", phone: "No Phone" };
+        try {
+            var savedData = localStorage.getItem('sl_user');
+            if (savedData) user = JSON.parse(savedData);
+        } catch(e) {}
+        
+        if (window.STUDYLAB_FEEDBACK_URL) {
+            submitBtn.textContent = "Sending...";
+            submitBtn.style.opacity = "0.7";
+            
             fetch(window.STUDYLAB_FEEDBACK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -566,17 +560,21 @@ function createSmartFeedbackWidget() {
                     Rating: currentRating + " stars",
                     Message: feedbackText || "(no message)"
                 })
-            }).catch(function(){});
+            }).then(function() {
+                var firstName = user.name.split(' ')[0] || "there";
+                widgetWrap.innerHTML = `
+                    <div style="padding: 30px 20px; text-align: center; animation: bounce-in 0.5s ease;">
+                        <div style="font-size: 3.5rem; margin-bottom: 16px;">💖</div>
+                        <div style="font-weight: 800; font-size: 1.4rem; color: var(--text); margin-bottom: 8px;">You're awesome, ${firstName}!</div>
+                        <div style="font-size: .95rem; color: var(--muted); line-height: 1.5;">Thank you for helping us make StudyLab the best exam partner in India.</div>
+                    </div>
+                `;
+            }).catch(function() {
+                alert("Network error. Please try again.");
+                submitBtn.textContent = "Send Feedback 🚀";
+                submitBtn.style.opacity = "1";
+            });
         }
-
-        var firstName = user.name.split(' ')[0];
-        widgetWrap.innerHTML = `
-            <div style="padding: 30px 20px; text-align: center; animation: bounce-in 0.5s ease;">
-                <div style="font-size: 3.5rem; margin-bottom: 16px;">💖</div>
-                <div style="font-weight: 800; font-size: 1.4rem; color: var(--text); margin-bottom: 8px;">You're awesome, ${firstName}!</div>
-                <div style="font-size: .95rem; color: var(--muted); line-height: 1.5;">Thank you for helping us make StudyLab the best exam partner in India.</div>
-            </div>
-        `;
     };
 
     formReveal.appendChild(textArea);
