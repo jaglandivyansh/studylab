@@ -719,27 +719,6 @@ function createSmartFeedbackWidget() {
 
 
 
-
-    if(window.STUDYLAB_FEEDBACK_URL) {
-      fetch(window.STUDYLAB_FEEDBACK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          Date: new Date().toLocaleString("en-IN"),
-          Name: nameVal,
-          Phone: phoneVal,
-          Rating: selRating + " stars",
-          Message: selMsg || "(no message)"
-        })
-      }).catch(function(){});
-    }
-  }},"Submit Feedback"));
-  w.appendChild(fb);
-
-
   // 8. Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
