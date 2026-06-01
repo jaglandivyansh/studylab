@@ -527,6 +527,9 @@ function adsScrollChat() {
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
+// Add this line where you want the widget to show up on the home page
+contentWrap.appendChild(createSmartFeedbackWidget());
+
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});
@@ -636,16 +639,7 @@ function pgHome(){
  
 ---
 
-### Step 2: Update `page-home.js` (The Feedback Widget)
-Now we need to rip out the bulky feedback form and replace it with the smart widget.
-
-**What to do:**
-1. Open `page-home.js`.
-2. Find the section of code that creates the old feedback form (look for inputs related to "Your Name *" and "Phone Number *"). **Delete that entire chunk of code.**
-3. Paste this new function anywhere inside `page-home.js`:
-
-```javascript
-// --- ADD THIS TO PAGE-HOME.JS ---
+// --- FULLY WIRED FEEDBACK WIDGET FOR PAGE-HOME.JS ---
 function createSmartFeedbackWidget() {
     var widgetWrap = el("div", { 
         css: { background: "var(--card)", border: "2px solid var(--border)", borderRadius: "16px", padding: "20px", margin: "20px 16px", textAlign: "center" } 
@@ -653,8 +647,27 @@ function createSmartFeedbackWidget() {
 
     widgetWrap.appendChild(el("h3", { css: { margin: "0 0 8px 0", fontSize: "1.2rem", color: "var(--text)" }, txt: "How are we doing?" }));
     
+    // Star Rating UI
+    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.2rem", color: "var(--border)", cursor: "pointer", marginBottom: "16px" } });
+    var stars = [];
+    var currentRating = 5; // Default to 5 stars
+
+    for (let i = 1; i <= 5; i++) {
+        let star = el("span", { txt: "★", css: { transition: "color 0.2s", color: "#4F8EF7" } });
+        star.onclick = function() {
+            currentRating = i;
+            stars.forEach((s, index) => {
+                s.style.color = index < currentRating ? "#4F8EF7" : "var(--border)";
+            });
+        };
+        stars.push(star);
+        starContainer.appendChild(star);
+    }
+    widgetWrap.appendChild(starContainer);
+
+    // Text Area
     var textArea = el("textarea", { 
-        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginTop: "12px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
+        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
     });
     textArea.placeholder = "Tell us what you think or suggest a feature...";
     
@@ -665,18 +678,30 @@ function createSmartFeedbackWidget() {
 
     submitBtn.onclick = function() {
         var feedbackText = textArea.value.trim();
-        if(feedbackText === "") return;
 
-        // Pull stored user data
+        // 1. Pull the auto-saved user data from the sign-in page
         var savedData = localStorage.getItem('sl_user');
-        var user = savedData ? JSON.parse(savedData) : { name: "Student", phone: "Unknown" };
+        var user = savedData ? JSON.parse(savedData) : { name: "Guest User", phone: "Unknown" };
 
-        var payload = { name: user.name, phone: user.phone, message: feedbackText };
-        
-        // TODO: Send 'payload' to your backend here
-        console.log("Submitting feedback:", payload);
+        // 2. YOUR FETCH CODE - Automatically injecting the hidden Name and Phone!
+        if(window.STUDYLAB_FEEDBACK_URL) {
+            fetch(window.STUDYLAB_FEEDBACK_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    Date: new Date().toLocaleString("en-IN"),
+                    Name: user.name,          // Fills automatically
+                    Phone: user.phone,        // Fills automatically
+                    Rating: currentRating + " stars",
+                    Message: feedbackText || "(no message)"
+                })
+            }).catch(function(){});
+        }
 
-        // Personalized Thank You
+        // 3. Personalized Thank You UI
         var firstName = user.name.split(' ')[0];
         widgetWrap.innerHTML = `
             <div style="padding: 24px; text-align: center;">
@@ -691,6 +716,8 @@ function createSmartFeedbackWidget() {
     widgetWrap.appendChild(submitBtn);
     return widgetWrap;
 }
+
+
 
 
     if(window.STUDYLAB_FEEDBACK_URL) {
@@ -711,6 +738,7 @@ function createSmartFeedbackWidget() {
     }
   }},"Submit Feedback"));
   w.appendChild(fb);
+
 
   // 8. Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
