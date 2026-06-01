@@ -910,7 +910,7 @@ function showInstallModal() {
     
     var overlay = el("div", {
         css: {
-            position: "relative", inset: "0", background: "rgba(0,0,0,0.9)",
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
             display: "flex", alignItems: isMobile ? "flex-end" : "center",
             justifyContent: "center", zIndex: "100",
             padding: isMobile ? "0" : "20px"
