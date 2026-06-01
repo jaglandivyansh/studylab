@@ -1,212 +1,349 @@
-// ═══════════════════════════════════════════════════════════════════
-// PAGE-DIGEST.JS — Daily Current Affairs Digest
-// ═══════════════════════════════════════════════════════════════════
+/**
+ * StudyLab - Premium Page Digest (page-digest.js)
+ * Features: Daily Streak, Inshorts-style Swipeable Cards, Skeleton Loading, AI-style Context Tags
+ */
 
-function pgDigest() {
-  var w = el("div", { cls: "fd" });
-  w.appendChild(makeNav("digest"));
+// 1. Core DOM Helper
+function el(tag, options) {
+    var element = document.createElement(tag);
+    if (!options) return element;
+    if (options.id) element.id = options.id;
+    if (options.className) element.className = options.className;
+    if (options.txt) element.textContent = options.txt;
+    if (options.html) element.innerHTML = options.html;
+    if (options.onclick) element.onclick = options.onclick;
+    if (options.src) element.src = options.src;
+    if (options.href) element.href = options.href;
+    if (options.target) element.target = options.target;
+    if (options.css) {
+        for (var key in options.css) {
+            element.style[key] = options.css[key];
+        }
+    }
+    return element;
+}
 
-  var CATS = [
-    { id: "national",  label: "National",   icon: "🇮🇳", color: "#4F8EF7", desc: "Top stories from across India — politics, society, governance and major national events.", topics: ["Politics", "Governance", "Society", "Infrastructure", "Defence"], sym: ["🏛️","🗳️","🚆","🛡️","📜","🏙️"] },
-    { id: "govt",      label: "Govt / PIB", icon: "🏛️", color: "#8b5cf6", desc: "Official government press releases, cabinet decisions, new schemes and policy announcements.", topics: ["Cabinet", "Schemes", "Policy", "PIB", "Ministry"], sym: ["📋","⚖️","🔔","🗂️","📢","🏗️"] },
-    { id: "economy",   label: "Economy",    icon: "📈", color: "#f59e0b", desc: "RBI updates, GDP data, budget news, trade, markets and India's economic developments.", topics: ["RBI", "GDP", "Budget", "Trade", "Markets"], sym: ["💰","🏦","📊","💹","🪙","💴"] },
-    { id: "science",   label: "Science",    icon: "🔬", color: "#4ade80", desc: "ISRO missions, DRDO breakthroughs, health, technology and scientific discoveries in India.", topics: ["ISRO", "DRDO", "Health", "Technology", "Space"], sym: ["🚀","⚛️","🧬","🛸","🔭","💡"] },
-    { id: "world",     label: "World",      icon: "🌐", color: "#f87171", desc: "India's foreign relations, global summits, UN updates and major international events.", topics: ["UN", "G20", "Foreign Policy", "Summits", "Global"], sym: ["✈️","🌍","🤝","🗺️","🌐","🕊️"] }
-  ];
+// 2. CSS Variables & Reset (Ensures premium look works immediately)
+(function injectStyles() {
+    if (document.getElementById('studylab-digest-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'studylab-digest-styles';
+    style.innerHTML = `
+        :root {
+            --bg: #f8f9fa;
+            --bg2: #f1f3f5;
+            --card: #ffffff;
+            --border: #dee2e6;
+            --border2: #e9ecef;
+            --text: #212529;
+            --muted: #6c757d;
+            --subtle: #adb5bd;
+        }
+        /* Hide scrollbar for the swipe container to look clean */
+        .swipe-container::-webkit-scrollbar { display: none; }
+        .swipe-container { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121212;
+                --bg2: #1e1e1e;
+                --card: #1a1a1a;
+                --border: #2d2d2d;
+                --border2: #333333;
+                --text: #f8f9fa;
+                --muted: #adb5bd;
+                --subtle: #6c757d;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
 
-  // Single container — we swap content in-place instead of re-calling go()
-  var contentWrap = el("div", {});
+// 3. Global App State & Categories
+var appState = {
+    cache: {},
+    container: null
+};
 
-  // ── MAIN CATEGORY LIST ──
-  function showMain() {
-    contentWrap.innerHTML = "";
-    var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "48px" } });
+// Exam-Focused Categories
+var categories = [
+    { id: "national", label: "National", icon: "🇮🇳", color: "#E1306C", feeds: [{ name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss" }] },
+    { id: "economy", label: "Economy", icon: "📈", color: "#28a745", feeds: [{ name: "Livemint", url: "https://www.livemint.com/rss/economy" }] },
+    { id: "world", label: "World", icon: "🌍", color: "#007bff", feeds: [{ name: "BBC", url: "http://feeds.bbci.co.uk/news/world/rss.xml" }] }
+];
 
-    var hd = el("div", { css: { textAlign: "center", marginBottom: "32px" } });
-    hd.appendChild(el("div", { css: { fontSize: ".6rem", color: "var(--subtle)", textTransform: "uppercase", letterSpacing: ".18em", fontWeight: "700", marginBottom: "10px", fontFamily: "var(--font-display)" }, txt: "Stay Informed" }));
-    hd.appendChild(el("div", { css: { fontSize: "1.9rem", fontWeight: "800", letterSpacing: "-.04em", fontFamily: "var(--font-display)" }, txt: "Daily Current Affairs" }));
-    hd.appendChild(el("div", { css: { fontSize: ".85rem", color: "var(--muted)", marginTop: "8px" }, txt: "Live news from top sources — updated every day" }));
+// 4. Gamification: Daily Progress Tracker
+function getDailyProgress() {
+    var today = new Date().toDateString();
+    var stats = JSON.parse(localStorage.getItem('sl_digest_stats') || '{"date":"","read":0}');
+    if (stats.date !== today) stats = { date: today, read: 0 };
+    return stats;
+}
+
+function updateDailyProgress() {
+    var stats = getDailyProgress();
+    stats.read += 1;
+    localStorage.setItem('sl_digest_stats', JSON.stringify(stats));
+}
+
+// 5. Main View: Category Grid
+function showMain() {
+    appState.container.innerHTML = "";
+    var wrap = el("div", { css: { padding: "20px", maxWidth: "800px", margin: "0 auto" } });
+
+    // Premium Header
+    var hd = el("div", { css: { textAlign: "center", marginBottom: "32px", position: "relative" } });
+    hd.appendChild(el("div", { 
+        css: { fontSize: ".65rem", color: "var(--subtle)", textTransform: "uppercase", letterSpacing: ".18em", fontWeight: "700", marginBottom: "10px" }, 
+        txt: "StudyLab — Your Ultimate Competitive Exam Partner" 
+    }));
+    hd.appendChild(el("div", { 
+        css: { fontSize: "2.2rem", fontWeight: "800", letterSpacing: "-.04em", color: "var(--text)" }, 
+        txt: "Daily Current Affairs" 
+    }));
+
+    // Daily Goal Tracker
+    var stats = getDailyProgress();
+    var progressWrap = el("div", { 
+        css: { display: "inline-flex", alignItems: "center", gap: "10px", marginTop: "16px", padding: "8px 16px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" } 
+    });
+    progressWrap.appendChild(el("span", { css: { fontSize: "1.2rem" }, txt: "🎯" }));
+    progressWrap.appendChild(el("div", { 
+        css: { fontSize: ".85rem", fontWeight: "600", color: "var(--text)" }, 
+        txt: `Daily Goal: ${stats.read} / 5 Articles Read` 
+    }));
+    hd.appendChild(progressWrap);
     wrap.appendChild(hd);
 
-    CATS.forEach(function (cat, idx) {
-      var isOdd = idx % 2 === 0;
-      var row = el("div", {
-        css: {
-          display: "flex", alignItems: "stretch", gap: "0",
-          marginBottom: "20px", borderRadius: "20px", overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0,0,0,.25)", cursor: "pointer", minHeight: "180px",
-          transition: "all .25s ease"
-        },
-        onclick: function () { showSub(cat); }
-      });
-      row.addEventListener("mouseenter", function () { this.style.transform = "translateY(-4px)"; this.style.boxShadow = "0 16px 48px rgba(0,0,0,.35)"; });
-      row.addEventListener("mouseleave", function () { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 8px 32px rgba(0,0,0,.25)"; });
+    // Category Grid
+    var grid = el("div", { css: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px" } });
+    
+    categories.forEach(function (cat) {
+        var card = el("div", {
+            css: {
+                padding: "24px", background: "var(--card)", border: "2px solid var(--border)", borderRadius: "12px",
+                cursor: "pointer", position: "relative", overflow: "hidden", transition: "transform 0.2s ease"
+            },
+            onclick: function () { showSub(cat); }
+        });
+        
+        card.onmouseenter = function() { card.style.borderColor = cat.color; card.style.transform = "translateY(-4px)"; };
+        card.onmouseleave = function() { card.style.borderColor = "var(--border)"; card.style.transform = "translateY(0)"; };
 
-      var symPanel = el("div", { css: { width: "clamp(90px,28vw,180px)", flexShrink: "0", background: "var(--card2)", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", order: isOdd ? "0" : "2", borderRight: isOdd ? "1px solid var(--border)" : "none", borderLeft: isOdd ? "none" : "1px solid var(--border)" } });
-      symPanel.appendChild(el("div", { css: { fontSize: "5rem", opacity: ".15", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }, txt: cat.icon }));
-      var positions = [[10,10],[60,5],[80,55],[15,70],[50,80],[75,20]];
-      cat.sym.forEach(function (sym, si) {
-        var pos = positions[si] || [50, 50];
-        symPanel.appendChild(el("div", { css: { position: "absolute", fontSize: "1.3rem", opacity: ".25", left: pos[0] + "%", top: pos[1] + "%" } }, sym));
-      });
-      symPanel.appendChild(el("div", { css: { position: "relative", zIndex: "1", fontSize: "3.5rem", filter: "drop-shadow(0 4px 12px rgba(0,0,0,.2))" } }, cat.icon));
+        card.appendChild(el("div", { css: { fontSize: "2rem", marginBottom: "12px" }, txt: cat.icon }));
+        card.appendChild(el("div", { css: { fontSize: "1.1rem", fontWeight: "700", color: "var(--text)" }, txt: cat.label }));
+        
+        // Background Icon
+        card.appendChild(el("div", {
+            css: { position: "absolute", bottom: "-10px", right: "-10px", fontSize: "5rem", opacity: "0.05", pointerEvents: "none" },
+            txt: cat.icon
+        }));
 
-      var content = el("div", { css: { flex: "1", minWidth: "0", background: "var(--card)", padding: "20px clamp(14px,4vw,32px)", display: "flex", flexDirection: "column", justifyContent: "center", order: "1", borderLeft: isOdd ? "none" : "3px solid " + cat.color, borderRight: isOdd ? "3px solid " + cat.color : "none" } });
-      var ctop = el("div", { css: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" } });
-      ctop.appendChild(el("div", { css: { fontSize: "1.4rem", fontWeight: "800", letterSpacing: "-.04em", fontFamily: "var(--font-display)", color: "var(--text)" }, txt: cat.label }));
-      ctop.appendChild(el("span", { css: { fontSize: ".65rem", fontWeight: "700", padding: "3px 10px", borderRadius: "6px", background: cat.color + "20", color: cat.color, letterSpacing: ".06em", fontFamily: "var(--font-display)" } }, "LIVE"));
-      content.appendChild(ctop);
-      content.appendChild(el("div", { css: { fontSize: ".92rem", color: "var(--muted)", lineHeight: "1.65", marginBottom: "14px", fontWeight: "300" }, txt: cat.desc }));
-
-      var chips = el("div", { css: { display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "16px" } });
-      cat.topics.forEach(function (t) {
-        chips.appendChild(el("span", { css: { fontSize: ".68rem", fontWeight: "600", padding: "3px 10px", borderRadius: "6px", background: cat.color + "18", color: cat.color, border: "1px solid " + cat.color + "28", fontFamily: "var(--font-display)", letterSpacing: "0.02em" } }, t));
-      });
-      content.appendChild(chips);
-      content.appendChild(el("span", { css: { fontSize: ".82rem", fontWeight: "700", color: cat.color, fontFamily: "var(--font-display)" } }, "Read Latest News →"));
-
-      if (isOdd) { row.appendChild(symPanel); row.appendChild(content); }
-      else { row.appendChild(content); row.appendChild(symPanel); }
-      wrap.appendChild(row);
+        grid.appendChild(card);
     });
 
-    contentWrap.appendChild(wrap);
-    window.scrollTo(0, 0);
-  }
+    wrap.appendChild(grid);
+    appState.container.appendChild(wrap);
+}
 
-  // ── SUBPAGE ──
-  function showSub(cat) {
-    // Push a recoverable state BEFORE swapping content
-    // digestView:"main" means: if popstate fires with this state, show main
-    history.pushState({ page: "digest", sub: null, digestView: "main" }, "");
+// 6. Sub View: Article Feed
+function showSub(cat) {
+    appState.container.innerHTML = "";
+    var wrap = el("div", { css: { padding: "20px", maxWidth: "600px", margin: "0 auto", height: "100vh", display: "flex", flexDirection: "column" } });
 
-    contentWrap.innerHTML = "";
-    window.scrollTo(0, 0);
-
-    var wrap = el("div", { css: { maxWidth: "780px", margin: "0 auto", paddingBottom: "48px" } });
-
-    var topBar = el("div", { css: { display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px" } });
-
+    // Header for sub-view
+    var header = el("div", { css: { display: "flex", alignItems: "center", marginBottom: "20px", gap: "12px" } });
+    
     var backBtn = el("button", {
-      css: {
-        padding: "10px 18px", borderRadius: "12px", border: "1.5px solid var(--border2)",
-        background: "var(--bg2)", color: "var(--text)", fontWeight: "600",
-        fontSize: ".9rem", cursor: "pointer", fontFamily: "var(--font-body)",
-        transition: "all 0.2s", display: "flex", alignItems: "center", gap: "8px", flexShrink: "0"
-      },
-      onclick: function () { history.back(); }
+        css: { padding: "8px 16px", background: "var(--bg2)", color: "var(--text)", border: "1px solid var(--border)", borderRadius: "8px", cursor: "pointer", fontWeight: "600" },
+        txt: "← Back",
+        onclick: showMain
     });
-    backBtn.innerHTML = '<span style="font-size:1.1rem;line-height:1;">←</span> Back';
-    backBtn.addEventListener("mouseenter", function () { this.style.background = "var(--border)"; });
-    backBtn.addEventListener("mouseleave", function () { this.style.background = "var(--bg2)"; });
+    
+    header.appendChild(backBtn);
+    header.appendChild(el("h2", { css: { margin: "0", fontSize: "1.5rem", color: "var(--text)", flex: "1" }, txt: cat.icon + " " + cat.label }));
+    wrap.appendChild(header);
 
-    var titleWrap = el("div");
-    titleWrap.appendChild(el("div", { css: { fontSize: ".7rem", color: cat.color, textTransform: "uppercase", letterSpacing: ".1em", fontWeight: "700", marginBottom: "2px" } }, "Daily Digest"));
-    titleWrap.appendChild(el("div", { css: { fontSize: "1.5rem", fontWeight: "800", fontFamily: "var(--font-display)" } }, cat.icon + " " + cat.label + " News"));
+    var newsWrap = el("div", { id: "newsWrap", css: { flex: "1" } });
+    wrap.appendChild(newsWrap);
+    appState.container.appendChild(wrap);
 
-    topBar.appendChild(backBtn);
-    topBar.appendChild(titleWrap);
-    wrap.appendChild(topBar);
+    // Skeleton Loader
+    newsWrap.innerHTML = `
+        <div style="height: 75vh; border: 2px solid var(--border); border-radius: 16px; background: var(--card); overflow: hidden; display: flex; flex-direction: column;">
+            <div style="height: 45%; background: var(--border2); opacity: 0.5;"></div>
+            <div style="padding: 24px; flex: 1;">
+                <div style="width: 30%; height: 12px; background: var(--border); margin-bottom: 20px; border-radius: 4px;"></div>
+                <div style="width: 90%; height: 24px; background: var(--border2); margin-bottom: 12px; border-radius: 4px;"></div>
+                <div style="width: 70%; height: 24px; background: var(--border2); margin-bottom: 24px; border-radius: 4px;"></div>
+                <div style="width: 100%; height: 100px; background: var(--bg2); border-left: 4px solid var(--border); border-radius: 4px;"></div>
+            </div>
+        </div>
+    `;
 
-    var panel = el("div", { css: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", padding: "22px", boxShadow: "var(--shadow-card)" } });
-    var newsWrap = el("div", {});
-    newsWrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:.9rem">⏳ Fetching latest news...</div>';
-    panel.appendChild(newsWrap);
-    wrap.appendChild(panel);
-    contentWrap.appendChild(wrap);
+    // 7. Fetch Logic
+    if (appState.cache[cat.id]) {
+        renderArticles(appState.cache[cat.id], cat, newsWrap);
+    } else {
+        var feedUrl = cat.feeds[0].url;
+        var apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedUrl);
+        
+        fetch(apiUrl)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.status === 'ok') {
+                    var newArticles = data.items.map(function (item) {
+                        return {
+                            title: item.title,
+                            url: item.link,
+                            source: cat.feeds[0].name,
+                            pubDate: item.pubDate,
+                            description: item.description || item.contentSnippet || "", 
+                            image: item.thumbnail || (item.enclosure && item.enclosure.link) || ""
+                        };
+                    });
+                    appState.cache[cat.id] = newArticles;
+                    renderArticles(newArticles, cat, newsWrap);
+                } else {
+                    newsWrap.innerHTML = '<div style="padding:20px;text-align:center;color:red;">Error loading news.</div>';
+                }
+            })
+            .catch(function(err) {
+                newsWrap.innerHTML = '<div style="padding:20px;text-align:center;color:red;">Network Error.</div>';
+            });
+    }
+}
 
-    // Fetch
-    var todayStr = new Date().toDateString();
-    var cacheKey = "digest_daily_" + cat.id;
-    var cachedData = Sv.get(cacheKey) || { date: "", articles: [] };
-    if (cachedData.date !== todayStr) cachedData = { date: todayStr, articles: [] };
-
-    var feeds    = (typeof CA_FEEDS    !== "undefined" && CA_FEEDS[cat.id])    ? CA_FEEDS[cat.id]    : [];
-    var fallback = (typeof CA_FALLBACK !== "undefined" && CA_FALLBACK[cat.id]) ? CA_FALLBACK[cat.id] : [];
-
-    function renderArticles(articles) {
-      newsWrap.innerHTML = "";
-      if (!articles || !articles.length) {
+// 8. Render UI: Swipeable Cards
+function renderArticles(articles, cat, newsWrap) {
+    newsWrap.innerHTML = "";
+    
+    if (!articles || !articles.length) {
         newsWrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">No articles found for today.</div>';
         return;
-      }
-      articles.slice(0, 50).forEach(function (a, i) {
-        var isLast = i === Math.min(articles.length, 50) - 1;
-        var item = el("div", { css: { padding: "14px 10px", borderBottom: isLast ? "none" : "1px solid var(--border)", cursor: "pointer", transition: "all 0.2s" }, onclick: function () { if (a.url && a.url !== "#") window.open(a.url, "_blank"); } });
-        item.addEventListener("mouseenter", function () { this.style.background = "var(--card2)"; this.style.borderRadius = "10px"; this.style.transform = "translateX(4px)"; });
-        item.addEventListener("mouseleave", function () { this.style.background = "transparent"; this.style.transform = "translateX(0)"; });
+    }
 
-        var row = el("div", { css: { display: "flex", gap: "12px", alignItems: "flex-start" } });
-        row.appendChild(el("div", { css: { minWidth: "8px", height: "8px", borderRadius: "50%", background: cat.color, marginTop: "8px", flexShrink: "0", boxShadow: "0 0 8px " + cat.color + "60" } }));
-
-        var txt = el("div", { css: { flex: "1" } });
-        txt.appendChild(el("div", { css: { fontSize: ".95rem", fontWeight: "600", lineHeight: "1.5", color: "var(--text)", marginBottom: "6px" }, txt: a.title }));
-
-        var meta = el("div", { css: { display: "flex", gap: "10px", alignItems: "center" } });
-        if (a.source) meta.appendChild(el("span", { css: { fontSize: ".7rem", color: cat.color, fontWeight: "700", background: cat.color + "15", padding: "3px 8px", borderRadius: "6px" } }, a.source));
-        if (a.pubDate) {
-          var d = new Date(a.pubDate);
-          if (!isNaN(d)) meta.appendChild(el("span", { css: { fontSize: ".7rem", color: "var(--subtle)" } }, d.toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })));
+    var swipeContainer = el("div", {
+        className: "swipe-container",
+        css: {
+            height: "75vh", 
+            maxHeight: "800px",
+            overflowY: "scroll",
+            scrollSnapType: "y mandatory", 
+            borderRadius: "16px",
+            border: "2px solid var(--border)",
+            background: "var(--bg)", 
+            position: "relative"
         }
-        txt.appendChild(meta);
-        row.appendChild(txt);
-        item.appendChild(row);
-        newsWrap.appendChild(item);
-      });
-    }
+    });
 
-    if (cachedData.articles.length > 0) renderArticles(cachedData.articles);
+    articles.slice(0, 15).forEach(function (a) {
+        var card = el("div", {
+            css: {
+                height: "100%",
+                width: "100%",
+                scrollSnapAlign: "start",
+                display: "flex",
+                flexDirection: "column",
+                position: "relative",
+                borderBottom: "2px solid var(--border)",
+                backgroundImage: "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+                backgroundSize: "20px 20px",
+                backgroundColor: "var(--card)"
+            }
+        });
 
-    function tryFeed(i) {
-      if (i >= feeds.length) { if (cachedData.articles.length === 0) renderArticles(fallback); return; }
-      fetch(feeds[i].url)
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.items && data.items.length) {
-            var newArticles = data.items.map(function (item) {
-              return { title: item.title, url: item.link, source: feeds[i].name, pubDate: item.pubDate };
-            });
-            var allArticles = newArticles.concat(cachedData.articles);
-            var uniqueArticles = [], seenUrls = {};
-            allArticles.forEach(function (a) {
-              if (a.url && !seenUrls[a.url]) { seenUrls[a.url] = true; uniqueArticles.push(a); }
-            });
-            uniqueArticles.sort(function (a, b) {
-              return (new Date(b.pubDate).getTime() || 0) - (new Date(a.pubDate).getTime() || 0);
-            });
-            cachedData.articles = uniqueArticles;
-            Sv.set(cacheKey, cachedData);
-            renderArticles(uniqueArticles);
-          } else { tryFeed(i + 1); }
-        })
-        .catch(function () { tryFeed(i + 1); });
-    }
-    tryFeed(0);
-  }
+        // Hero Image
+        var imgUrl = a.image || "https://via.placeholder.com/600x300/1A1A1A/FFFFFF?text=" + encodeURIComponent(cat.label);
+        var hero = el("div", {
+            css: {
+                height: "45%",
+                width: "100%",
+                backgroundImage: `url('${imgUrl}')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderBottom: "2px solid var(--border)"
+            }
+        });
+        card.appendChild(hero);
 
-  // ── POPSTATE LISTENER ──
-  // Listens for hardware back button while digest is mounted.
-  // Auto-cleans itself when the digest page is removed from DOM.
-  function onPopState(e) {
-    if (!w.isConnected) {
-      window.removeEventListener("popstate", onPopState);
-      return;
-    }
-    if (e.state && e.state.digestView === "main") {
-      showMain();
-    }
-  }
-  window.addEventListener("popstate", onPopState);
+        // Content Area
+        var content = el("div", { css: { padding: "24px", flex: "1", display: "flex", flexDirection: "column", background: "var(--card)" } });
+        
+        var meta = el("div", { css: { display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: ".75rem", fontWeight: "700", textTransform: "uppercase" } });
+        meta.appendChild(el("span", { css: { color: cat.color }, txt: a.source }));
+        
+        var d = new Date(a.pubDate);
+        meta.appendChild(el("span", { css: { color: "var(--subtle)" }, txt: !isNaN(d) ? d.toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today" }));
+        content.appendChild(meta);
 
-  // Initial view
-  if (sub) {
-    var initCat = CATS.find(function (c) { return c.id === sub; });
-    if (initCat) { showSub(initCat); } else { showMain(); }
-    sub = null;
-  } else {
-    showMain();
-  }
+        content.appendChild(el("h2", { 
+            css: { fontSize: "1.4rem", fontWeight: "800", lineHeight: "1.3", marginBottom: "16px", color: "var(--text)" }, 
+            txt: a.title 
+        }));
 
-  w.appendChild(contentWrap);
-  return w;
+        // Context Box
+        var summaryBox = el("div", { css: { background: "var(--bg2)", padding: "16px", borderLeft: `4px solid ${cat.color}`, marginBottom: "auto", borderRadius: "0 8px 8px 0" } });
+        summaryBox.appendChild(el("div", {
+            css: { fontSize: ".7rem", fontWeight: "800", color: cat.color, marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".05em" },
+            txt: "💡 Exam Relevance & Context"
+        }));
+        
+        var cleanDesc = a.description.replace(/<\/?[^>]+(>|$)/g, ""); 
+        summaryBox.appendChild(el("div", {
+            css: { fontSize: ".9rem", lineHeight: "1.6", color: "var(--text)" },
+            txt: cleanDesc ? (cleanDesc.substring(0, 140) + "...") : "Key developments in this sector. Crucial for upcoming General Awareness sections."
+        }));
+        content.appendChild(summaryBox);
+
+        // Action Bar
+        var actionBar = el("div", { css: { display: "flex", gap: "12px", marginTop: "20px" } });
+        var readBtn = el("button", {
+            css: { flex: "1", padding: "14px", background: cat.color, color: "#fff", fontWeight: "700", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: ".95rem" },
+            txt: "Read Full Article →",
+            onclick: function() {
+                updateDailyProgress();
+                if (a.url) window.open(a.url, "_blank");
+            }
+        });
+        
+        actionBar.appendChild(readBtn);
+        content.appendChild(actionBar);
+        card.appendChild(content);
+        swipeContainer.appendChild(card);
+    });
+
+    // End Card
+    var endCard = el("div", {
+        css: { height: "100%", width: "100%", scrollSnapAlign: "start", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--card)", textAlign: "center", padding: "40px" }
+    });
+    endCard.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "16px" }, txt: "🎉" }));
+    endCard.appendChild(el("div", { css: { fontSize: "1.5rem", fontWeight: "800", marginBottom: "8px", color: "var(--text)" }, txt: "You're all caught up!" }));
+    endCard.appendChild(el("div", { css: { fontSize: ".9rem", color: "var(--muted)" }, txt: "Check back tomorrow for more updates." }));
+    swipeContainer.appendChild(endCard);
+
+    newsWrap.appendChild(swipeContainer);
+    
+    newsWrap.appendChild(el("div", {
+        css: { textAlign: "center", fontSize: ".8rem", color: "var(--muted)", marginTop: "12px", fontWeight: "600" },
+        txt: "↕ Scroll vertically to view next article"
+    }));
 }
+
+// 9. Auto-Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Looks for common container IDs, defaults to document.body if none found
+    var target = document.getElementById('app') || document.getElementById('root') || document.getElementById('digest-container') || document.body;
+    
+    if (target === document.body) {
+        // If attaching to body, wrap it in a clean div so it doesn't break existing layout
+        appState.container = document.createElement('div');
+        appState.container.id = 'digest-wrapper';
+        document.body.appendChild(appState.container);
+    } else {
+        appState.container = target;
+    }
+    
+    showMain();
+});
