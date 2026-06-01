@@ -691,8 +691,7 @@ function createSmartFeedbackWidget() {
     widgetWrap.appendChild(submitBtn);
     return widgetWrap;
 }
-// Add this line where you want the widget to show up on the home page
-contentWrap.appendChild(createSmartFeedbackWidget());
+
 
     if(window.STUDYLAB_FEEDBACK_URL) {
       fetch(window.STUDYLAB_FEEDBACK_URL, {
