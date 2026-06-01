@@ -1578,11 +1578,15 @@ var AppTour = {
   currentIndex: 0,
   activeTarget: null,
   
-  prompt: function() {
-    if (localStorage.getItem('studylab_tour_done') || pg !== "home") {
-      this.triggerNextStep(); // Skip tour, go straight to login/install checks
+   prompt: function() {
+    // 1. STRICT CHECK: Skip if tour is done, OR if user is already signed in, OR not on home page
+    if (localStorage.getItem('studylab_tour_done') || localStorage.getItem('sl_user') || pg !== "home") {
+      this.triggerNextStep(); 
       return;
     }
+
+    // 2. INSTANT MEMORY: Mark the tour as seen immediately so it NEVER pops up again on reload
+    localStorage.setItem('studylab_tour_done', 'true');
 
     var overlay = el("div", {
       css: { position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease" }
@@ -1601,13 +1605,19 @@ var AppTour = {
     var skipBtn = el("button", { 
       css: { flex: "1", padding: "12px", borderRadius: "12px", border: "1.5px solid var(--border2)", background: "transparent", color: "var(--muted)", fontWeight: "600", cursor: "pointer" }, 
       txt: "Skip", 
-      onclick: () => { document.body.removeChild(overlay); this.end(); } 
+      onclick: () => { 
+          document.body.removeChild(overlay); 
+          this.triggerNextStep(); // Go straight to sign-in/install!
+      } 
     });
     
     var startBtn = el("button", { 
       css: { flex: "2", padding: "12px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(79,142,247,0.3)" }, 
       txt: "Start Tour 🚀", 
-      onclick: () => { document.body.removeChild(overlay); this.init(); } 
+      onclick: () => { 
+          document.body.removeChild(overlay); 
+          this.init(); 
+      } 
     });
 
     btnRow.appendChild(skipBtn);
@@ -1616,6 +1626,7 @@ var AppTour = {
     overlay.appendChild(card);
     document.body.appendChild(overlay);
   },
+
 
   init: function() {
     this.backdrop = el("div", { id: "sl-tour-backdrop" });
@@ -1756,5 +1767,4 @@ window.addEventListener('load', function() {
       AppTour.prompt();
   }, 1000);
 });
-
 
