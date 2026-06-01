@@ -161,7 +161,14 @@ var qrCard = el("div",{css:{background:"var(--bg2)",borderRadius:"20px",border:"
 var qrTop = el("div",{css:{display:"flex",justifyContent:"center",alignItems:"center",padding:"20px",background:"#ffffff"}});
 var scanWrap = el("div",{css:{position:"relative",display:"inline-block"}});
 
-var cBase = {position:"absolute",width:"20px",height:"20px",borderColor:"#4F8EF7",borderStyle:"solid",borderWidth:"0"};
+var cBase = {
+  position: "absolute",
+  width: "20px",
+  height: "20px",
+  borderColor: "transparent",
+  borderStyle: "solid",
+  borderWidth: "0"
+};
 scanWrap.appendChild(el("div",{css:Object.assign({},cBase,{top:"-3px",left:"-3px",borderTopWidth:"3px",borderLeftWidth:"3px",borderRadius:"4px 0 0 0"})}));
 scanWrap.appendChild(el("div",{css:Object.assign({},cBase,{top:"-3px",right:"-3px",borderTopWidth:"3px",borderRightWidth:"3px",borderRadius:"0 4px 0 0"})}));
 scanWrap.appendChild(el("div",{css:Object.assign({},cBase,{bottom:"-3px",left:"-3px",borderBottomWidth:"3px",borderLeftWidth:"3px",borderRadius:"0 0 0 4px"})}));
