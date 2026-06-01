@@ -1,23 +1,16 @@
 window.STUDYLAB_FEEDBACK_URL = "https://formspree.io/f/mzdyqbyz";
 
 // ─── MODERN HERO SECTION ──────────────────────────────────────────
-// ─── MODERN HERO SECTION ──────────────────────────────────────────
 function makeModernHero() {
   var wrap = el("div", {
     css: {
-      position: "relative",
-      borderRadius: "24px",
-      overflow: "hidden",
-      marginBottom: "32px",
-      padding: "48px 20px",
-      textAlign: "center",
-      background: "var(--card)",
-      border: "1px solid var(--border)",
+      position: "relative", borderRadius: "24px", overflow: "hidden",
+      marginBottom: "32px", padding: "48px 20px", textAlign: "center",
+      background: "var(--card)", border: "1px solid var(--border)",
       boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
     }
   });
 
-  // Glowing background orbs for a modern "SaaS" look
   var glow1 = el("div", { css: { position: "absolute", top: "-50px", left: "-50px", width: "200px", height: "200px", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: "0.15", filter: "blur(30px)", pointerEvents: "none" } });
   var glow2 = el("div", { css: { position: "absolute", bottom: "-50px", right: "-50px", width: "250px", height: "250px", background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)", opacity: "0.1", filter: "blur(40px)", pointerEvents: "none" } });
   wrap.appendChild(glow1);
@@ -25,7 +18,6 @@ function makeModernHero() {
 
   var content = el("div", { css: { position: "relative", zIndex: "1", maxWidth: "600px", margin: "0 auto" } });
 
-  // 🌟 UPDATED Top Feature Badge
   var badge = el("div", {
     css: {
       display: "inline-flex", alignItems: "center", gap: "6px",
@@ -41,35 +33,23 @@ function makeModernHero() {
   badge.innerHTML = "<span style='color: #f59e0b'>✨</span> <span>New: RPG Skill Tree & Study Shorts</span> <span style='color: var(--muted)'>→</span>";
   content.appendChild(badge);
 
-  // Main Headline
   content.appendChild(el("h1", {
     css: {
-      fontSize: "clamp(2rem, 6vw, 2.8rem)",
-      fontWeight: "800",
-      letterSpacing: "-0.03em",
-      fontFamily: "var(--font-display)",
-      color: "var(--text)",
-      lineHeight: "1.15",
-      marginBottom: "16px"
+      fontSize: "clamp(2rem, 6vw, 2.8rem)", fontWeight: "800",
+      letterSpacing: "-0.03em", fontFamily: "var(--font-display)",
+      color: "var(--text)", lineHeight: "1.15", marginBottom: "16px"
     },
     htm: "Crack Your Exams with <br><span style='background: linear-gradient(135deg, #4F8EF7, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Smarter Practice.</span>"
   }));
 
-  // Subheadline
   content.appendChild(el("p", {
     css: {
-      fontSize: ".95rem",
-      color: "var(--muted)",
-      lineHeight: "1.6",
-      marginBottom: "32px",
-      fontWeight: "400",
-      maxWidth: "90%",
-      margin: "0 auto 32px"
+      fontSize: ".95rem", color: "var(--muted)", lineHeight: "1.6",
+      marginBottom: "32px", fontWeight: "400", maxWidth: "90%", margin: "0 auto 32px"
     },
     txt: "A free, distraction-free learning lab for UPSC, SSC, and State PCS. Master 4,000+ curated MCQs with instant AI-powered explanations."
   }));
 
-  // Call to Action Buttons
   var ctaRow = el("div", { css: { display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginBottom: "40px" } });
   
   var primaryBtn = el("button", {
@@ -84,13 +64,11 @@ function makeModernHero() {
   primaryBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; });
   primaryBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; });
   
-  // 🌟 UPDATED Secondary Button to point to Shorts
   var secondaryBtn = el("button", {
     css: {
       padding: "12px 28px", borderRadius: "12px", border: "1.5px solid var(--border2)",
       background: "var(--bg2)", color: "var(--text)", fontWeight: "600",
-      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)",
-      transition: "all 0.2s"
+      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)", transition: "all 0.2s"
     },
     onclick: function() { go("shorts"); }
   }, "⚡ Study Shorts");
@@ -101,7 +79,6 @@ function makeModernHero() {
   ctaRow.appendChild(secondaryBtn);
   content.appendChild(ctaRow);
 
-  // Bottom Trust Strip
   var trustStrip = el("div", {
     css: {
       display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap",
@@ -111,7 +88,6 @@ function makeModernHero() {
     }
   });
   
-  // 🌟 UPDATED Trust Strip Features
   var features = [
     { icon: "🗺️", text: "RPG Skill Tree" },
     { icon: "⚡", text: "Study Shorts" },
@@ -134,7 +110,7 @@ function makeModernHero() {
 // ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
 function makeDeadlineWidget() {
   var stored = Sv.get("gu_entries") || [];
-  var allData = stored.concat(GU_FALLBACK);
+  var allData = stored.concat(typeof GU_FALLBACK !== 'undefined' ? GU_FALLBACK : []);
   
   var now = new Date();
   now.setHours(0,0,0,0);
@@ -169,17 +145,10 @@ function makeDeadlineWidget() {
 
   var widget = el("div", {
     css: {
-      background: "var(--card)",
-      border: "1.5px solid " + wCol,
-      borderRadius: "16px",
-      padding: "16px 20px",
-      marginBottom: "28px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      boxShadow: "0 8px 24px " + wBg,
-      cursor: "pointer",
-      transition: "transform 0.2s"
+      background: "var(--card)", border: "1.5px solid " + wCol, borderRadius: "16px",
+      padding: "16px 20px", marginBottom: "28px", display: "flex",
+      alignItems: "center", justifyContent: "space-between",
+      boxShadow: "0 8px 24px " + wBg, cursor: "pointer", transition: "transform 0.2s"
     },
     onclick: function() { go("govtupdates"); }
   });
@@ -211,31 +180,22 @@ function makeDeadlineWidget() {
 // ─── AI DOUBT SOLVER ─────────────────────────────────────────────
 var ADS_LOADING = false;
 
-// ─── AI DOUBT SOLVER ─────────────────────────────────────────────
-var ADS_LOADING = false;
-
 function makeAIDoubtSolver() {
   var wrapper = el("div", {
-  id: "ai-doubt-solver",
-  css: {
-    marginBottom: "28px",
-    borderRadius: "18px",
-    overflow: "hidden",
-    border: "1px solid var(--border2)",
-    background: "var(--card)",
-    // Uses a softer shadow for bright mode, or a variable if you have one defined
-    boxShadow: "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))",
-    transition: "box-shadow 0.3s ease"
-  }
-});
+    id: "ai-doubt-solver",
+    css: {
+      marginBottom: "28px", borderRadius: "18px", overflow: "hidden",
+      border: "1px solid var(--border2)", background: "var(--card)",
+      boxShadow: "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))",
+      transition: "box-shadow 0.3s ease"
+    }
+  });
 
   var bar = el("div", {
     id: "ads-bar",
     css: {
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "14px 18px", cursor: "pointer",
-      // Set to expanded background color by default
-      background: "var(--card2)",
+      padding: "14px 18px", cursor: "pointer", background: "var(--card2)",
       transition: "background 0.2s ease", userSelect: "none"
     }
   });
@@ -244,13 +204,10 @@ function makeAIDoubtSolver() {
 
   var icon = el("div", {
     css: {
-      width: "40px", height: "40px", flexShrink: "0",
-      background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-      borderRadius: "11px", display: "flex", alignItems: "center",
-      justifyContent: "center",
-      boxShadow: "0 4px 12px rgba(99,102,241,0.45)",
-      fontFamily: "var(--font-display)", fontSize: "1rem",
-      fontWeight: "800", color: "#fff", letterSpacing: "-0.02em"
+      width: "40px", height: "40px", flexShrink: "0", background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+      borderRadius: "11px", display: "flex", alignItems: "center", justifyContent: "center",
+      boxShadow: "0 4px 12px rgba(99,102,241,0.45)", fontFamily: "var(--font-display)", 
+      fontSize: "1rem", fontWeight: "800", color: "#fff", letterSpacing: "-0.02em"
     }
   }, "S");
 
@@ -266,7 +223,6 @@ function makeAIDoubtSolver() {
   barLeft.appendChild(barText);
 
   var arrow = el("div", {
-    // Arrow points up by default because the panel is open
     css: {fontSize: "1.1rem", color: "var(--muted)", transition: "transform 0.3s cubic-bezier(0.2,0.8,0.2,1)", lineHeight: "1", transform: "rotate(180deg)"}
   }, "▾");
 
@@ -274,20 +230,14 @@ function makeAIDoubtSolver() {
   bar.appendChild(arrow);
 
   var panel = el("div", {
-    css: {
-      // Set to flex instead of none so it is visible immediately
-      display: "flex", flexDirection: "column",
-      borderTop: "1px solid var(--border)"
-    }
+    css: { display: "flex", flexDirection: "column", borderTop: "1px solid var(--border)" }
   });
 
   var chatArea = el("div", {
     id: "ads-chat-area",
     css: {
-      maxHeight: "300px", overflowY: "auto",
-      padding: "16px 16px 8px",
-      display: "flex", flexDirection: "column", gap: "20px",
-      scrollBehavior: "smooth"
+      maxHeight: "300px", overflowY: "auto", padding: "16px 16px 8px",
+      display: "flex", flexDirection: "column", gap: "20px", scrollBehavior: "smooth"
     }
   });
 
@@ -312,22 +262,18 @@ function makeAIDoubtSolver() {
   });
 
   var input = el("input", {
-    id: "ads-input", type: "text",
-    placeholder: "e.g. What is the Preamble of India?",
+    id: "ads-input", type: "text", placeholder: "e.g. What is the Preamble of India?",
     css: {
-      flex: "1", background: "var(--bg2)",
-      border: "1.5px solid var(--border)", borderRadius: "10px",
-      color: "var(--text)", fontFamily: "var(--font-body)",
+      flex: "1", background: "var(--bg2)", border: "1.5px solid var(--border)", 
+      borderRadius: "10px", color: "var(--text)", fontFamily: "var(--font-body)",
       fontSize: ".85rem", padding: "9px 13px", outline: "none"
     }
   });
   input.addEventListener("focus", function() {
-    this.style.borderColor = "var(--accent)";
-    this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
+    this.style.borderColor = "var(--accent)"; this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
   });
   input.addEventListener("blur", function() {
-    this.style.borderColor = "var(--border)";
-    this.style.boxShadow = "none";
+    this.style.borderColor = "var(--border)"; this.style.boxShadow = "none";
   });
   input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") sendDoubt(messages, welcome, input, sendBtn);
@@ -335,12 +281,10 @@ function makeAIDoubtSolver() {
 
   var sendBtn = el("button", {
     css: {
-      width: "38px", height: "38px", flexShrink: "0",
-      background: "linear-gradient(135deg, #3174F6, #5a9af8)",
-      border: "none", borderRadius: "10px", color: "#fff",
-      cursor: "pointer", display: "flex", alignItems: "center",
-      justifyContent: "center", transition: "all 0.18s ease",
-      boxShadow: "0 4px 12px rgba(49,116,246,0.35)"
+      width: "38px", height: "38px", flexShrink: "0", background: "linear-gradient(135deg, #3174F6, #5a9af8)",
+      border: "none", borderRadius: "10px", color: "#fff", cursor: "pointer", 
+      display: "flex", alignItems: "center", justifyContent: "center", 
+      transition: "all 0.18s ease", boxShadow: "0 4px 12px rgba(49,116,246,0.35)"
     },
     onclick: function() { sendDoubt(messages, welcome, input, sendBtn); }
   });
@@ -356,22 +300,17 @@ function makeAIDoubtSolver() {
     css: {textAlign: "center", fontSize: ".62rem", color: "var(--subtle)", padding: "6px 14px 12px", letterSpacing: "0.04em"}
   }, "Powered by Sarvam AI · Made for India 🇮🇳"));
 
-  // State is now OPEN by default
   var isOpen = true; 
   
   bar.addEventListener("click", function() {
-  isOpen = !isOpen;
-  panel.style.display = isOpen ? "flex" : "none";
-  arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
-  barText.children[1].textContent = isOpen ? "Tap to collapse..." : "Tap to ask anything about your studies...";
-  
-  wrapper.style.boxShadow = isOpen
-    ? "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))" 
-    : "var(--shadow-card)";
-    
-  bar.style.background = isOpen ? "var(--card2)" : "transparent";
-  if (isOpen) setTimeout(function() { input.focus(); }, 300);
-});
+    isOpen = !isOpen;
+    panel.style.display = isOpen ? "flex" : "none";
+    arrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+    barText.children[1].textContent = isOpen ? "Tap to collapse..." : "Tap to ask anything about your studies...";
+    wrapper.style.boxShadow = isOpen ? "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))" : "var(--shadow-card)";
+    bar.style.background = isOpen ? "var(--card2)" : "transparent";
+    if (isOpen) setTimeout(function() { input.focus(); }, 300);
+  });
 
   bar.addEventListener("mouseenter", function() { if (!isOpen) this.style.background = "var(--card2)"; });
   bar.addEventListener("mouseleave", function() { if (!isOpen) this.style.background = "transparent"; });
@@ -418,7 +357,7 @@ async function sendDoubt(messages, welcome, input, sendBtn) {
       messages.appendChild(adsCreateBubble("ai", "⚠️ No response. Please try again."));
     }
   } catch(err) {
-    messages.removeChild(typing);
+    if(messages.contains(typing)) messages.removeChild(typing);
     messages.appendChild(adsCreateBubble("ai", "⚠️ Network error. Check your connection."));
   }
 
@@ -438,8 +377,7 @@ function adsCreateBubble(type, text) {
       display: "flex", alignItems: "center", justifyContent: "center",
       marginTop: "2px", fontSize: ".8rem",
       background: type === "user" ? "var(--accent)" : "linear-gradient(135deg, #6366F1, #8B5CF6)", 
-      color: "#fff", fontWeight: "700",
-      overflow: "hidden"
+      color: "#fff", fontWeight: "700", overflow: "hidden"
     }
   });
   
@@ -459,15 +397,14 @@ function adsCreateBubble(type, text) {
     css: {
       maxWidth: "82%", padding: "10px 14px", fontSize: ".9rem", lineHeight: "1.6",
       color: type === "user" ? "#fff" : "var(--text)", 
-      fontWeight: "500", // Makes the text slightly thicker so it stops fading
-      background: type === "user" ? "var(--accent)" : "var(--card)", // Uses pure card background for max contrast
-      border: type === "user" ? "none" : "1.5px solid var(--border2)", // Stronger border to frame it cleanly
+      fontWeight: "500", 
+      background: type === "user" ? "var(--accent)" : "var(--card)", 
+      border: type === "user" ? "none" : "1.5px solid var(--border2)", 
       borderRadius: type === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
       boxShadow: type === "user" ? "0 4px 12px rgba(0,0,0,0.15)" : "0 2px 10px rgba(0,0,0,0.04)"
     }
   });
   
-  // Parse markdown bolding (**text**) into actual bold HTML tags so important facts pop!
   var formattedText = text
     .replace(/\n/g, "<br>")
     .replace(/\*\*(.*?)\*\*/g, "<strong style='color: var(--text); font-weight: 800;'>$1</strong>");
@@ -485,8 +422,7 @@ function adsCreateTyping() {
     css: {
       width: "26px", height: "26px", borderRadius: "50%", flexShrink: "0",
       display: "flex", alignItems: "center", justifyContent: "center",
-      background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-      overflow: "hidden"
+      background: "linear-gradient(135deg, #6366F1, #8B5CF6)", overflow: "hidden"
     }
   });
   avatar.textContent = "S";
@@ -506,10 +442,8 @@ function adsCreateTyping() {
   for (var i = 0; i < 3; i++) {
     var dot = el("span", {
       css: {
-        width: "6px", height: "6px", borderRadius: "50%",
-        background: "var(--muted)", display: "inline-block",
-        animation: "typing-bounce 1.2s ease-in-out infinite",
-        animationDelay: (i * 0.2) + "s"
+        width: "6px", height: "6px", borderRadius: "50%", background: "var(--muted)", 
+        display: "inline-block", animation: "typing-bounce 1.2s ease-in-out infinite", animationDelay: (i * 0.2) + "s"
       }
     });
     bubble.appendChild(dot);
@@ -524,27 +458,91 @@ function adsScrollChat() {
   if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
 }
 
-// ─── MAIN PAGE RENDER ────────────────────────────────────────────
-// ─── MAIN PAGE RENDER ────────────────────────────────────────────
-// ─── MAIN PAGE RENDER ────────────────────────────────────────────
-// Add this line where you want the widget to show up on the home page
-contentWrap.appendChild(createSmartFeedbackWidget());
+// ─── SMART FEEDBACK WIDGET ─────────────────────────────────────────
+function createSmartFeedbackWidget() {
+    var widgetWrap = el("div", { 
+        css: { background: "var(--card)", border: "2px solid var(--border)", borderRadius: "16px", padding: "20px", margin: "20px 0px", textAlign: "center" } 
+    });
 
+    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 8px 0", fontSize: "1.2rem", color: "var(--text)" }, txt: "How are we doing?" }));
+    
+    // Star Rating UI
+    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.2rem", color: "var(--border)", cursor: "pointer", marginBottom: "16px" } });
+    var stars = [];
+    var currentRating = 5; 
+
+    for (let i = 1; i <= 5; i++) {
+        let star = el("span", { txt: "★", css: { transition: "color 0.2s", color: "#4F8EF7" } });
+        star.onclick = function() {
+            currentRating = i;
+            stars.forEach((s, index) => {
+                s.style.color = index < currentRating ? "#4F8EF7" : "var(--border)";
+            });
+        };
+        stars.push(star);
+        starContainer.appendChild(star);
+    }
+    widgetWrap.appendChild(starContainer);
+
+    var textArea = el("textarea", { 
+        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
+    });
+    textArea.placeholder = "Tell us what you think or suggest a feature...";
+    
+    var submitBtn = el("button", { 
+        css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "1rem" }, 
+        txt: "Submit Feedback" 
+    });
+
+    submitBtn.onclick = function() {
+        var feedbackText = textArea.value.trim();
+
+        var savedData = localStorage.getItem('sl_user');
+        var user = savedData ? JSON.parse(savedData) : { name: "Guest User", phone: "Unknown" };
+
+        if(window.STUDYLAB_FEEDBACK_URL) {
+            fetch(window.STUDYLAB_FEEDBACK_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    Date: new Date().toLocaleString("en-IN"),
+                    Name: user.name,
+                    Phone: user.phone,
+                    Rating: currentRating + " stars",
+                    Message: feedbackText || "(no message)"
+                })
+            }).catch(function(){});
+        }
+
+        var firstName = user.name.split(' ')[0];
+        widgetWrap.innerHTML = `
+            <div style="padding: 24px; text-align: center;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">🎉</div>
+                <div style="font-weight: 800; font-size: 1.2rem; color: var(--text); margin-bottom: 8px;">Thank you, ${firstName}!</div>
+                <div style="font-size: .9rem; color: var(--muted);">Your feedback has been sent to our team.</div>
+            </div>
+        `;
+    };
+
+    widgetWrap.appendChild(textArea);
+    widgetWrap.appendChild(submitBtn);
+    return widgetWrap;
+}
+
+
+// ─── MAIN PAGE RENDER ────────────────────────────────────────────
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("home"));
 
-  // 1. Modern Hero Section
   w.appendChild(makeModernHero());
-
-  // 2. Deadline Widget
   w.appendChild(makeDeadlineWidget());
+  if (typeof makeQuoteCard === 'function') w.appendChild(makeQuoteCard());
 
-  // 3. Quote of the Day
-  w.appendChild(makeQuoteCard());
-
-  // 🌟 4. THE SKILL TREE ENTRY BUTTON 🌟
   var skillTreeBanner = el("div", {
     css: {
       background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
@@ -576,13 +574,8 @@ function pgHome(){
   skillTreeBanner.appendChild(el("div", {css:{fontSize:"1.5rem", fontWeight:"800", background: "rgba(255,255,255,0.2)", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%"}}, "→"));
 
   w.appendChild(skillTreeBanner);
-  // 🌟 END OF SKILL TREE BUTTON 🌟
-
-  // 💡 5. AI DOUBT SOLVER (MOVED HERE!) 💡
   w.appendChild(makeAIDoubtSolver());
 
-
-  // 6. Subject showcase
   var SD={
     History:{color:"#7c3aed",bg:"#f5f3ff",desc:"Explore ancient civilizations, medieval kingdoms, freedom struggle, and modern India.",topics:["Indus Valley","Mughal Empire","British Raj","Independence Movement","Ancient India"],sym:["⚔️","🏛️","📜","👑","⚛️","🛡️"]},
     Geography:{color:"#059669",bg:"#ecfdf5",desc:"From Himalayas to coastal plains, rivers, climate zones, and world physical features.",topics:["Rivers & Lakes","Climate","Physical Features","World Map","Agriculture"],sym:["🌍","🏔️","🌊","🌿","🌋","🌎"]},
@@ -593,140 +586,63 @@ function pgHome(){
     "Current Affairs":{color:"#3b82f6",bg:"#eff6ff",desc:"Stay updated with national, international, economy, sports, and tech news.",topics:["National","International","Economy","Sports","Tech"],sym:["📰","🌐","🏆","🚀","💰","🔥"]},
     "Previous Year Questions":{color:"#8b5cf6",bg:"#f5f3ff",desc:"Practice with actual past exam papers to understand patterns and difficulty levels.",topics:["UPSC","SSC CGL","Railways","Banking","State PCS"],sym:["📜","🕰️","🎯","📝","📚","🔍"]}
   };
+  
   var subjSec=el("div",{id:"ss",css:{marginBottom:"48px"}});
   var subjTitle=el("div",{css:{textAlign:"center",marginBottom:"32px"}});
   subjTitle.appendChild(el("div",{css:{fontSize:".6rem",color:"var(--subtle)",textTransform:"uppercase",letterSpacing:".18em",fontWeight:"700",marginBottom:"10px",fontFamily:"var(--font-display)"},txt:"Choose Your Subject"}));
   subjTitle.appendChild(el("div",{css:{fontSize:"1.9rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)"},txt:"What do you want to study today?"}));
   subjSec.appendChild(subjTitle);
-  SUBJ.forEach(function(s,idx){
-    var d=SD[s],cnt=(QD[s]||[]).length,isOdd=idx%2===0;
-    var row=el("div",{css:{display:"flex",alignItems:"stretch",gap:"0",marginBottom:"20px",borderRadius:"20px",overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,.25)",cursor:"pointer",minHeight:"180px"},onclick:function(){go("sub",s);}});
-    row.addEventListener("mouseenter",function(){this.style.transform="translateY(-4px)";this.style.boxShadow="0 16px 48px rgba(0,0,0,.35)";});
-    row.addEventListener("mouseleave",function(){this.style.transform="translateY(0)";this.style.boxShadow="0 8px 32px rgba(0,0,0,.25)";});
-    row.style.transition="all .25s ease";
+  
+  if (typeof SUBJ !== 'undefined') {
+    SUBJ.forEach(function(s,idx){
+      var d=SD[s],cnt=(typeof QD !== 'undefined' && QD[s] ? QD[s].length : 0),isOdd=idx%2===0;
+      var row=el("div",{css:{display:"flex",alignItems:"stretch",gap:"0",marginBottom:"20px",borderRadius:"20px",overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,.25)",cursor:"pointer",minHeight:"180px"},onclick:function(){go("sub",s);}});
+      row.addEventListener("mouseenter",function(){this.style.transform="translateY(-4px)";this.style.boxShadow="0 16px 48px rgba(0,0,0,.35)";});
+      row.addEventListener("mouseleave",function(){this.style.transform="translateY(0)";this.style.boxShadow="0 8px 32px rgba(0,0,0,.25)";});
+      row.style.transition="all .25s ease";
 
-    var symPanel=el("div",{css:{width:"clamp(90px,28vw,180px)",flexShrink:"0",background:"var(--card2)",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",order:isOdd?"0":"2",borderRight:isOdd?"1px solid var(--border)":"none",borderLeft:isOdd?"none":"1px solid var(--border)"}});
-    var bigEmoji=el("div",{css:{fontSize:"5rem",opacity:".15",position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)"},txt:ICON[s]});
-    symPanel.appendChild(bigEmoji);
-    var positions=[[10,10],[60,5],[80,55],[15,70],[50,80],[75,20]];
-    (d.sym||[]).slice(0,6).forEach(function(sym,si){
-      var pos=positions[si]||[50,50];
-      var sp=el("div",{css:{position:"absolute",fontSize:"1.3rem",opacity:".25",left:pos[0]+"%",top:pos[1]+"%"}},sym);
-      symPanel.appendChild(sp);
+      var symPanel=el("div",{css:{width:"clamp(90px,28vw,180px)",flexShrink:"0",background:"var(--card2)",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",order:isOdd?"0":"2",borderRight:isOdd?"1px solid var(--border)":"none",borderLeft:isOdd?"none":"1px solid var(--border)"}});
+      var bigEmoji=el("div",{css:{fontSize:"5rem",opacity:".15",position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)"},txt: typeof ICON !== 'undefined' ? ICON[s] : "📚"});
+      symPanel.appendChild(bigEmoji);
+      var positions=[[10,10],[60,5],[80,55],[15,70],[50,80],[75,20]];
+      (d.sym||[]).slice(0,6).forEach(function(sym,si){
+        var pos=positions[si]||[50,50];
+        var sp=el("div",{css:{position:"absolute",fontSize:"1.3rem",opacity:".25",left:pos[0]+"%",top:pos[1]+"%"}},sym);
+        symPanel.appendChild(sp);
+      });
+      var cIcon=el("div",{css:{position:"relative",zIndex:"1",fontSize:"3.5rem",filter:"drop-shadow(0 4px 12px rgba(0,0,0,.2))"},txt: typeof ICON !== 'undefined' ? ICON[s] : "📚"});
+      symPanel.appendChild(cIcon);
+
+      var content=el("div",{css:{flex:"1",minWidth:"0",background:"var(--card)",padding:"20px clamp(14px,4vw,32px)",display:"flex",flexDirection:"column",justifyContent:"center",order:"1",borderLeft:isOdd?"none":"3px solid "+d.color,borderRight:isOdd?"3px solid "+d.color:"none"}});
+      var ctop=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}});
+      ctop.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)",color:"var(--text)"},txt:s}));
+      ctop.appendChild(el("span",{css:{fontSize:".65rem",fontWeight:"700",padding:"3px 10px",borderRadius:"6px",background:d.color+"20",color:d.color,letterSpacing:".06em",fontFamily:"var(--font-display)"}},cnt+" Q"));
+      content.appendChild(ctop);
+      content.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"},txt:d.desc}));
+      var chips=el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"16px"}});
+      (d.topics||[]).forEach(function(t){chips.appendChild(el("span",{css:{fontSize:".68rem",fontWeight:"600",padding:"3px 10px",borderRadius:"6px",background:d.color+"18",color:d.color,border:"1px solid "+d.color+"28",fontFamily:"var(--font-display)",letterSpacing:"0.02em"}},t));});
+      content.appendChild(chips);
+      var cta=el("div",{css:{display:"flex",gap:"8px",alignItems:"center"}});
+      cta.appendChild(el("span",{css:{fontSize:".82rem",fontWeight:"700",color:d.color,fontFamily:"var(--font-display)"}},"Start Learning →"));
+      content.appendChild(cta);
+
+      if(isOdd){row.appendChild(symPanel);row.appendChild(content);}
+      else{row.appendChild(content);row.appendChild(symPanel);}
+      subjSec.appendChild(row);
     });
-    var cIcon=el("div",{css:{position:"relative",zIndex:"1",fontSize:"3.5rem",filter:"drop-shadow(0 4px 12px rgba(0,0,0,.2))"},txt:ICON[s]});
-    symPanel.appendChild(cIcon);
-
-    var content=el("div",{css:{flex:"1",minWidth:"0",background:"var(--card)",padding:"20px clamp(14px,4vw,32px)",display:"flex",flexDirection:"column",justifyContent:"center",order:"1",borderLeft:isOdd?"none":"3px solid "+d.color,borderRight:isOdd?"3px solid "+d.color:"none"}});
-    var ctop=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}});
-    ctop.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)",color:"var(--text)"},txt:s}));
-    ctop.appendChild(el("span",{css:{fontSize:".65rem",fontWeight:"700",padding:"3px 10px",borderRadius:"6px",background:d.color+"20",color:d.color,letterSpacing:".06em",fontFamily:"var(--font-display)"}},cnt+" Q"));
-    content.appendChild(ctop);
-    content.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"},txt:d.desc}));
-    var chips=el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"16px"}});
-    (d.topics||[]).forEach(function(t){chips.appendChild(el("span",{css:{fontSize:".68rem",fontWeight:"600",padding:"3px 10px",borderRadius:"6px",background:d.color+"18",color:d.color,border:"1px solid "+d.color+"28",fontFamily:"var(--font-display)",letterSpacing:"0.02em"}},t));});
-    content.appendChild(chips);
-    var cta=el("div",{css:{display:"flex",gap:"8px",alignItems:"center"}});
-    cta.appendChild(el("span",{css:{fontSize:".82rem",fontWeight:"700",color:d.color,fontFamily:"var(--font-display)"}},"Start Learning →"));
-    content.appendChild(cta);
-
-    if(isOdd){row.appendChild(symPanel);row.appendChild(content);}
-    else{row.appendChild(content);row.appendChild(symPanel);}
-    subjSec.appendChild(row);
-  });
+  }
   w.appendChild(subjSec);
 
- 
----
+  // Add the new Smart Feedback Widget!
+  w.appendChild(createSmartFeedbackWidget());
 
-// --- FULLY WIRED FEEDBACK WIDGET FOR PAGE-HOME.JS ---
-function createSmartFeedbackWidget() {
-    var widgetWrap = el("div", { 
-        css: { background: "var(--card)", border: "2px solid var(--border)", borderRadius: "16px", padding: "20px", margin: "20px 16px", textAlign: "center" } 
-    });
-
-    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 8px 0", fontSize: "1.2rem", color: "var(--text)" }, txt: "How are we doing?" }));
-    
-    // Star Rating UI
-    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.2rem", color: "var(--border)", cursor: "pointer", marginBottom: "16px" } });
-    var stars = [];
-    var currentRating = 5; // Default to 5 stars
-
-    for (let i = 1; i <= 5; i++) {
-        let star = el("span", { txt: "★", css: { transition: "color 0.2s", color: "#4F8EF7" } });
-        star.onclick = function() {
-            currentRating = i;
-            stars.forEach((s, index) => {
-                s.style.color = index < currentRating ? "#4F8EF7" : "var(--border)";
-            });
-        };
-        stars.push(star);
-        starContainer.appendChild(star);
-    }
-    widgetWrap.appendChild(starContainer);
-
-    // Text Area
-    var textArea = el("textarea", { 
-        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
-    });
-    textArea.placeholder = "Tell us what you think or suggest a feature...";
-    
-    var submitBtn = el("button", { 
-        css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "1rem" }, 
-        txt: "Submit Feedback" 
-    });
-
-    submitBtn.onclick = function() {
-        var feedbackText = textArea.value.trim();
-
-        // 1. Pull the auto-saved user data from the sign-in page
-        var savedData = localStorage.getItem('sl_user');
-        var user = savedData ? JSON.parse(savedData) : { name: "Guest User", phone: "Unknown" };
-
-        // 2. YOUR FETCH CODE - Automatically injecting the hidden Name and Phone!
-        if(window.STUDYLAB_FEEDBACK_URL) {
-            fetch(window.STUDYLAB_FEEDBACK_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({
-                    Date: new Date().toLocaleString("en-IN"),
-                    Name: user.name,          // Fills automatically
-                    Phone: user.phone,        // Fills automatically
-                    Rating: currentRating + " stars",
-                    Message: feedbackText || "(no message)"
-                })
-            }).catch(function(){});
-        }
-
-        // 3. Personalized Thank You UI
-        var firstName = user.name.split(' ')[0];
-        widgetWrap.innerHTML = `
-            <div style="padding: 24px; text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 12px;">🎉</div>
-                <div style="font-weight: 800; font-size: 1.2rem; color: var(--text); margin-bottom: 8px;">Thank you, ${firstName}!</div>
-                <div style="font-size: .9rem; color: var(--muted);">Your feedback has been sent to our team.</div>
-            </div>
-        `;
-    };
-
-    widgetWrap.appendChild(textArea);
-    widgetWrap.appendChild(submitBtn);
-    return widgetWrap;
-}
-
-
-
-  // 8. Footer
+  // Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
-  frl.appendChild(makeLogo(22));
+  if (typeof makeLogo === 'function') frl.appendChild(makeLogo(22));
   frl.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--subtle)"},txt:"StudyLab — Your Ultimate Competitive Exam Partner"}));
   ft.appendChild(frl);
   
-  // Updated Creator Link
   var footerCredit = el("a",{
     href: "https://aratt.ai/user/@jaglan_aman", 
     target: "_blank",
