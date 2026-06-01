@@ -114,85 +114,121 @@ function pgAbout(){
   });
   contactBox.appendChild(contactLinks);
   wrap.appendChild(contactBox);
+
 // ── Share card ──
 var APP_URL = "https://jaglandivyansh.github.io/studylab/";
-var shareBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px",marginBottom:"18px"}});
-shareBox.appendChild(el("div",{css:{fontSize:".65rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",fontWeight:"700",marginBottom:"8px",fontFamily:"var(--font-display)"},txt:"✦ Share StudyLab"}));
-shareBox.appendChild(el("div",{css:{fontSize:".88rem",color:"var(--muted)",marginBottom:"16px",lineHeight:"1.65",fontWeight:"300"}},"Know a fellow aspirant? Share StudyLab — it's free for everyone. 🎯"));
+var QR_IMG = "https://raw.githubusercontent.com/jaglandivyansh/studylab/main/assets/studylab-qr.png";
 
-var shareRow = el("div",{css:{display:"flex",gap:"10px",flexWrap:"wrap"}});
+var shareBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"20px",padding:"0",marginBottom:"18px",overflow:"hidden",position:"relative"}});
 
-// Native Share button
-var shareBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"7px",padding:"9px 18px",borderRadius:"10px",background:"var(--accent)",border:"none",color:"#fff",fontSize:".85rem",fontWeight:"700",cursor:"pointer"},onclick:function(){
+// Top gradient bar
+shareBox.appendChild(el("div",{css:{height:"3px",background:"linear-gradient(90deg,var(--accent),#7EB3FF,#a78bfa,transparent)"}}));
+
+var sharePad = el("div",{css:{padding:"24px"}});
+
+// Header row
+var shareHeader = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"6px"}});
+shareHeader.appendChild(el("div",{css:{fontSize:".65rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",fontWeight:"700",fontFamily:"var(--font-display)"}},  "✦ Share StudyLab"));
+shareHeader.appendChild(el("div",{css:{fontSize:".72rem",background:"var(--accent)22",color:"var(--accent)",padding:"3px 10px",borderRadius:"99px",fontWeight:"700",letterSpacing:".04em"}},"FREE · NO ADS"));
+sharePad.appendChild(shareHeader);
+
+sharePad.appendChild(el("div",{css:{fontSize:".88rem",color:"var(--muted)",marginBottom:"20px",lineHeight:"1.65",fontWeight:"300"}},"Help a fellow aspirant discover StudyLab. Share it — it's completely free. 🎯"));
+
+// ── Button row ──
+var shareRow = el("div",{css:{display:"flex",gap:"10px",flexWrap:"wrap",marginBottom:"20px"}});
+
+// 📤 Share App (native)
+var shareBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"linear-gradient(135deg,var(--accent),#7EB3FF)",border:"none",color:"#fff",fontSize:".85rem",fontWeight:"700",cursor:"pointer",boxShadow:"0 4px 14px rgba(79,142,247,0.35)"},onclick:function(){
   if(navigator.share){
-    navigator.share({title:"StudyLab — Free Govt Exam Prep",text:"Free MCQ app for UPSC, SSC, RRB & State PCS. No ads, no paywall.",url:APP_URL}).catch(function(){});
+    navigator.share({title:"StudyLab — Free Govt Exam Prep",text:"📚 Free MCQ app for UPSC, SSC, RRB & State PCS. No ads, no paywall!\n",url:APP_URL}).catch(function(){});
   } else {
     navigator.clipboard.writeText(APP_URL).then(function(){
-      copyBtn.textContent="✅ Copied!";
-      setTimeout(function(){copyBtn.textContent="🔗 Copy Link";},2000);
+      copyBtn.innerHTML="✅ Copied!";
+      setTimeout(function(){copyBtn.innerHTML="🔗 Copy Link";},2000);
     });
   }
 }});
-shareBtn.appendChild(el("span",{},"📤"));
-shareBtn.appendChild(el("span",{}," Share App"));
+shareBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"📤"));
+shareBtn.appendChild(el("span",{},"Share App"));
 shareRow.appendChild(shareBtn);
 
-// Copy Link button
-var copyBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"7px",padding:"9px 18px",borderRadius:"10px",background:"var(--bg2)",border:"1px solid var(--border2)",color:"var(--text)",fontSize:".85rem",fontWeight:"600",cursor:"pointer"},onclick:function(){
+// 🔗 Copy Link
+var copyBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"var(--bg2)",border:"1px solid var(--border2)",color:"var(--text)",fontSize:".85rem",fontWeight:"600",cursor:"pointer"},onclick:function(){
   navigator.clipboard.writeText(APP_URL).then(function(){
-    copyBtn.textContent="✅ Copied!";
-    setTimeout(function(){copyBtn.textContent="🔗 Copy Link";},2000);
+    copyBtn.innerHTML="✅ Copied!";
+    setTimeout(function(){copyBtn.innerHTML="🔗 Copy Link";},2000);
   });
 }});
-copyBtn.appendChild(el("span",{},"🔗"));
-copyBtn.appendChild(el("span",{}," Copy Link"));
+copyBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"🔗"));
+copyBtn.appendChild(el("span",{},"Copy Link"));
 shareRow.appendChild(copyBtn);
 
-// WhatsApp button
-var waBtn = el("a",{href:"https://wa.me/?text="+encodeURIComponent("📚 StudyLab — Free MCQ app for UPSC, SSC, RRB & State PCS. No ads, no login needed!\n\n"+APP_URL),target:"_blank",rel:"noopener",css:{display:"inline-flex",alignItems:"center",gap:"7px",padding:"9px 18px",borderRadius:"10px",background:"#25d36622",border:"1px solid #25d36644",color:"#25d366",fontSize:".85rem",fontWeight:"600",textDecoration:"none"}});
-waBtn.appendChild(el("span",{},"💬"));
-waBtn.appendChild(el("span",{}," WhatsApp"));
+// 💬 WhatsApp
+var waBtn = el("a",{href:"https://wa.me/?text="+encodeURIComponent("📚 *StudyLab* — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads  ✅ No paywall  ✅ AI Doubt Solver\n\n👉 "+APP_URL),target:"_blank",rel:"noopener",css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"#25d36618",border:"1px solid #25d36640",color:"#25d366",fontSize:".85rem",fontWeight:"600",textDecoration:"none"}});
+waBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"💬"));
+waBtn.appendChild(el("span",{},"WhatsApp"));
 shareRow.appendChild(waBtn);
 
-// QR toggle button
+// 📱 Telegram
+var tgBtn = el("a",{href:"https://t.me/share/url?url="+encodeURIComponent(APP_URL)+"&text="+encodeURIComponent("📚 StudyLab — Free MCQ app for UPSC, SSC, RRB & State PCS!\n✅ No ads ✅ No paywall ✅ AI Doubt Solver"),target:"_blank",rel:"noopener",css:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"10px 20px",borderRadius:"12px",background:"#229ED918",border:"1px solid #229ED940",color:"#229ED9",fontSize:".85rem",fontWeight:"600",textDecoration:"none"}});
+tgBtn.appendChild(el("span",{css:{fontSize:"1rem"}},"✈️"));
+tgBtn.appendChild(el("span",{},"Telegram"));
+shareRow.appendChild(tgBtn);
+
+sharePad.appendChild(shareRow);
+
+// ── QR Section ──
 var qrVisible = false;
-var qrContainer = el("div",{css:{marginTop:"16px",display:"none",textAlign:"center"}});
-qrContainer.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--muted)",marginBottom:"10px",fontWeight:"600",letterSpacing:".06em"}},"Scan to open StudyLab 📱"));
-var qrBox = el("div",{css:{display:"inline-block",background:"#fff",padding:"12px",borderRadius:"16px",border:"1px solid var(--border2)"}});
-qrContainer.appendChild(qrBox);
-qrContainer.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",marginTop:"8px"}},"Long press to save QR image"));
 
-var qrBtn = el("button",{css:{display:"inline-flex",alignItems:"center",gap:"7px",padding:"9px 18px",borderRadius:"10px",background:"var(--bg2)",border:"1px solid var(--border2)",color:"var(--text)",fontSize:".85rem",fontWeight:"600",cursor:"pointer"},onclick:function(){
+var qrToggleRow = el("div",{css:{display:"flex",alignItems:"center",gap:"12px",cursor:"pointer",padding:"14px 16px",borderRadius:"14px",background:"var(--bg2)",border:"1px solid var(--border2)",transition:"border-color .2s"},onclick:function(){
   qrVisible = !qrVisible;
-  if(qrVisible){
-    qrContainer.style.display="block";
-    qrBox.innerHTML="";
-    if(typeof QRCode==="undefined"){
-      var s=document.createElement("script");
-      s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-      s.onload=function(){
-        new QRCode(qrBox,{text:APP_URL,width:180,height:180,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
-      };
-      document.head.appendChild(s);
-    } else {
-      new QRCode(qrBox,{text:APP_URL,width:180,height:180,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
-    }
-    qrBox.innerHTML="";
-    qrBtn.textContent="❌ Hide QR";
-  } else {
-    qrContainer.style.display="none";
-    qrBox.innerHTML="";
-    qrBtn.innerHTML="";
-    qrBtn.appendChild(el("span",{},"▦"));
-    qrBtn.appendChild(el("span",{}," Show QR"));
-  }
+  qrPanel.style.display = qrVisible ? "block" : "none";
+  qrArrow.textContent = qrVisible ? "▲" : "▼";
+  qrToggleRow.style.borderColor = qrVisible ? "var(--accent)" : "var(--border2)";
 }});
-qrBtn.appendChild(el("span",{},"▦"));
-qrBtn.appendChild(el("span",{}," Show QR"));
-shareRow.appendChild(qrBtn);
 
-shareBox.appendChild(shareRow);
-shareBox.appendChild(qrContainer);
+var qrIconBox = el("div",{css:{width:"36px",height:"36px",borderRadius:"10px",background:"var(--accent)18",border:"1px solid var(--accent)33",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:"0"}},"▦");
+qrToggleRow.appendChild(qrIconBox);
+
+var qrTextBlock = el("div",{css:{flex:"1"}});
+qrTextBlock.appendChild(el("div",{css:{fontSize:".88rem",fontWeight:"700",marginBottom:"2px"}},"Show QR Code"));
+qrTextBlock.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--muted)",fontWeight:"300"}},"Scan to open StudyLab instantly"));
+qrToggleRow.appendChild(qrTextBlock);
+
+var qrArrow = el("span",{css:{fontSize:".65rem",color:"var(--muted)",flexShrink:"0"}},"▼");
+qrToggleRow.appendChild(qrArrow);
+sharePad.appendChild(qrToggleRow);
+
+// QR Panel (hidden by default)
+var qrPanel = el("div",{css:{display:"none",marginTop:"14px",borderRadius:"16px",border:"1px solid var(--border)",overflow:"hidden"}});
+
+// QR inner — two column layout
+var qrInner = el("div",{css:{display:"flex",alignItems:"center",gap:"0",flexWrap:"wrap"}});
+
+// Left: QR image
+var qrImgWrap = el("div",{css:{flex:"0 0 auto",padding:"20px",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}});
+var qrImg = el("img",{css:{width:"150px",height:"150px",display:"block",borderRadius:"8px"}});
+qrImg.src = QR_IMG;
+qrImg.alt = "StudyLab QR Code";
+qrImgWrap.appendChild(qrImg);
+qrInner.appendChild(qrImgWrap);
+
+// Right: Info
+var qrInfo = el("div",{css:{flex:"1",padding:"20px",minWidth:"160px",background:"var(--bg2)"}});
+qrInfo.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"6px",fontFamily:"var(--font-display)"}},"StudyLab"));
+qrInfo.appendChild(el("div",{css:{fontSize:".78rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"}},"Point your camera at the QR code to open StudyLab instantly on any device."));
+
+// Download QR button
+var dlBtn = el("a",{href:QR_IMG,download:"studylab-qr.png",css:{display:"inline-flex",alignItems:"center",gap:"6px",padding:"8px 14px",borderRadius:"10px",background:"var(--accent)18",border:"1px solid var(--accent)33",color:"var(--accent)",fontSize:".78rem",fontWeight:"700",textDecoration:"none"}});
+dlBtn.appendChild(el("span",{},"⬇"));
+dlBtn.appendChild(el("span",{},"Save QR"));
+qrInfo.appendChild(dlBtn);
+
+qrInner.appendChild(qrInfo);
+qrPanel.appendChild(qrInner);
+sharePad.appendChild(qrPanel);
+
+shareBox.appendChild(sharePad);
 wrap.appendChild(shareBox);
 
   // ── Footer note ──
