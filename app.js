@@ -951,14 +951,14 @@ function showInstallModal() {
   
   var overlay = el("div", {
     css: {
-      position: "fixed",
+      position: "relative",
       inset: "0",
       background: "rgba(4,8,16,0.9)",
       backdropFilter: "blur(12px)",
       display: "flex",
       alignItems: isMobile ? "flex-end" : "center",
       justifyContent: "center",
-      zIndex: "10000",
+      zIndex: "100",
       animation: "fade-in 0.3s ease",
       padding: isMobile ? "0" : "20px"
     }
@@ -1270,7 +1270,7 @@ function showInstallModal() {
     if (document.body.contains(overlay)) {
       document.body.removeChild(overlay);
     }
-  }, 3000); 
+  }, 4000); 
   // ----------------------------------
 }
 
@@ -1576,9 +1576,12 @@ var AppTour = {
     { id: 'ss', icon: '📚', title: 'Pick Your Subject', text: 'Dive into History, Geography, and more. Master 4,000+ questions and unlock your RPG Skill Tree.' }
   ],
   currentIndex: 0,
+isRunning: false,
   activeTarget: null,
   
    prompt: function() {
+if (this.isRunning) return;
+ // ✅ YE LINE ADD KRO SABSE PEHLE
     // 1. THE STRICT LOCK: Skip if tour is done OR if user is signed in
     var isTourDone = localStorage.getItem('studylab_tour_done');
     var isUserSaved = localStorage.getItem('sl_user');
@@ -1594,7 +1597,7 @@ var AppTour = {
     var overlay = el("div", {
       css: { position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease" }
     });
-    
+  
     var card = el("div", {
       css: { background: "var(--card)", borderRadius: "24px", padding: "32px 24px", maxWidth: "340px", width: "85%", textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.4)", animation: "slide-up 0.4s ease" }
     });
@@ -1631,6 +1634,7 @@ var AppTour = {
   },
 
   init: function() {
+this.isRunning = true; // ✅ YE ADD KRO
     this.backdrop = el("div", { id: "sl-tour-backdrop" });
     this.highlight = el("div", { id: "sl-tour-highlight" });
     this.tooltip = el("div", { id: "sl-tour-tooltip" });
@@ -1723,6 +1727,7 @@ var AppTour = {
   },
 
   end: function() {
+this.isRunning = false; // ✅ YE ADD KRO
     if (this.backdrop) this.backdrop.classList.remove('active');
     if (this.highlight) this.highlight.classList.remove('active');
     if (this.tooltip) this.tooltip.classList.remove('active');
@@ -1766,5 +1771,3 @@ window.addEventListener('load', function() {
       AppTour.prompt();
   }, 1000);
 });
-
-
