@@ -465,7 +465,7 @@ function createSmartFeedbackWidget() {
             background: "var(--card)", border: "2px solid var(--border)", 
             borderRadius: "20px", padding: "24px 20px", margin: "24px 16px", 
             textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-            transition: "all 0.3s ease"
+            transition: "box-shadow 0.3s ease, border-color 0.3s ease" // ✅ 'all' ki jagah specific properties
         } 
     });
 
@@ -474,7 +474,11 @@ function createSmartFeedbackWidget() {
     
     // Dynamic Emoji Display
     var emojiDisplay = el("div", { 
-        css: { fontSize: "3.5rem", margin: "10px 0 20px 0", transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }, 
+        css: { fontSize: "3.5rem", margin: "10px 0 20px 0", transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+display: "inline-block",    // ✅ block ki jagah inline-block
+    transformOrigin: "center",  // ✅ ensure center se animate ho
+    willChange: "transform",    // ✅ GPU composite layer
+    lineHeight: "1", },
         txt: "🤔" 
     });
     var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
@@ -493,10 +497,18 @@ function createSmartFeedbackWidget() {
         let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)" } });
         
         star.onclick = function() {
-            currentRating = i;
-            
-            emojiDisplay.style.transform = "scale(1.3) rotate(5deg)";
-            setTimeout(() => { emojiDisplay.style.transform = "scale(1) rotate(0deg)"; }, 200);
+  currentRating = i;
+  
+  // ✅ will-change se GPU layer banao taaki baki DOM affect na ho
+  emojiDisplay.style.willChange = "transform";
+  emojiDisplay.style.transform = "scale(1.3) rotate(5deg)";
+  
+  setTimeout(() => {
+    emojiDisplay.style.transform = "scale(1) rotate(0deg)";
+    setTimeout(() => {
+      emojiDisplay.style.willChange = "auto"; // cleanup
+    }, 300);
+  }, 200);
             
             emojiDisplay.textContent = emojis[i];
             statusText.textContent = ratingText[i];
