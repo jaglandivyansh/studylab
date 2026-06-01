@@ -265,7 +265,7 @@ function makeLogo(sz) {
         css: {
             width: sz + "px",
             height: sz + "px",
-            borderRadius: "50%",
+            borderRadius: "22%",  // ← change this (was "50%")
             background: "#000000",
             color: "#ffffff",
             display: "flex",
