@@ -1101,57 +1101,35 @@ if (isIOS() && !isInStandaloneMode()) {
     setTimeout(function() { showInstallButton(); }, 2000);
 }
 
-//═════════════════════════════════════════════════════════
-══════════
-//HARDWARE BACK BUTTON & EXIT CONFIRMATION ROUTING
-//
-═════════════════════════════════════════════════════════
-══════════
-// 1. Initialize the app history on load
-window.addEventListener('load', function() {
-checkSignIn(function() {
-history.replaceState({ page: 'exit_trap' }, "");
-history.pushState({ page: 'home', sub: null }, "");
-// Start the app
-render();
-// Ask if they want a tour (which chains to the Install Prompt afterwards)
-setTimeout(function() {
-AppTour.prompt();
-}, 800); // Wait just under a second so the home page finishes loading visually
-});
-});
-// 2. Listen for the mobile hardware Back Button
+// HARDWARE BACK BUTTON & EXIT CONFIRMATION ROUTING
 window.addEventListener('popstate', function(e) {
-// If the user clicked the Exit button, ignore this event and let the app close natively
-if (window.allowNativeExit) return;
-if (e.state && e.state.page === 'exit_trap') {
-// 🚨 User pressed back on the Home page! They are trying to leave.
-showExitConfirmationModal();
-// Immediately put the home page back in the history so the app doesn't close
-history.pushState({ page: 'home', sub: null }, "");
-} else if (e.state && e.state.page) {
-// 🔄 User pressed back from inside the app (e.g. returning to Home from a Quiz)
-// We pass 'true' at the end so it doesn't create duplicate history
-go(e.state.page, e.state.sub, true);
-}
+    if (window.allowNativeExit) return;
+    if (e.state && e.state.page === 'exit_trap') {
+        showExitConfirmationModal();
+        history.pushState({ page: 'home', sub: null }, "");
+    } else if (e.state && e.state.page) {
+        go(e.state.page, e.state.sub, true);
+    }
 });
-// 3. The Custom Exit UI function showExitConfirmationModal() {
-var overlay = el("div", {
-css: {
-position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
-backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
-justifyContent: "center", zIndex: "10000", animation: "fade-in 0.2s ease"
-}
-});
-var card = el("div", {
-css: {
-background: "var(--card)", border: "1.5px solid var(--border2)",
-borderRadius: "24px", padding: "32px 28px", maxWidth: "340px", width: "85%",
-textAlign: "center", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-animation: "slide-up 0.3s cubic-bezier(0.2,0.8,0.2,1)"
-}
-});
-var icon = el("div", {
+
+function showExitConfirmationModal() {
+    var overlay = el("div", {
+        css: {
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", zIndex: "10000"
+        }
+    });
+
+    var card = el("div", {
+        css: {
+            background: "var(--card)", border: "1.5px solid var(--border2)",
+            borderRadius: "24px", padding: "32px 28px", maxWidth: "340px", width: "85%",
+            textAlign: "center", position: "relative"
+        }
+    });
+
+    var icon = el("div", {
 css: { fontSize: "3.2rem", marginBottom: "16px", textShadow: "0 8px 16px rgba(0,0,0,0.3)"
 }
 }, "🚪");
@@ -1162,45 +1140,41 @@ marginBottom: "8px" }
 var subtext = el("p", {
 css: { fontSize: "0.9rem", color: "var(--muted)", marginBottom: "24px" }
 }, "Are you sure you want to close the application?");
-var btnRow = el("div", { css: { display: "flex", gap: "10px" } });
-var stayBtn = el("button", {
-css: {
-flex: "1", padding: "13px", borderRadius: "12px", border: "1.5px solid var(--border2)",
-background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer",
-fontFamily: "var(--font-body)"
-},
-onclick: function() { document.body.removeChild(overlay); }
-}, "Stay");
-var exitBtn = el("button", {
-css: {
-flex: "1", padding: "13px", borderRadius: "12px", border: "none",
-background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff",
-fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(239,68,68,0.3)", fontFamily: "var(--font-body)"
-},
+    
+    var btnRow = el("div", { css: { display: "flex", gap: "10px" } });
+    var stayBtn = el("button", {
+        css: {
+            flex: "1", padding: "13px", borderRadius: "12px", border: "1.5px solid var(--border2)",
+            background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer", fontFamily: "var(--font-body)"
+        },
+        onclick: function() { document.body.removeChild(overlay); }
+    }, "Stay");
+
+    var exitBtn = el("button", {
+        css: {
+            flex: "1", padding: "13px", borderRadius: "12px", border: "none",
+            background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff",
+            fontWeight: "700", cursor: "pointer", fontFamily: "var(--font-body)"
+        },
 onclick: function() {
 window.allowNativeExit = true;
-// 1. Remove the modal
 document.body.removeChild(overlay);
-// 2. Show a "Closing…" visual so user knows something happened
+
 var bye = document.createElement('div');
-bye.style.cssText =
-'position:fixed;inset:0;background:var(--bg);z-index:999999;display:flex;flex-direction:column;
-align-items:center;justify-content:center;';
+bye.style.cssText = 'position:fixed;inset:0; background:var(--bg);z-index:999999;display:flex; flex-direction:column; alignItems:center; justify-content:center;';
+
 bye.innerHTML = '<div style="font-size:3rem;margin-bottom:16px;">👋</div><div
 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text);">Good
 bye!</div><div style="font-size:.85rem;color:var(--muted);margin-top:8px;">See you next
 time</div>';
 document.body.appendChild(bye);
-// 3. Try native close (works in TWA/Android PWA)
+
 try { window.close(); } catch(e) {}
-// 4. For browser fallback: use replaceState to kill our trap, then go back
 setTimeout(function() {
-// Replace current state with a real "exit" marker
-history.replaceState({ page: 'exit_trap' }, '');
-// Now go back — browser exits if nothing behind
+history.replaceState({ page: 'exit_trap' }, "");
 history.back();
-// If still alive after 800ms, show a friendly message
 setTimeout(function() {
+
 bye.innerHTML = '<div style="font-size:2.5rem;margin-bottom:16px;">🌐</div><div
 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text);text-ali
 gn:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button
@@ -1208,18 +1182,22 @@ onclick="window.location.reload()" style="margin-top:20px;padding:10px
 24px;border-radius:10px;border:1.5px solid
 var(--border2);background:var(--bg2);color:var(--text);font-size:.9rem;font-weight:600;cursor:
 pointer;">Go Back Instead</button>';
-}, 800);
-}, 100);
+                }, 800);
+            }, 100);
+        }
+    }, "Yes, Exit");
+
+    btnRow.appendChild(stayBtn);
+    btnRow.appendChild(exitBtn);
+    
+    card.appendChild(icon);
+    card.appendChild(title);
+    card.appendChild(subtext);
+    card.appendChild(btnRow);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
 }
-}, "Yes, Exit");
-btnRow.appendChild(stayBtn);
-btnRow.appendChild(exitBtn);
-card.appendChild(icon);
-card.appendChild(title);
-card.appendChild(subtext);
-card.appendChild(btnRow); overlay.appendChild(card);
-document.body.appendChild(overlay);
-}
+
 // Initial Setup Check (Replaces AppTour)
 function checkInitialSetup() {
     var storedUser = localStorage.getItem('sl_user');
