@@ -130,7 +130,12 @@ var heroHead = el("div",{css:{textAlign:"center",marginBottom:"20px"}});
 heroHead.appendChild(el("div",{css:{fontSize:"1.6rem",marginBottom:"6px"}},"✉️"));
 var titleRow = el("div",{css:{fontSize:"1.5rem",fontWeight:"800",letterSpacing:"-.03em",fontFamily:"var(--font-display)",marginBottom:"8px"}});
 titleRow.appendChild(el("span",{},"Share "));
-titleRow.appendChild(el("span",{css:{color:"var(--accent)"}},"StudyLab"));
+titleRow.appendChild(
+  el("span", {}, [
+    el("span", { css: { color: "var(--text)" } }, "Study"),
+    el("span", { css: { color: "var(--accent)" } }, "Lab")
+  ])
+);
 heroHead.appendChild(titleRow);
 heroHead.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)",lineHeight:"1.65",fontWeight:"300"}},"Help students discover free study resources, notes, PYQs, and exam updates."));
 
