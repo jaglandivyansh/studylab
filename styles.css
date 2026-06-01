@@ -1266,3 +1266,12 @@ body::after {
 .tour-dots { display: flex; gap: 4px; }
 .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); transition: all 0.2s; }
 .tour-dot.active { background: var(--accent); width: 16px; border-radius: 4px; }
+
+button, a {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+button:focus, a:focus {
+    outline: none;
+}
