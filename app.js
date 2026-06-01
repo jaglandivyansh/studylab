@@ -1,7 +1,8 @@
 var SUBJ = ["History", "Geography", "Polity", "Economy", "Science", "GK", "Current Affairs", "Previous Year Questions"];
 
 var ICON = {
-    "History": "", "Geography": "", "Polity": "", "Economy": "", "Science": "", "GK": "", "Current Affairs": "", "Previous Year Questions": ""
+    "History": "🏛️", "Geography": "🌍", "Polity": "⚖️", "Economy": "📈", 
+    "Science": "🔬", "GK": "💡", "Current Affairs": "📰", "Previous Year Questions": "📜"
 };
 
 var AC = {
@@ -135,27 +136,22 @@ function closeMobileDrawer() {
 }
 
 function go(p, s, skipHistory) {
-    // Clear RPG mode memory if navigating anywhere EXCEPT the quiz page
     if (p !== "qz") window.activeSkillNode = null;
     pg = p;
     if (s !== undefined) sub = s;
     
-    // Tell the swipe script which page we are actually on
     window.currentPage = p;
     closeMobileDrawer();
 
-    // Tell the phone's back button where we are
     if (!skipHistory) {
         history.pushState({ page: p, sub: s }, "");
     }
     
-    // Instantly update the navigation buttons to show the active state
     var allNavBtns = document.querySelectorAll('#bottom-navbar button, #top-navbar .nb-links button, #nb-mobile-drawer button');
     allNavBtns.forEach(function(b) {
         b.classList.toggle('active', b.getAttribute('data-page') === p);
     });
 
-    // Render immediately, requestAnimationFrame lets GPU finish current frame first
     requestAnimationFrame(function() {
         if (document.startViewTransition) {
             document.startViewTransition(function() { render(); window.scrollTo(0,0); });
@@ -169,7 +165,6 @@ function render() {
     var app = document.getElementById("app"); 
     app.innerHTML = "";
     
-    // Show hero banner and current affairs ONLY on home page
     if(pg == "home") {
         document.body.classList.remove("hide-top-sections"); 
     } else {
@@ -199,70 +194,7 @@ function render() {
 var QUOTES = [
     {q: "The secret of getting ahead is getting started.", a: "Mark Twain"},
     {q: "An investment in knowledge pays the best interest.", a: "Benjamin Franklin"},
-    {q: "Education is the most powerful weapon which you can use to change the world.", a: "Nelson Mandela"},
-    {q: "Live as if you were to die tomorrow. Learn as if you were to live forever.", a: "Mahatma Gandhi"},
-    {q: "The beautiful thing about learning is that nobody can take it away from you.", a: "B.B. King"},
-    {q: "Success is not final, failure is not fatal: it is the courage to continue that counts.", a: "Winston Churchill"},
-    {q: "The more that you read, the more things you will know.", a: "Dr. Seuss"},
-    {q: "Genius is one percent inspiration and ninety-nine percent perspiration.", a: "Thomas Edison"},
-    {q: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius"},
-    {q: "You don't have to be great to start, but you have to start to be great.", a: "Zig Ziglar"},
-    {q: "The expert in anything was once a beginner.", a: "Helen Hayes"},
-    {q: "Develop a passion for learning. If you do, you will never cease to grow.", a: "Anthony J. D'Angelo"},
-    {q: "The mind is not a vessel to be filled but a fire to be kindled.", a: "Plutarch"},
-    {q: "Knowledge is power.", a: "Francis Bacon"},
-    {q: "One child, one teacher, one book, one pen can change the world.", a: "Malala Yousafzai"},
-    {q: "Do not wait to strike till the iron is hot; but make it hot by striking.", a: "William Butler Yeats"},
-    {q: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
-    {q: "In the middle of every difficulty lies opportunity.", a: "Albert Einstein"},
-    {q: "Strive for progress, not perfection.", a: "Unknown"},
-    {q: "Success is the sum of small efforts repeated day in and day out.", a: "Robert Collier"},
-    {q: "Hard work beats talent when talent doesn't work hard.", a: "Tim Notke"},
-    {q: "The future belongs to those who believe in the beauty of their dreams.", a: "Eleanor Roosevelt"},
-    {q: "Believe you can and you're halfway there.", a: "Theodore Roosevelt"},
-    {q: "Your time is limited, so don't waste it living someone else's life.", a: "Steve Jobs"},
-    {q: "The difference between ordinary and extraordinary is that little extra.", a: "Jimmy Johnson"},
-    {q: "Push yourself, because no one else is going to do it for you.", a: "Unknown"},
-    {q: "Great things never come from comfort zones.", a: "Unknown"},
-    {q: "Dream it. Wish it. Do it.", a: "Unknown"},
-    {q: "Stay focused and never give up.", a: "Unknown"},
-    {q: "Work hard in silence, let success make the noise.", a: "Frank Ocean"},
-    {q: "Don't stop when you're tired. Stop when you're done.", a: "Unknown"},
-    {q: "Wake up with determination. Go to bed with satisfaction.", a: "Unknown"},
-    {q: "Little things make big days.", a: "Unknown"},
-    {q: "It's going to be hard, but hard is not impossible.", a: "Unknown"},
-    {q: "Don't wait for opportunity. Create it.", a: "Unknown"},
-    {q: "First, have a definite, clear practical ideal; a goal, an objective.", a: "Aristotle"},
-    {q: "The only limit to our realization of tomorrow is our doubts of today.", a: "Franklin D. Roosevelt"},
-    {q: "You are never too old to set another goal or to dream a new dream.", a: "C.S. Lewis"},
-    {q: "What you get by achieving your goals is not as important as what you become.", a: "Henry David Thoreau"},
-    {q: "It always seems impossible until it's done.", a: "Nelson Mandela"},
-    {q: "Talent is cheaper than table salt. What separates the talented individual from the successful one is hard work.", a: "Stephen King"},
-    {q: "With the new day comes new strength and new thoughts.", a: "Eleanor Roosevelt"},
-    {q: "Opportunities don't happen, you create them.", a: "Chris Grosser"},
-    {q: "Try not to become a person of success, but rather try to become a person of value.", a: "Albert Einstein"},
-    {q: "The man who has confidence in himself gains the confidence of others.", a: "Hasidic Proverb"},
-    {q: "Start where you are. Use what you have. Do what you can.", a: "Arthur Ashe"},
-    {q: "I find that the harder I work, the more luck I seem to have.", a: "Thomas Jefferson"},
-    {q: "Success usually comes to those who are too busy to be looking for it.", a: "Henry David Thoreau"},
-    {q: "Never give up on a dream just because of the time it will take to accomplish it.", a: "Earl Nightingale"},
-    {q: "You miss 100% of the shots you don't take.", a: "Wayne Gretzky"},
-    {q: "Motivation is what gets you started. Habit is what keeps you going.", a: "Jim Ryun"},
-    {q: "I attribute my success to this: I never gave or took any excuse.", a: "Florence Nightingale"},
-    {q: "The way to get started is to quit talking and begin doing.", a: "Walt Disney"},
-    {q: "Well begun is half done.", a: "Aristotle"},
-    {q: "A winner is a dreamer who never gives up.", a: "Nelson Mandela"},
-    {q: "Excellence is not a destination; it is a continuous journey that never ends.", a: "Brian Tracy"},
-    {q: "Education is not preparation for life; education is life itself.", a: "John Dewey"},
-    {q: "The more I read, the more I acquire, the more certain I am that I know nothing.", a: "Voltaire"},
-    {q: "Real knowledge is to know the extent of one's ignorance.", a: "Confucius"},
-    {q: "The greatest glory in living lies not in never falling, but in rising every time we fall.", a: "Nelson Mandela"},
-    {q: "Wisdom is not a product of schooling but of the lifelong attempt to acquire it.", a: "Albert Einstein"},
-    {q: "Learning is a treasure that will follow its owner everywhere.", a: "Chinese Proverb"},
-    {q: "The roots of education are bitter, but the fruit is sweet.", a: "Aristotle"},
-    {q: "Nothing in life is to be feared, it is only to be understood.", a: "Marie Curie"},
-    {q: "Life is what happens when you're busy making other plans.", a: "John Lennon"},
-    {q: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", a: "Mother Teresa"}
+    {q: "Education is the most powerful weapon which you can use to change the world.", a: "Nelson Mandela"}
 ];
 
 function getDailyQuote() {
@@ -326,36 +258,59 @@ function makeQuoteCard() {
     return card;
 }
 
+// Custom StudyLab Logo
 function makeLogo(sz) {
     sz = sz || 40;
-    var img = document.createElement("img");
-    img.src = "logo.png";
-    img.alt = "StudyLab Logo";
-    img.style.width = sz + "px";
-    img.style.height = sz + "px";
-    img.style.borderRadius = "10px";
-    img.style.objectFit = "cover";
-    return img;
+    var logo = el("div", {
+        css: {
+            width: sz + "px",
+            height: sz + "px",
+            borderRadius: "50%",
+            background: "#000000",
+            color: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: "bold",
+            fontSize: (sz * 0.4) + "px",
+            fontFamily: "var(--font-display)",
+            boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)",
+            flexShrink: "0"
+        }
+    }, "SL");
+    return logo;
 }
 
 function showLoginModal() {
     var overlay = el("div", {
         cls: "login-modal", 
+        css: {
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: "10000"
+        },
         onclick: function(e) { if(e.target === overlay) document.body.removeChild(overlay); }
     });
 
-    var card = el("div", { cls: "login-card" });
+    var card = el("div", { 
+        cls: "login-card",
+        css: {
+            background: "var(--card)", border: "1.5px solid var(--border2)",
+            borderRadius: "24px", padding: "40px 36px", maxWidth: "460px",
+            width: "90%", position: "relative"
+        }
+    });
+
     var lc = el("div", { css: { display: "flex", justifyContent: "center", marginBottom: "14px" } });
-    lc.appendChild(makeLogo(56));
+    lc.appendChild(makeLogo(70));
     card.appendChild(lc);
 
     card.appendChild(el("div", {
-        css: { fontSize: "1.4rem", fontWeight: "800", marginBottom: "6px" },
+        css: { fontSize: "1.4rem", fontWeight: "800", marginBottom: "6px", textAlign: "center", color: "var(--text)" },
         txt: "Welcome to StudyLab"
     }));
 
     card.appendChild(el("div", {
-        css: { fontSize: ".85rem", color: "var(--muted)", marginBottom: "24px", lineHeight: "1.6" },
+        css: { fontSize: ".85rem", color: "var(--muted)", marginBottom: "24px", lineHeight: "1.6", textAlign: "center" },
         txt: "Sign in to save your progress across devices and track your improvement"
     }));
 
@@ -363,13 +318,13 @@ function showLoginModal() {
         css: { background: "var(--bg2)", borderRadius: "12px", padding: "16px", marginBottom: "24px", textAlign: "left" }
     });
 
-    ["\u2601\uFE0F Progress saved to cloud", "\uD83D\uDCF1 Access from any device", "\uD83D\uDCCA Personal analytics", "\uD83D\uDD25 Streak tracking"].forEach(function(b) {
+    ["☁️ Progress saved to cloud", "📱 Access from any device", "📊 Personal analytics", "🔥 Streak tracking"].forEach(function(b) {
         benefits.appendChild(el("div", { css: { padding: "6px 0", fontSize: ".82rem", color: "var(--muted)" } }, b));
     });
     card.appendChild(benefits);
 
     var gBtn = document.createElement("button");
-    gBtn.style.cssText = "width:100%; padding: 13px;border-radius: 12px; border:none; background:var(--accent); color:#fff;font-family: Poppins, inherit; font-size: .95rem;font-weight:600;cursor:pointer;display:flex;align-items:center; justify-content:center;gap: 10px; box-shadow:0 2px 8px rgba(0,0,0,.15); transition:all .2s;";
+    gBtn.style.cssText = "width:100%; padding: 13px;border-radius: 12px; border:none; background:var(--accent); color:#fff;font-family: Poppins, inherit; font-size: .95rem;font-weight:600;cursor:pointer;display:flex;align-items:center; justify-content:center;gap: 10px; transition:all .2s;";
     gBtn.innerHTML = 'Continue as Guest';
 
     gBtn.addEventListener("click", function() {
@@ -379,8 +334,8 @@ function showLoginModal() {
 
     card.appendChild(gBtn);
     card.appendChild(el("div", {
-        css: { fontSize: ".72rem", color: "var(--subtle)", marginTop: "14px" }
-    }, "\uD83D\uDD12 Secure login via Google. We never share your data."));
+        css: { fontSize: ".72rem", color: "var(--subtle)", marginTop: "14px", textAlign: "center" }
+    }, "🔒 Secure login via Google. We never share your data."));
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
@@ -390,9 +345,9 @@ function showLoginModal() {
 function showNameInputModal() {
     var overlay = el("div", {
         css: {
-            position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
-            backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
-            justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease"
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", zIndex: "10000"
         }
     });
 
@@ -400,8 +355,7 @@ function showNameInputModal() {
         css: {
             background: "var(--card)", border: "1.5px solid var(--border2)",
             borderRadius: "24px", padding: "40px 36px", maxWidth: "460px",
-            width: "90%", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-            animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)", position: "relative"
+            width: "90%", position: "relative"
         }
     });
 
@@ -412,10 +366,9 @@ function showNameInputModal() {
             width: "80px", height: "80px", margin: "0 auto 20px",
             background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", borderRadius: "50%",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "2.5rem", boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
-            animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+            fontSize: "2.5rem"
         }
-    }, "");
+    }, "🧑‍🎓");
     header.appendChild(icon);
 
     header.appendChild(el("h2", {
@@ -444,7 +397,6 @@ function showNameInputModal() {
 
     nameInput.addEventListener("focus", function() {
         this.style.borderColor = "var(--accent)"; 
-        this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
         nameLabel.style.top = "0"; 
         nameLabel.style.fontSize = ".75rem"; 
         nameLabel.style.color = "var(--accent)"; 
@@ -453,7 +405,6 @@ function showNameInputModal() {
 
     nameInput.addEventListener("blur", function() {
         this.style.borderColor = "var(--border2)"; 
-        this.style.boxShadow = "none";
         if (!this.value) { 
             nameLabel.style.top = "50%"; 
             nameLabel.style.fontSize = ".9rem";
@@ -492,7 +443,6 @@ function showNameInputModal() {
 
     phoneInput.addEventListener("focus", function() {
         this.style.borderColor = "var(--accent)"; 
-        this.style.boxShadow = "0 0 0 3px var(--accent-glow)";
         phoneLabel.style.top = "0"; 
         phoneLabel.style.fontSize = ".75rem"; 
         phoneLabel.style.color = "var(--accent)"; 
@@ -501,7 +451,6 @@ function showNameInputModal() {
 
     phoneInput.addEventListener("blur", function() {
         this.style.borderColor = "var(--border2)"; 
-        this.style.boxShadow = "none";
         if (!this.value) { 
             phoneLabel.style.top = "50%"; 
             phoneLabel.style.fontSize = ".9rem";
@@ -556,7 +505,7 @@ function showNameInputModal() {
             flex: "2", padding: "14px", borderRadius: "12px", border: "none",
             background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff",
             fontFamily: "var(--font-body)", fontSize: ".92rem", fontWeight: "700",
-            cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
+            cursor: "pointer", transition: "all 0.2s ease",
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
         },
         onclick: function() {
@@ -573,11 +522,9 @@ function showNameInputModal() {
 
     continueBtn.addEventListener("mouseenter", function() { 
         this.style.transform = "translateY(-2px)"; 
-        this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; 
     });
     continueBtn.addEventListener("mouseleave", function() { 
         this.style.transform = "translateY(0)"; 
-        this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; 
     });
 
     btnContainer.appendChild(skipBtn);
@@ -626,9 +573,9 @@ function showSignOutModal() {
     var userName = window.currentUser ? window.currentUser.displayName : "User";
     var overlay = el("div", {
         css: {
-            position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
-            backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
-            justifyContent: "center", zIndex: "10000", animation: "fade-in 0.3s ease"
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", zIndex: "10000"
         }
     });
 
@@ -642,8 +589,7 @@ function showSignOutModal() {
         css: {
             background: "var(--card)", border: "1.5px solid var(--border2)",
             borderRadius: "24px", padding: "40px 36px", maxWidth: "440px",
-            width: "90%", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-            animation: "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)", position: "relative"
+            width: "90%", position: "relative"
         }
     });
 
@@ -655,10 +601,9 @@ function showSignOutModal() {
             width: "80px", height: "80px", margin: "0 auto 20px",
             background: "linear-gradient(135deg, #f59e0b, #ef4444)", borderRadius: "50%",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "2.5rem", boxShadow: "0 8px 24px rgba(239,68,68,0.3)",
-            animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+            fontSize: "2.5rem"
         }
-    }, "");
+    }, "👋");
 
     header.appendChild(icon);
     header.appendChild(el("h2", {
@@ -691,7 +636,7 @@ function showSignOutModal() {
             width: "100%", padding: "14px", borderRadius: "12px", border: "none",
             background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff",
             fontFamily: "var(--font-body)", fontSize: ".92rem", fontWeight: "700",
-            cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 4px 14px rgba(239,68,68,0.35)",
+            cursor: "pointer", transition: "all 0.2s ease",
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
         },
         onclick: function() {
@@ -705,11 +650,9 @@ function showSignOutModal() {
 
     signOutBtn.addEventListener("mouseenter", function() {
         this.style.transform = "translateY(-2px)";
-        this.style.boxShadow = "0 6px 20px rgba(239,68,68,0.45)";
     });
     signOutBtn.addEventListener("mouseleave", function() {
         this.style.transform = "translateY(0)";
-        this.style.boxShadow = "0 4px 14px rgba(239,68,68,0.35)";
     });
 
     var cancelBtn = el("button", {
@@ -832,12 +775,10 @@ function makeDeadlineWidget() {
     var wBg = isUrgent ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)";
 
     var widget = el("div", {
-        cls: "glass-modal",
         css: {
             background: "var(--card)", border: "1.5px solid " + wCol, borderRadius: "16px",
             padding: "16px 20px", marginBottom: "28px", display: "flex", alignItems: "center",
-            justifyContent: "space-between", boxShadow: "0 8px 24px " + wBg,
-            cursor: "pointer", transition: "transform 0.2s"
+            justifyContent: "space-between", cursor: "pointer", transition: "transform 0.2s"
         },
         onclick: function() { go("govtupdates"); }
     });
@@ -847,8 +788,8 @@ function makeDeadlineWidget() {
 
     var left = el("div", { css: { display: "flex", alignItems: "center", gap: "14px", flex: "1", minWidth: "0" } });
     left.appendChild(el("div", {
-        css: { fontSize: "2rem", animation: isUrgent ? "pulse-dot 1.2s infinite" : "none", flexShrink: "0" },
-        txt: isExam ? "\uD83D\uDCDD" : "\uD83D\uDCC5" // Added emoji placeholders for aesthetic
+        css: { fontSize: "2rem", flexShrink: "0" },
+        txt: isExam ? "📝" : "📅"
     }));
 
     var textWrap = el("div", { css: { minWidth: "0" } });
@@ -942,7 +883,6 @@ function showInstallButton() {
             display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
             fontSize: isMobile ? ".75rem" : ".82rem", padding: isMobile ? "6px 12px" : "8px 16px",
             background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", border: "none",
-            boxShadow: "0 4px 12px rgba(79,142,247,0.3)", animation: "pulse-glow 2s ease-in-out infinite",
             whiteSpace: "nowrap", minWidth: "fit-content"
         },
         onclick: function(e) {
@@ -959,10 +899,6 @@ function showInstallButton() {
 
     var style = document.createElement('style');
     style.textContent = `
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 4px 12px rgba(79,142,247,0.3); }
-            50% { box-shadow: 0 4px 20px rgba(79,142,247,0.5), 0 0 30px rgba(79,142,247,0.2); }
-        }
         @media (max-width: 768px) { #nb-user-area { gap: 6px !important; } }
     `;
     document.head.appendChild(style);
@@ -974,9 +910,9 @@ function showInstallModal() {
     
     var overlay = el("div", {
         css: {
-            position: "relative", inset: "0", background: "rgba(4,8,16,0.9)",
-            backdropFilter: "blur(12px)", display: "flex", alignItems: isMobile ? "flex-end" : "center",
-            justifyContent: "center", zIndex: "100", animation: "fade-in 0.3s ease",
+            position: "relative", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: isMobile ? "flex-end" : "center",
+            justifyContent: "center", zIndex: "100",
             padding: isMobile ? "0" : "20px"
         }
     });
@@ -987,8 +923,7 @@ function showInstallModal() {
         css: {
             background: "var(--card)", border: "1.5px solid var(--border2)",
             borderRadius: isMobile ? "24px 24px 0 0" : "24px", padding: isMobile ? "32px 24px 40px" : "40px 36px",
-            maxWidth: "460px", width: isMobile ? "100%" : "90%", boxShadow: "0 -8px 32px rgba(0,0,0,0.6)",
-            animation: isMobile ? "slide-up-mobile 0.4s cubic-bezier(0.2,0.8,0.2,1)" : "slide-up 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+            maxWidth: "460px", width: isMobile ? "100%" : "90%",
             position: "relative", maxHeight: isMobile ? "90vh" : "auto", overflowY: "auto"
         }
     });
@@ -1024,10 +959,9 @@ function showInstallModal() {
         css: {
             width: iconSize, height: iconSize, margin: "0 auto 20px", background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)",
             borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: isMobile ? "2rem" : "2.5rem", boxShadow: "0 8px 24px rgba(79,142,247,0.3)",
-            animation: "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+            fontSize: isMobile ? "2rem" : "2.5rem"
         }
-    }, "");
+    }, "📲");
     
     header.appendChild(icon);
     header.appendChild(el("h2", {
@@ -1092,7 +1026,7 @@ function showInstallModal() {
                 flex: "2", padding: isMobile ? "16px" : "14px", borderRadius: "12px", border: "none",
                 background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff",
                 fontFamily: "var(--font-body)", fontSize: isMobile ? ".95rem" : ".92rem", fontWeight: "700",
-                cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 4px 14px rgba(79,142,247,0.35)",
+                cursor: "pointer", transition: "all 0.2s ease",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                 WebkitTapHighlightColor: "transparent"
             },
@@ -1121,10 +1055,6 @@ function showInstallModal() {
         };
         document.addEventListener("keydown", escHandler);
     }
-
-    var style = document.createElement('style');
-    style.textContent = `@keyframes slide-up-mobile { from { transform: translateY(100%); } to { transform: translateY(0); } }`;
-    document.head.appendChild(style);
 
     setTimeout(function() {
         if (document.body.contains(overlay)) document.body.removeChild(overlay);
@@ -1185,9 +1115,9 @@ window.addEventListener('popstate', function(e) {
 function showExitConfirmationModal() {
     var overlay = el("div", {
         css: {
-            position: "fixed", inset: "0", background: "rgba(4,8,16,0.85)",
-            backdropFilter: "blur(12px)", display: "flex", alignItems: "center",
-            justifyContent: "center", zIndex: "10000", animation: "fade-in 0.2s ease"
+            position: "fixed", inset: "0", background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", zIndex: "10000"
         }
     });
 
@@ -1195,12 +1125,11 @@ function showExitConfirmationModal() {
         css: {
             background: "var(--card)", border: "1.5px solid var(--border2)",
             borderRadius: "24px", padding: "32px 28px", maxWidth: "340px", width: "85%",
-            textAlign: "center", boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-            animation: "slide-up 0.3s cubic-bezier(0.2,0.8,0.2,1)"
+            textAlign: "center", position: "relative"
         }
     });
 
-    var icon = el("div", { css: { fontSize: "3.2rem", marginBottom: "16px", textShadow: "0 8px 16px rgba(0,0,0,0.3)" } }, "\uD83D\uDEAA"); // Added emoji placeholder
+    var icon = el("div", { css: { fontSize: "3.2rem", marginBottom: "16px" } }, "🚪"); 
     var title = el("h3", { css: { fontFamily: "var(--font-display)", fontSize: "1.4rem", color: "var(--text)", marginBottom: "8px"} }, "Exit StudyLab?");
     var subtext = el("p", { css: { fontSize: "0.9rem", color: "var(--muted)", marginBottom: "24px"} }, "Are you sure you want to close the application?");
     
@@ -1217,7 +1146,7 @@ function showExitConfirmationModal() {
         css: {
             flex: "1", padding: "13px", borderRadius: "12px", border: "none",
             background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff",
-            fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(239,68,68,0.3)", fontFamily: "var(--font-body)"
+            fontWeight: "700", cursor: "pointer", fontFamily: "var(--font-body)"
         },
         onclick: function() {
             window.allowNativeExit = true;
@@ -1225,7 +1154,7 @@ function showExitConfirmationModal() {
             
             var bye = document.createElement('div');
             bye.style.cssText = 'position:fixed;inset:0; background:var(--bg);z-index:999999;display:flex; flex-direction:column; alignItems:center; justify-content:center;';
-            bye.innerHTML = '<div style="font-size:3rem; margin-bottom: 16px;">\uD83D\uDC4B</div><div style="font-family:var(--font-display); font-size:1.2rem;font-weight:700;color:var(--text);">Goodbye!</div><div style="font-size:.85rem;color:var(--muted); margin-top:8px;">See you next time</div>';
+            bye.innerHTML = '<div style="font-size:3rem; margin-bottom: 16px;">👋</div><div style="font-family:var(--font-display); font-size:1.2rem;font-weight:700;color:var(--text);">Goodbye!</div><div style="font-size:.85rem;color:var(--muted); margin-top:8px;">See you next time</div>';
             document.body.appendChild(bye);
 
             try { window.close(); } catch(e) {}
@@ -1233,7 +1162,7 @@ function showExitConfirmationModal() {
                 history.replaceState({ page: 'exit_trap' }, "");
                 history.back();
                 setTimeout(function() {
-                    bye.innerHTML = '<div style="font-size:2.5rem; margin-bottom: 16px;">\uD83D\uDEAA</div><div style="font-family:var(--font-display); font-size:1.1rem;font-weight:700;color:var(--text);text-align:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button onclick="window.location.reload()" style="margin-top:20px;padding:10px 24px;border-radius: 10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text); font-size:.9rem;font-weight:600;cursor:pointer;">Go Back Instead</button>';
+                    bye.innerHTML = '<div style="font-size:2.5rem; margin-bottom: 16px;">🚪</div><div style="font-family:var(--font-display); font-size:1.1rem;font-weight:700;color:var(--text);text-align:center;padding:0 24px;">Close this tab manually<br>to exit StudyLab</div><button onclick="window.location.reload()" style="margin-top:20px;padding:10px 24px;border-radius: 10px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text); font-size:.9rem;font-weight:600;cursor:pointer;">Go Back Instead</button>';
                 }, 800);
             }, 100);
         }
