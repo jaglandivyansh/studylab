@@ -1563,8 +1563,8 @@ function showExitConfirmationModal() {
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 }
-// ═══════════════════════════════════════════════════════════════════
-// ONBOARDING TOUR ENGINE (PRO VERSION w/ SEQUENTIAL FUNNEL)
+
+// ONBOARDING TOUR ENGINE (STRICT FIRST-TIME USER LOCK)
 // ═══════════════════════════════════════════════════════════════════
 var AppTour = {
   steps: [
@@ -1578,14 +1578,18 @@ var AppTour = {
   currentIndex: 0,
   activeTarget: null,
   
-   prompt: function() {
-    // 1. STRICT CHECK: Skip if tour is done, OR if user is already signed in, OR not on home page
-    if (localStorage.getItem('studylab_tour_done') || localStorage.getItem('sl_user') || pg !== "home") {
+  prompt: function() {
+    // STRICT LOCK: If tour is done OR if user is signed in OR not on home page -> SKIP EVERYTHING
+    var isTourDone = localStorage.getItem('studylab_tour_done');
+    var isUserSaved = localStorage.getItem('sl_user');
+    var isGuest = Sv.get("guest_user");
+
+    if (isTourDone || isUserSaved || isGuest || pg !== "home") {
       this.triggerNextStep(); 
       return;
     }
 
-    // 2. INSTANT MEMORY: Mark the tour as seen immediately so it NEVER pops up again on reload
+    // Lock it immediately so it NEVER shows again on refresh
     localStorage.setItem('studylab_tour_done', 'true');
 
     var overlay = el("div", {
@@ -1605,19 +1609,13 @@ var AppTour = {
     var skipBtn = el("button", { 
       css: { flex: "1", padding: "12px", borderRadius: "12px", border: "1.5px solid var(--border2)", background: "transparent", color: "var(--muted)", fontWeight: "600", cursor: "pointer" }, 
       txt: "Skip", 
-      onclick: () => { 
-          document.body.removeChild(overlay); 
-          this.triggerNextStep(); // Go straight to sign-in/install!
-      } 
+      onclick: () => { document.body.removeChild(overlay); this.triggerNextStep(); } 
     });
     
     var startBtn = el("button", { 
       css: { flex: "2", padding: "12px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #4F8EF7, #7EB3FF)", color: "#fff", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(79,142,247,0.3)" }, 
       txt: "Start Tour 🚀", 
-      onclick: () => { 
-          document.body.removeChild(overlay); 
-          this.init(); 
-      } 
+      onclick: () => { document.body.removeChild(overlay); this.init(); } 
     });
 
     btnRow.appendChild(skipBtn);
@@ -1626,7 +1624,6 @@ var AppTour = {
     overlay.appendChild(card);
     document.body.appendChild(overlay);
   },
-
 
   init: function() {
     this.backdrop = el("div", { id: "sl-tour-backdrop" });
@@ -1725,7 +1722,6 @@ var AppTour = {
     if (this.highlight) this.highlight.classList.remove('active');
     if (this.tooltip) this.tooltip.classList.remove('active');
     
-    localStorage.setItem('studylab_tour_done', 'true');
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('scroll', this.resizeHandler);
     
@@ -1738,15 +1734,13 @@ var AppTour = {
     }, 400);
   },
 
-  // THIS IS THE BRAIN OF THE FUNNEL
   triggerNextStep: function() {
       var storedUser = localStorage.getItem('sl_user');
+      var guestUser = Sv.get("guest_user");
       
-      if (!storedUser) {
-          // If they haven't signed in yet, pop the beautiful Name/Phone modal!
+      if (!storedUser && !guestUser) {
           showNameInputModal();
       } else {
-          // If they are already signed in, check if they need the Install App prompt
           if (typeof triggerSmartInstallPrompt === "function") {
               triggerSmartInstallPrompt();
           }
@@ -1767,4 +1761,5 @@ window.addEventListener('load', function() {
       AppTour.prompt();
   }, 1000);
 });
+
 
