@@ -459,54 +459,106 @@ function adsScrollChat() {
 }
 
 // ─── SMART FEEDBACK WIDGET ─────────────────────────────────────────
+// ─── UPGRADED INTERACTIVE FEEDBACK WIDGET ─────────────────────────
 function createSmartFeedbackWidget() {
     var widgetWrap = el("div", { 
-        css: { background: "var(--card)", border: "2px solid var(--border)", borderRadius: "16px", padding: "20px", margin: "20px 0px", textAlign: "center" } 
+        css: { 
+            background: "var(--card)", border: "2px solid var(--border)", 
+            borderRadius: "20px", padding: "24px 20px", margin: "24px 16px", 
+            textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+            transition: "all 0.3s ease"
+        } 
     });
 
-    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 8px 0", fontSize: "1.2rem", color: "var(--text)" }, txt: "How are we doing?" }));
+    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 4px 0", fontSize: "1.3rem", color: "var(--text)", fontFamily: "var(--font-display)", fontWeight: "800" }, txt: "Rate your experience!" }));
+    widgetWrap.appendChild(el("p", { css: { margin: "0 0 16px 0", fontSize: ".85rem", color: "var(--muted)" }, txt: "Your feedback helps us improve StudyLab." }));
     
-    // Star Rating UI
-    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.2rem", color: "var(--border)", cursor: "pointer", marginBottom: "16px" } });
+    // Dynamic Emoji Display
+    var emojiDisplay = el("div", { 
+        css: { fontSize: "3.5rem", margin: "10px 0 20px 0", transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }, 
+        txt: "🤔" 
+    });
+    var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
+    var ratingText = ["Tap a star", "Needs Work", "It's Okay", "Good", "Great!", "Absolutely Amazing!"];
+    
+    var statusText = el("div", { css: { fontSize: ".9rem", fontWeight: "700", color: "var(--accent)", marginBottom: "16px", minHeight: "20px" }, txt: "Tap a star" });
+
+    widgetWrap.appendChild(emojiDisplay);
+
+    // Interactive Stars
+    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "8px", fontSize: "2.5rem", color: "var(--border2)", cursor: "pointer", marginBottom: "20px" } });
     var stars = [];
-    var currentRating = 5; 
+    var currentRating = 0; 
+
+    // Hidden form that only reveals AFTER a star is clicked
+    var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease" } });
 
     for (let i = 1; i <= 5; i++) {
-        let star = el("span", { txt: "★", css: { transition: "color 0.2s", color: "#4F8EF7" } });
+        let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)", textShadow: "none" } });
+        
+        star.onmouseenter = function() { if(currentRating === 0) this.style.transform = "scale(1.2)"; };
+        star.onmouseleave = function() { if(currentRating === 0) this.style.transform = "scale(1)"; };
+        
         star.onclick = function() {
             currentRating = i;
+            
+            // Pop Animation for Emoji
+            emojiDisplay.style.transform = "scale(1.3) rotate(5deg)";
+            setTimeout(() => { emojiDisplay.style.transform = "scale(1) rotate(0deg)"; }, 200);
+            
+            emojiDisplay.textContent = emojis[i];
+            statusText.textContent = ratingText[i];
+            statusText.style.color = (i <= 2) ? "#ef4444" : (i <= 4) ? "#f59e0b" : "#10b981";
+
+            // Colorize stars with a glow effect
             stars.forEach((s, index) => {
-                s.style.color = index < currentRating ? "#4F8EF7" : "var(--border)";
+                if (index < currentRating) {
+                    s.style.color = "#f59e0b"; // Golden yellow
+                    s.style.textShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
+                    s.style.transform = "scale(1.1)";
+                } else {
+                    s.style.color = "var(--border)";
+                    s.style.textShadow = "none";
+                    s.style.transform = "scale(1)";
+                }
             });
+
+            // Reveal the text area natively
+            formReveal.style.display = "block";
         };
         stars.push(star);
         starContainer.appendChild(star);
     }
-    widgetWrap.appendChild(starContainer);
-
-    var textArea = el("textarea", { 
-        css: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", minHeight: "100px", marginBottom: "12px", fontFamily: "inherit", resize: "none", boxSizing: "border-box" } 
-    });
-    textArea.placeholder = "Tell us what you think or suggest a feature...";
     
-    var submitBtn = el("button", { 
-        css: { width: "100%", padding: "14px", background: "#4F8EF7", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "1rem" }, 
-        txt: "Submit Feedback" 
+    widgetWrap.appendChild(starContainer);
+    widgetWrap.appendChild(statusText);
+
+    // Text Area & Submit
+    var textArea = el("textarea", { 
+        css: { width: "100%", padding: "14px", borderRadius: "12px", border: "2px solid var(--border2)", background: "var(--bg2)", color: "var(--text)", minHeight: "90px", marginBottom: "16px", fontFamily: "inherit", resize: "none", boxSizing: "border-box", fontSize: ".9rem" } 
     });
+    textArea.placeholder = "Tell us what you loved or what we can improve... (Optional)";
+    
+    textArea.addEventListener("focus", function() { this.style.borderColor = "var(--accent)"; });
+    textArea.addEventListener("blur", function() { this.style.borderColor = "var(--border2)"; });
+
+    var submitBtn = el("button", { 
+        css: { width: "100%", padding: "16px", background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "800", cursor: "pointer", fontSize: "1.05rem", boxShadow: "0 4px 15px rgba(79,142,247,0.3)", transition: "transform 0.2s" }, 
+        txt: "Send Feedback 🚀" 
+    });
+    
+    submitBtn.onmousedown = function() { this.style.transform = "scale(0.98)"; };
+    submitBtn.onmouseup = function() { this.style.transform = "scale(1)"; };
 
     submitBtn.onclick = function() {
         var feedbackText = textArea.value.trim();
-
         var savedData = localStorage.getItem('sl_user');
         var user = savedData ? JSON.parse(savedData) : { name: "Guest User", phone: "Unknown" };
 
         if(window.STUDYLAB_FEEDBACK_URL) {
             fetch(window.STUDYLAB_FEEDBACK_URL, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({
                     Date: new Date().toLocaleString("en-IN"),
                     Name: user.name,
@@ -519,18 +571,21 @@ function createSmartFeedbackWidget() {
 
         var firstName = user.name.split(' ')[0];
         widgetWrap.innerHTML = `
-            <div style="padding: 24px; text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 12px;">🎉</div>
-                <div style="font-weight: 800; font-size: 1.2rem; color: var(--text); margin-bottom: 8px;">Thank you, ${firstName}!</div>
-                <div style="font-size: .9rem; color: var(--muted);">Your feedback has been sent to our team.</div>
+            <div style="padding: 30px 20px; text-align: center; animation: bounce-in 0.5s ease;">
+                <div style="font-size: 3.5rem; margin-bottom: 16px;">💖</div>
+                <div style="font-weight: 800; font-size: 1.4rem; color: var(--text); margin-bottom: 8px;">You're awesome, ${firstName}!</div>
+                <div style="font-size: .95rem; color: var(--muted); line-height: 1.5;">Thank you for helping us make StudyLab the best exam partner in India.</div>
             </div>
         `;
     };
 
-    widgetWrap.appendChild(textArea);
-    widgetWrap.appendChild(submitBtn);
+    formReveal.appendChild(textArea);
+    formReveal.appendChild(submitBtn);
+    widgetWrap.appendChild(formReveal);
+    
     return widgetWrap;
 }
+
 
 
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
