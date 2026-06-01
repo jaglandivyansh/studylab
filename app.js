@@ -1101,7 +1101,9 @@ if (isIOS() && !isInStandaloneMode()) {
     setTimeout(function() { showInstallButton(); }, 2000);
 }
 
-HARDWARE BACK BUTTON & EXIT CONFIRMATION ROUTING
+//═════════════════════════════════════════════════════════
+══════════
+//HARDWARE BACK BUTTON & EXIT CONFIRMATION ROUTING
 //
 ═════════════════════════════════════════════════════════
 ══════════
