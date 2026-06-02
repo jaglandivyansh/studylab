@@ -15,11 +15,12 @@ function pgAbout(){
   hero.appendChild(el("div",{css:{fontSize:"2rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)",marginBottom:"6px",position:"relative"},txt:"StudyLab"}));
   hero.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--accent)",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--font-display)",marginBottom:"16px"},txt:"Your Study Partner"}));
   hero.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.75",maxWidth:"460px",margin:"0 auto",fontWeight:"300"},txt:"A free, offline-ready General Studies prep app built with one goal — make serious exam preparation simple, structured, and accessible for every aspirant."}));
-  
+
+  // ── FIXED: removed duplicate subjCount line ──
   var tot = (typeof SUBJ !== "undefined" && typeof QD !== "undefined")
-  ? SUBJ.reduce(function(s, k) { return s + (QD[k] || []).length; }, 0)
-  : 0;
-var subjCount = (typeof SUBJ !== "undefined") ? SUBJ.length : 0;
+    ? SUBJ.reduce(function(s, k) { return s + (QD[k] || []).length; }, 0)
+    : 0;
+  var subjCount = (typeof SUBJ !== "undefined") ? SUBJ.length : 0;
 
   var statsRow = el("div",{css:{display:"flex",justifyContent:"center",gap:"8px",flexWrap:"wrap",marginTop:"22px"}});
   [[tot.toLocaleString() + "+", "MCQs"], [subjCount.toString(), "Subjects"], ["100%", "Free"], ["0", "Ads"]].forEach(function(s){
@@ -31,72 +32,42 @@ var subjCount = (typeof SUBJ !== "undefined") ? SUBJ.length : 0;
   hero.appendChild(statsRow);
   wrap.appendChild(hero);
 
-// ── Mission & Vision ──
-var mvBox = el("div",{
-  css:{
-    display:"grid",
-    gridTemplateColumns:"1fr 1fr",
-    gap:"12px",
-    marginBottom:"16px"
-  }
-});
-
-[
-  {
-    title:"Mission",
-    icon:"🎯",
-    text:"Make quality government exam preparation accessible, simple and completely free for every aspirant."
-  },
-  {
-    title:"Vision",
-    icon:"🚀",
-    text:"Build India's most student-friendly learning platform powered by technology and focused learning."
-  }
-].forEach(function(item){
-
-  var card = el("div",{
+  // ── Mission & Vision ──
+  var mvBox = el("div",{
     css:{
-      background:"var(--card)",
-      border:"1px solid var(--border)",
-      borderRadius:"16px",
-      padding:"20px"
+      display:"grid",
+      gridTemplateColumns:"1fr 1fr",
+      gap:"12px",
+      marginBottom:"16px"
     }
   });
 
-  card.appendChild(
-    el("div",{
+  [
+    {
+      title:"Mission",
+      icon:"🎯",
+      text:"Make quality government exam preparation accessible, simple and completely free for every aspirant."
+    },
+    {
+      title:"Vision",
+      icon:"🚀",
+      text:"Build India's most student-friendly learning platform powered by technology and focused learning."
+    }
+  ].forEach(function(item){
+    var card = el("div",{
       css:{
-        fontSize:"1.5rem",
-        marginBottom:"10px"
+        background:"var(--card)",
+        border:"1px solid var(--border)",
+        borderRadius:"16px",
+        padding:"20px"
       }
-    },item.icon)
-  );
-
-  card.appendChild(
-    el("div",{
-      css:{
-        fontWeight:"800",
-        marginBottom:"8px",
-        fontFamily:"var(--font-display)"
-      }
-    },item.title)
-  );
-
-  card.appendChild(
-    el("div",{
-      css:{
-        fontSize:".85rem",
-        color:"var(--muted)",
-        lineHeight:"1.7"
-      }
-    },item.text)
-  );
-
-  mvBox.appendChild(card);
-
-});
-
-wrap.appendChild(mvBox);
+    });
+    card.appendChild(el("div",{css:{fontSize:"1.5rem",marginBottom:"10px"}},item.icon));
+    card.appendChild(el("div",{css:{fontWeight:"800",marginBottom:"8px",fontFamily:"var(--font-display)"}},item.title));
+    card.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)",lineHeight:"1.7"}},item.text));
+    mvBox.appendChild(card);
+  });
+  wrap.appendChild(mvBox);
 
   // ── Creator card ──
   var cbox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px",marginBottom:"16px",position:"relative",overflow:"hidden"}});
@@ -138,19 +109,17 @@ wrap.appendChild(mvBox);
   fbox.appendChild(fgrid);
   wrap.appendChild(fbox);
 
-// ── Impact ──
-var impactBox = el("div",{
-  css:{
-    background:"var(--card)",
-    border:"1px solid var(--border)",
-    borderRadius:"16px",
-    padding:"24px",
-    marginBottom:"16px"
-  }
-});
-
-impactBox.appendChild(
-  el("div",{
+  // ── Impact ──
+  var impactBox = el("div",{
+    css:{
+      background:"var(--card)",
+      border:"1px solid var(--border)",
+      borderRadius:"16px",
+      padding:"24px",
+      marginBottom:"16px"
+    }
+  });
+  impactBox.appendChild(el("div",{
     css:{
       fontSize:".65rem",
       color:"var(--muted)",
@@ -160,61 +129,29 @@ impactBox.appendChild(
       marginBottom:"18px",
       fontFamily:"var(--font-display)"
     }
-  },"✦ StudyLab Impact")
-);
-
-var impactGrid = el("div",{
-  css:{
-    display:"grid",
-    gridTemplateColumns:"1fr 1fr",
-    gap:"10px"
-  }
-});
-
-[
-  [tot.toLocaleString()+"+","Questions"],
-  [subjCount,"Subjects"],
-  ["100%","Free"],
-  ["0","Ads"]
-].forEach(function(item){
-
-  var card = el("div",{
-    css:{
-      background:"var(--bg2)",
-      border:"1px solid var(--border)",
-      borderRadius:"12px",
-      padding:"18px",
-      textAlign:"center"
-    }
+  },"✦ StudyLab Impact"));
+  var impactGrid = el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}});
+  [
+    [tot.toLocaleString()+"+","Questions"],
+    [subjCount.toString(),"Subjects"],
+    ["100%","Free"],
+    ["0","Ads"]
+  ].forEach(function(item){
+    var card = el("div",{
+      css:{
+        background:"var(--bg2)",
+        border:"1px solid var(--border)",
+        borderRadius:"12px",
+        padding:"18px",
+        textAlign:"center"
+      }
+    });
+    card.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",color:"var(--accent)",fontFamily:"var(--font-display)"}},item[0]));
+    card.appendChild(el("div",{css:{fontSize:".75rem",color:"var(--muted)",marginTop:"4px"}},item[1]));
+    impactGrid.appendChild(card);
   });
-
-  card.appendChild(
-    el("div",{
-      css:{
-        fontSize:"1.4rem",
-        fontWeight:"800",
-        color:"var(--accent)",
-        fontFamily:"var(--font-display)"
-      }
-    },item[0])
-  );
-
-  card.appendChild(
-    el("div",{
-      css:{
-        fontSize:".75rem",
-        color:"var(--muted)",
-        marginTop:"4px"
-      }
-    },item[1])
-  );
-
-  impactGrid.appendChild(card);
-
-});
-
-impactBox.appendChild(impactGrid);
-wrap.appendChild(impactBox);
+  impactBox.appendChild(impactGrid);
+  wrap.appendChild(impactBox);
 
   // ── FAQ ──
   var faqBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px",marginBottom:"16px"}});
@@ -243,19 +180,17 @@ wrap.appendChild(impactBox);
   });
   wrap.appendChild(faqBox);
 
-// ── Roadmap ──
-var roadmap = el("div",{
-  css:{
-    background:"var(--card)",
-    border:"1px solid var(--border)",
-    borderRadius:"16px",
-    padding:"24px",
-    marginBottom:"16px"
-  }
-});
-
-roadmap.appendChild(
-  el("div",{
+  // ── Roadmap ──
+  var roadmap = el("div",{
+    css:{
+      background:"var(--card)",
+      border:"1px solid var(--border)",
+      borderRadius:"16px",
+      padding:"24px",
+      marginBottom:"16px"
+    }
+  });
+  roadmap.appendChild(el("div",{
     css:{
       fontSize:".65rem",
       color:"var(--muted)",
@@ -265,32 +200,20 @@ roadmap.appendChild(
       marginBottom:"18px",
       fontFamily:"var(--font-display)"
     }
-  },"✦ Roadmap")
-);
+  },"✦ Roadmap"));
+  [
+    "✅ AI Doubt Solver",
+    "✅ Current Affairs",
+    "✅ Flashcards",
+    "🚀 PYQ Analysis",
+    "🚀 Smart Study Planner",
+    "🚀 Revision Scheduler",
+    "🚀 Mobile App"
+  ].forEach(function(t){
+    roadmap.appendChild(el("div",{css:{padding:"10px 0",borderBottom:"1px solid var(--border)",fontSize:".88rem"}},t));
+  });
+  wrap.appendChild(roadmap);
 
-[
-  "✅ AI Doubt Solver",
-  "✅ Current Affairs",
-  "✅ Flashcards",
-  "🚀 PYQ Analysis",
-  "🚀 Smart Study Planner",
-  "🚀 Revision Scheduler",
-  "🚀 Mobile App"
-].forEach(function(t){
-
-  roadmap.appendChild(
-    el("div",{
-      css:{
-        padding:"10px 0",
-        borderBottom:"1px solid var(--border)",
-        fontSize:".88rem"
-      }
-    },t)
-  );
-
-});
-
-wrap.appendChild(roadmap);
   // ── Contact ──
   var contactBox = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px",marginBottom:"18px"}});
   contactBox.appendChild(el("div",{css:{fontSize:".65rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".12em",fontWeight:"700",marginBottom:"16px",fontFamily:"var(--font-display)"},txt:"✦ Get in Touch"}));
@@ -309,7 +232,6 @@ wrap.appendChild(roadmap);
   });
   contactBox.appendChild(contactLinks);
   wrap.appendChild(contactBox);
-
 
   // ── Footer note ──
   var fnote = el("div",{css:{textAlign:"center",padding:"20px 16px 32px",color:"var(--subtle)",fontSize:".78rem",lineHeight:"1.7"}});
@@ -415,8 +337,8 @@ function pgHowToUse(){
     card.appendChild(topRow);
     wrap.appendChild(card);
   });
-  
-  // --- AI HIGHLIGHT CARD ---
+
+  // ── AI Highlight card ──
   var aiHighlight = el("div", {
     css: {
       background: "linear-gradient(145deg, rgba(184, 115, 51, 0.1), rgba(184, 115, 51, 0.03))",
@@ -431,8 +353,8 @@ function pgHowToUse(){
   aiHighlight.appendChild(el("div", {css: {fontSize: "1.1rem", fontWeight: "800", color: "#b87333", marginBottom: "8px"}, txt: "Powered by Sarvam AI"}));
   aiHighlight.appendChild(el("div", {css: {fontSize: ".92rem", color: "var(--muted)", lineHeight: "1.6"}, txt: "StudyLab features built-in AI Tutors. Analyze specific quiz questions for step-by-step breakdowns, or use the Home widget to ask any open-ended syllabus question, making your preparation smarter and faster."}));
   wrap.appendChild(aiHighlight);
-  
-  // Quick Tips footer card
+
+  // ── Footer card ──
   var footer = el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",padding:"24px 28px",marginBottom:"24px",textAlign:"center"}});
   footer.appendChild(el("div",{css:{fontSize:"1.4rem",marginBottom:"8px"},txt:"🚀"}));
   footer.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"700",marginBottom:"8px"},txt:"Ready to start?"}));
@@ -442,4 +364,3 @@ function pgHowToUse(){
   w.appendChild(wrap);
   return w;
 }
-
