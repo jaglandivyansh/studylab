@@ -20,7 +20,6 @@ function pgAbout(){
   ? SUBJ.reduce(function(s, k) { return s + (QD[k] || []).length; }, 0)
   : 0;
 var subjCount = (typeof SUBJ !== "undefined") ? SUBJ.length : 0;
-  var subjCount = SUBJ.length; 
 
   var statsRow = el("div",{css:{display:"flex",justifyContent:"center",gap:"8px",flexWrap:"wrap",marginTop:"22px"}});
   [[tot.toLocaleString() + "+", "MCQs"], [subjCount.toString(), "Subjects"], ["100%", "Free"], ["0", "Ads"]].forEach(function(s){
@@ -443,3 +442,4 @@ function pgHowToUse(){
   w.appendChild(wrap);
   return w;
 }
+
