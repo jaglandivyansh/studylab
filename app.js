@@ -1182,18 +1182,6 @@ function showExitConfirmationModal() {
     document.body.appendChild(overlay);
 }
 
-// Initial Setup Check (Replaces AppTour)
-function checkInitialSetup() {
-    var storedUser = localStorage.getItem('sl_user');
-    var guestUser = Sv.get("guest_user");
-    if (!storedUser && !guestUser) {
-        showNameInputModal();
-    } else {
-        if (typeof triggerSmartInstallPrompt === "function") {
-            triggerSmartInstallPrompt();
-        }
-    }
-}
 
 // Boot the App 
 window.addEventListener('load', function() {
