@@ -16,7 +16,10 @@ function pgAbout(){
   hero.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--accent)",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",fontFamily:"var(--font-display)",marginBottom:"16px"},txt:"Your Study Partner"}));
   hero.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.75",maxWidth:"460px",margin:"0 auto",fontWeight:"300"},txt:"A free, offline-ready General Studies prep app built with one goal — make serious exam preparation simple, structured, and accessible for every aspirant."}));
   
-  var tot = SUBJ.reduce(function(s, k) { return s + (QD[k] || []).length; }, 0); 
+  var tot = (typeof SUBJ !== "undefined" && typeof QD !== "undefined")
+  ? SUBJ.reduce(function(s, k) { return s + (QD[k] || []).length; }, 0)
+  : 0;
+var subjCount = (typeof SUBJ !== "undefined") ? SUBJ.length : 0;
   var subjCount = SUBJ.length; 
 
   var statsRow = el("div",{css:{display:"flex",justifyContent:"center",gap:"8px",flexWrap:"wrap",marginTop:"22px"}});
