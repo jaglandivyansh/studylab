@@ -1202,3 +1202,9 @@ window.addEventListener('load', function() {
         checkInitialSetup();
     }, 800);
 });
+
+window.addEventListener('scroll', function(){
+  document.getElementById('top-navbar')
+    .classList.toggle('scrolled', window.scrollY > 10);
+});
+
