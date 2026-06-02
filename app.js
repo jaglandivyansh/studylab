@@ -259,26 +259,16 @@ function makeQuoteCard() {
 }
 
 // Custom StudyLab Logo
-function makeLogo(sz) {
-    sz = sz || 40;
-    var logo = el("div", {
-        css: {
-            width: sz + "px",
-            height: sz + "px",
-            borderRadius: "22%",  // ← change this (was "50%")
-            background: "#000000",
-            color: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "bold",
-            fontSize: (sz * 0.4) + "px",
-            fontFamily: "var(--font-display)",
-            boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)",
-            flexShrink: "0"
-        }
-    }, "SL");
-    return logo;
+function makeLogo(sz){
+sz=sz||40;
+var img = document.createElement("img");
+img.src = "logo.png";
+img.alt = "StudyLab Logo"; // <--- ADD THIS LINE
+img.style.width = sz + "px";
+img.style.height = sz + "px";
+img.style.borderRadius = "10px";
+img.style.objectFit = "cover";
+return img;
 }
 
 function showLoginModal() {
