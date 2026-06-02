@@ -1182,6 +1182,14 @@ function showExitConfirmationModal() {
     document.body.appendChild(overlay);
 }
 
+function checkInitialSetup() {
+    if (window.currentUser || localStorage.getItem('sl_user')) {
+        if (typeof triggerSmartInstallPrompt === 'function') triggerSmartInstallPrompt();
+        return;
+    }
+    // Pehli baar open → koi modal nahi, seedha app
+    // User khud Sign In button se login karega
+}
 
 // Boot the App 
 window.addEventListener('load', function() {
