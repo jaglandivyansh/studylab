@@ -140,57 +140,29 @@ body.no-transition * {
 #top-navbar::after { display: none !important; }
 
 /* ── Island card — top sharp, bottom rounded ── */
+/* ── Clean Top Navbar (No annoying shadows/glass) ── */
 #top-navbar .nb-island {
-  pointer-events: all;
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  
-  /* Height badha kar 68px kar di gayi hai */
-  height: 68px !important; 
-  padding: 0 20px;
-  gap: 12px;
-
-  /* TOP: 0px (sharp) | BOTTOM: 22px (rounded) */
-  border-radius: 0 0 22px 22px;
-
-  /* Solid dark background, clear border & strong shadow */
-  background: #0B1120 !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-top: none !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-    transition: box-shadow 0.3s ease, background 0.3s ease;
+  background: var(--bg) !important; /* Blends seamlessly with body */
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important; /* Nukes the ugly heavy shadow */
+  border-radius: 0 !important; /* Flat design looks much better here */
+  height: 60px !important;
 }
 
-/* Ugly glow line ko hamesha ke liye hide kar diya */
-#top-navbar .nb-island::after {
-  display: none !important;
-}
-
-/* Scrolled state for dark mode */
+/* Add a very soft shadow ONLY when scrolling */
 #top-navbar.scrolled .nb-island {
-  background: #050810 !important;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.9) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
 }
 
-/* ── Light theme ── */
-/* Ab shadow hamesha rahegi taaki flat na lage */
 [data-theme="light"] #top-navbar .nb-island {
-  background: #FFFFFF
-!important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-  border-top: none !important;
-  
-  /* Permanent soft shadow add kar di */
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06) !important; 
-  transition: all 0.3s ease; 
+  background: var(--bg2) !important;
+  border-bottom: 1px solid var(--border2) !important;
+  box-shadow: none !important;
 }
 
-/* Scrolled state mein shadow thodi aur dark ho jayegi */
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  background: rgba(255, 255, 255, 0.90) !important; 
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important; 
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
 }
 
 /* ════════ LOGO ════════ */
@@ -1363,7 +1335,6 @@ body::after {
 #ads-chat-area::-webkit-scrollbar-track { background: transparent; }
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-
 /* ════════ FINAL UNIVERSAL BOTTOM NAVBAR ════════ */
 #bottom-navbar {
   display: flex; 
@@ -1374,44 +1345,43 @@ body::after {
   justify-content: space-around;
   align-items: center;
 
-  /* Solid background & spacing */
-  background: #0B1120 !important; 
-  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 24px 24px 0 0 !important; 
+  /* Solid clean background, no shadows, no glass */
+  background: var(--bg2) !important; 
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0 !important; /* Flush with the bottom of the screen */
   padding-top: 10px;
   padding-bottom: env(safe-area-inset-bottom, 10px);
   min-height: 68px !important; 
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: none !important; 
 }
 
-/* Light Theme */
 [data-theme="light"] #bottom-navbar { 
-  background: #FFFFFF !important; 
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important; 
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.06) !important;
+  background: var(--bg2) !important; 
+  border-top: 1px solid var(--border2) !important; 
+  box-shadow: none !important;
 }
 
-/* ── BUTTON STYLES ── */
+/* ── BUTTON STYLES (The Expanding Pill Concept) ── */
 #bottom-navbar button,
 #bottom-navbar .nav-item {
   background: transparent; 
   border: none; 
   color: var(--muted) !important; 
-  padding: 10px 20px !important; 
-  font-size: 0.65rem; 
-  font-weight: 600; 
-  display: flex; 
-  flex-direction: column; 
+  padding: 10px 16px !important; /* Horizontal padding for pill shape */
+  border-radius: 100px !important; /* Perfect pill shape */
+  
+  /* Flex ROW to keep icon and text side-by-side */
+  display: flex !important; 
+  flex-direction: row !important; 
   align-items: center; 
-  gap: 4px; 
-  width: 25%; 
-  font-family: var(--font-display);
+  justify-content: center;
+  gap: 0 !important; 
+  width: auto !important; /* Removes the 25% width constraint */
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 30px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* 🔥 THE FIX: Stop icons from becoming massive on desktop */
+/* Keep icons constrained */
 #bottom-navbar .nav-icon,
 #bottom-navbar button svg {
   width: 24px !important;
@@ -1419,36 +1389,53 @@ body::after {
   min-width: 24px !important;
   min-height: 24px !important;
   flex-shrink: 0 !important; 
+  transform: none !important; /* Prevents jumping */
 }
 
-/* Hide text labels matching your premium style */
+/* ── THE ANIMATED TEXT LABEL ── */
 #bottom-navbar .nav-label,
 #bottom-navbar button span { 
-  display: none !important; 
+  display: block !important; 
+  font-family: var(--font-display);
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  
+  /* Default Hidden State */
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-left: 0;
+  transform: none !important; /* Prevents jumping */
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-left 0.3s ease !important;
 }
 
-[data-theme="light"] #bottom-navbar button,
-[data-theme="light"] #bottom-navbar .nav-item {
-  color: #64748B !important; 
-}
-
-/* ── ACTIVE STATES ── */
+/* ── ACTIVE STATE (Expands the Pill) ── */
 #bottom-navbar button.active,
 #bottom-navbar .nav-item.active { 
   color: var(--accent) !important; 
-  background: rgba(79, 142, 247, 0.15) !important; 
+  /* Subtle solid background for the active pill */
+  background: rgba(79, 142, 247, 0.12) !important; 
 }
 
 [data-theme="light"] #bottom-navbar button.active,
 [data-theme="light"] #bottom-navbar .nav-item.active {
   color: #2563EB !important;
-  background: #EFF6FF !important; 
+  background: rgba(37, 99, 235, 0.12) !important; 
 }
 
-/* ── GLOBAL BODY PADDING ── */
-body { padding-bottom: 80px !important; }
-.theme-toggle { bottom: 80px !important; }
-.toast { bottom: 85px !important; }
+/* Reveal the text smoothly */
+#bottom-navbar button.active span,
+#bottom-navbar .nav-item.active .nav-label {
+  max-width: 100px !important; /* Allows text to expand */
+  opacity: 1 !important;
+  margin-left: 8px !important; /* Adds space between icon and text */
+}
+
+/* Prevent global button hover states from breaking layout */
+#bottom-navbar button:active {
+  transform: scale(0.95) !important;
+}
 
 
 
