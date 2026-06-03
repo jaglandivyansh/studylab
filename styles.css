@@ -1133,7 +1133,7 @@ body::after {
 }
 
 #nb-mobile-drawer.open { 
-  transform: translateX(110%); 
+  transform: translateX(100%); 
 }
 
 /* ── PROFILE SECTION ── */
@@ -1534,3 +1534,6 @@ button, a {
 button:focus, a:focus {
     outline: none;
 }
+
+
+
