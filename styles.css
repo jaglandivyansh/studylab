@@ -1377,40 +1377,37 @@ body::after {
 /* 2. Bottom Navbar (Mobile Only) */
 @media(max-width: 768px) {
   #bottom-navbar {
+    /* 1. Placement: Lock to the bottom and stretch full width */
     position: fixed;
-    /* Attach flush to the edges of the screen */
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
+    z-index: 1000;
     
-    /* Round ONLY the top-left and top-right corners */
-    /* Syntax: top-left | top-right | bottom-right | bottom-left */
+    /* 2. Shape: Round ONLY the top corners */
     border-radius: 24px 24px 0 0 !important; 
     
-    /* Add padding at the bottom so the iOS swipe bar doesn't cover your icons */
-    padding-bottom: env(safe-area-inset-bottom, 16px);
-    padding-top: 12px;
+    /* 3. Spacing: Slimmer padding with iOS swipe bar protection */
+    padding-top: 8px;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+    min-height: 56px;
     
-    /* Layout for the icons inside */
+    /* 4. Layout: Evenly space the icons inside */
     display: flex;
-    justify-content: space-around; /* Spreads icons evenly across the full width */
+    justify-content: space-around; 
     align-items: center;
     
+    /* 5. Styling: Background, top border, and subtle shadow */
     background: #FFFFFF !important;
-    
-    /* Optional: A subtle shadow pointing upwards to separate it from the content */
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.05) !important;
-    
-    /* If you want a border, apply it only to the top */
     border-top: 1px solid var(--border) !important;
     border-bottom: none !important;
     border-left: none !important;
     border-right: none !important;
-    
-    z-index: 1000;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.05) !important;
   }
 }
+
 
 /* ── PROFESSIONAL WALKTHROUGH TOUR ENGINE ── */
 #sl-tour-backdrop {
