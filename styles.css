@@ -3,22 +3,33 @@
    ═══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ═══════════════════════════════════════════
+   STUDYLAB — REFINED DARK EDITORIAL THEME
+   ═══════════════════════════════════════════ */
 :root, :root[data-theme="dark"] {
-  --bg: #080C12 !important;
-  --bg2: #0E1420 !important;
-  --card: #111827 !important;
-  --card2: #1A2235 !important;
-  --border: rgba(255,255,255,0.07) !important;
-  --border2: rgba(255,255,255,0.12) !important;
-  --accent: #3174F6 !important;
-  --accent2: #7EB3FF !important;
-  --accent-glow: rgba(79,142,247,0.18);
-  --text: #EEF2FF !important;
-  --muted: #8896B3 !important;
-  --subtle: #4A5568 !important;
-  --hero-bg: #080C12 !important;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 8px 32px -8px rgba(0,0,0,0.6);
-  --shadow-hover: 0 0 0 1px rgba(79,142,247,0.3), 0 20px 60px -12px rgba(79,142,247,0.2);
+  /* Softer Slate Dark instead of extreme black */
+  --bg: #0F172A !important; 
+  --bg2: #1E293B !important; 
+  --card: #1E293B !important;
+  --card2: #334155 !important;
+  
+  /* Brighter borders to clearly separate overlapping elements */
+  --border: rgba(255, 255, 255, 0.12) !important;
+  --border2: rgba(255, 255, 255, 0.20) !important;
+  
+  /* High contrast text colors so nothing becomes invisible */
+  --text: #F8FAFC !important;
+  --muted: #94A3B8 !important;
+  --subtle: #64748B !important; /* Lighter than before so it's readable */
+  
+  /* Vibrant Accents */
+  --accent: #3B82F6 !important;
+  --accent2: #60A5FA !important;
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  
+  --hero-bg: #0F172A !important;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.4);
   --radius: 18px;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -41,6 +52,20 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px -8px rgba(0,0,0,0.12);
   --shadow-hover: 0 0 0 1px rgba(45,111,232,0.25), 0 20px 48px -12px rgba(45,111,232,0.15);
 }
+/* ── PREVENT MOBILE SCROLL BOUNCE & LAG ── */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* ── BASE HTML BACKGROUND (For Android Bottom Swipe Bar) ── */
+html {
+  background-color: #0F172A !important; 
+}
+
+[data-theme="light"] html {
+  background-color: #FFFFFF !important; 
+}
+
 /* ── PREVENT MOBILE SCROLL BOUNCE & LAG ── */
 html, body {
   overscroll-behavior-y: none;
@@ -1123,7 +1148,7 @@ body::after {
   box-shadow: -8px 0 32px rgba(0,0,0,0.5);
   
   /* Slide in from the right */
-  transform: translateX(110%);
+  transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
 }
