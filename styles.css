@@ -178,24 +178,25 @@ body.no-transition * {
 }
 
 /* ── Light theme ── */
-/* 1. Default State (Jab page top par ho - No Shadow but clear border) */
+/* Ab shadow hamesha rahegi taaki flat na lage */
 [data-theme="light"] #top-navbar .nb-island {
-  background: #FFFFFF !important;
-  border-color: rgba(0,0,0,0.1) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
   border-top: none !important;
-  box-shadow: none !important; 
+  
+  /* Permanent soft shadow add kar di */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06) !important; 
+  
+  backdrop-filter: blur(16px); 
+  -webkit-backdrop-filter: blur(16px);
   transition: all 0.3s ease; 
 }
 
-/* 2. Scrolled State (Jab scroll karein - Soft Shadow aayegi) */
+/* Scrolled state mein shadow thodi aur dark ho jayegi */
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  background: rgba(255,255,255,0.95) !important; 
-  backdrop-filter: blur(12px); 
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important; 
+  background: rgba(255, 255, 255, 0.90) !important; 
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important; 
 }
-
-
 
 /* ════════ LOGO ════════ */
 #top-navbar .nb-logo {
@@ -1437,12 +1438,15 @@ body::after {
     -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
 
-  /* ── LIGHT MODE (Top navbar ke light mode se match karta hua) ── */
+    /* Light mode bottom navbar - Isme bhi permanent upward shadow add ki h */
   [data-theme="light"] #bottom-navbar {
-    background: #FFFFFF !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.06) !important;
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px);
   }
+
 
   /* ── YAHAN SE NAYA CODE SHURU HOTA HAI (Buttons ke liye) ── */
   #bottom-navbar .nav-item {
@@ -1455,7 +1459,7 @@ body::after {
     color: var(--muted); 
     
     /* Padding badha di taaki lambe navbar me button fit aayein */
-    padding: 12px 24px !important;  
+    padding: 10px 20px !important;  
     border-radius: 30px; 
     cursor: pointer;
     transition: all 0.2s ease;
