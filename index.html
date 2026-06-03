@@ -748,5 +748,15 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<script>
+    window.addEventListener('scroll', function() {
+      const topNavbar = document.getElementById('top-navbar');
+      if (window.scrollY > 10) {
+        topNavbar.classList.add('scrolled');
+      } else {
+        topNavbar.classList.remove('scrolled');
+      }
+    });
+  </script>
 </body>
 </html>
