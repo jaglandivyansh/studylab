@@ -312,9 +312,11 @@ body.no-transition * {
 #top-navbar .nb-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px; /* Increased gap so the buttons don't touch each other */
   flex-shrink: 0;
+  margin-left: auto !important; /* Pushes everything to the far right edge */
 }
+
 
 #top-navbar #themeToggle {
   width: 38px !important;
