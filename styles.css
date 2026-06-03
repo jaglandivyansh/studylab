@@ -201,17 +201,28 @@ body.no-transition * {
 }
 
 /* ── Light theme ── */
+/* 1. Default State (Jab page top par ho - No Shadow) */
 [data-theme="light"] #top-navbar .nb-island {
   background: rgba(255,255,255,0.97);
   border-color: rgba(0,0,0,0.07);
   border-top: none;
-  box-shadow:
-    0 8px 32px rgba(37,99,235,0.1),
-    0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: none !important; 
+  transition: all 0.3s ease; 
 }
+
+/* 2. Scrolled State (Jab scroll karein - Soft Shadow aayegi) */
+[data-theme="light"] #top-navbar.scrolled .nb-island {
+  background: rgba(255,255,255,0.85); 
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important; 
+}
+
+/* 3. Ugly line ko hamesha ke liye hide karne ke liye */
 [data-theme="light"] #top-navbar .nb-island::after {
-  background: linear-gradient(90deg, transparent, rgba(37,99,235,0.4) 30%, rgba(96,165,250,0.3) 60%, transparent);
+  display: none !important;
 }
+
 
 /* ════════ LOGO ════════ */
 #top-navbar .nb-logo {
