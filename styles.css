@@ -245,13 +245,17 @@ body.no-transition * {
 /* Adjusted App Name for better balance without the logo */
 #top-navbar .nb-brand-name {
   font-family: var(--font-display);
-  font-size: 1.25rem; /* Bumped up from 1.12rem so it anchors the space well */
+  
+  /* Size ko 1.25rem se badha kar 1.55rem kar diya gaya hai */
+  font-size: 1.55rem; 
+  
   font-weight: 800;
-  letter-spacing: -0.02em; /* Slightly looser letter spacing to look cleaner */
+  letter-spacing: -0.03em; /* Thoda tight spacing bade font ke liye better lagta hai */
   color: var(--text);
   transition: color 0.2s;
   white-space: nowrap;
 }
+
 #top-navbar .nb-brand-sub { display: none; }
 
 [data-theme="light"] #top-navbar .nb-brand-name { color: #0a1628 !important; }
