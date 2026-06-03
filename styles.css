@@ -1219,6 +1219,7 @@ body::after {
     transform: rotate(-45deg);
   }
 }
+
 /* ── MOBILE DRAWER ── */
 #nb-mobile-drawer {
   display: none;
@@ -1235,15 +1236,24 @@ body::after {
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   animation: drawerSlide 0.22s cubic-bezier(0.4,0,0.2,1);
 }
+
 [data-theme="light"] #nb-mobile-drawer {
   background: rgba(240,244,255,0.97);
 }
+
 @keyframes drawerSlide {
   from { opacity:0; transform: translateY(-10px); }
   to   { opacity:1; transform: translateY(0); }
 }
+
 #nb-mobile-drawer.open { display: flex; }
+
+/* ── ADJUSTED BUTTONS (For Icon + Text Alignment) ── */
 #nb-mobile-drawer button {
+  display: flex;             /* Icon aur text ko ek line me laane ke liye */
+  align-items: center;       /* Center align karne ke liye */
+  gap: 14px;                 /* Icon aur text ke beech ka gap */
+  
   width: 100%;
   font-family: var(--font-body);
   background: transparent;
@@ -1258,23 +1268,35 @@ body::after {
   transition: all 0.18s ease;
   letter-spacing: 0.01em;
 }
-#nb-mobile-drawer button:hover,
-#nb-mobile-drawer button.active {
+
+/* ── NEW SVG ICON SIZING ── */
+#nb-mobile-drawer .drawer-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: currentColor; /* Yeh automatically var(--muted) ya var(--text) le lega */
+}
+
+/* ── HOVER & ACTIVE STATES ── */
+#nb-mobile-drawer button:hover {
   background: var(--card2);
   color: var(--text);
   border-color: var(--border);
 }
+
 #nb-mobile-drawer button.active {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
   font-weight: 600;
 }
+
 #nb-mobile-drawer-divider {
   height: 1px;
   background: var(--border);
   margin: 8px 0;
 }
+
 
 /* ── RESPONSIVE ── */
 @media(max-width: 768px) {
@@ -1445,6 +1467,48 @@ body::after {
     background: rgba(255,255,255,0.97) !important;
     border-top: 1px solid rgba(0,0,0,0.07) !important;
     box-shadow: 0 -4px 16px rgba(0,0,0,0.05) !important;
+  }
+/* ── YAHAN SE NAYA CODE SHURU HOTA HAI (Buttons ke liye) ── */
+  #bottom-navbar .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--muted); 
+    padding: 10px 22px;  
+    border-radius: 30px; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* Icon ka size */
+  #bottom-navbar .nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Text hide karne ke liye */
+  #bottom-navbar .nav-label {
+    display: none; 
+  }
+
+  /* Active State - Dark Mode */
+  #bottom-navbar .nav-item.active {
+    color: var(--accent); 
+    background: rgba(79, 142, 247, 0.15); 
+  }
+
+  /* Light mode button colors */
+  [data-theme="light"] #bottom-navbar .nav-item {
+    color: #64748B;
+  }
+  
+  /* Active State - Light Mode (Blue Pill) */
+  [data-theme="light"] #bottom-navbar .nav-item.active {
+    color: #2563EB; 
+    background: #EFF6FF; 
   }
 }
 
