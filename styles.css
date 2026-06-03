@@ -115,7 +115,6 @@ body.no-transition * {
    STUDYLAB — PREMIUM NAVBAR
    Shape: Top corners sharp · Bottom rounded
    ════════════════════════════════════════════ */
-
 #top-navbar * { box-sizing: border-box; }
 
 /* ── Outer strip ── */
@@ -148,80 +147,54 @@ body.no-transition * {
   align-items: center;
   width: 100%;
   
-  /* Adjusted to match the bottom navbar's 56px slim height */
-  height: 56px; 
+  /* Height badha kar 68px kar di gayi hai */
+  height: 68px !important; 
   padding: 0 20px;
   gap: 12px;
 
-  /* TOP: 0px (sharp) | BOTTOM: 20px (rounded) */
+  /* TOP: 0px (sharp) | BOTTOM: 22px (rounded) */
   border-radius: 0 0 22px 22px;
 
-  background: rgba(10, 15, 28, 0.94);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-top: none;
-  box-shadow:
-    0 8px 32px rgba(0,0,0,0.6),
-    0 2px 8px rgba(0,0,0,0.4),
-    0 0 0 1px rgba(79,142,247,0.06);
+  /* Solid dark background, clear border & strong shadow */
+  background: #0B1120 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
-/* Remove the bottom accent glow line completely */
+/* Ugly glow line ko hamesha ke liye hide kar diya */
 #top-navbar .nb-island::after {
   display: none !important;
 }
 
-
-/* Bottom accent glow line */
-#top-navbar .nb-island::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 40px; right: 40px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(79,142,247,0.5) 30%,
-    rgba(126,179,255,0.4) 60%,
-    transparent
-  );
-  border-radius: 0 0 22px 22px;
-  pointer-events: none;
-}
-
+/* Scrolled state for dark mode */
 #top-navbar.scrolled .nb-island {
-  background: rgba(5, 8, 16, 0.98);
-  box-shadow:
-    0 16px 48px rgba(0,0,0,0.75),
-    0 4px 16px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(79,142,247,0.1);
+  background: #050810 !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.9) !important;
 }
 
 /* ── Light theme ── */
-/* 1. Default State (Jab page top par ho - No Shadow) */
+/* 1. Default State (Jab page top par ho - No Shadow but clear border) */
 [data-theme="light"] #top-navbar .nb-island {
-  background: rgba(255,255,255,0.97);
-  border-color: rgba(0,0,0,0.07);
-  border-top: none;
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  border-top: none !important;
   box-shadow: none !important; 
   transition: all 0.3s ease; 
 }
 
 /* 2. Scrolled State (Jab scroll karein - Soft Shadow aayegi) */
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  background: rgba(255,255,255,0.85); 
+  background: rgba(255,255,255,0.95) !important; 
   backdrop-filter: blur(12px); 
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important; 
 }
 
-/* 3. Ugly line ko hamesha ke liye hide karne ke liye */
-[data-theme="light"] #top-navbar .nb-island::after {
-  display: none !important;
-}
 
 
 /* ════════ LOGO ════════ */
@@ -1441,21 +1414,23 @@ body::after {
     z-index: 1000;
     
     border-radius: 24px 24px 0 0 !important; 
-    padding-top: 8px;
-    padding-bottom: env(safe-area-inset-bottom, 8px);
-    min-height: 56px;
+    
+    /* Height badha kar 68px kar di gayi hai */
+    padding-top: 10px;
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    min-height: 68px !important; 
     
     display: flex;
     justify-content: space-around; 
     align-items: center;
     
-    /* Dark Mode Theme */
-    background: rgba(10, 15, 28, 0.94) !important;
-    border-top: 1px solid rgba(255,255,255,0.08) !important;
+    /* Dark Mode Theme - Solid background, clear border & strong shadow */
+    background: #0B1120 !important; 
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important; 
     border-bottom: none !important;
     border-left: none !important;
     border-right: none !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8) !important;
     
     /* Premium glass effect */
     backdrop-filter: blur(20px) saturate(180%);
@@ -1464,11 +1439,12 @@ body::after {
 
   /* ── LIGHT MODE (Top navbar ke light mode se match karta hua) ── */
   [data-theme="light"] #bottom-navbar {
-    background: rgba(255,255,255,0.97) !important;
-    border-top: 1px solid rgba(0,0,0,0.07) !important;
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.05) !important;
+    background: #FFFFFF !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
   }
-/* ── YAHAN SE NAYA CODE SHURU HOTA HAI (Buttons ke liye) ── */
+
+  /* ── YAHAN SE NAYA CODE SHURU HOTA HAI (Buttons ke liye) ── */
   #bottom-navbar .nav-item {
     display: flex;
     flex-direction: column;
@@ -1477,7 +1453,9 @@ body::after {
     background: transparent;
     border: none;
     color: var(--muted); 
-    padding: 10px 22px;  
+    
+    /* Padding badha di taaki lambe navbar me button fit aayein */
+    padding: 12px 24px !important;  
     border-radius: 30px; 
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1511,6 +1489,7 @@ body::after {
     background: #EFF6FF; 
   }
 }
+
 
 
 
