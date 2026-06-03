@@ -82,8 +82,16 @@ Practice History, Geography, Polity and more
   const isDark = savedTheme !== 'light'; // Default to dark
   const root = document.documentElement;
   
+  // Grab the meta theme-color tag
+  let metaTheme = document.querySelector('meta[name="theme-color"]');
+
   // Apply theme instantly
   root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  
+  // Set Android system bars instantly
+  if (metaTheme) {
+    metaTheme.setAttribute('content', isDark ? '#0B1120' : '#FFFFFF');
+  }
   
   // Add no-transition class to prevent flash on load
   document.addEventListener('DOMContentLoaded', function() {
@@ -456,16 +464,22 @@ var ThemeManager = {
     this.applyTheme();
   },
   
-  applyTheme: function() {
+   applyTheme: function() {
     var root = document.documentElement;
     var toggle = document.getElementById('themeToggle');
+    // Grab the meta theme-color tag
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
     
     if (this.isDark) {
       root.setAttribute('data-theme', 'dark');
       if (toggle) toggle.innerText = '☀️';
+      // Set Android system bars to Dark
+      if (metaTheme) metaTheme.setAttribute('content', '#0B1120'); 
     } else {
       root.setAttribute('data-theme', 'light');
       if (toggle) toggle.innerText = '🌙';
+      // Set Android system bars to Light
+      if (metaTheme) metaTheme.setAttribute('content', '#FFFFFF'); 
     }
   }
 };
@@ -840,3 +854,4 @@ if ('serviceWorker' in navigator) {
   </script>
 </body>
 </html>
+
