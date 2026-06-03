@@ -148,7 +148,8 @@ body.no-transition * {
   align-items: center;
   width: 100%;
   
-  height: 62px;
+  /* Adjusted to match the bottom navbar's 56px slim height */
+  height: 56px; 
   padding: 0 20px;
   gap: 12px;
 
@@ -166,6 +167,12 @@ body.no-transition * {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   transition: box-shadow 0.3s ease, background 0.3s ease;
 }
+
+/* Remove the bottom accent glow line completely */
+#top-navbar .nb-island::after {
+  display: none !important;
+}
+
 
 /* Bottom accent glow line */
 #top-navbar .nb-island::after {
@@ -215,12 +222,21 @@ body.no-transition * {
   flex-shrink: 0;
   text-decoration: none;
 }
+
+/* Hide any image or SVG logo inside the logo container */
+#top-navbar .nb-logo img, 
+#top-navbar .nb-logo svg {
+  display: none !important;
+}
+
 #top-navbar .nb-logo:hover .nb-brand-name { color: #7EB3FF; }
+
+/* Adjusted App Name for better balance without the logo */
 #top-navbar .nb-brand-name {
   font-family: var(--font-display);
-  font-size: 1.12rem;
+  font-size: 1.25rem; /* Bumped up from 1.12rem so it anchors the space well */
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em; /* Slightly looser letter spacing to look cleaner */
   color: var(--text);
   transition: color 0.2s;
   white-space: nowrap;
@@ -228,6 +244,7 @@ body.no-transition * {
 #top-navbar .nb-brand-sub { display: none; }
 
 [data-theme="light"] #top-navbar .nb-brand-name { color: #0a1628 !important; }
+
 
 /* ════════ CENTER NAV LINKS ════════ */
 #top-navbar .nb-links {
