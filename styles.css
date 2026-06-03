@@ -1123,7 +1123,7 @@ body::after {
   box-shadow: -8px 0 32px rgba(0,0,0,0.5);
   
   /* Slide in from the right */
-  transform: translateX(100%);
+  transform: translateX(110%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
 }
@@ -1133,7 +1133,7 @@ body::after {
 }
 
 #nb-mobile-drawer.open { 
-  transform: translateX(100%); 
+  transform: translateX(0); 
 }
 
 /* ── PROFILE SECTION ── */
