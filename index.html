@@ -88,15 +88,14 @@ Practice History, Geography, Polity and more
   // Apply theme instantly
   root.setAttribute('data-theme', isDark ? 'dark' : 'light');
   
-  // Set Android system bars instantly
+  // Set Android system bars instantly (🔥 UPDATE HOGAYA)
   if (metaTheme) {
-    metaTheme.setAttribute('content', isDark ? '#0B1120' : '#FFFFFF');
+    metaTheme.setAttribute('content', isDark ? '#0F172A' : '#FFFFFF');
   }
   
   // Add no-transition class to prevent flash on load
   document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.add('no-transition');
-    // Remove it after a brief moment to enable smooth transitions going forward
     setTimeout(function() {
       document.body.classList.remove('no-transition');
     }, 100);
@@ -464,7 +463,7 @@ var ThemeManager = {
     this.applyTheme();
   },
   
-   applyTheme: function() {
+    applyTheme: function() {
     var root = document.documentElement;
     var toggle = document.getElementById('themeToggle');
     // Grab the meta theme-color tag
@@ -473,8 +472,8 @@ var ThemeManager = {
     if (this.isDark) {
       root.setAttribute('data-theme', 'dark');
       if (toggle) toggle.innerText = '☀️';
-      // Set Android system bars to Dark
-      if (metaTheme) metaTheme.setAttribute('content', '#0B1120'); 
+      // Set Android system bars to Dark (🔥 UPDATE HOGAYA)
+      if (metaTheme) metaTheme.setAttribute('content', '#0F172A'); 
     } else {
       root.setAttribute('data-theme', 'light');
       if (toggle) toggle.innerText = '🌙';
@@ -854,4 +853,5 @@ if ('serviceWorker' in navigator) {
   </script>
 </body>
 </html>
+
 
