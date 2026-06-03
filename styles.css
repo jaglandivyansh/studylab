@@ -922,67 +922,6 @@ body::after {
   transition-delay: 0s !important; 
 }
 
-/* ── UNIVERSAL BOTTOM NAVBAR ── */
-#bottom-navbar {
-  display: flex; 
-  position: fixed; 
-  bottom: 0; left: 0; right: 0;
-  background: #0E1420 !important; /* Solid color for cross-device compatibility */
-  border-top: 1px solid rgba(255,255,255,0.10) !important;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 99999 !important;
-  justify-content: space-around;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.4) !important;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
-}
-
-[data-theme="light"] #bottom-navbar { 
-  background: #FFFFFF !important; /* Solid color */
-  border-top: 1.5px solid rgba(0,0,0,0.14) !important; 
-  box-shadow: 0 -4px 24px rgba(45,111,232,0.10), 0 -1px 0 rgba(0,0,0,0.08) !important;
-}
-
-#bottom-navbar button {
-  background: none; border: none; 
-  color: var(--muted) !important; 
-  padding: 12px 0 8px; 
-  font-size: 0.65rem; font-weight: 600; 
-  display: flex; flex-direction: column; 
-  align-items: center; gap: 4px; width: 25%; 
-  font-family: var(--font-display);
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-[data-theme="light"] #bottom-navbar button {
-  color: #6B7280 !important; 
-}
-
-#bottom-navbar button span { 
-  font-size: 1.3rem; 
-  transition: transform 0.2s; 
-}
-
-#bottom-navbar button.active { 
-  color: var(--accent) !important; 
-}
-
-[data-theme="light"] #bottom-navbar button.active {
-  color: #2D6FE8 !important;
-}
-
-#bottom-navbar button.active span { 
-  transform: translateY(-4px) scale(1.15); 
-}
-
-/* Ensure body has global padding so content isn't hidden behind the bottom nav */
-body { padding-bottom: 80px; }
-.theme-toggle { bottom: 80px; }
-.toast { bottom: 85px; }
-
-
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1384,95 +1323,91 @@ body { padding-bottom: 80px; }
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
 
-/* 2. Bottom Navbar (Mobile Only) */
-@media(max-width: 768px) {
-  
-  /* ── DEFAULT DARK MODE (Top navbar se match karta hua) ── */
-  #bottom-navbar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    width: 100%;
-    z-index: 1000;
-    
-    border-radius: 24px 24px 0 0 !important; 
-    
-    /* Height badha kar 68px kar di gayi hai */
-    padding-top: 10px;
-    padding-bottom: env(safe-area-inset-bottom, 10px);
-    min-height: 68px !important; 
-    
-    display: flex;
-    justify-content: space-around; 
-    align-items: center;
-    
-    /* Dark Mode Theme - Solid background, clear border & strong shadow */
-    background: #0B1120 !important; 
-    border-top: 1px solid rgba(255, 255, 255, 0.15) !important; 
-    border-bottom: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8) !important;
-    
-    /* Premium glass effect */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-  }
+/* ════════ FINAL UNIVERSAL BOTTOM NAVBAR ════════ */
+#bottom-navbar {
+  display: flex; 
+  position: fixed; 
+  bottom: 0; left: 0; right: 0;
+  width: 100%;
+  z-index: 99999 !important;
+  justify-content: space-around;
+  align-items: center;
 
-    /* Light mode bottom navbar - Isme bhi permanent upward shadow add ki h */
-  [data-theme="light"] #bottom-navbar {
-    background: rgba(255, 255, 255, 0.96) !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.06) !important;
-    backdrop-filter: blur(16px); 
-    -webkit-backdrop-filter: blur(16px);
-  }
-
-
-  /* ── YAHAN SE NAYA CODE SHURU HOTA HAI (Buttons ke liye) ── */
-  #bottom-navbar .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    color: var(--muted); 
-    
-    /* Padding badha di taaki lambe navbar me button fit aayein */
-    padding: 10px 20px !important;  
-    border-radius: 30px; 
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  /* Icon ka size */
-  #bottom-navbar .nav-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  /* Text hide karne ke liye */
-  #bottom-navbar .nav-label {
-    display: none; 
-  }
-
-  /* Active State - Dark Mode */
-  #bottom-navbar .nav-item.active {
-    color: var(--accent); 
-    background: rgba(79, 142, 247, 0.15); 
-  }
-
-  /* Light mode button colors */
-  [data-theme="light"] #bottom-navbar .nav-item {
-    color: #64748B;
-  }
-  
-  /* Active State - Light Mode (Blue Pill) */
-  [data-theme="light"] #bottom-navbar .nav-item.active {
-    color: #2563EB; 
-    background: #EFF6FF; 
-  }
+  /* Solid background & spacing */
+  background: #0B1120 !important; 
+  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 24px 24px 0 0 !important; 
+  padding-top: 10px;
+  padding-bottom: env(safe-area-inset-bottom, 10px);
+  min-height: 68px !important; 
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8) !important;
 }
+
+/* Light Theme */
+[data-theme="light"] #bottom-navbar { 
+  background: #FFFFFF !important; 
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important; 
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── BUTTON STYLES ── */
+#bottom-navbar button,
+#bottom-navbar .nav-item {
+  background: transparent; 
+  border: none; 
+  color: var(--muted) !important; 
+  padding: 10px 20px !important; 
+  font-size: 0.65rem; 
+  font-weight: 600; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 4px; 
+  width: 25%; 
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 30px;
+}
+
+/* 🔥 THE FIX: Stop icons from becoming massive on desktop */
+#bottom-navbar .nav-icon,
+#bottom-navbar button svg {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex-shrink: 0 !important; 
+}
+
+/* Hide text labels matching your premium style */
+#bottom-navbar .nav-label,
+#bottom-navbar button span { 
+  display: none !important; 
+}
+
+[data-theme="light"] #bottom-navbar button,
+[data-theme="light"] #bottom-navbar .nav-item {
+  color: #64748B !important; 
+}
+
+/* ── ACTIVE STATES ── */
+#bottom-navbar button.active,
+#bottom-navbar .nav-item.active { 
+  color: var(--accent) !important; 
+  background: rgba(79, 142, 247, 0.15) !important; 
+}
+
+[data-theme="light"] #bottom-navbar button.active,
+[data-theme="light"] #bottom-navbar .nav-item.active {
+  color: #2563EB !important;
+  background: #EFF6FF !important; 
+}
+
+/* ── GLOBAL BODY PADDING ── */
+body { padding-bottom: 80px !important; }
+.theme-toggle { bottom: 80px !important; }
+.toast { bottom: 85px !important; }
 
 
 
