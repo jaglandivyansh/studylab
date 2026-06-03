@@ -203,10 +203,12 @@ body.no-transition * {
   text-decoration: none;
 }
 
-/* Hide any image or SVG logo inside the logo container */
+/* Ensure the image or SVG logo is visible */
 #top-navbar .nb-logo img, 
 #top-navbar .nb-logo svg {
-  display: none !important;
+  display: block !important;
+  /* Adding a subtle shadow makes the logo pop against the background */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
 }
 
 #top-navbar .nb-logo:hover .nb-brand-name { color: #7EB3FF; }
