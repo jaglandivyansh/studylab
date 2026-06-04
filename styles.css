@@ -164,25 +164,21 @@ body.no-transition * {
 #top-navbar::before,
 #top-navbar::after { display: none !important; }
 
-/* ── Island card (FIXED: Horizontal Layout & Flat Design) ── */
+/* ── Island card (UPDATED: Added soft shadow) ── */
 #top-navbar .nb-island {
   pointer-events: all;
   position: relative;
-  
-  /* 🔥 Yahi flexbox ki lines sab kuch ek line me theek karengi */
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important; 
-  
   width: 100%;
   height: 64px !important; 
   padding: 0 20px;
-  
-  /* 🔥 Clean flat look (No shadows, No glass) */
   background: var(--bg) !important;
   border: none !important;
-  border-bottom: 1px solid var(--border) !important;
-  box-shadow: none !important;
+  
+  /* 🔥 Added soft, diffused shadow for dark theme */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important; 
   border-radius: 0 !important;
   transition: box-shadow 0.3s ease, background 0.3s ease;
 }
@@ -191,23 +187,25 @@ body.no-transition * {
   display: none !important;
 }
 
-/* Scrolled state - Sirf page scroll karne par shadow aayegi */
+/* Scrolled state - You can increase opacity slightly on scroll if desired */
 #top-navbar.scrolled .nb-island {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* ── Light theme ── */
 [data-theme="light"] #top-navbar .nb-island {
   background: var(--bg2) !important;
   border: none !important;
-  border-bottom: 1px solid var(--border2) !important;
-  box-shadow: none !important; 
+  
+  /* 🔥 Added soft, diffused shadow for light theme to match hero card */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06) !important; 
   transition: all 0.3s ease; 
 }
 
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important; 
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important; 
 }
+
 
 /* ════════ LOGO ════════ */
 #top-navbar .nb-logo {
