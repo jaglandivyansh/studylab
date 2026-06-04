@@ -1560,5 +1560,22 @@ button:focus, a:focus {
     outline: none;
 }
 
+/* ── FIX: HIDE DRAWER SHADOW BLEED ── */
+/* Push the standard menu drawer further off-screen */
+#nb-mobile-drawer {
+  transform: translateX(120%) !important;
+}
+#nb-mobile-drawer.open {
+  transform: translateX(0) !important;
+}
+
+/* Push the swipe-gesture clone drawer further off-screen */
+#sl-drawer-peek {
+  transform: translateX(120%) !important;
+}
+#sl-drawer-peek.open {
+  transform: translateX(0) !important;
+}
+
 
 
