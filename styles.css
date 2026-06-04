@@ -144,7 +144,7 @@ body.no-transition * {
 /* ════════ PIXEL-PERFECT PILL TOP NAVBAR ════════ */
 #top-navbar {
   position: fixed;
-  top: 16px !important; /* Screen ke top se perfect floating distance */
+  top: 12px !important; /* Screen ke top se perfect floating distance */
   left: 50% !important; 
   right: auto !important;
   transform: translateX(-50%) translateZ(0) !important;
