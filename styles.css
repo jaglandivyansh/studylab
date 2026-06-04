@@ -1378,107 +1378,99 @@ body::after {
 #ads-chat-area::-webkit-scrollbar-track { background: transparent; }
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ════════ FINAL UNIVERSAL BOTTOM NAVBAR ════════ */
+/* ════════ UPDATED BEAUTIFUL PILL BOTTOM NAVBAR ════════ */
 #bottom-navbar {
   display: flex; 
   position: fixed; 
-  bottom: 0; left: 0; right: 0;
-  width: 100%;
-  z-index: 99999 !important;
+  
+  /* Floating Effect: Screen ke bottom se thoda upar aur center mein */
+  bottom: 20px; 
+  left: 50%;
+  transform: translateX(-50%);
+  
+  /* Pill Shape: Width 100% remove kar di hai */
+  width: calc(100% - 32px); 
+  max-width: 420px; 
+  z-index: 5000; /* Notification prompts ke liye space rakhi hai */
+  
   justify-content: space-around;
   align-items: center;
 
-  /* Solid clean background, no shadows, no glass */
+  /* Look & Feel: Glassmorphism + Background */
   background: var(--bg2) !important; 
-  border-top: 1px solid var(--border) !important;
-  border-radius: 0 !important; /* Flush with the bottom of the screen */
-  padding-top: 10px;
-  padding-bottom: env(safe-area-inset-bottom, 10px);
-  min-height: 68px !important; 
-  box-shadow: none !important; 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* Borders aur Shadow (Wahi hero card wali) */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 100px !important; 
+  padding: 8px 12px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="light"] #bottom-navbar { 
-  background: var(--bg2) !important; 
-  border-top: 1px solid var(--border2) !important; 
-  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.85) !important; 
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important;
 }
 
-/* ── BUTTON STYLES (The Expanding Pill Concept) ── */
+/* ── BUTTON STYLES (Cleaned & Optimized) ── */
 #bottom-navbar button,
 #bottom-navbar .nav-item {
   background: transparent; 
   border: none; 
   color: var(--muted) !important; 
-  padding: 10px 16px !important; /* Horizontal padding for pill shape */
-  border-radius: 100px !important; /* Perfect pill shape */
-  
-  /* Flex ROW to keep icon and text side-by-side */
+  padding: 10px 16px !important; 
+  border-radius: 100px !important; 
+
   display: flex !important; 
   flex-direction: row !important; 
   align-items: center; 
   justify-content: center;
-  gap: 0 !important; 
-  width: auto !important; /* Removes the 25% width constraint */
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Keep icons constrained */
-#bottom-navbar .nav-icon,
-#bottom-navbar button svg {
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  min-height: 24px !important;
-  flex-shrink: 0 !important; 
-  transform: none !important; /* Prevents jumping */
-}
-
-/* ── THE ANIMATED TEXT LABEL ── */
-#bottom-navbar .nav-label,
-#bottom-navbar button span { 
-  display: block !important; 
-  font-family: var(--font-display);
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
-  
-  /* Default Hidden State */
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  margin-left: 0;
-  transform: none !important; /* Prevents jumping */
-  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-left 0.3s ease !important;
-}
-
-/* ── ACTIVE STATE (Expands the Pill) ── */
+/* ── ACTIVE STATE (The Expanding Pill) ── */
 #bottom-navbar button.active,
 #bottom-navbar .nav-item.active { 
   color: var(--accent) !important; 
-  /* Subtle solid background for the active pill */
   background: rgba(79, 142, 247, 0.12) !important; 
 }
 
 [data-theme="light"] #bottom-navbar button.active,
 [data-theme="light"] #bottom-navbar .nav-item.active {
   color: #2563EB !important;
-  background: rgba(37, 99, 235, 0.12) !important; 
+  background: rgba(37, 99, 235, 0.1) !important; 
 }
 
-/* Reveal the text smoothly */
+/* ── ICON & TEXT ANIMATION ── */
+#bottom-navbar .nav-icon,
+#bottom-navbar button svg {
+  width: 22px !important;
+  height: 22px !important;
+  flex-shrink: 0 !important; 
+}
+
+#bottom-navbar .nav-label,
+#bottom-navbar button span { 
+  display: block !important; 
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.3s ease !important;
+}
+
 #bottom-navbar button.active span,
 #bottom-navbar .nav-item.active .nav-label {
-  max-width: 100px !important; /* Allows text to expand */
+  max-width: 100px !important;
   opacity: 1 !important;
-  margin-left: 8px !important; /* Adds space between icon and text */
+  margin-left: 8px !important;
 }
 
-/* Prevent global button hover states from breaking layout */
-#bottom-navbar button:active {
-  transform: scale(0.95) !important;
-}
 
 
 
