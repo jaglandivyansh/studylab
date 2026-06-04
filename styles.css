@@ -144,7 +144,7 @@ body.no-transition * {
 /* ════════ FINAL FIXED PILL TOP NAVBAR ════════ */
 #top-navbar {
   position: fixed;
-  top: 12px; /* Thoda kam kiya taki hero card se distance perfect rahe */
+  top: 10px; /* Thoda kam kiya taki hero card se distance perfect rahe */
   left: 50%; 
   right: auto;
   transform: translateX(-50%) translateZ(0);
