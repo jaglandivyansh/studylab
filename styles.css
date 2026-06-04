@@ -1378,43 +1378,45 @@ body::after {
 #ads-chat-area::-webkit-scrollbar-track { background: transparent; }
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ════════ UPDATED BEAUTIFUL PILL BOTTOM NAVBAR ════════ */
+
+/* ════════ FINAL FIXED PILL BOTTOM NAVBAR ════════ */
 #bottom-navbar {
   display: flex; 
   position: fixed; 
   
-  /* Floating Effect: Screen ke bottom se thoda upar aur center mein */
-  bottom: 20px; 
+  /* Floating spacing */
+  bottom: 16px; 
   left: 50%;
   transform: translateX(-50%);
   
-  /* Pill Shape: Width 100% remove kar di hai */
   width: calc(100% - 32px); 
   max-width: 420px; 
-  z-index: 5000; /* Notification prompts ke liye space rakhi hai */
+  
+  /* Medium z-index taaki bottom alerts/notifications iske UPAR ya ALAG se dikhein */
+  z-index: 1000 !important; 
   
   justify-content: space-around;
   align-items: center;
 
-  /* Look & Feel: Glassmorphism + Background */
+  /* Solid + Blur Dark Theme Background */
   background: var(--bg2) !important; 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   
-  /* Borders aur Shadow (Wahi hero card wali) */
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 100px !important; 
   padding: 8px 12px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3) !important;
 }
 
+/* Light Theme Styling */
 [data-theme="light"] #bottom-navbar { 
-  background: rgba(255, 255, 255, 0.85) !important; 
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: var(--bg2) !important; 
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
   box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important;
 }
 
-/* ── BUTTON STYLES (Cleaned & Optimized) ── */
+/* ── BUTTON STYLES ── */
 #bottom-navbar button,
 #bottom-navbar .nav-item {
   background: transparent; 
@@ -1422,7 +1424,6 @@ body::after {
   color: var(--muted) !important; 
   padding: 10px 16px !important; 
   border-radius: 100px !important; 
-
   display: flex !important; 
   flex-direction: row !important; 
   align-items: center; 
@@ -1431,20 +1432,26 @@ body::after {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── ACTIVE STATE (The Expanding Pill) ── */
+/* Unactive elements par color balance */
+#bottom-navbar button:not(.active) {
+  opacity: 0.7;
+}
+
+/* ── ACTIVE STATE (Expanding Pill) ── */
 #bottom-navbar button.active,
 #bottom-navbar .nav-item.active { 
   color: var(--accent) !important; 
-  background: rgba(79, 142, 247, 0.12) !important; 
+  background: rgba(79, 142, 247, 0.15) !important; 
+  opacity: 1 !important;
 }
 
 [data-theme="light"] #bottom-navbar button.active,
 [data-theme="light"] #bottom-navbar .nav-item.active {
   color: #2563EB !important;
-  background: rgba(37, 99, 235, 0.1) !important; 
+  background: rgba(37, 99, 235, 0.12) !important; 
 }
 
-/* ── ICON & TEXT ANIMATION ── */
+/* ── ICON & TEXT STYLES ── */
 #bottom-navbar .nav-icon,
 #bottom-navbar button svg {
   width: 22px !important;
@@ -1470,6 +1477,17 @@ body::after {
   opacity: 1 !important;
   margin-left: 8px !important;
 }
+
+/* ════════ CONTENT HIDE HONA FIX KARNE KE LIYE ════════ */
+/* Agar content body ke padding se fix nahi ho raha, toh hum sabhi possible global wrappers ko space de rahe hain */
+body, 
+main, 
+.main-container, 
+#app-layout,
+.content-wrapper { 
+  padding-bottom: 110px !important; 
+}
+
 
 
 
