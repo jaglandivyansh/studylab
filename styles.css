@@ -7,32 +7,42 @@
    STUDYLAB — REFINED DARK EDITORIAL THEME
    ═══════════════════════════════════════════ */
 :root, :root[data-theme="dark"] {
-  /* Softer Slate Dark instead of extreme black */
-  --bg: #0F172A !important; 
-  --bg2: #1E293B !important; 
-  --card: #1E293B !important;
-  --card2: #334155 !important;
-  
-  /* Brighter borders to clearly separate overlapping elements */
-  --border: rgba(255, 255, 255, 0.12) !important;
-  --border2: rgba(255, 255, 255, 0.20) !important;
-  
-  /* High contrast text colors so nothing becomes invisible */
-  --text: #F8FAFC !important;
-  --muted: #94A3B8 !important;
-  --subtle: #64748B !important; /* Lighter than before so it's readable */
-  
-  /* Vibrant Accents */
-  --accent: #3B82F6 !important;
-  --accent2: #60A5FA !important;
-  --accent-glow: rgba(59, 130, 246, 0.2);
-  
-  --hero-bg: #0F172A !important;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.4);
+  /* ── TRUE DEEP DARK — Proper elevation system ──
+     Level 0 (deepest): Page background   → #05080F
+     Level 1 (raised):  Cards / sections  → #0D1117
+     Level 2 (higher):  Card inner / bg2  → #161B27
+     Level 3 (nav):     Navbars (CLEARLY different) → #1C2333 with border
+  */
+  --bg:    #05080F !important;   /* Deepest — true dark, not muddy navy */
+  --bg2:   #0D1117 !important;   /* Page sections */
+  --card:  #111827 !important;   /* Cards */
+  --card2: #1C2333 !important;   /* Inner card elements */
+
+  /* Visible borders — navbars need to stand out */
+  --border:  rgba(255, 255, 255, 0.08) !important;
+  --border2: rgba(255, 255, 255, 0.15) !important;
+
+  /* High contrast text */
+  --text:   #F1F5F9 !important;
+  --muted:  #8B9CB8 !important;
+  --subtle: #4E5F7A !important;
+
+  /* Vibrant blue accent — unchanged */
+  --accent:      #3B82F6 !important;
+  --accent2:     #60A5FA !important;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+
+  --hero-bg: #05080F !important;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(59, 130, 246, 0.4);
   --radius: 18px;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
+
+  /* Navbar-specific tokens — clearly elevated surfaces */
+  --nav-bg:          #1A2236;
+  --nav-border:      rgba(255, 255, 255, 0.12);
+  --nav-shadow:      0 8px 32px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0,0,0,0.5);
 }
 
 :root[data-theme="light"] {
@@ -59,7 +69,7 @@ html, body {
 
 /* ── BASE HTML BACKGROUND (For Android Bottom Swipe Bar) ── */
 html {
-  background-color: #0F172A !important; 
+  background-color: #05080F !important; 
 }
 
 [data-theme="light"] html {
@@ -179,12 +189,13 @@ body.no-transition * {
   height: 56px !important; 
   padding: 0 16px;
 
-  /* 🔥 DARK MODE FIXED: Yahan border-radius ko 100px enforce kiya hai taaki corners rounded rahein */
-  background: #1e293b !important; 
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  /* 🔥 FIXED: Clearly elevated surface — NOT the same as body/card */
+  background: #1A2236 !important; 
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 100px !important; 
   
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+  /* Strong shadow creates physical separation from content below */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -194,7 +205,8 @@ body.no-transition * {
 
 /* Scrolled state */
 #top-navbar.scrolled .nb-island {
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  background: #1F2A40 !important;
 }
 
 /* ── LIGHT MODE STYLES (Fixed to match dark layout) ── */
@@ -910,7 +922,7 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 
 
 /* ── APPLE-STYLE AMBIENT BACKGROUND (HARDWARE ACCELERATED) ── */
-body { background-color: #02040a !important; position: relative; }
+body { background-color: #05080F !important; position: relative; }
 [data-theme="light"] body { background-color: #f8fafc !important; }
 
 body::before, body::after {
@@ -932,9 +944,9 @@ body::after {
 
 /* ── MAKE CARDS GLASSY TO REVEAL BACKGROUND ── */
 .subj-row, .stb, .gu-card, .news-card, .cw .cf, .cw .cb, .sc, .mc, .htu-step-card {
-  background: rgba(17, 24, 39, 0.45) !important;
+  background: rgba(20, 28, 46, 0.6) !important;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
   transform: translateZ(0); 
 }
 [data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, [data-theme="light"] .news-card, [data-theme="light"] .cw .cf, [data-theme="light"] .cw .cb, [data-theme="light"] .sc, [data-theme="light"] .mc, [data-theme="light"] .htu-step-card {
@@ -1153,19 +1165,17 @@ body::after {
 #nb-mobile-drawer {
   display: flex;
   position: fixed;
-  top: 68px; /* Sits right under the top navbar */
+  top: 68px;
   right: 0;
   width: 280px;
   height: calc(100vh - 68px);
-  background: #0B1120 !important; /* Solid background, no glass */
-  border-left: 1px solid var(--border);
+  background: #0F1623 !important;
+  border-left: 1px solid rgba(255,255,255,0.12);
   z-index: 9998;
   padding: 24px 20px;
   flex-direction: column;
   gap: 8px;
-  box-shadow: -8px 0 32px rgba(0,0,0,0.5);
-  
-  /* Slide in from the right */
+  box-shadow: -8px 0 48px rgba(0,0,0,0.7);
   transform: translateX(120%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
@@ -1411,21 +1421,23 @@ body::after {
   width: calc(100% - 32px); 
   max-width: 420px; 
   
-  /* Medium z-index taaki bottom alerts/notifications iske UPAR ya ALAG se dikhein */
   z-index: 1000 !important; 
   
   justify-content: space-around;
   align-items: center;
 
-  /* Solid + Blur Dark Theme Background */
-  background: var(--bg2) !important; 
+  /* FIXED: Clearly elevated navbar — much lighter than page background */
+  background: #1A2236 !important; 
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
   
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  /* Strong visible border for separation */
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 100px !important; 
   padding: 8px 12px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3) !important;
+  
+  /* Deep shadow — physically lifts navbar off content */
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5), 0 16px 48px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.07) !important;
 }
 
 /* Light Theme Styling */
