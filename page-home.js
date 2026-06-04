@@ -639,6 +639,47 @@ function createSmartFeedbackWidget() {
 
     return widgetWrap;
 }
+// ── OPEN FEEDBACK IN A POPUP MODAL ──
+window.openFeedbackModal = function() {
+    var overlay = el("div", {
+        css: {
+            position: "fixed", inset: "0", background: "rgba(4, 8, 16, 0.85)", 
+            backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center", 
+            zIndex: "10000", padding: "20px", animation: "fade-in 0.2s ease"
+        }
+    });
+
+    overlay.addEventListener("click", function(e) {
+        if (e.target === overlay) document.body.removeChild(overlay);
+    });
+
+    // Aapka widget call kiya
+    var widget = createSmartFeedbackWidget();
+    widget.style.margin = "0"; 
+    widget.style.position = "relative"; 
+
+    // Close button (X)
+    var closeBtn = el("button", {
+        css: {
+            position: "absolute", top: "16px", right: "16px", 
+            background: "var(--card2)", border: "none", borderRadius: "50%", 
+            width: "32px", height: "32px", fontSize: "1.2rem", 
+            color: "var(--muted)", cursor: "pointer", display: "flex", 
+            alignItems: "center", justifyContent: "center", transition: "all 0.2s"
+        },
+        txt: "×",
+        onclick: function() { document.body.removeChild(overlay); }
+    });
+    
+    closeBtn.onmouseover = function() { this.style.color = "var(--text)"; this.style.background = "var(--border2)"; };
+    closeBtn.onmouseleave = function() { this.style.color = "var(--muted)"; this.style.background = "var(--card2)"; };
+
+    widget.appendChild(closeBtn);
+    overlay.appendChild(widget);
+    document.body.appendChild(overlay);
+};
+
 
 
 
