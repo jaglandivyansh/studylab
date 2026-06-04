@@ -464,7 +464,7 @@ function createSmartFeedbackWidget() {
         css: { 
             background: "var(--card)", border: "2px solid var(--border)", 
             borderRadius: "20px", padding: "24px 20px", 
-            margin: "24px auto", maxWidth: "600px", width: "calc(100% - 32px)", boxSizing: "border-box", // ✅ Added sizing boundaries
+            margin: "24px auto", maxWidth: "680px", width: "calc(100% - 16px)", boxSizing: "border-box", // ✅ Added sizing boundaries
             textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
             transition: "box-shadow 0.3s ease, border-color 0.3s ease" // ✅ 'all' ki jagah specific properties
         } 
