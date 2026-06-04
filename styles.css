@@ -1379,49 +1379,58 @@ body::after {
 #ads-chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
 
-/* ════════ FINAL FIXED PILL BOTTOM NAVBAR ════════ */
+
+/* ════════ PRODUCTION-READY FLOATING PILL NAVBAR ════════ */
 #bottom-navbar {
   display: flex; 
   position: fixed; 
   
-  /* Floating spacing */
-  bottom: 16px; 
+  /* Floating Spacing & Centering */
+  bottom: 20px; 
   left: 50%;
   transform: translateX(-50%);
   
+  /* Perfect Responsive Width */
   width: calc(100% - 32px); 
   max-width: 420px; 
   
-  /* Medium z-index taaki bottom alerts/notifications iske UPAR ya ALAG se dikhein */
-  z-index: 1000 !important; 
+  /* Safe Z-Index: System notifications iske upar/niche smoothly manage hongi */
+  z-index: 5000 !important; 
   
   justify-content: space-around;
   align-items: center;
-
-  /* Solid + Blur Dark Theme Background */
-  background: var(--bg2) !important; 
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 100px !important; 
   padding: 8px 12px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 100px !important;
+
+  /* ── DARK MODE DEFAULT STYLES ── */
+  /* Pure solid dark slate blue color jo text ko piche se mix nahi hone dega */
+  background: #1e293b !important; 
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  
+  /* Extra wide dark shadow jo isko content se alag lift karegi */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+  
+  /* Hardware acceleration to prevent flickering during scroll */
+  transform: translateX(-50%) translateZ(0);
+  will-change: transform;
 }
 
-/* Light Theme Styling */
+/* ── LIGHT MODE STYLES ── */
 [data-theme="light"] #bottom-navbar { 
-  background: var(--bg2) !important; 
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important;
+  /* Pure Solid Clean White ताकि कोई भी बैकग्राउंड कंटेंट मिक्स न हो */
+  background: #ffffff !important; 
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  
+  /* Light theme soft deep shadow */
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.15) !important;
 }
 
-/* ── BUTTON STYLES ── */
+/* ── BUTTONS & ITEMS ── */
 #bottom-navbar button,
 #bottom-navbar .nav-item {
   background: transparent; 
   border: none; 
-  color: var(--muted) !important; 
+  color: #94a3b8 !important; /* Standard subtle gray for unactive tabs */
   padding: 10px 16px !important; 
   border-radius: 100px !important; 
   display: flex !important; 
@@ -1429,29 +1438,31 @@ body::after {
   align-items: center; 
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Unactive elements par color balance */
-#bottom-navbar button:not(.active) {
-  opacity: 0.7;
+/* Light mode unactive tabs color adjustment */
+[data-theme="light"] #bottom-navbar button,
+[data-theme="light"] #bottom-navbar .nav-item {
+  color: #64748b !important;
 }
 
 /* ── ACTIVE STATE (Expanding Pill) ── */
+/* Dark Mode Active Tab */
 #bottom-navbar button.active,
 #bottom-navbar .nav-item.active { 
-  color: var(--accent) !important; 
-  background: rgba(79, 142, 247, 0.15) !important; 
-  opacity: 1 !important;
+  color: #38bdf8 !important; /* Sharp bright blue icon/text for dark mode */
+  background: rgba(56, 189, 248, 0.15) !important; 
 }
 
+/* Light Mode Active Tab */
 [data-theme="light"] #bottom-navbar button.active,
 [data-theme="light"] #bottom-navbar .nav-item.active {
-  color: #2563EB !important;
-  background: rgba(37, 99, 235, 0.12) !important; 
+  color: #2563eb !important; /* Deep contrast blue for light mode */
+  background: rgba(37, 99, 235, 0.1) !important; 
 }
 
-/* ── ICON & TEXT STYLES ── */
+/* ── ICONS & ANIMATED LABELS ── */
 #bottom-navbar .nav-icon,
 #bottom-navbar button svg {
   width: 22px !important;
@@ -1468,7 +1479,7 @@ body::after {
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: all 0.3s ease !important;
+  transition: all 0.25s ease !important;
 }
 
 #bottom-navbar button.active span,
@@ -1478,16 +1489,21 @@ body::after {
   margin-left: 8px !important;
 }
 
-/* ════════ CONTENT HIDE HONA FIX KARNE KE LIYE ════════ */
-/* Agar content body ke padding se fix nahi ho raha, toh hum sabhi possible global wrappers ko space de rahe hain */
+/* ── SCREEN BOTTOM PADDING (CRITICAL FIX FOR CONTENT HIDING) ── */
+/* Yeh rules ensure karenge ki content automatic navbar ke upar hi end ho jaye */
+html, body {
+  height: 100%;
+}
+
+/* App ke main scrollable area ko niche space dene ke liye */
 body, 
 main, 
 .main-container, 
-#app-layout,
-.content-wrapper { 
-  padding-bottom: 110px !important; 
+.app-content, 
+#app-layout { 
+  padding-bottom: 120px !important; 
+  box-sizing: border-box;
 }
-
 
 
 
