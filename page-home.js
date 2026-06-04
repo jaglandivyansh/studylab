@@ -785,7 +785,7 @@ function pgHome(){
   w.appendChild(subjSec);
 
   // Add the new Smart Feedback Widget!
-  w.appendChild(createSmartFeedbackWidget());
+  //w.appendChild(createSmartFeedbackWidget());
 
   // Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
