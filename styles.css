@@ -141,77 +141,70 @@ body.no-transition * {
    Shape: Top corners sharp · Bottom rounded
    ════════════════════════════════════════════ */
 
-/* ════════ PRODUCTION-READY FLOATING PILL TOP NAVBAR ════════ */
+#top-navbar * { box-sizing: border-box; }
+
+/* ── Outer strip ── */
 #top-navbar {
   position: fixed;
-  /* Top se thoda niche push kiya floating effect ke liye */
-  top: 16px; 
-  left: 50%; 
-  right: auto;
-  transform: translateX(-50%) translateZ(0);
-  
-  /* Perfect matching responsive width jo bottom nav se align karegi */
-  width: calc(100% - 32px); 
-  max-width: 420px; 
+  top: 0;
+  left: 0; right: 0;
   height: auto;
-  
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  z-index: 5000 !important; /* Managed z-index */
+  z-index: 9999;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
   pointer-events: none;
-  will-change: transform;
 }
 #top-navbar::before,
 #top-navbar::after { display: none !important; }
 
-/* ── Island card (UPDATED: Perfect Floating Pill Design) ── */
+/* ── Island card (UPDATED: Bigger, Softer Shadow) ── */
 #top-navbar .nb-island {
   pointer-events: all;
   position: relative;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important; 
-
   width: 100%;
-  height: 54px !important; /* Sleek look ke liye height thodi kam ki hai */
-  padding: 0 16px;
+  height: 64px !important; 
+  padding: 0 20px;
+  background: var(--bg) !important;
+  border: none !important;
 
-  /* Dark Theme: Solid Match with Bottom Navbar */
-  background: #1e293b !important; 
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 100px !important; /* Perfect Pill Shape */
-  
-  /* Deep Premium Shadow */
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 🔥 Dark theme ke liye zyada spread aur slightly dark shadow */
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25) !important; 
+  border-radius: 0 !important;
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
 #top-navbar .nb-island::after {
   display: none !important;
 }
 
-/* Scrolled State - Scroll karne par shadow depth thodi badhegi */
+/* Scrolled state - Scroll hone par thodi aur deep */
 #top-navbar.scrolled .nb-island {
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* ── Light theme ── */
 [data-theme="light"] #top-navbar .nb-island {
-  /* Light Theme: Solid White to match Bottom Navbar */
-  background: #ffffff !important; 
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-radius: 100px !important;
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12) !important; 
+  background: var(--bg2) !important;
+  border: none !important;
+
+  /* 🔥 Light theme ke liye hero card jaisi badi aur extra soft shadow */
+  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important; 
+  transition: all 0.3s ease; 
 }
 
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.18) !important; 
+  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.18) !important; 
 }
 
 
