@@ -466,7 +466,7 @@ div[class*="hero"] {
   #top-navbar { padding: 0; }
   #top-navbar .nb-island {
     height: 56px;
-    border-radius: 0 0 18px 18px;
+    border-radius: 100px !important;
     padding: 0 12px;
     max-width: 100%;
   }
@@ -490,7 +490,7 @@ div[class*="hero"] {
   #top-navbar .nb-island {
     max-width: 100% !important;
     width: 100% !important;
-    border-radius: 0 0 18px 18px !important;
+    border-radius: 100px !important;
     padding: 0 14px !important;
   }
 }
