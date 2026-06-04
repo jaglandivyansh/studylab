@@ -141,71 +141,82 @@ body.no-transition * {
    Shape: Top corners sharp · Bottom rounded
    ════════════════════════════════════════════ */
 
-#top-navbar * { box-sizing: border-box; }
-
-/* ── Outer strip ── */
+/* ════════ FINAL FIXED PILL TOP NAVBAR ════════ */
 #top-navbar {
   position: fixed;
-  top: 0;
-  left: 0; right: 0;
+  top: 12px; /* Thoda kam kiya taki hero card se distance perfect rahe */
+  left: 50%; 
+  right: auto;
+  transform: translateX(-50%) translateZ(0);
+  
+  width: calc(100% - 32px); 
+  max-width: 420px; 
   height: auto;
+  
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  z-index: 9999;
+  z-index: 9999 !important; /* Keep it on top */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-radius: 0 !important;
   pointer-events: none;
+  will-change: transform;
 }
 #top-navbar::before,
 #top-navbar::after { display: none !important; }
 
-/* ── Island card (UPDATED: Bigger, Softer Shadow) ── */
+/* ── Island card (FIXED: Rounded Corners Everywhere & Solid Colors) ── */
 #top-navbar .nb-island {
   pointer-events: all;
   position: relative;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important; 
-  width: 100%;
-  height: 64px !important; 
-  padding: 0 20px;
-  background: var(--bg) !important;
-  border: none !important;
 
-  /* 🔥 Dark theme ke liye zyada spread aur slightly dark shadow */
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25) !important; 
-  border-radius: 0 !important;
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+  width: 100%;
+  height: 56px !important; 
+  padding: 0 16px;
+
+  /* 🔥 DARK MODE FIXED: Yahan border-radius ko 100px enforce kiya hai taaki corners rounded rahein */
+  background: #1e293b !important; 
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 100px !important; 
+  
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #top-navbar .nb-island::after {
   display: none !important;
 }
 
-/* Scrolled state - Scroll hone par thodi aur deep */
+/* Scrolled state */
 #top-navbar.scrolled .nb-island {
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ── Light theme ── */
+/* ── LIGHT MODE STYLES (Fixed to match dark layout) ── */
 [data-theme="light"] #top-navbar .nb-island {
-  background: var(--bg2) !important;
-  border: none !important;
-
-  /* 🔥 Light theme ke liye hero card jaisi badi aur extra soft shadow */
-  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important; 
-  transition: all 0.3s ease; 
+  background: #ffffff !important; 
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 100px !important; /* Enforced on light mode too */
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1) !important; 
 }
 
 [data-theme="light"] #top-navbar.scrolled .nb-island {
-  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.18) !important; 
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.15) !important; 
 }
+
+
+/* ════════ SPACING CONTROL (HERO POSITION FIX) ════════ */
+/* Jo extra 85px padding lagayi thi use hata kar normal layout optimize kiya hai */
+body, main, .main-container {
+  padding-top: 24px !important; /* Perfect space context: Isse hero card wapas upar aa jayega */
+  padding-bottom: 120px !important;
+}
+
 
 
 /* ════════ LOGO ════════ */
