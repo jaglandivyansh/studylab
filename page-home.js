@@ -458,61 +458,65 @@ function adsScrollChat() {
   if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
 }
 
-// INTERACTIVE EMOJI FEEDBACK WIDGET (STABLE VERSION)
+// INTERACTIVE EMOJI FEEDBACK WIDGET (PREMIUM SPACING)
 function createSmartFeedbackWidget() {
     var widgetWrap = el("div", { 
         css: { 
-            background: "var(--card)", border: "2px solid var(--border)", 
-            borderRadius: "20px", padding: "24px 20px", 
-            margin: "24px auto", maxWidth: "680px", width: "calc(100% - 16px)", boxSizing: "border-box", // ✅ Added sizing boundaries
-            textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-            transition: "box-shadow 0.3s ease, border-color 0.3s ease" // ✅ 'all' ki jagah specific properties
+            background: "var(--card)", border: "1.5px solid var(--border)", 
+            borderRadius: "24px", /* Thoda aur smooth curve */
+            padding: "32px 28px", /* 🔥 MAIN FIX: Andar ki spacing badha di taaki text/button side se na chipke */
+            margin: "24px auto", 
+            maxWidth: "680px", 
+            width: "calc(100% - 16px)", 
+            boxSizing: "border-box",
+            textAlign: "center", 
+            boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
+            transition: "box-shadow 0.3s ease, border-color 0.3s ease"
         } 
     });
 
-    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 4px 0", fontSize: "1.3rem", color: "var(--text)", fontFamily: "var(--font-display)", fontWeight: "800" }, txt: "Rate your experience!" }));
-    widgetWrap.appendChild(el("p", { css: { margin: "0 0 16px 0", fontSize: ".85rem", color: "var(--muted)" }, txt: "Your feedback helps us improve StudyLab." }));
-    
+    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 6px 0", fontSize: "1.4rem", color: "var(--text)", fontFamily: "var(--font-display)", fontWeight: "800" }, txt: "Rate your experience!" }));
+    widgetWrap.appendChild(el("p", { css: { margin: "0 0 20px 0", fontSize: ".9rem", color: "var(--muted)" }, txt: "Your feedback helps us improve StudyLab." }));
+
     // Dynamic Emoji Display
     var emojiDisplay = el("div", { 
         css: { 
-            fontSize: "3.5rem", margin: "10px 0 20px 0", transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            display: "inline-block",    // ✅ block ki jagah inline-block
-            transformOrigin: "center",  // ✅ ensure center se animate ho
-            willChange: "transform",    // ✅ GPU composite layer
+            fontSize: "4rem", /* Emoji thoda bada kiya */
+            margin: "10px 0 24px 0", 
+            transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            display: "inline-block",    
+            transformOrigin: "center",  
+            willChange: "transform",    
             lineHeight: "1", 
         },
         txt: "🤔" 
     });
     var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
     var ratingText = ["Tap a star", "Needs Work", "It's Okay", "Good", "Great!", "Absolutely Amazing!"];
-    var statusText = el("div", { css: { fontSize: ".9rem", fontWeight: "700", color: "var(--accent)", marginBottom: "16px", minHeight: "20px" }, txt: "Tap a star" });
+    var statusText = el("div", { css: { fontSize: ".95rem", fontWeight: "700", color: "var(--accent)", marginBottom: "20px", minHeight: "22px" }, txt: "Tap a star" });
 
     widgetWrap.appendChild(emojiDisplay);
 
     // Interactive Stars
-    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "8px", fontSize: "2.5rem", color: "var(--border2)", cursor: "pointer", marginBottom: "20px" } });
+    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.8rem", color: "var(--border2)", cursor: "pointer", marginBottom: "24px" } });
     var stars = [];
     var currentRating = 0; 
-    var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease" } });
+    var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease", marginTop: "10px" } });
 
     for (let i = 1; i <= 5; i++) {
         let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)" } });
-        
+
         star.onclick = function() {
             currentRating = i;
-            
-            // ✅ will-change se GPU layer banao taaki baki DOM affect na ho
+
             emojiDisplay.style.willChange = "transform";
-            emojiDisplay.style.transform = "scale(1.3) rotate(5deg)";
-            
+            emojiDisplay.style.transform = "scale(1.2) rotate(5deg)";
+
             setTimeout(() => {
                 emojiDisplay.style.transform = "scale(1) rotate(0deg)";
-                setTimeout(() => {
-                    emojiDisplay.style.willChange = "auto"; // cleanup
-                }, 300);
+                setTimeout(() => { emojiDisplay.style.willChange = "auto"; }, 300);
             }, 200);
-            
+
             emojiDisplay.textContent = emojis[i];
             statusText.textContent = ratingText[i];
             statusText.style.color = (i <= 2) ? "#ef4444" : (i <= 4) ? "#f59e0b" : "#10b981";
@@ -521,7 +525,7 @@ function createSmartFeedbackWidget() {
                 if (index < currentRating) {
                     s.style.color = "#f59e0b";
                     s.style.textShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
-                    s.style.transform = "scale(1.1)";
+                    s.style.transform = "scale(1.15)";
                 } else {
                     s.style.color = "var(--border)";
                     s.style.textShadow = "none";
@@ -534,42 +538,72 @@ function createSmartFeedbackWidget() {
         stars.push(star);
         starContainer.appendChild(star);
     }
-    
+
     widgetWrap.appendChild(starContainer);
     widgetWrap.appendChild(statusText);
 
     // Text Area & Submit
     var textArea = el("textarea", { 
         css: { 
-            width: "100%", padding: "14px", borderRadius: "12px", border: "2px solid var(--border2)", 
-            background: "var(--bg2)", color: "var(--text)", minHeight: "90px", marginBottom: "16px", 
-            fontFamily: "inherit", resize: "none", boxSizing: "border-box", display: "block", maxWidth: "100%", fontSize: ".9rem" // ✅ Added boxSizing, display, and maxWidth
+            width: "100%", 
+            padding: "16px", /* Andar ki padding thodi badhai */
+            borderRadius: "14px", 
+            border: "1.5px solid var(--border2)", 
+            background: "var(--bg)", /* Background thoda contrast kiya */
+            color: "var(--text)", 
+            minHeight: "100px", 
+            marginBottom: "20px", /* Niche ka gap badhaya */
+            fontFamily: "var(--font-body)", 
+            resize: "none", 
+            boxSizing: "border-box", 
+            display: "block", 
+            fontSize: ".95rem",
+            lineHeight: "1.5",
+            outline: "none",
+            transition: "border-color 0.2s ease"
         } 
     });
     textArea.placeholder = "Tell us what you loved or what we can improve... (Optional)";
     
+    // Focus effect for premium feel
+    textArea.onfocus = function() { textArea.style.borderColor = "var(--accent)"; };
+    textArea.onblur = function() { textArea.style.borderColor = "var(--border2)"; };
+
     var submitBtn = el("button", { 
         css: { 
-            width: "100%", padding: "16px", background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", 
-            color: "#fff", border: "none", borderRadius: "12px", fontWeight: "800", cursor: "pointer", 
-            fontSize: "1.05rem", boxShadow: "0 4px 15px rgba(79,142,247,0.3)", transition: "transform 0.2s",
-            boxSizing: "border-box", display: "block" // ✅ Added boxSizing and display
+            width: "100%", 
+            padding: "16px", 
+            background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", 
+            color: "#fff", 
+            border: "none", 
+            borderRadius: "14px", 
+            fontWeight: "700", 
+            fontFamily: "var(--font-body)",
+            cursor: "pointer", 
+            fontSize: "1.05rem", 
+            boxShadow: "0 6px 20px rgba(79,142,247,0.25)", 
+            transition: "transform 0.2s, box-shadow 0.2s",
+            boxSizing: "border-box", 
+            display: "block" 
         }, 
         txt: "Send Feedback 🚀" 
     });
 
+    submitBtn.onmousedown = function() { this.style.transform = "scale(0.97)"; };
+    submitBtn.onmouseup = function() { this.style.transform = "scale(1)"; };
+    submitBtn.onmouseleave = function() { this.style.transform = "scale(1)"; };
+
     submitBtn.onclick = function() {
         if (currentRating === 0) return;
-        
+
         var feedbackText = textArea.value.trim();
-        
-        // SAFE DATA FETCHING: Prevents app crash if localStorage is corrupted
+
         var user = { name: "Guest User", phone: "No Phone" };
         try {
             var savedData = localStorage.getItem('sl_user');
             if (savedData) user = JSON.parse(savedData);
         } catch(e) {}
-        
+
         if (window.STUDYLAB_FEEDBACK_URL) {
             submitBtn.textContent = "Sending...";
             submitBtn.style.opacity = "0.7";
@@ -586,10 +620,10 @@ function createSmartFeedbackWidget() {
             }).then(function() {
                 var firstName = user.name.split(' ')[0] || "there";
                 widgetWrap.innerHTML = `
-                <div style="padding: 30px 20px; text-align: center; animation: bounce-in 0.5s ease;">
-                    <div style="font-size: 3.5rem; margin-bottom: 16px;">💖</div>
-                    <div style="font-weight: 800; font-size: 1.4rem; color: var(--text); margin-bottom: 8px;">You're awesome, ${firstName}!</div>
-                    <div style="font-size: .95rem; color: var(--muted); line-height: 1.5;">Thank you for helping us make StudyLab the best exam partner in India.</div>
+                <div style="padding: 40px 20px; text-align: center; animation: bounce-in 0.5s ease;">
+                    <div style="font-size: 3.8rem; margin-bottom: 20px;">💖</div>
+                    <div style="font-weight: 800; font-size: 1.5rem; color: var(--text); margin-bottom: 10px; font-family: var(--font-display);">You're awesome, ${firstName}!</div>
+                    <div style="font-size: 1rem; color: var(--muted); line-height: 1.6;">Thank you for helping us make StudyLab the best exam partner.</div>
                 </div>`;
             }).catch(function() {
                 alert("Network error. Please try again.");
@@ -598,13 +632,14 @@ function createSmartFeedbackWidget() {
             });
         }
     };
-    
+
     formReveal.appendChild(textArea);
     formReveal.appendChild(submitBtn);
     widgetWrap.appendChild(formReveal);
-    
+
     return widgetWrap;
 }
+
 
 
 
