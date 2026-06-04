@@ -141,33 +141,32 @@ body.no-transition * {
    Shape: Top corners sharp · Bottom rounded
    ════════════════════════════════════════════ */
 
-/* ════════ FINAL FIXED PILL TOP NAVBAR ════════ */
+/* ════════ PIXEL-PERFECT PILL TOP NAVBAR ════════ */
 #top-navbar {
   position: fixed;
-  top: 10px; /* Thoda kam kiya taki hero card se distance perfect rahe */
-  left: 50%; 
-  right: auto;
-  transform: translateX(-50%) translateZ(0);
+  top: 16px !important; /* Screen ke top se perfect floating distance */
+  left: 50% !important; 
+  right: auto !important;
+  transform: translateX(-50%) translateZ(0) !important;
   
-  width: calc(100% - 32px); 
-  max-width: 420px; 
-  height: auto;
+  width: calc(100% - 32px) !important; 
+  max-width: 420px !important; 
+  height: auto !important;
   
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  z-index: 9999 !important; /* Keep it on top */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  z-index: 9999 !important; 
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   pointer-events: none;
-  will-change: transform;
 }
 #top-navbar::before,
 #top-navbar::after { display: none !important; }
 
-/* ── Island card (FIXED: Rounded Corners Everywhere & Solid Colors) ── */
+/* ── Island Card (CORNER FIX & SOLID BACKGROUND) ── */
 #top-navbar .nb-island {
   pointer-events: all;
   position: relative;
@@ -175,14 +174,20 @@ body.no-transition * {
   align-items: center !important;
   justify-content: space-between !important; 
 
-  width: 100%;
+  width: 100% !important;
   height: 56px !important; 
-  padding: 0 16px;
+  padding: 0 16px !important;
 
-  /* 🔥 DARK MODE FIXED: Yahan border-radius ko 100px enforce kiya hai taaki corners rounded rahein */
+  /* Solid Premium Dark Color */
   background: #1e293b !important; 
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 100px !important; 
+  
+  /* 🔥 CRITICAL FIX: Har ek corner ko manually 100px round kiya hai taaki top side flat na ho */
+  border-radius: 100px !important;
+  border-top-left-radius: 100px !important;
+  border-top-right-radius: 100px !important;
+  border-bottom-left-radius: 100px !important;
+  border-bottom-right-radius: 100px !important;
   
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -192,30 +197,42 @@ body.no-transition * {
   display: none !important;
 }
 
-/* Scrolled state */
+/* Scrolled State */
 #top-navbar.scrolled .nb-island {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ── LIGHT MODE STYLES (Fixed to match dark layout) ── */
+/* ── LIGHT MODE STYLES ── */
 [data-theme="light"] #top-navbar .nb-island {
   background: #ffffff !important; 
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-radius: 100px !important; /* Enforced on light mode too */
+  
+  /* Same corner fix for light mode */
+  border-radius: 100px !important;
+  border-top-left-radius: 100px !important;
+  border-top-right-radius: 100px !important;
+  border-bottom-left-radius: 100px !important;
+  border-bottom-right-radius: 100px !important;
+  
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1) !important; 
 }
 
-[data-theme="light"] #top-navbar.scrolled .nb-island {
-  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.15) !important; 
+
+/* ════════ GAP AND SPACING FIX (HERO POSITION) ════════ */
+/* Ab hum padding-top ko poora zero kar rahe hain aur content ko navbar ke thoda peeche se shuru hone denge */
+body, main, .main-container, .app-content, #app-layout {
+  padding-top: 0px !important; 
+  margin-top: 0px !important;
 }
 
-
-/* ════════ SPACING CONTROL (HERO POSITION FIX) ════════ */
-/* Jo extra 85px padding lagayi thi use hata kar normal layout optimize kiya hai */
-body, main, .main-container {
-  padding-top: 24px !important; /* Perfect space context: Isse hero card wapas upar aa jayega */
-  padding-bottom: 120px !important;
+/* Hero card container ko target karke top margin fix karna */
+/* Isse hero card upar aayega aur beech ka bada black gap khatam ho jayega */
+.hero-section, 
+.hero-container,
+div[class*="hero"] {
+  margin-top: 88px !important; /* Perfect sweet spot: Navbar ke just niche se start hoga */
 }
+
 
 
 
