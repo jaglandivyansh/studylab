@@ -1568,5 +1568,17 @@ button:focus, a:focus {
   transform: translateX(0) !important;
 }
 
+/* ... Aapka baaki saara CSS code yahan hoga ... */
+
+/* Bottom-navbar ka code jo maine abhi diya tha */
+#bottom-navbar { 
+  /* ... properties ... */
+}
+
+/* Yahan par ise paste kar dein */
+body { 
+  padding-bottom: 100px !important; 
+}
+
 
 
