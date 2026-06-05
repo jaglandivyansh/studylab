@@ -1629,5 +1629,27 @@ body {
   padding-bottom: 100px !important; 
 }
 
+/* Light Mode Force Fix for Streak Dashboard */
+body:not(.dark) [data-page="daily"] div,
+body:not(.dark) .daily-container div,
+body:not(.dark) div:has(> [txt*="STREAK"]) {
+    color: #1e293b !important; /* Pure text dark grey/black ho jayega */
+}
+
+/* Light Mode ke time banner ka background thik karne ke liye */
+body:not(.dark) div:has(> [txt*="STREAK"]),
+body:not(.dark) div:has(> .nav-item) {
+    background: #ffffff !important; 
+    border: 1.5px solid #e2e8f0 !important;
+}
+
+/* "Science" text ko light mode me zabardasti visible karne ke liye */
+body:not(.dark) div[txt="Science"], 
+body:not(.dark) div:contains("Science"),
+body:not(.dark) .subject-title {
+    color: #0f172a !important; /* Ekdum dark black text */
+    font-weight: 700 !important;
+}
+
 
 
