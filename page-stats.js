@@ -1,11 +1,194 @@
-// ─── PROGRESS DASHBOARD ────────────────────────────────────────
+// ─── PROGRESS DASHBOARD (REDESIGNED) ────────────────────────────────────────
 function pgStats(){
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("stats"));
-  var wrap=el("div",{css:{maxWidth:"820px",margin:"0 auto"}});
+
+  // Inject scoped styles
+  var styleId="pgstats-style";
+  if(!document.getElementById(styleId)){
+    var style=document.createElement("style");
+    style.id=styleId;
+    style.textContent=`
+      .pg-wrap{
+        max-width:520px;
+        margin:0 auto;
+        padding:0 16px 48px;
+        box-sizing:border-box;
+        width:100%;
+      }
+      .pg-hero{
+        text-align:center;
+        padding:28px 0 24px;
+      }
+      .pg-hero-icon{
+        width:56px;height:56px;
+        background:linear-gradient(135deg,var(--accent),#818cf8);
+        border-radius:16px;
+        display:inline-flex;align-items:center;justify-content:center;
+        font-size:1.6rem;
+        margin-bottom:14px;
+        box-shadow:0 8px 24px rgba(0,0,0,.15);
+      }
+      .pg-hero h1{
+        font-size:1.5rem;font-weight:800;letter-spacing:-.03em;
+        margin:0 0 6px;line-height:1.2;
+      }
+      .pg-hero p{
+        font-size:.82rem;color:var(--muted);margin:0;
+      }
+      /* ── 2×2 stat grid ── */
+      .pg-stat-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+        margin-bottom:24px;
+      }
+      .pg-stat-card{
+        background:var(--card);
+        border:1.5px solid var(--border);
+        border-radius:16px;
+        padding:16px 14px;
+        display:flex;align-items:center;gap:12px;
+        min-width:0;
+        box-sizing:border-box;
+      }
+      .pg-stat-icon{
+        width:40px;height:40px;flex-shrink:0;
+        border-radius:12px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:1.1rem;
+      }
+      .pg-stat-info{min-width:0;}
+      .pg-stat-val{
+        font-size:1.3rem;font-weight:800;letter-spacing:-.03em;
+        line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      }
+      .pg-stat-lbl{
+        font-size:.62rem;color:var(--muted);
+        text-transform:uppercase;letter-spacing:.06em;font-weight:600;
+        margin-top:2px;line-height:1.3;
+      }
+      /* ── Section label ── */
+      .pg-section-label{
+        font-size:.7rem;color:var(--muted);
+        text-transform:uppercase;letter-spacing:.1em;font-weight:700;
+        margin-bottom:12px;
+        padding-left:2px;
+      }
+      /* ── Subject card ── */
+      .pg-subj-list{
+        display:flex;flex-direction:column;gap:10px;
+        margin-bottom:24px;
+      }
+      .pg-subj-card{
+        background:var(--card);
+        border:1.5px solid var(--border);
+        border-radius:16px;
+        padding:16px;
+        box-sizing:border-box;
+        width:100%;
+        overflow:hidden;
+      }
+      .pg-subj-top{
+        display:flex;align-items:center;
+        justify-content:space-between;
+        margin-bottom:12px;gap:8px;
+      }
+      .pg-subj-name{
+        display:flex;align-items:center;gap:8px;
+        font-weight:700;font-size:.95rem;
+        min-width:0;
+      }
+      .pg-subj-name span:first-child{font-size:1.2rem;flex-shrink:0;}
+      .pg-subj-best{
+        font-size:.72rem;font-weight:700;
+        padding:3px 10px;border-radius:99px;
+        flex-shrink:0;white-space:nowrap;
+      }
+      .pg-bar-wrap{margin-bottom:10px;}
+      .pg-bar-meta{
+        display:flex;justify-content:space-between;
+        font-size:.7rem;color:var(--muted);margin-bottom:5px;
+      }
+      .pg-bar-track{
+        height:5px;background:var(--border);
+        border-radius:99px;overflow:hidden;
+      }
+      .pg-bar-fill{
+        height:100%;border-radius:99px;
+        transition:width .7s cubic-bezier(.4,0,.2,1);
+      }
+      .pg-mini-stats{
+        display:flex;gap:8px;
+      }
+      .pg-mini-stat{
+        flex:1;text-align:center;
+        background:var(--bg2);border-radius:8px;
+        padding:6px 4px;min-width:0;
+      }
+      .pg-mini-val{font-size:.85rem;font-weight:700;}
+      .pg-mini-lbl{font-size:.6rem;color:var(--muted);}
+      .pg-badge{
+        margin-top:10px;padding:6px 10px;
+        border-radius:8px;font-size:.7rem;font-weight:600;
+      }
+      .pg-badge.weak{
+        background:rgba(248,113,113,.08);
+        border:1px solid rgba(248,113,113,.2);color:#f87171;
+      }
+      .pg-badge.strong{
+        background:rgba(74,222,128,.08);
+        border:1px solid rgba(74,222,128,.2);color:#4ade80;
+      }
+      /* ── Recent sessions ── */
+      .pg-recent-box{
+        background:var(--card);
+        border:1.5px solid var(--border);
+        border-radius:16px;
+        overflow:hidden;
+        margin-bottom:24px;
+      }
+      .pg-session-row{
+        display:flex;align-items:center;gap:12px;
+        padding:12px 16px;
+        box-sizing:border-box;width:100%;
+      }
+      .pg-session-row+.pg-session-row{
+        border-top:1px solid var(--border);
+      }
+      .pg-session-info{flex:1;min-width:0;}
+      .pg-session-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .pg-session-meta{font-size:.7rem;color:var(--muted);}
+      .pg-pct-badge{
+        flex-shrink:0;font-size:.8rem;font-weight:700;
+        padding:4px 12px;border-radius:99px;white-space:nowrap;
+      }
+      /* ── Actions ── */
+      .pg-action-row{
+        display:flex;gap:10px;
+        margin-bottom:32px;
+        flex-wrap:wrap;
+      }
+      .pg-action-row .btn{
+        flex:1;min-width:140px;
+        padding:13px 16px;font-size:.85rem;
+        border-radius:12px;
+        display:flex;align-items:center;justify-content:center;gap:6px;
+      }
+      /* ── Empty ── */
+      .pg-empty{
+        text-align:center;padding:40px 20px;
+        background:var(--card);border:1.5px solid var(--border);
+        border-radius:16px;margin-bottom:24px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  var wrap=el("div",{cls:"pg-wrap"});
   w.appendChild(wrap);
 
-  // Collect all stats
+  // ── Collect stats ──────────────────────────────────────
   var totalAttempted=0,totalCorrect=0,totalSessions=0;
   var subjectStats=[];
   SUBJ.forEach(function(s){
@@ -22,126 +205,132 @@ function pgStats(){
   });
   var overallAcc=totalAttempted?Math.round((totalCorrect/totalAttempted)*100):0;
   var streak=Sv.get("streak")||{count:0};
-  var dailyDone=Sv.get("daily_"+Math.floor(Date.now()/86400000));
 
-  // Header
-  var hd=el("div",{css:{textAlign:"center",marginBottom:"28px"}});
-  hd.appendChild(el("div",{css:{fontSize:"2rem",marginBottom:"6px"},txt:"\uD83D\uDCCA"}));
-  hd.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.02em",marginBottom:"4px"},txt:"Progress Dashboard"}));
-  hd.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Track your performance across all subjects"}));
-  wrap.appendChild(hd);
+  // ── Hero ──────────────────────────────────────────────
+  var hero=el("div",{cls:"pg-hero"});
+  hero.appendChild(el("div",{cls:"pg-hero-icon",txt:"📊"}));
+  hero.appendChild(el("h1",{txt:"Progress Dashboard"}));
+  hero.appendChild(el("p",{txt:"Track your performance across all subjects"}));
+  wrap.appendChild(hero);
 
-  // Top stats row
-  var topStats=el("div",{css:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px",marginBottom:"24px"}});
-  [["\uD83D\uDCDD",totalAttempted,"Questions\nAttempted","var(--accent)"],["\uD83C\uDFAF",overallAcc+"%","Overall\nAccuracy","#4ade80"],["\uD83D\uDCDA",totalSessions,"Quiz\nSessions","#818cf8"],["\uD83D\uDD25",streak.count,"Day\nStreak","#f59e0b"]].forEach(function(r){
-    var card=el("div",{css:{background:"var(--card)",border:"1.5px solid var(--border)",borderRadius:"14px",padding:"18px 14px",textAlign:"center"}});
-    card.appendChild(el("div",{css:{fontSize:"1.4rem",marginBottom:"6px"},txt:r[0]}));
-    card.appendChild(el("div",{css:{fontSize:"1.5rem",fontWeight:"800",color:r[3],letterSpacing:"-.02em"},txt:String(r[1])}));
-    card.appendChild(el("div",{css:{fontSize:".68rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",fontWeight:"600",whiteSpace:"pre-line",lineHeight:"1.4"},txt:r[2]}));
-    topStats.appendChild(card);
+  // ── 2×2 Stat Grid ─────────────────────────────────────
+  var sg=el("div",{cls:"pg-stat-grid"});
+  [
+    {icon:"📝",val:totalAttempted,lbl:"Questions\nAttempted",color:"var(--accent)",bg:"rgba(99,102,241,.12)"},
+    {icon:"🎯",val:overallAcc+"%",lbl:"Overall\nAccuracy",color:"#4ade80",bg:"rgba(74,222,128,.12)"},
+    {icon:"📚",val:totalSessions,lbl:"Quiz\nSessions",color:"#818cf8",bg:"rgba(129,140,248,.12)"},
+    {icon:"🔥",val:streak.count,lbl:"Day\nStreak",color:"#f59e0b",bg:"rgba(245,158,11,.12)"}
+  ].forEach(function(r){
+    var card=el("div",{cls:"pg-stat-card"});
+    var ico=el("div",{cls:"pg-stat-icon",css:{background:r.bg},txt:r.icon});
+    card.appendChild(ico);
+    var info=el("div",{cls:"pg-stat-info"});
+    info.appendChild(el("div",{cls:"pg-stat-val",css:{color:r.color},txt:String(r.val)}));
+    info.appendChild(el("div",{cls:"pg-stat-lbl",txt:r.lbl}));
+    card.appendChild(info);
+    sg.appendChild(card);
   });
-  wrap.appendChild(topStats);
+  wrap.appendChild(sg);
 
-  // Subject breakdown
-  wrap.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".1em",fontWeight:"600",marginBottom:"14px"},txt:"Subject Breakdown"}));
-  var grid=el("div",{css:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",marginBottom:"24px"}});
+  // ── Subject Breakdown ─────────────────────────────────
+  wrap.appendChild(el("div",{cls:"pg-section-label",txt:"Subject Breakdown"}));
+  var list=el("div",{cls:"pg-subj-list"});
   subjectStats.forEach(function(st){
     var ac=AC[st.s];
-    var card=el("div",{css:{background:"var(--card)",border:"1.5px solid var(--border)",borderRadius:"14px",padding:"20px"}});
+    var card=el("div",{cls:"pg-subj-card"});
+
     // Top row
-    var top=el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}});
-    top.appendChild(el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}},[el("span",{css:{fontSize:"1.3rem"}},ICON[st.s]),el("span",{css:{fontWeight:"700",fontSize:"1rem"}},st.s)]));
-    top.appendChild(el("span",{css:{fontSize:".75rem",fontWeight:"700",padding:"3px 10px",borderRadius:"99px",background:ac+"18",color:ac}},st.best?st.best+"%":"—"));
+    var top=el("div",{cls:"pg-subj-top"});
+    var nameDiv=el("div",{cls:"pg-subj-name"});
+    nameDiv.appendChild(el("span",{txt:ICON[st.s]}));
+    nameDiv.appendChild(el("span",{txt:st.s}));
+    top.appendChild(nameDiv);
+    top.appendChild(el("span",{cls:"pg-subj-best",css:{background:ac+"18",color:ac},txt:st.best?st.best+"%":"—"}));
     card.appendChild(top);
+
     // Accuracy bar
-    var barWrap=el("div",{css:{marginBottom:"10px"}});
-    barWrap.appendChild(el("div",{css:{display:"flex",justifyContent:"space-between",fontSize:".72rem",color:"var(--muted)",marginBottom:"5px"}},[el("span",{},"Accuracy"),el("span",{},st.avg+"%")]));
-    var bar=el("div",{css:{height:"6px",background:"var(--border)",borderRadius:"99px",overflow:"hidden"}});
-    var fill=el("div",{css:{height:"100%",width:st.avg+"%",background:ac,borderRadius:"99px",transition:"width .6s ease"}});
-    bar.appendChild(fill);barWrap.appendChild(bar);card.appendChild(barWrap);
-    // Stats row
-    var srow=el("div",{css:{display:"flex",gap:"12px"}});
+    var bw=el("div",{cls:"pg-bar-wrap"});
+    var bm=el("div",{cls:"pg-bar-meta"});
+    bm.appendChild(el("span",{txt:"Accuracy"}));
+    bm.appendChild(el("span",{txt:st.avg+"%"}));
+    bw.appendChild(bm);
+    var track=el("div",{cls:"pg-bar-track"});
+    var fill=el("div",{cls:"pg-bar-fill",css:{width:st.avg+"%",background:ac}});
+    track.appendChild(fill);bw.appendChild(track);
+    card.appendChild(bw);
+
+    // Mini stats
+    var ms=el("div",{cls:"pg-mini-stats"});
     [[st.sessions,"Sessions"],[st.totalQ,"Questions"],[st.totalC,"Correct"]].forEach(function(r){
-      var s=el("div",{css:{flex:"1",textAlign:"center",background:"var(--bg2)",borderRadius:"8px",padding:"6px 4px"}});
-      s.appendChild(el("div",{css:{fontSize:".9rem",fontWeight:"700"},txt:String(r[0])}));
-      s.appendChild(el("div",{css:{fontSize:".62rem",color:"var(--muted)"},txt:r[1]}));
-      srow.appendChild(s);
+      var s=el("div",{cls:"pg-mini-stat"});
+      s.appendChild(el("div",{cls:"pg-mini-val",txt:String(r[0])}));
+      s.appendChild(el("div",{cls:"pg-mini-lbl",txt:r[1]}));
+      ms.appendChild(s);
     });
-    card.appendChild(srow);
+    card.appendChild(ms);
 
-    // Weak indicator
+    // Badge
     if(st.sessions>0&&st.avg<50){
-      var weak=el("div",{css:{marginTop:"10px",padding:"6px 10px",background:"rgba(248,113,113,.08)",border:"1px solid rgba(248,113,113,.2)",borderRadius:"8px",fontSize:".72rem",color:"#f87171",fontWeight:"600"}},"\u26A0\uFE0F Needs more practice");
-      card.appendChild(weak);
+      card.appendChild(el("div",{cls:"pg-badge weak",txt:"⚠️ Needs more practice"}));
     } else if(st.sessions>0&&st.avg>=80){
-      var strong=el("div",{css:{marginTop:"10px",padding:"6px 10px",background:"rgba(74,222,128,.08)",border:"1px solid rgba(74,222,128,.2)",borderRadius:"8px",fontSize:".72rem",color:"#4ade80",fontWeight:"600"}},"\u2B50 Strong subject!");
-      card.appendChild(strong);
+      card.appendChild(el("div",{cls:"pg-badge strong",txt:"⭐ Strong subject!"}));
     }
-    grid.appendChild(card);
+    list.appendChild(card);
   });
-  wrap.appendChild(grid);
+  wrap.appendChild(list);
 
-  // Recent sessions
+  // ── Recent Sessions ───────────────────────────────────
   var recentAll=[];
-  SUBJ.forEach(function(s){var h=(Sv.get("qz_"+s)||{h:[]}).h||[];h.forEach(function(e){recentAll.push({s:s,date:e.date,pct:e.pct,correct:e.correct,total:e.total});});});
+  SUBJ.forEach(function(s){
+    var h=(Sv.get("qz_"+s)||{h:[]}).h||[];
+    h.forEach(function(e){recentAll.push({s:s,date:e.date,pct:e.pct,correct:e.correct,total:e.total});});
+  });
   recentAll.sort(function(a,b){return b.date>a.date?1:-1;});
   if(recentAll.length){
-    wrap.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".1em",fontWeight:"600",marginBottom:"14px"},txt:"Recent Sessions"}));
-    var rbox=el("div",{css:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px",overflow:"hidden",marginBottom:"24px"}});
-    recentAll.slice(0,8).forEach(function(e,i){
-      var row=el("div",{css:{display:"flex",alignItems:"center",gap:"12px",padding:"12px 16px",borderBottom:i<Math.min(recentAll.length,8)-1?"1px solid var(--border)":"none"}});
-      row.appendChild(el("span",{css:{fontSize:"1.1rem",width:"28px",textAlign:"center"}},ICON[e.s]));
-      var ri=el("div",{css:{flex:"1"}});ri.appendChild(el("div",{css:{fontSize:".85rem",fontWeight:"600"},txt:e.s}));ri.appendChild(el("div",{css:{fontSize:".72rem",color:"var(--muted)"},txt:e.date+" · "+e.correct+"/"+e.total+" correct"}));row.appendChild(ri);
-      var pctBadge=el("span",{css:{fontSize:".82rem",fontWeight:"700",padding:"4px 12px",borderRadius:"99px",background:e.pct>=60?"rgba(74,222,128,.12)":"rgba(248,113,113,.1)",color:e.pct>=60?"#4ade80":"#f87171"}},e.pct+"%");
-      row.appendChild(pctBadge);
+    wrap.appendChild(el("div",{cls:"pg-section-label",txt:"Recent Sessions"}));
+    var rbox=el("div",{cls:"pg-recent-box"});
+    recentAll.slice(0,8).forEach(function(e){
+      var row=el("div",{cls:"pg-session-row"});
+      row.appendChild(el("span",{css:{fontSize:"1.1rem",flexShrink:"0"},txt:ICON[e.s]}));
+      var ri=el("div",{cls:"pg-session-info"});
+      ri.appendChild(el("div",{cls:"pg-session-name",txt:e.s}));
+      ri.appendChild(el("div",{cls:"pg-session-meta",txt:e.date+" · "+e.correct+"/"+e.total+" correct"}));
+      row.appendChild(ri);
+      var good=e.pct>=60;
+      row.appendChild(el("span",{
+        cls:"pg-pct-badge",
+        css:{background:good?"rgba(74,222,128,.12)":"rgba(248,113,113,.1)",color:good?"#4ade80":"#f87171"},
+        txt:e.pct+"%"
+      }));
       rbox.appendChild(row);
     });
     wrap.appendChild(rbox);
   }
 
-  // Share and Export buttons
-  var actionWrap=el("div",{css:{display:"flex",gap:"10px",justifyContent:"center",marginBottom:"32px",flexWrap:"wrap"}});
-  actionWrap.appendChild(el("button",{cls:"btn btnp",css:{padding:"12px 24px",fontSize:".9rem"},onclick:function(){
-    var text="\uD83D\uDCCA My StudyLab Progress\n\n\uD83D\uDCDD "+totalAttempted+" questions attempted\n\uD83C\uDFAF "+overallAcc+"% overall accuracy\n\uD83D\uDD25 "+streak.count+" day streak\n\uD83D\uDCDA "+totalSessions+" quiz sessions\n\n🌐 https://studylab-inky.vercel.app";
+  // ── Actions ───────────────────────────────────────────
+  var ar=el("div",{cls:"pg-action-row"});
+  ar.appendChild(el("button",{cls:"btn btnp",onclick:function(){
+    var text="📊 My StudyLab Progress\n\n📝 "+totalAttempted+" questions attempted\n🎯 "+overallAcc+"% overall accuracy\n🔥 "+streak.count+" day streak\n📚 "+totalSessions+" quiz sessions\n\n🌐 https://studylab-inky.vercel.app";
     if(navigator.share){navigator.share({title:"My StudyLab Progress",text:text});}
-    else{navigator.clipboard.writeText(text).then(function(){toast("Stats copied! Share it \uD83D\uDE80");});}
-  }},"\uD83D\uDCF1 Share Progress"));
-  
-  actionWrap.appendChild(el("button",{cls:"btn btng",css:{padding:"12px 24px",fontSize:".9rem"},onclick:function(){
-    // Export all data as JSON
-    var exportData = {
-      exportDate: new Date().toISOString(),
-      stats: {
-        totalAttempted: totalAttempted,
-        totalCorrect: totalCorrect,
-        overallAccuracy: overallAcc,
-        totalSessions: totalSessions,
-        streak: streak.count
-      },
-      subjects: {},
-      recentSessions: recentAll
-    };
-    SUBJ.forEach(function(s){
-      var sv = Sv.get("qz_"+s) || {best:null,att:0,h:[]};
-      exportData.subjects[s] = sv;
-    });
-    var blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'studylab_progress_' + new Date().toISOString().slice(0,10) + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast("Progress exported! \uD83D\uDCBE");
-  }},"\uD83D\uDCBE Export Data"));
-  wrap.appendChild(actionWrap);
+    else{navigator.clipboard.writeText(text).then(function(){toast("Stats copied! Share it 🚀");});}
+  }},["📱 Share Progress"]));
+  ar.appendChild(el("button",{cls:"btn btng",onclick:function(){
+    var exportData={exportDate:new Date().toISOString(),stats:{totalAttempted,totalCorrect,overallAccuracy:overallAcc,totalSessions,streak:streak.count},subjects:{},recentSessions:recentAll};
+    SUBJ.forEach(function(s){exportData.subjects[s]=Sv.get("qz_"+s)||{best:null,att:0,h:[]};});
+    var blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");a.href=url;a.download="studylab_progress_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);
+    toast("Progress exported! 💾");
+  }},["💾 Export Data"]));
+  wrap.appendChild(ar);
 
+  // ── Empty State ───────────────────────────────────────
   if(totalSessions===0){
-    var empty=el("div",{css:{textAlign:"center",padding:"40px",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"16px",marginBottom:"24px"}});
-    empty.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"12px"},txt:"\uD83D\uDCDA"}));
-    empty.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"600",marginBottom:"8px"},txt:"No quiz sessions yet!"}));
-    empty.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)",marginBottom:"20px"},txt:"Complete your first quiz to see your progress here"}));
-    empty.appendChild(el("button",{cls:"btn btnp",onclick:function(){go("home");}},"\uD83C\uDFAF Start a Quiz"));
+    var empty=el("div",{cls:"pg-empty"});
+    empty.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"12px"},txt:"📚"}));
+    empty.appendChild(el("div",{css:{fontSize:"1rem",fontWeight:"700",marginBottom:"8px"},txt:"No quiz sessions yet!"}));
+    empty.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)",marginBottom:"20px"},txt:"Complete your first quiz to see your progress here"}));
+    empty.appendChild(el("button",{cls:"btn btnp",onclick:function(){go("home");}},["🎯 Start a Quiz"]));
     wrap.appendChild(empty);
   }
 
