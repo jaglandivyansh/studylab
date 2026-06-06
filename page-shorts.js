@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — Immersive Fullscreen Reels (YouTube Shorts style)
+// PAGE-SHORTS.JS — Responsive Mock-Phone Container Style (No Fullscreen)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -58,24 +58,40 @@ function pgShorts() {
   var st = document.createElement("style");
   st.id = styleId;
   st.textContent = `
-    /* Lock body scroll while shorts open */
-    body.shorts-open { overflow: hidden !important; }
+    /* Wrapper Container to Center the Box on Screen */
+    .shorts-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
-    /* Full viewport takeover */
+    /* Elegant Fixed-Size Reel Box (Doesn't cover full screen) */
     #shorts-root {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
+      position: relative;
+      width: 100%;
+      max-width: 420px;       /* Perfect mobile aspect ratio on desktop */
+      height: 70dvh;          /* Height controlled to look like a premium card */
+      min-height: 550px;
       background: #000;
+      border-radius: 24px;    /* Rounded corners for look and feel */
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
-    /* Each slide = 100dvh (dynamic viewport, accounts for browser chrome) */
+    /* Hide scrollbar for aesthetics */
+    #shorts-root::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Each slide strictly fits inside the container box */
     .sr-slide {
-      height: 100dvh;
+      height: 100%;
       width: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
@@ -113,7 +129,7 @@ function pgShorts() {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 72px 28px 80px;
+      padding: 60px 24px 70px;
       box-sizing: border-box;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -147,7 +163,7 @@ function pgShorts() {
       text-align: center;
       text-shadow: 0 2px 16px rgba(0,0,0,0.3);
       word-break: break-word;
-      max-height: 55vh;
+      max-height: 45vh;
       overflow-y: auto;
     }
 
@@ -171,7 +187,7 @@ function pgShorts() {
       50%      { transform: translateX(-50%) translateY(-6px); }
     }
 
-    /* Answer overlay — slides up on tap */
+    /* Answer overlay — slides up inside the box container */
     .sr-answer-overlay {
       position: absolute;
       inset: 0;
@@ -188,13 +204,13 @@ function pgShorts() {
       pointer-events: all;
     }
     .sr-answer-sheet {
-      background: rgba(10,12,20,0.92);
+      background: rgba(10,12,20,0.94);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255,255,255,0.1);
       border-radius: 24px 24px 0 0;
-      padding: 28px 28px 40px;
-      max-height: 55vh;
+      padding: 24px 24px 30px;
+      max-height: 50vh;
       overflow-y: auto;
     }
     .sr-ans-label {
@@ -207,7 +223,7 @@ function pgShorts() {
     }
     .sr-ans-text {
       font-family: var(--font-display, sans-serif);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #fff;
       margin-bottom: 14px;
@@ -215,9 +231,9 @@ function pgShorts() {
       word-break: break-word;
     }
     .sr-exp-text {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: rgba(255,255,255,0.65);
-      line-height: 1.7;
+      line-height: 1.6;
     }
     .sr-close-ans {
       display: inline-flex;
@@ -234,69 +250,51 @@ function pgShorts() {
       cursor: pointer;
     }
 
-    /* Back button — top left */
-    #shorts-back {
-      position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 100000;
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      font-size: 1.1rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    /* Counter — gracefully pinned inside the top right of the box */
+    .shorts-container-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
     }
-
-    /* Counter — top right */
     #shorts-counter {
-      position: fixed;
-      top: 20px;
-      right: 16px;
+      position: absolute;
+      top: 22px;
+      right: 20px;
       z-index: 100000;
       font-size: 0.72rem;
       font-weight: 700;
       color: rgba(255,255,255,0.6);
       letter-spacing: 0.05em;
       pointer-events: none;
+      background: rgba(0,0,0,0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
     }
 
     /* End slide */
     .sr-end {
       color: #fff;
       text-align: center;
-      padding: 40px 28px;
+      padding: 40px 24px;
     }
   `;
   document.head.appendChild(st);
 
-  // Lock body scroll
-  document.body.classList.add("shorts-open");
+  // ── Outer Layout Structure ────────────────────────────────────
+  // Create a main wrapper that centers the short card on the screen
+  var mainWrapper = el("div", { cls: "shorts-wrapper" });
+  var innerContainer = el("div", { cls: "shorts-container-wrapper" });
 
-  // ── Root container ────────────────────────────────────────────
+  // ── Root container (The Box) ──────────────────────────────────
   var root = el("div", { id: "shorts-root" });
 
-  // ── Fixed back button ─────────────────────────────────────────
-  var backBtn = el("div", { id: "shorts-back", txt: "←" });
-  backBtn.onclick = function() {
-    document.body.classList.remove("shorts-open");
-    backBtn.remove();
-    counterEl.remove();
-    go("home");
-  };
-  document.body.appendChild(backBtn);
-
-  // ── Fixed counter ─────────────────────────────────────────────
+  // ── Fixed counter (Now relative to the Box) ────────────────────
   var counterEl = el("div", { id: "shorts-counter", txt: "1 / " + data.length });
-  document.body.appendChild(counterEl);
+  innerContainer.appendChild(counterEl);
 
   // Update counter on scroll
   root.addEventListener("scroll", function() {
-    var idx = Math.round(root.scrollTop / window.innerHeight);
+    var idx = Math.round(root.scrollTop / root.clientHeight);
     counterEl.textContent = (idx + 1) + " / " + data.length;
   });
 
@@ -329,7 +327,7 @@ function pgShorts() {
     var sheet = el("div", { cls: "sr-answer-sheet" });
 
     sheet.appendChild(el("div", { cls: "sr-ans-label", txt: "✅ Correct Answer" }));
-    var aSize = item.a.length > 80 ? "1.15rem" : "1.5rem";
+    var aSize = item.a.length > 80 ? "1.15rem" : "1.4rem";
     sheet.appendChild(el("div", { cls: "sr-ans-text", css: { fontSize: aSize }, txt: item.a }));
     sheet.appendChild(el("div", { cls: "sr-exp-text", txt: item.extra }));
 
@@ -357,21 +355,23 @@ function pgShorts() {
   var endBg = el("div", { cls: "sr-bg", css: { background: "linear-gradient(160deg,#0f172a,#1e293b)" } });
   endSlide.appendChild(endBg);
   var endContent = el("div", { cls: "sr-end", css: { position:"relative", zIndex:"1", width:"100%" } });
-  endContent.appendChild(el("div", { css: { fontSize: "3.5rem", marginBottom: "16px" }, txt: "🎉" }));
-  endContent.appendChild(el("div", { css: { fontSize: "1.5rem", fontWeight: "800", marginBottom: "8px" }, txt: "Session Complete!" }));
-  endContent.appendChild(el("div", { css: { fontSize: ".9rem", color: "rgba(255,255,255,0.5)", marginBottom: "28px" }, txt: "You reviewed " + data.length + " questions" }));
+  endContent.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "12px" }, txt: "🎉" }));
+  endContent.appendChild(el("div", { css: { fontSize: "1.3rem", fontWeight: "800", marginBottom: "6px" }, txt: "Session Complete!" }));
+  endContent.appendChild(el("div", { css: { fontSize: ".85rem", color: "rgba(255,255,255,0.5)", marginBottom: "24px" }, txt: "You reviewed " + data.length + " questions" }));
   var shuffleBtn = el("button", {
-    css: { padding: "14px 32px", background: "var(--accent,#3b82f6)", color: "#fff", border: "none", borderRadius: "14px", fontWeight: "700", fontSize: "1rem", cursor: "pointer" }
+    css: { padding: "12px 28px", background: "var(--accent,#3b82f6)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "700", fontSize: "0.95rem", cursor: "pointer" }
   }, "Shuffle New Batch 🔄");
   shuffleBtn.onclick = function() {
-    document.body.classList.remove("shorts-open");
-    backBtn.remove();
-    counterEl.remove();
+    mainWrapper.remove();
     go("shorts");
   };
   endContent.appendChild(shuffleBtn);
   endSlide.appendChild(endContent);
   root.appendChild(endSlide);
 
-  return root;
+  // Assemble and return the modified UI block
+  innerContainer.appendChild(root);
+  mainWrapper.appendChild(innerContainer);
+
+  return mainWrapper;
 }
