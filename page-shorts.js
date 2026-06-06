@@ -310,27 +310,39 @@ class StudyLabShortsEngine {
     localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
   }
 
-  // FEATURE 3 Core Code Logic: Web Share API Integration with Fallback Clipboard copy
+    // FEATURE 3 Core Code Logic: Ultra-Premium Typography Format (No Emojis)
   shareCurrentShort() {
     var item = this.allQuestions[this.currentIndex];
-    var shareText = `📝 StudyLab Fact Quiz!\n\n🔹 Subject: ${item.subj}\n❓ Question: ${item.q}\n\n👉 Download StudyLab to learn more premium facts daily!`;
+    
+    // Clean, corporate and premium structured layout using typography bars
+    var shareText = `_________________________________________\n\n` +
+                    `STUDYLAB SHORTS : DAILY BRIEF\n` +
+                    `_________________________________________\n\n` +
+                    `SECTION  |  ${item.subj.toUpperCase()}\n\n` +
+                    `QUESTION :\n` +
+                    `${item.q}\n\n` +
+                    `--- \n` +
+                    `Discover the full analysis and more insights on StudyLab.\n` +
+                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
+                    `_________________________________________`;
 
     if (navigator.share) {
       navigator.share({
-        title: 'StudyLab Shorts',
+        title: 'StudyLab Daily Brief',
         text: shareText
       }).catch(function(err){ console.log(err); });
     } else {
-      // Fallback fallback copy sequence if OS routing API fails
+      // Fallback copy sequence for desktop environments
       var dummy = document.createElement("textarea");
       document.body.appendChild(dummy);
       dummy.value = shareText;
       dummy.select();
       document.execCommand("copy");
       document.body.removeChild(dummy);
-      this.showToast("📋 Text Copied to Clipboard!");
+      this.showToast("Link Copied to Clipboard"); // Removed icon here too for total consistency
     }
   }
+
 
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
