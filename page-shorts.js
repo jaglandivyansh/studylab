@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS PRO ENGINE (FIXED & PLUGGED)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS PRO ENGINE (GESTURES & PREV BTN)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -15,7 +15,6 @@ function generateDynamicShorts(sessionLimit) {
     "Previous Year Questions": "linear-gradient(160deg, #4f46e5 0%, #312e81 100%)"
   };
 
-  // Safe checks for global StudyLab arrays
   if (typeof SUBJ === 'undefined' || typeof QD === 'undefined') {
     return [{ subj: "Economy", bg: "linear-gradient(160deg, #db2777, #831843)", q: "Disguised unemployment refers to...", a: "Persons with no job.", extra: "Keep scrolling! 🔥" }];
   }
@@ -53,7 +52,6 @@ function generateDynamicShorts(sessionLimit) {
   return typeof shuf === 'function' ? shuf(allQuestions).slice(0, sessionLimit) : allQuestions.slice(0, sessionLimit);
 }
 
-// ── STUDYLAB SHORTS ENGINE ENGINE ─────────────────────────────────
 class StudyLabShortsEngine {
   constructor(targetElement, questionsList) {
     this.container = targetElement;
@@ -98,6 +96,7 @@ class StudyLabShortsEngine {
       .sl-card {
         min-height: 100%; width: 100%; position: relative; display: flex; flex-direction: column;
         justify-content: center; align-items: center; padding: 40px 24px; box-sizing: border-box; color: #fff; text-align: center;
+        user-select: none;
       }
       .sl-subj-tag {
         background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
@@ -115,12 +114,16 @@ class StudyLabShortsEngine {
       .sl-ans-text { font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 10px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
-      .sl-controls { position: absolute; bottom: 25px; display: flex; gap: 12px; z-index: 4; }
+      .sl-controls { position: absolute; bottom: 25px; display: flex; gap: 10px; z-index: 4; width: calc(100% - 48px); justify-content: center; }
       .sl-btn {
-        background: rgba(255,255,255,0.18); border: none; color: #fff; padding: 10px 20px; border-radius: 50px;
-        font-weight: 600; font-size: 0.82rem; cursor: pointer; backdrop-filter: blur(10px); transition: background 0.2s;
+        background: rgba(255,255,255,0.18); border: none; color: #fff; padding: 10px 16px; border-radius: 50px;
+        font-weight: 600; font-size: 0.8rem; cursor: pointer; backdrop-filter: blur(10px); transition: background 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
       }
-      .sl-btn.btn-next { background: var(--accent, #3b82f6); }
+      .sl-btn.btn-next { background: var(--accent, #3b82f6); flex-grow: 1; max-width: 110px; }
+      .sl-btn.btn-prev { background: rgba(255,255,255,0.1); }
+      .sl-btn.btn-prev:disabled { opacity: 0.3; cursor: not-allowed; }
+      .sl-btn.btn-show-ans { flex-grow: 1; max-width: 140px; }
     `;
     document.head.appendChild(style);
   }
@@ -150,7 +153,6 @@ class StudyLabShortsEngine {
     this.dom.track.innerHTML = '';
     this.dom.progressBar.innerHTML = '';
 
-    // Generate progress dots/bars
     this.allQuestions.forEach((_, idx) => {
       var bar = document.createElement('div');
       bar.className = 'sl-progress-bar';
@@ -167,10 +169,14 @@ class StudyLabShortsEngine {
     card.className = 'sl-card';
     card.style.background = item.bg;
 
+    // Is the previous button disabled? (on first item)
+    var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
+
     card.innerHTML = `
       <div class="sl-subj-tag">${item.subj}</div>
       <div class="sl-question">${item.q}</div>
       <div class="sl-controls">
+        <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
         <button class="sl-btn btn-show-ans">💡 View Answer</button>
         <button class="sl-btn btn-next">Next ➔</button>
       </div>
@@ -186,10 +192,21 @@ class StudyLabShortsEngine {
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
       var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
+      var isSheetOpen = sheet.classList.contains('open');
+
+      // 1. If sheet is open and user taps ANYWHERE on the card (except buttons), hide the answer
+      if (isSheetOpen && !e.target.closest('.sl-controls')) {
+        sheet.classList.remove('open');
+        return;
+      }
+
+      // 2. Handle button clicks
       if (e.target.classList.contains('btn-show-ans')) {
-        sheet.classList.toggle('open');
-      } else if (e.target.classList.contains('btn-next') || e.target.closest('.sl-bottom-sheet.open')) {
+        sheet.classList.add('open');
+      } else if (e.target.classList.contains('btn-next')) {
         this.next();
+      } else if (e.target.classList.contains('btn-prev')) {
+        this.prev();
       }
     });
   }
@@ -203,25 +220,24 @@ class StudyLabShortsEngine {
       this.renderSlide();
     }
   }
+
+  prev() {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+      this.renderSlide();
+    }
+  }
 }
 
-// ── 6. OLD SYSTEM COUPLING (MAIN INTERFACE FUNCTION) ────────────────
 function pgShorts() {
-  // 1. Fetch filtered quiz data
   var dataset = generateDynamicShorts(100);
-
-  // 2. Create the outer layout alignment box requested by user
   var centerLayoutBox = document.createElement("div");
   centerLayoutBox.className = "sl-main-center-box";
 
-  // 3. Mount the modern modular Engine on this layout box
   new StudyLabShortsEngine(centerLayoutBox, dataset);
-
-  // 4. Return layout to your router (go("shorts") will append this returned element)
   return centerLayoutBox;
 }
 
-// Helper short-hand element creator function if missing in app core
 if (typeof el !== 'function') {
   window.el = function(type, attrs, txt) {
     var e = document.createElement(type);
