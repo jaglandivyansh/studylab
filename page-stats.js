@@ -18,7 +18,7 @@ function pgStats(){
       }
       .pg-hero{
         text-align:center;
-        padding:28px 0 24px;
+        padding:10px 0 20px;
       }
       .pg-hero-icon{
         width:56px;height:56px;
