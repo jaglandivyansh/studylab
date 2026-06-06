@@ -1854,43 +1854,43 @@ div[class*="hero"]:not(.pg-hero) {
 }
 
 /* ==========================================================================
-   🚨 STUDYLAB BRUTE-FORCE EMERGENCY OVERRIDE (EXAM-CLEARING CODE)
+   🎯 STUDYLAB STREAK BANNER LIGHT/DARK MODE UNIVERSAL FIX
    ========================================================================== */
 
-/* 1. Us purane bade se dark-purple streak box ko jad se mitao */
-div:has(> [txt*="STREAK"]),
-div:has(> div:contains("STREAK")),
-.daily-container > div:first-child,
+/* 1. Dark Theme (Aapke Refined Editorial Theme ke variables par sync) */
+:root, :root[data-theme="dark"] {
+  --sl-streak-bg: #1C2333 !important;       /* Elevated Level 3 surface */
+  --sl-streak-text: #F1F5F9 !important;     /* High contrast text */
+  --sl-streak-border: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 2. Light Theme (Aapke existing data-theme=light variable overrides) */
+:root[data-theme="light"] {
+  --sl-streak-bg: #F5F7FF !important;       /* Inner card element surface */
+  --sl-streak-text: #0D1B3E !important;     /* High contrast dark navy text */
+  --sl-streak-border: rgba(0, 0, 0, 0.14) !important;
+}
+
+/* 3. Brute Force Theme Engine Injection - Target card containers natively */
 [data-page="daily"] > div:nth-child(2),
-div[style*="background: rgb(30, 41, 59)"] {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+.daily-container > div:first-child,
+div[style*="background"] {
+  background: var(--sl-streak-bg) !important;
+  border: 1.5px solid var(--sl-streak-border) !important;
+  color: var(--sl-streak-text) !important;
 }
 
-/* 2. Light mode me "Science" aur baki gayab hone wale text ko zindaa karo */
-body:not(.dark) div,
-body:not(.dark) span,
-body:not(.dark) h3,
-body:not(.dark) p,
-body:not(.dark) .subject-title-text {
-    color: #0f172a !important; /* Pure dark royal black/blue color */
+/* 4. Force visibility on the "Science" title and description labels */
+[data-page="daily"] div,
+[data-page="daily"] span,
+[data-page="daily"] h3,
+.subject-title-text {
+  color: var(--sl-streak-text) !important;
 }
 
-/* 3. Jo aapka main question box hai, use light/dark mode ke hisab se automatic set karo */
-div:has(> h3) {
-    background: var(--card) !important;
-    border: 1.5px solid var(--border) !important;
-    border-radius: 20px !important;
-}
-
-/* 4. Options buttons (Kota, Udaipur...) ko bina crash kare clean and dark borders do */
-div:has(> span[txt*="A."]), 
-div:has(> span:contains("A.")) {
-    border: 1.5px solid var(--border) !important;
-    color: var(--text) !important;
+/* 5. Keep the unique Accent pill or text links matching your global blueprint tokens */
+.sl-quiz-card-tag, 
+div:contains("Question of the day") {
+  color: var(--accent) !important;
 }
 
