@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA (STREAK, BOOKMARK & SHARE)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA + INTERACTIVE BOOKMARK PAGE
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -41,7 +41,6 @@ function generateDynamicShorts(sessionLimit) {
       var qText = qObj.q || qObj.question;
       var expText = qObj.explanation || qObj.exp || qObj.desc || "Keep scrolling to master more facts! 🔥";
       if (correctText && qText && String(correctText) !== String(rawAns)) {
-        // Generate a unique ID for bookmark mapping
         var uniqueId = subj + "-" + index;
         allQuestions.push({ id: uniqueId, subj: subj, bg: bgGradients[subj] || "linear-gradient(160deg,#4b5563,#1f2937)", q: qText, a: correctText, extra: expText });
       }
@@ -60,18 +59,18 @@ class StudyLabShortsEngine {
     this.allQuestions = questionsList;
     this.currentIndex = 0;
     
-    this.dom = { wrapper: null, progressBar: null, counter: null, track: null, streakBadge: null };
+    this.dom = { wrapper: null, progressBar: null, counter: null, track: null, streakBadge: null, viewBookmarksBtn: null, bookmarkPage: null };
     this.init();
   }
 
   init() {
-    this.updateStreak(); // Process streak logic immediately on load
+    this.updateStreak();
     this.injectStyles();
     this.buildSkeleton();
     this.renderSlide();
+    this.updateBookmarkButtonCount();
   }
 
-  // FEATURE 1: Smart Client-Side Streak Tracking
   updateStreak() {
     var today = new Date().toDateString();
     var lastActiveDate = localStorage.getItem('sl_last_active');
@@ -82,13 +81,12 @@ class StudyLabShortsEngine {
     } else {
       var yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      
       if (lastActiveDate === today) {
-        // Already active today, streak maintained
+        // maintained
       } else if (lastActiveDate === yesterday.toDateString()) {
-        currentStreak += 1; // Incremented sequentially
+        currentStreak += 1;
       } else {
-        currentStreak = 1; // Streak broken, reset
+        currentStreak = 1;
       }
     }
     localStorage.setItem('sl_last_active', today);
@@ -102,7 +100,7 @@ class StudyLabShortsEngine {
     style.id = 'sl-pro-ultra-styles';
     style.textContent = `
       .sl-main-center-box {
-        display: flex; justify-content: center; align-items: center; width: 100%; padding: 15px; box-sizing: border-box;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 15px; box-sizing: border-box;
       }
       .sl-shorts-wrapper {
         position: relative; width: 100%; max-width: 410px; height: 68dvh; min-height: 500px;
@@ -116,7 +114,6 @@ class StudyLabShortsEngine {
       .sl-progress-fill { height: 100%; width: 0%; background: #fff; transition: width 0.3s ease; }
       .sl-progress-fill.active { width: 100%; }
       
-      /* Header Badges Grid */
       .sl-header-controls {
         position: absolute; top: 25px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
       }
@@ -170,7 +167,6 @@ class StudyLabShortsEngine {
       .sl-btn.btn-show-ans { flex-grow: 1; max-width: 130px; }
       .sl-btn.btn-share { background: rgba(255,255,255,0.1); width: 36px; height: 36px; padding: 0; border-radius: 50%; }
       
-      /* Native Toast Alert Notification */
       .sl-toast {
         position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(20px);
         background: rgba(0, 0, 0, 0.85); color: #fff; padding: 8px 16px; border-radius: 20px;
@@ -178,6 +174,59 @@ class StudyLabShortsEngine {
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+      /* Premium Bottom Navigation Link for Bookmarks */
+      .sl-view-bookmarks-wrapper {
+        margin-top: 15px; width: 100%; max-width: 410px; display: flex; justify-content: center;
+      }
+      .sl-bookmarks-trigger-btn {
+        background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8);
+        padding: 10px 24px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+        transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      .sl-bookmarks-trigger-btn:hover {
+        background: rgba(255, 255, 255, 0.12); color: #fff; border-color: rgba(255,255,255,0.2);
+      }
+
+      /* Premium Sliding Full-Page View Bookmarks Module */
+      .sl-bookmark-page {
+        position: absolute; inset: 0; background: #090a0f; z-index: 100; transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+      }
+      .sl-bookmark-page.open { transform: translateY(0); }
+      
+      .sl-bp-header {
+        padding: 20px; display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 1px solid rgba(255,255,255,0.08); background: #0d0e15;
+      }
+      .sl-bp-title { font-size: 1rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+      .sl-bp-close {
+        background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 0.85rem; font-weight: 700;
+        padding: 6px 14px; border-radius: 30px; cursor: pointer;
+      }
+      
+      .sl-bp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+      .sl-bp-list::-webkit-scrollbar { width: 4px; }
+      .sl-bp-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+      
+      .sl-bp-item {
+        background: #131520; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 14px 16px;
+        display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s;
+      }
+      .sl-bp-item:active { transform: scale(0.98); }
+      .sl-bp-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+      .sl-bp-item-subj { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: #3b82f6; letter-spacing: 0.5px; }
+      .sl-bp-item-q { font-size: 0.82rem; font-weight: 600; color: #e5e7eb; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      
+      .sl-bp-delete-btn {
+        background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 1rem; cursor: pointer;
+        padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;
+      }
+      .sl-bp-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+      
+      .sl-bp-empty {
+        margin: auto; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 500; display: flex; flex-direction: column; gap: 8px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -189,7 +238,6 @@ class StudyLabShortsEngine {
     this.dom.progressBar = document.createElement('div');
     this.dom.progressBar.className = 'sl-progress-container';
     
-    // Top Row Controls Skeleton
     var headerControls = document.createElement('div');
     headerControls.className = 'sl-header-controls';
     
@@ -203,7 +251,6 @@ class StudyLabShortsEngine {
     this.dom.bookmarkBtn = document.createElement('button');
     this.dom.bookmarkBtn.className = 'sl-top-btn btn-bookmark';
     this.dom.bookmarkBtn.innerHTML = '🔖';
-    this.dom.bookmarkBtn.setAttribute('title', 'Bookmark Question');
 
     badgeLeft.appendChild(this.dom.streakBadge);
     badgeLeft.appendChild(this.dom.bookmarkBtn);
@@ -217,16 +264,36 @@ class StudyLabShortsEngine {
     this.dom.track = document.createElement('div');
     this.dom.track.className = 'sl-track';
 
-    // Toast element for instant notifications
     this.dom.toast = document.createElement('div');
     this.dom.toast.className = 'sl-toast';
+
+    // Build Premium Full Page Bookmark Sub-View Overlay
+    this.dom.bookmarkPage = document.createElement('div');
+    this.dom.bookmarkPage.className = 'sl-bookmark-page';
+    this.dom.bookmarkPage.innerHTML = `
+      <div class="sl-bp-header">
+        <div class="sl-bp-title">Saved Bookmarks</div>
+        <button class="sl-bp-close">Close</button>
+      </div>
+      <div class="sl-bp-list"></div>
+    `;
 
     this.dom.wrapper.appendChild(this.dom.progressBar);
     this.dom.wrapper.appendChild(headerControls);
     this.dom.wrapper.appendChild(this.dom.track);
+    this.dom.wrapper.appendChild(this.dom.bookmarkPage);
     this.dom.wrapper.appendChild(this.dom.toast);
     
     this.container.appendChild(this.dom.wrapper);
+
+    // Build the External Bottom trigger Button requested by user
+    var footerContainer = document.createElement('div');
+    footerContainer.className = 'sl-view-bookmarks-wrapper';
+    this.dom.viewBookmarksBtn = document.createElement('button');
+    this.dom.viewBookmarksBtn.className = 'sl-bookmarks-trigger-btn';
+    footerContainer.appendChild(this.dom.viewBookmarksBtn);
+    this.container.appendChild(footerContainer);
+
     this.attachEvents();
   }
 
@@ -246,8 +313,6 @@ class StudyLabShortsEngine {
     this.dom.counter.textContent = `${this.currentIndex + 1} / ${this.allQuestions.length}`;
 
     var item = this.allQuestions[this.currentIndex];
-    
-    // FEATURE 2: Checking Bookmark Persistence state via localStorage mapping
     var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
     if (savedList.indexOf(item.id) !== -1) {
       this.dom.bookmarkBtn.classList.add('bookmarked');
@@ -290,7 +355,11 @@ class StudyLabShortsEngine {
     }, 2000);
   }
 
-  // FEATURE 2 Core Code Logic: Toggle Bookmark
+  updateBookmarkButtonCount() {
+    var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
+    this.dom.viewBookmarksBtn.innerHTML = `📚 View Bookmarks (${savedList.length})`;
+  }
+
   toggleBookmark() {
     var item = this.allQuestions[this.currentIndex];
     var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
@@ -300,21 +369,19 @@ class StudyLabShortsEngine {
       savedList.push(item.id);
       this.dom.bookmarkBtn.classList.add('bookmarked');
       this.dom.bookmarkBtn.innerHTML = '⭐';
-      this.showToast("📚 Saved to Bookmarks!");
+      this.showToast("Saved to Bookmarks!");
     } else {
       savedList.splice(index, 1);
       this.dom.bookmarkBtn.classList.remove('bookmarked');
       this.dom.bookmarkBtn.innerHTML = '🔖';
-      this.showToast("🗑 Removed from Bookmarks");
+      this.showToast("Removed from Bookmarks");
     }
     localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
+    this.updateBookmarkButtonCount();
   }
 
-    // FEATURE 3 Core Code Logic: Ultra-Premium Typography Format (No Emojis)
   shareCurrentShort() {
     var item = this.allQuestions[this.currentIndex];
-    
-    // Clean, corporate and premium structured layout using typography bars
     var shareText = `_________________________________________\n\n` +
                     `STUDYLAB SHORTS : DAILY BRIEF\n` +
                     `_________________________________________\n\n` +
@@ -323,40 +390,71 @@ class StudyLabShortsEngine {
                     `${item.q}\n\n` +
                     `--- \n` +
                     `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
+                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
                     `_________________________________________`;
 
     if (navigator.share) {
-      navigator.share({
-        title: 'StudyLab Daily Brief',
-        text: shareText
-      }).catch(function(err){ console.log(err); });
+      navigator.share({ title: 'StudyLab Daily Brief', text: shareText }).catch(function(err){});
     } else {
-      // Fallback copy sequence for desktop environments
       var dummy = document.createElement("textarea");
       document.body.appendChild(dummy);
       dummy.value = shareText;
       dummy.select();
       document.execCommand("copy");
       document.body.removeChild(dummy);
-      this.showToast("Link Copied to Clipboard"); // Removed icon here too for total consistency
+      this.showToast("Link Copied to Clipboard");
     }
   }
 
+  // Generate & render List inside the new Bookmark Page view
+  openBookmarkPage() {
+    var listContainer = this.dom.bookmarkPage.querySelector('.sl-bp-list');
+    listContainer.innerHTML = '';
+    
+    var savedIds = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
+    
+    // Map local storage saved string IDs back to complete analytical data objects
+    var bookmarkedQuestions = this.allQuestions.filter(q => savedIds.indexOf(q.id) !== -1);
+
+    if (bookmarkedQuestions.length === 0) {
+      listContainer.innerHTML = `
+        <div class="sl-bp-empty">
+          <span style="font-size:2rem;">📁</span>
+          <span>No saved bookmarks found yet.</span>
+        </div>`;
+    } else {
+      bookmarkedQuestions.forEach((item) => {
+        var row = document.createElement('div');
+        row.className = 'sl-bp-item';
+        row.dataset.id = item.id;
+        
+        row.innerHTML = `
+          <div class="sl-bp-item-body">
+            <div class="sl-bp-item-subj">${item.subj}</div>
+            <div class="sl-bp-item-q">${item.q}</div>
+          </div>
+          <button class="sl-bp-delete-btn" data-id="${item.id}">✕</button>
+        `;
+        listContainer.appendChild(row);
+      });
+    }
+    
+    this.dom.bookmarkPage.classList.add('open');
+  }
 
   attachEvents() {
+    // Outer interface interactions
     this.dom.wrapper.addEventListener('click', (e) => {
       var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
       
-      // Handle Top Fixed row bookmarks element explicitly
       if (e.target.closest('.btn-bookmark')) {
         this.toggleBookmark();
         return;
       }
 
       var isSheetOpen = sheet ? sheet.classList.contains('open') : false;
-
       if (isSheetOpen && !e.target.closest('.sl-controls')) {
+        sheet.classList.remove('remove');
         sheet.classList.remove('open');
         return;
       }
@@ -370,6 +468,44 @@ class StudyLabShortsEngine {
         this.prev();
       } else if (e.target.closest('.btn-share')) {
         this.shareCurrentShort();
+      }
+    });
+
+    // Handle Open/Close interaction nodes for new Bookmarks page
+    this.dom.viewBookmarksBtn.addEventListener('click', () => this.openBookmarkPage());
+    
+    this.dom.bookmarkPage.addEventListener('click', (e) => {
+      if (e.target.classList.contains('sl-bp-close')) {
+        this.dom.bookmarkPage.classList.remove('open');
+        return;
+      }
+
+      // Handle direct item deletion row action
+      if (e.target.classList.contains('sl-bp-delete-btn')) {
+        e.stopPropagation();
+        var idToRemove = e.target.dataset.id;
+        var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
+        var index = savedList.indexOf(idToRemove);
+        if (index !== -1) {
+          savedList.splice(index, 1);
+          localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
+          this.updateBookmarkButtonCount();
+          this.openBookmarkPage(); // Dynamic view re-render
+          this.renderSlide(); // sync internal engine card state
+        }
+        return;
+      }
+
+      // Tap on item row -> Navigate to that question in Shorts Player instantly
+      var clickedItem = e.target.closest('.sl-bp-item');
+      if (clickedItem) {
+        var targetId = clickedItem.dataset.id;
+        var foundIndex = this.allQuestions.findIndex(q => q.id === targetId);
+        if (foundIndex !== -1) {
+          this.currentIndex = foundIndex;
+          this.renderSlide();
+          this.dom.bookmarkPage.classList.remove('open'); // Auto close page view
+        }
       }
     });
   }
