@@ -17,11 +17,11 @@ function pgStats(){
         box-sizing:border-box;
         width:100%;
       }
-      .pg-hero{
+      .pg-dash-header{
         text-align:center;
         padding:4px 0 20px;
       }
-      .pg-hero-icon{
+      .pg-dash-header-icon{
         width:56px;height:56px;
         background:linear-gradient(135deg,var(--accent),#818cf8);
         border-radius:16px;
@@ -30,11 +30,11 @@ function pgStats(){
         margin-bottom:14px;
         box-shadow:0 8px 24px rgba(0,0,0,.15);
       }
-      .pg-hero h1{
+      .pg-dash-header h1{
         font-size:1.5rem;font-weight:800;letter-spacing:-.03em;
         margin:0 0 6px;line-height:1.2;
       }
-      .pg-hero p{
+      .pg-dash-header p{
         font-size:.82rem;color:var(--muted);margin:0;
       }
       /* ── 2×2 stat grid ── */
@@ -207,8 +207,8 @@ function pgStats(){
   var streak=Sv.get("streak")||{count:0};
 
   // ── Hero ──────────────────────────────────────────────
-  var hero=el("div",{cls:"pg-hero"});
-  hero.appendChild(el("div",{cls:"pg-hero-icon",txt:"📊"}));
+  var hero=el("div",{cls:"pg-dash-header"});
+  hero.appendChild(el("div",{cls:"pg-dash-header-icon",txt:"📊"}));
   hero.appendChild(el("h1",{txt:"Progress Dashboard"}));
   hero.appendChild(el("p",{txt:"Track your performance across all subjects"}));
   wrap.appendChild(hero);
