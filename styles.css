@@ -1725,3 +1725,131 @@ div[class*="hero"]:not(.pg-hero) {
   }
 })();
 
+/* ==========================================================================
+   STUDYLAB NEW ULTRA-PREMIUM DAILY SCREEN STYLES
+   ========================================================================== */
+
+.sl-new-layout {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px 60px 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Beautiful Minimal Header Branding */
+.sl-brand-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.sl-brand-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text) !important;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+.sl-brand-header p {
+  font-size: 0.9rem;
+  color: var(--muted) !important;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Master Premium Quiz Card Layout Box */
+.sl-premium-quiz-box {
+  background: var(--card) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+.sl-quiz-card-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent, #3b82f6) !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Sleek Subject Badges Pill */
+.sl-subject-pill {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--accent, #3b82f6) !important;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.sl-quiz-main-question {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text) !important;
+  line-height: 1.5;
+  margin: 0 0 28px 0;
+}
+
+/* Smooth Premium Interactive Option Buttons */
+.sl-premium-option-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 1.5px solid var(--border) !important;
+  background: transparent;
+  color: var(--text) !important;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.sl-premium-option-row:hover {
+  border-color: var(--accent, #3b82f6) !important;
+  background: rgba(59, 130, 246, 0.03);
+  transform: translateY(-2px);
+}
+.sl-premium-option-row:last-child {
+  margin-bottom: 0;
+}
+.sl-premium-option-index {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: var(--border);
+  color: var(--muted) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+/* 🟢 Correct Answer State Triggered by Event Click Listener */
+.sl-premium-option-row.sl-correct-state {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.08) !important;
+  color: #22c55e !important;
+}
+.sl-premium-option-row.sl-correct-state .sl-premium-option-index {
+  background: #22c55e !important;
+  color: #ffffff !important;
+}
+
+/* 🔴 Wrong Answer State Triggered by Event Click Listener */
+.sl-premium-option-row.sl-wrong-state {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #ef4444 !important;
+}
+.sl-premium-option-row.sl-wrong-state .sl-premium-option-index {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
