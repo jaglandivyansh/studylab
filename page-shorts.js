@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA + INTERACTIVE BOOKMARK PAGE
+// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA (FULL SCREEN TAP TO TOGGLE)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -137,7 +137,7 @@ class StudyLabShortsEngine {
       .sl-card {
         min-height: 100%; width: 100%; position: relative; display: flex; flex-direction: column;
         justify-content: center; align-items: center; padding: 40px 24px; box-sizing: border-box; color: #fff; text-align: center;
-        user-select: none;
+        user-select: none; cursor: pointer; /* ज़ाहिर करता है कि स्क्रीन टैपेबल है */
       }
       .sl-subj-tag {
         background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
@@ -145,69 +145,54 @@ class StudyLabShortsEngine {
       }
       .sl-question { font-size: 1.4rem; font-weight: 800; line-height: 1.45; margin-bottom: 35px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); word-break: break-word; }
       
+      /* Tap Hint Instruction Indicator */
+      .sl-tap-hint {
+        font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: -15px; margin-bottom: 25px; font-weight: 500;
+        animation: slFadeInOut 2s infinite ease-in-out;
+      }
+      @keyframes slFadeInOut { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+
       .sl-bottom-sheet {
         position: absolute; bottom: 0; left: 0; right: 0; background: #141622; border-radius: 28px 28px 0 0;
         padding: 25px; transform: translateY(105%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 5; text-align: left;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.5); box-sizing: border-box;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5); box-sizing: border-box; pointer-events: none; /* क्लिक्स को नीचे पास होने देता है */
       }
       .sl-bottom-sheet.open { transform: translateY(0); }
       .sl-ans-title { font-size: 0.65rem; text-transform: uppercase; color: #10b981; font-weight: 800; margin-bottom: 6px; }
       .sl-ans-text { font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 10px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
-      .sl-controls { position: absolute; bottom: 25px; display: flex; gap: 8px; z-index: 4; width: calc(100% - 40px); justify-content: center; }
+      .sl-controls { position: absolute; bottom: 25px; display: flex; gap: 12px; z-index: 6; width: calc(100% - 40px); justify-content: center; }
       .sl-btn {
-        background: rgba(255,255,255,0.18); border: none; color: #fff; padding: 10px 14px; border-radius: 50px;
-        font-weight: 600; font-size: 0.8rem; cursor: pointer; backdrop-filter: blur(10px); transition: background 0.2s;
-        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        background: rgba(255,255,255,0.22); border: none; color: #fff; padding: 12px 20px; border-radius: 50px;
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; backdrop-filter: blur(10px); transition: background 0.2s;
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       }
-      .sl-btn.btn-next { background: var(--accent, #3b82f6); flex-grow: 1; max-width: 100px; }
-      .sl-btn.btn-prev { background: rgba(255,255,255,0.1); }
+      .sl-btn.btn-next { background: var(--accent, #3b82f6); flex: 1; max-width: 140px; }
+      .sl-btn.btn-prev { flex: 1; max-width: 100px; }
       .sl-btn.btn-prev:disabled { opacity: 0.25; cursor: not-allowed; }
-      .sl-btn.btn-show-ans { flex-grow: 1; max-width: 130px; }
-      .sl-btn.btn-share { background: rgba(255,255,255,0.1); width: 36px; height: 36px; padding: 0; border-radius: 50%; }
+      .sl-btn.btn-share { background: rgba(255,255,255,0.15); width: 42px; height: 42px; padding: 0; border-radius: 50%; }
       
       .sl-toast {
-        position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(20px);
+        position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%) translateY(20px);
         background: rgba(0, 0, 0, 0.85); color: #fff; padding: 8px 16px; border-radius: 20px;
         font-size: 0.78rem; font-weight: 600; z-index: 20; opacity: 0; pointer-events: none;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-            /* Premium Bottom Navigation Link for Bookmarks (FULLY VISIBLE) */
       .sl-view-bookmarks-wrapper {
-        margin-top: 20px; 
-        width: 100%; 
-        max-width: 410px; 
-        display: flex; 
-        justify-content: center;
-        position: relative;
-        z-index: 999; /* ताकि किसी लेयर के पीछे न छिपे */
+        margin-top: 20px; width: 100%; max-width: 410px; display: flex; justify-content: center; position: relative; z-index: 999;
       }
       .sl-bookmarks-trigger-btn {
-        background: #1e293b; /* सॉलिड प्रीमियम डार्क बैकग्राउंड */
-        border: 1px solid rgba(255, 255, 255, 0.2); 
-        color: #ffffff !important; /* हमेशा चमकीला वाइट रहेगा */
-        padding: 12px 28px; 
-        border-radius: 50px; 
-        font-size: 0.88rem; 
-        font-weight: 700; 
-        cursor: pointer;
-        transition: all 0.2s ease; 
-        display: inline-flex; 
-        align-items: center; 
-        gap: 8px; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* बढ़िया विज़िबिलिटी के लिए शैडो */
+        background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff !important;
+        padding: 12px 28px; border-radius: 50px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+        transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
       }
       .sl-bookmarks-trigger-btn:hover {
-        background: #334155; 
-        color: #ffffff !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        background: #334155; color: #ffffff !important; box-shadow: 0 6px 20px rgba(0,0,0,0.6);
       }
 
-
-      /* Premium Sliding Full-Page View Bookmarks Module */
       .sl-bookmark-page {
         position: absolute; inset: 0; background: #090a0f; z-index: 100; transform: translateY(100%);
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
@@ -225,27 +210,19 @@ class StudyLabShortsEngine {
       }
       
       .sl-bp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-      .sl-bp-list::-webkit-scrollbar { width: 4px; }
-      .sl-bp-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-      
       .sl-bp-item {
         background: #131520; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 14px 16px;
         display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s;
       }
-      .sl-bp-item:active { transform: scale(0.98); }
       .sl-bp-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; text-align: left; }
       .sl-bp-item-subj { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: #3b82f6; letter-spacing: 0.5px; }
       .sl-bp-item-q { font-size: 0.82rem; font-weight: 600; color: #e5e7eb; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-      
       .sl-bp-delete-btn {
         background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 1rem; cursor: pointer;
-        padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;
+        padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
       }
       .sl-bp-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
-      
-      .sl-bp-empty {
-        margin: auto; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 500; display: flex; flex-direction: column; gap: 8px;
-      }
+      .sl-bp-empty { margin: auto; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px; }
     `;
     document.head.appendChild(style);
   }
@@ -286,7 +263,6 @@ class StudyLabShortsEngine {
     this.dom.toast = document.createElement('div');
     this.dom.toast.className = 'sl-toast';
 
-    // Build Premium Full Page Bookmark Sub-View Overlay
     this.dom.bookmarkPage = document.createElement('div');
     this.dom.bookmarkPage.className = 'sl-bookmark-page';
     this.dom.bookmarkPage.innerHTML = `
@@ -305,7 +281,6 @@ class StudyLabShortsEngine {
     
     this.container.appendChild(this.dom.wrapper);
 
-    // Build the External Bottom trigger Button requested by user
     var footerContainer = document.createElement('div');
     footerContainer.className = 'sl-view-bookmarks-wrapper';
     this.dom.viewBookmarksBtn = document.createElement('button');
@@ -350,9 +325,9 @@ class StudyLabShortsEngine {
     card.innerHTML = `
       <div class="sl-subj-tag">${item.subj}</div>
       <div class="sl-question">${item.q}</div>
+      <div class="sl-tap-hint">Tap screen to reveal answer</div>
       <div class="sl-controls">
-        <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮</button>
-        <button class="sl-btn btn-show-ans">💡 View Answer</button>
+        <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
         <button class="sl-btn btn-next">Next ➔</button>
         <button class="sl-btn btn-share" title="Share Fact">🔗</button>
       </div>
@@ -409,7 +384,7 @@ class StudyLabShortsEngine {
                     `${item.q}\n\n` +
                     `--- \n` +
                     `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
+                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
                     `_________________________________________`;
 
     if (navigator.share) {
@@ -425,14 +400,10 @@ class StudyLabShortsEngine {
     }
   }
 
-  // Generate & render List inside the new Bookmark Page view
   openBookmarkPage() {
     var listContainer = this.dom.bookmarkPage.querySelector('.sl-bp-list');
     listContainer.innerHTML = '';
-    
     var savedIds = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
-    
-    // Map local storage saved string IDs back to complete analytical data objects
     var bookmarkedQuestions = this.allQuestions.filter(q => savedIds.indexOf(q.id) !== -1);
 
     if (bookmarkedQuestions.length === 0) {
@@ -446,7 +417,6 @@ class StudyLabShortsEngine {
         var row = document.createElement('div');
         row.className = 'sl-bp-item';
         row.dataset.id = item.id;
-        
         row.innerHTML = `
           <div class="sl-bp-item-body">
             <div class="sl-bp-item-subj">${item.subj}</div>
@@ -457,40 +427,42 @@ class StudyLabShortsEngine {
         listContainer.appendChild(row);
       });
     }
-    
     this.dom.bookmarkPage.classList.add('open');
   }
 
   attachEvents() {
-    // Outer interface interactions
     this.dom.wrapper.addEventListener('click', (e) => {
-      var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
-      
+      // 1. अगर टॉप बार के बुकमार्क आइकॉन पर क्लिक हुआ है
       if (e.target.closest('.btn-bookmark')) {
         this.toggleBookmark();
         return;
       }
 
-      var isSheetOpen = sheet ? sheet.classList.contains('open') : false;
-      if (isSheetOpen && !e.target.closest('.sl-controls')) {
-        sheet.classList.remove('remove');
-        sheet.classList.remove('open');
+      // 2. अगर नीचे मौजूद बटन्स (Prev, Next, Share) पर क्लिक हुआ है
+      if (e.target.closest('.sl-controls')) {
+        if (e.target.classList.contains('btn-next')) {
+          this.next();
+        } else if (e.target.classList.contains('btn-prev')) {
+          this.prev();
+        } else if (e.target.closest('.btn-share')) {
+          this.shareCurrentShort();
+        }
         return;
       }
 
-      if (e.target.classList.contains('btn-show-ans')) {
-        sheet.classList.add('open');
-        if (navigator.vibrate) navigator.vibrate(12);
-      } else if (e.target.classList.contains('btn-next')) {
-        this.next();
-      } else if (e.target.classList.contains('btn-prev')) {
-        this.prev();
-      } else if (e.target.closest('.btn-share')) {
-        this.shareCurrentShort();
+      // 3. मास्टर टॉगल लॉजिक (पूरी स्क्रीन पर कहीं भी टैप करने पर)
+      var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
+      if (sheet) {
+        var isSheetOpen = sheet.classList.contains('open');
+        if (isSheetOpen) {
+          sheet.classList.remove('open');
+        } else {
+          sheet.classList.add('open');
+          if (navigator.vibrate) navigator.vibrate(12); // लाइट हैप्टिक वाइब्रेशन
+        }
       }
     });
 
-    // Handle Open/Close interaction nodes for new Bookmarks page
     this.dom.viewBookmarksBtn.addEventListener('click', () => this.openBookmarkPage());
     
     this.dom.bookmarkPage.addEventListener('click', (e) => {
@@ -499,7 +471,6 @@ class StudyLabShortsEngine {
         return;
       }
 
-      // Handle direct item deletion row action
       if (e.target.classList.contains('sl-bp-delete-btn')) {
         e.stopPropagation();
         var idToRemove = e.target.dataset.id;
@@ -509,13 +480,12 @@ class StudyLabShortsEngine {
           savedList.splice(index, 1);
           localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
           this.updateBookmarkButtonCount();
-          this.openBookmarkPage(); // Dynamic view re-render
-          this.renderSlide(); // sync internal engine card state
+          this.openBookmarkPage();
+          this.renderSlide();
         }
         return;
       }
 
-      // Tap on item row -> Navigate to that question in Shorts Player instantly
       var clickedItem = e.target.closest('.sl-bp-item');
       if (clickedItem) {
         var targetId = clickedItem.dataset.id;
@@ -523,7 +493,7 @@ class StudyLabShortsEngine {
         if (foundIndex !== -1) {
           this.currentIndex = foundIndex;
           this.renderSlide();
-          this.dom.bookmarkPage.classList.remove('open'); // Auto close page view
+          this.dom.bookmarkPage.classList.remove('open');
         }
       }
     });
