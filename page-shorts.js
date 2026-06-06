@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA (FULL SCREEN TAP TO TOGGLE)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA (OVERLAP & HEIGHT BUG FIXED)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -16,7 +16,7 @@ function generateDynamicShorts(sessionLimit) {
   };
 
   if (typeof SUBJ === 'undefined' || typeof QD === 'undefined') {
-    return [{ id: "fallback-1", subj: "Economy", bg: "linear-gradient(160deg, #db2777, #831843)", q: "Disguised unemployment refers to...", a: "Persons with no job.", extra: "Keep scrolling! 🔥" }];
+    return [{ id: "fallback-1", subj: "Economy", bg: "linear-gradient(160deg, #db2777, #831843)", q: "Disguised unemployment refers to...", a: "Persons with no job.", extra: "Keep scrolling to master more facts! 🔥" }];
   }
 
   SUBJ.forEach(function(subj) {
@@ -136,47 +136,53 @@ class StudyLabShortsEngine {
       .sl-track { width: 100%; height: 100%; display: flex; flex-direction: column; }
       .sl-card {
         min-height: 100%; width: 100%; position: relative; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; padding: 40px 24px; box-sizing: border-box; color: #fff; text-align: center;
-        user-select: none; cursor: pointer; /* ज़ाहिर करता है कि स्क्रीन टैपेबल है */
+        justify-content: center; align-items: center; padding: 40px 24px 100px; box-sizing: border-box; color: #fff; text-align: center;
+        user-select: none; cursor: pointer;
       }
       .sl-subj-tag {
         background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
         padding: 5px 14px; border-radius: 30px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 20px;
       }
-      .sl-question { font-size: 1.4rem; font-weight: 800; line-height: 1.45; margin-bottom: 35px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); word-break: break-word; }
+      .sl-question { font-size: 1.35rem; font-weight: 800; line-height: 1.45; margin-bottom: 20px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); word-break: break-word; }
       
-      /* Tap Hint Instruction Indicator */
       .sl-tap-hint {
-        font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: -15px; margin-bottom: 25px; font-weight: 500;
+        font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 20px; font-weight: 500;
         animation: slFadeInOut 2s infinite ease-in-out;
       }
       @keyframes slFadeInOut { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 
+      /* [FIXED] Dynamic Slide-Up Sheet with Perfect Height & Layout */
       .sl-bottom-sheet {
-        position: absolute; bottom: 0; left: 0; right: 0; background: #141622; border-radius: 28px 28px 0 0;
-        padding: 25px; transform: translateY(105%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 5; text-align: left;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.5); box-sizing: border-box; pointer-events: none; /* क्लिक्स को नीचे पास होने देता है */
+        position: absolute; bottom: 0; left: 0; right: 0; background: #111219; border-radius: 28px 28px 0 0;
+        padding: 24px 24px 95px; transform: translateY(102%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
+        z-index: 5; text-align: left; box-shadow: 0 -10px 40px rgba(0,0,0,0.6); box-sizing: border-box;
+        max-height: 52%; overflow-y: auto; pointer-events: auto;
       }
       .sl-bottom-sheet.open { transform: translateY(0); }
-      .sl-ans-title { font-size: 0.65rem; text-transform: uppercase; color: #10b981; font-weight: 800; margin-bottom: 6px; }
-      .sl-ans-text { font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 10px; word-break: break-word; }
+      .sl-ans-title { font-size: 0.65rem; text-transform: uppercase; color: #10b981; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.5px; }
+      .sl-ans-text { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 8px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
-      .sl-controls { position: absolute; bottom: 25px; display: flex; gap: 12px; z-index: 6; width: calc(100% - 40px); justify-content: center; }
-      .sl-btn {
-        background: rgba(255,255,255,0.22); border: none; color: #fff; padding: 12px 20px; border-radius: 50px;
-        font-weight: 700; font-size: 0.85rem; cursor: pointer; backdrop-filter: blur(10px); transition: background 0.2s;
-        display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      /* [FIXED] Absolute Floating Controls Over Everything */
+      .sl-controls { 
+        position: absolute; bottom: 22px; left: 20px; right: 20px;
+        display: flex; gap: 10px; z-index: 99; justify-content: center; align-items: center;
+        pointer-events: auto;
       }
-      .sl-btn.btn-next { background: var(--accent, #3b82f6); flex: 1; max-width: 140px; }
+      .sl-btn {
+        background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 12px 16px; border-radius: 50px;
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+        display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      }
+      .sl-btn.btn-next { background: var(--accent, #3b82f6); border-color: transparent; flex: 1; max-width: 140px; }
       .sl-btn.btn-prev { flex: 1; max-width: 100px; }
-      .sl-btn.btn-prev:disabled { opacity: 0.25; cursor: not-allowed; }
-      .sl-btn.btn-share { background: rgba(255,255,255,0.15); width: 42px; height: 42px; padding: 0; border-radius: 50%; }
+      .sl-btn.btn-prev:disabled { opacity: 0.25; cursor: not-allowed; background: #0f172a; }
+      .sl-btn.btn-share { background: #334155; width: 42px; height: 42px; padding: 0; border-radius: 50%; }
       
       .sl-toast {
         position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%) translateY(20px);
         background: rgba(0, 0, 0, 0.85); color: #fff; padding: 8px 16px; border-radius: 20px;
-        font-size: 0.78rem; font-weight: 600; z-index: 20; opacity: 0; pointer-events: none;
+        font-size: 0.78rem; font-weight: 600; z-index: 150; opacity: 0; pointer-events: none;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -194,7 +200,7 @@ class StudyLabShortsEngine {
       }
 
       .sl-bookmark-page {
-        position: absolute; inset: 0; background: #090a0f; z-index: 100; transform: translateY(100%);
+        position: absolute; inset: 0; background: #090a0f; z-index: 200; transform: translateY(100%);
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
       }
       .sl-bookmark-page.open { transform: translateY(0); }
@@ -273,9 +279,14 @@ class StudyLabShortsEngine {
       <div class="sl-bp-list"></div>
     `;
 
+    // [FIXED] Shared navigation controls appended globally to the wrapper to prevent sliding behavior artifacts
+    this.dom.controls = document.createElement('div');
+    this.dom.controls.className = 'sl-controls';
+
     this.dom.wrapper.appendChild(this.dom.progressBar);
     this.dom.wrapper.appendChild(headerControls);
     this.dom.wrapper.appendChild(this.dom.track);
+    this.dom.wrapper.appendChild(this.dom.controls); // Mounted directly on top grid layer
     this.dom.wrapper.appendChild(this.dom.bookmarkPage);
     this.dom.wrapper.appendChild(this.dom.toast);
     
@@ -293,6 +304,7 @@ class StudyLabShortsEngine {
 
   renderSlide() {
     this.dom.track.innerHTML = '';
+    this.dom.controls.innerHTML = '';
     this.dom.progressBar.innerHTML = '';
 
     this.allQuestions.forEach((_, idx) => {
@@ -320,17 +332,10 @@ class StudyLabShortsEngine {
     card.className = 'sl-card';
     card.style.background = item.bg;
 
-    var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
-
     card.innerHTML = `
       <div class="sl-subj-tag">${item.subj}</div>
       <div class="sl-question">${item.q}</div>
       <div class="sl-tap-hint">Tap screen to reveal answer</div>
-      <div class="sl-controls">
-        <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
-        <button class="sl-btn btn-next">Next ➔</button>
-        <button class="sl-btn btn-share" title="Share Fact">🔗</button>
-      </div>
       <div class="sl-bottom-sheet">
         <div class="sl-ans-title">✓ Correct Answer</div>
         <div class="sl-ans-text">${item.a}</div>
@@ -338,6 +343,14 @@ class StudyLabShortsEngine {
       </div>
     `;
     this.dom.track.appendChild(card);
+
+    // [FIXED] Render action buttons into the persistent global control bar layer
+    var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
+    this.dom.controls.innerHTML = `
+      <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
+      <button class="sl-btn btn-next">Next ➔</button>
+      <button class="sl-btn btn-share" title="Share Fact">🔗</button>
+    `;
   }
 
   showToast(message) {
@@ -384,7 +397,7 @@ class StudyLabShortsEngine {
                     `${item.q}\n\n` +
                     `--- \n` +
                     `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
+                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
                     `_________________________________________`;
 
     if (navigator.share) {
@@ -432,13 +445,12 @@ class StudyLabShortsEngine {
 
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
-      // 1. अगर टॉप बार के बुकमार्क आइकॉन पर क्लिक हुआ है
       if (e.target.closest('.btn-bookmark')) {
         this.toggleBookmark();
         return;
       }
 
-      // 2. अगर नीचे मौजूद बटन्स (Prev, Next, Share) पर क्लिक हुआ है
+      // [FIXED] Intercept clicks on the independent button track layer safely
       if (e.target.closest('.sl-controls')) {
         if (e.target.classList.contains('btn-next')) {
           this.next();
@@ -450,7 +462,7 @@ class StudyLabShortsEngine {
         return;
       }
 
-      // 3. मास्टर टॉगल लॉजिक (पूरी स्क्रीन पर कहीं भी टैप करने पर)
+      // Screen Tapping Toggle Action Flow
       var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
       if (sheet) {
         var isSheetOpen = sheet.classList.contains('open');
@@ -458,7 +470,7 @@ class StudyLabShortsEngine {
           sheet.classList.remove('open');
         } else {
           sheet.classList.add('open');
-          if (navigator.vibrate) navigator.vibrate(12); // लाइट हैप्टिक वाइब्रेशन
+          if (navigator.vibrate) navigator.vibrate(12);
         }
       }
     });
