@@ -1671,11 +1671,15 @@ div[class*="hero"]:not(.pg-hero) {
 }
 
 /* ════════════════════════════════════════════
-   FIX 2 — Navbar: Scale with screen size
-   Same pill style, but width adjusts to screen
+   FIX 2 — Navbar: Scale with screen, pill style
+   Links hidden everywhere, hamburger always shown
    ════════════════════════════════════════════ */
 
-/* Desktop: wider pill, more breathing room */
+/* Always hide links, always show hamburger */
+#top-navbar .nb-links { display: none !important; }
+#top-navbar #nb-hamburger { display: flex !important; }
+
+/* Desktop: wider pill */
 @media (min-width: 769px) {
   #top-navbar {
     top: 12px !important;
@@ -1683,36 +1687,26 @@ div[class*="hero"]:not(.pg-hero) {
     right: auto !important;
     transform: translateX(-50%) translateZ(0) !important;
     width: calc(100% - 48px) !important;
-    max-width: 860px !important;         /* Desktop pe wide pill */
+    max-width: 860px !important;
     padding: 0 !important;
   }
 
   #top-navbar .nb-island {
     width: 100% !important;
     max-width: 100% !important;
-    border-radius: 100px !important;     /* Pill shape same */
+    border-radius: 100px !important;
     height: 58px !important;
     padding: 0 24px !important;
   }
-
-  /* Show nav links on desktop */
-  #top-navbar .nb-links { display: flex !important; }
-  #top-navbar #nb-hamburger { display: none !important; }
 
   /* Bottom navbar: wider pill on desktop */
   #bottom-navbar {
     display: flex !important;
     width: calc(100% - 48px) !important;
-    max-width: 600px !important;         /* Desktop pe wider */
+    max-width: 600px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     bottom: 16px !important;
-  }
-
-  /* Content padding for floating navbar */
-  body, main, .main-container, #app-layout, .content-wrapper {
-    padding-top: 0 !important;
-    padding-bottom: 110px !important;
   }
 }
 
