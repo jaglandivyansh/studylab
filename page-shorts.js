@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — Vertical "Reels" style flashcards (DYNAMIC)
+// PAGE-SHORTS.JS — Vertical "Reels" style flashcards (FIXED)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
   var allQuestions = [];
-  
+
   var bgGradients = {
     "History": "linear-gradient(135deg, #7c3aed, #4c1d95)",
     "Geography": "linear-gradient(135deg, #059669, #064e3b)",
@@ -16,24 +16,19 @@ function generateDynamicShorts(sessionLimit) {
     "Previous Year Questions": "linear-gradient(135deg, #4f46e5, #312e81)"
   };
 
-  // Loop through all subjects in your app
   SUBJ.forEach(function(subj) {
     if(QD[subj]) {
       QD[subj].forEach(function(qObj) {
-        
-        // 1. Find the raw answer value (usually a number like 0, 1, 2)
         var rawAns = qObj.correct !== undefined ? qObj.correct : 
                      (qObj.a !== undefined ? qObj.a : 
                      (qObj.ans !== undefined ? qObj.ans : 
                      (qObj.answer !== undefined ? qObj.answer : qObj.c)));
 
-        // 2. BRUTE FORCE ARRAY FINDER
         var optionsArray = null;
         if (Array.isArray(qObj.options)) optionsArray = qObj.options;
         else if (Array.isArray(qObj.opts)) optionsArray = qObj.opts;
         else if (Array.isArray(qObj.choices)) optionsArray = qObj.choices;
         else {
-          // If the standard names fail, scan the object for ANY array with 2 or more items
           for (var key in qObj) {
             if (Array.isArray(qObj[key]) && qObj[key].length >= 2) {
               optionsArray = qObj[key];
@@ -42,7 +37,6 @@ function generateDynamicShorts(sessionLimit) {
           }
         }
 
-        // 3. Match the raw number to the exact text in the array
         var correctText = null;
         if (optionsArray && rawAns !== undefined && rawAns !== null) {
           if (typeof rawAns === 'number' && optionsArray[rawAns] !== undefined) {
@@ -55,11 +49,9 @@ function generateDynamicShorts(sessionLimit) {
           }
         }
 
-        // 4. Safely add to our shorts list ONLY if it found the real text
         var qText = qObj.q || qObj.question;
         var expText = qObj.explanation || qObj.exp || qObj.desc || "Keep scrolling to master more facts! 🔥";
 
-        // If correctText is valid (not null, not "0"), we push it!
         if (correctText && qText && String(correctText) !== String(rawAns)) {
           allQuestions.push({
             subj: subj,
@@ -73,75 +65,232 @@ function generateDynamicShorts(sessionLimit) {
     }
   });
 
-  // Fallback just in case your database is completely empty
   if (allQuestions.length === 0) {
     allQuestions = [
       { subj: "System", bg: "linear-gradient(135deg, #ef4444, #991b1b)", q: "Oops! We couldn't read your questions.js format.", a: "Check Database", extra: "Ensure your questions have an array of options and a valid answer index." }
     ];
   }
 
-  var shuffled = shuf(allQuestions);
-  return shuffled.slice(0, sessionLimit);
+  return shuf(allQuestions).slice(0, sessionLimit);
 }
 
 function pgShorts() {
-  // Grab 100 random, fresh questions every time this page opens
   var currentShortsData = generateDynamicShorts(100);
 
-  var w = el("div", { 
-    id: "shorts-container",
-    css: { 
-      height: "calc(100vh - 65px)",
-      width: "100%", 
-      overflowY: "scroll", 
-      scrollSnapType: "y mandatory",
-      background: "var(--bg)", 
-      position: "absolute",
-      top: "0", left: "0", zIndex: "10"
-    } 
-  });
+  // ── Inject styles ──────────────────────────────────────────────
+  if (!document.getElementById("shorts-styles")) {
+    var style = document.createElement("style");
+    style.id = "shorts-styles";
+    style.innerHTML = `
+      @keyframes bounce-up {
+        0%, 100% { transform: translate(-50%, 0); }
+        50%       { transform: translate(-50%, -10px); }
+      }
 
-  // Top header overlay
-  var header = el("div", {
-    css: {
-      position: "fixed", top: "15px", left: "20px", right: "20px",
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      zIndex: "20", color: "var(--text)", textShadow: "0 2px 4px rgba(0,0,0,0.2)"
-    }
-  });
-  header.appendChild(el("div", {css: {fontSize: "1.2rem", fontWeight: "800", fontFamily: "var(--font-display)"}}, "Study Shorts ⚡"));
-  header.appendChild(el("button", {
-    css: { background: "var(--card)", border: "1px solid var(--border)", color: "var(--text)", padding: "6px 12px", borderRadius: "20px", backdropFilter: "blur(4px)", fontSize: ".8rem", cursor: "pointer" },
-    onclick: function(){ go("home"); }
-  }, "✕ Close"));
-  w.appendChild(header);
+      /* ── Full-screen overlay that sits ABOVE both navbars ── */
+      #shorts-container {
+        position: fixed !important;
+        inset: 0 !important;           /* top:0 left:0 right:0 bottom:0 */
+        z-index: 99999 !important;     /* Above top-navbar (9999) and bottom-navbar (1000) */
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        background: #000;
+        -webkit-overflow-scrolling: touch;
+      }
 
+      /* Each slide = full viewport */
+      .shorts-slide {
+        height: 100vh;
+        width: 100%;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      /* ── Close button — always top-right, above everything ── */
+      #shorts-close-btn {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 100001;              /* Above shorts container */
+        background: rgba(20,20,20,0.85);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      }
+      #shorts-close-btn:active {
+        transform: scale(0.96);
+      }
+
+      /* ── Session title — top-left ── */
+      #shorts-title {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 100001;
+        font-size: 1.1rem;
+        font-weight: 800;
+        font-family: var(--font-display);
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        pointer-events: none;
+      }
+
+      /* ── Card wrap ── */
+      .shorts-card-wrap {
+        width: 100%;
+        max-width: 420px;
+        height: clamp(340px, 70vh, 540px);
+        perspective: 1000px;
+        cursor: pointer;
+      }
+
+      /* ── Flip inner ── */
+      .shorts-card-inner {
+        width: 100%; height: 100%;
+        position: relative;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+      }
+
+      /* ── Card face shared ── */
+      .shorts-face {
+        position: absolute;
+        width: 100%; height: 100%;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 24px;
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        color: #fff;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      .shorts-face-back {
+        transform: rotateY(180deg);
+        background: var(--card, #111827) !important;
+        border: 2px solid var(--border, rgba(255,255,255,0.08));
+        color: var(--text, #f1f5f9) !important;
+      }
+
+      .shorts-subj-tag {
+        background: rgba(255,255,255,0.18);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: auto;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .shorts-q-text {
+        font-weight: 700;
+        line-height: 1.6;
+        margin-top: auto;
+        margin-bottom: auto;
+        font-family: var(--font-display);
+        overflow-y: auto;
+        max-height: 65%;
+        word-break: break-word;
+        padding: 4px 2px;
+      }
+
+      .shorts-tap-hint {
+        font-size: .8rem;
+        opacity: 0.8;
+        margin-top: auto;
+        flex-shrink: 0;
+      }
+
+      .shorts-ans-text {
+        font-weight: 800;
+        color: var(--accent, #3b82f6);
+        margin-bottom: 12px;
+        font-family: var(--font-display);
+        line-height: 1.4;
+        word-break: break-word;
+        overflow-y: auto;
+        max-height: 40%;
+      }
+
+      .shorts-exp-wrap {
+        max-height: 45%;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .shorts-exp-text {
+        font-size: .9rem;
+        color: var(--muted, #8b9cb8);
+        line-height: 1.6;
+      }
+
+      /* ── Swipe hint ── */
+      .shorts-swipe-hint {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.5);
+        font-size: .78rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: bounce-up 2s infinite;
+        pointer-events: none;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ── Main container (fixed fullscreen) ─────────────────────────
+  var w = el("div", { id: "shorts-container" });
+
+  // ── Fixed UI elements (outside scroll) ────────────────────────
+  var titleEl = el("div", { id: "shorts-title" }, "Study Shorts ⚡");
+  document.body.appendChild(titleEl);
+
+  var closeBtn = el("button", { id: "shorts-close-btn" }, ["✕ Close"]);
+  closeBtn.onclick = function() {
+    // Clean up fixed elements
+    var t = document.getElementById("shorts-title");
+    var c = document.getElementById("shorts-close-btn");
+    if(t) t.remove();
+    if(c) c.remove();
+    go("home");
+  };
+  document.body.appendChild(closeBtn);
+
+  // ── Slides ────────────────────────────────────────────────────
   currentShortsData.forEach(function(item, idx) {
-    var slide = el("div", {
-      css: {
-        height: "100%", width: "100%",
-        scrollSnapAlign: "start",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "20px", position: "relative"
-      }
-    });
+    var slide = el("div", { cls: "shorts-slide" });
 
-    var cardWrap = el("div", {
-      css: {
-        width: "100%", maxWidth: "420px",
-        height: "clamp(320px, 68vh, 520px)",
-        perspective: "1000px", cursor: "pointer"
-      }
-    });
-
-    var cardInner = el("div", {
-      css: {
-        width: "100%", height: "100%", position: "relative",
-        transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-        transformStyle: "preserve-3d"
-      }
-    });
+    var cardWrap = el("div", { cls: "shorts-card-wrap" });
+    var cardInner = el("div", { cls: "shorts-card-inner" });
 
     var isFlipped = false;
     cardWrap.onclick = function() {
@@ -149,78 +298,60 @@ function pgShorts() {
       cardInner.style.transform = isFlipped ? "rotateY(180deg)" : "rotateY(0deg)";
     };
 
-    var faceCss = {
-      position: "absolute", width: "100%", height: "100%",
-      backfaceVisibility: "hidden", borderRadius: "24px",
-      padding: "28px 24px", display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-      color: "#fff", overflow: "hidden", boxSizing: "border-box"
-    };
+    // Front
+    var front = el("div", { cls: "shorts-face", css: { background: item.bg } });
+    front.appendChild(el("div", { cls: "shorts-subj-tag" }, item.subj));
+    var qSize = item.q.length > 180 ? "0.85rem" : item.q.length > 100 ? "1rem" : "1.25rem";
+    front.appendChild(el("div", { cls: "shorts-q-text", css: { fontSize: qSize } }, item.q));
+    front.appendChild(el("div", { cls: "shorts-tap-hint" }, "👆 Tap to reveal"));
 
-    // Front of card
-    var front = el("div", { css: Object.assign({}, faceCss, { background: item.bg }) });
-    front.appendChild(el("div", {css: {background: "rgba(255,255,255,0.18)", padding: "4px 12px", borderRadius: "20px", fontSize: ".7rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700", marginBottom: "auto", color: "#fff"}}, item.subj));
-    var qFontSize = item.q.length > 180 ? "0.85rem" : item.q.length > 100 ? "1rem" : "1.3rem";
-    front.appendChild(el("div", {css: {
-      fontSize: qFontSize, fontWeight: "700", lineHeight: "1.6",
-      marginTop: "auto", marginBottom: "auto",
-      fontFamily: "var(--font-display)",
-      overflowY: "auto", maxHeight: "65%",
-      wordBreak: "break-word", padding: "4px 2px"
-    }}, item.q));
-    front.appendChild(el("div", {css: {fontSize: ".8rem", opacity: "0.8", marginTop: "auto"}}, "👆 Tap to reveal"));
-
-    // Back of card
-    var back = el("div", { css: Object.assign({}, faceCss, { background: "var(--card)", border: "2px solid var(--border)", color: "var(--text)", transform: "rotateY(180deg)", padding: "24px" }) });
-    var ansFontSize = item.a.length > 80 ? "1.1rem" : "1.5rem";
-    back.appendChild(el("div", {css: {fontSize: ansFontSize, fontWeight: "800", color: "var(--accent)", marginBottom: "12px", fontFamily: "var(--font-display)", lineHeight: "1.4", wordBreak: "break-word", overflowY: "auto", maxHeight: "40%"}}, item.a));
-    var extraWrap = el("div", {css: {maxHeight: "45%", overflowY: "auto", paddingRight: "4px"}});
-    extraWrap.appendChild(el("div", {css: {fontSize: ".9rem", color: "var(--muted)", lineHeight: "1.6"}}, item.extra));
-    back.appendChild(extraWrap);
+    // Back
+    var back = el("div", { cls: "shorts-face shorts-face-back" });
+    var aSize = item.a.length > 80 ? "1.1rem" : "1.5rem";
+    back.appendChild(el("div", { cls: "shorts-ans-text", css: { fontSize: aSize } }, item.a));
+    var expWrap = el("div", { cls: "shorts-exp-wrap" });
+    expWrap.appendChild(el("div", { cls: "shorts-exp-text" }, item.extra));
+    back.appendChild(expWrap);
 
     cardInner.appendChild(front);
     cardInner.appendChild(back);
     cardWrap.appendChild(cardInner);
     slide.appendChild(cardWrap);
 
-    // Swipe up indicator
+    // Swipe hint on first slide
     if (idx === 0) {
       slide.appendChild(el("div", {
-        css: {
-          position: "absolute", bottom: "30px", left: "50%", transform: "translateX(-50%)",
-          color: "var(--muted)", fontSize: ".8rem", display: "flex", flexDirection: "column", alignItems: "center",
-          opacity: "0.7", animation: "bounce-up 2s infinite"
-        },
-        htm: "<span>Swipe up for next</span><span style='font-size:1.5rem'>⌃</span>"
+        cls: "shorts-swipe-hint",
+        htm: "<span>Swipe up for next</span><span style='font-size:1.4rem;margin-top:2px'>⌃</span>"
       }));
     }
 
     w.appendChild(slide);
   });
 
-  // End slide
+  // ── End slide ─────────────────────────────────────────────────
   var endSlide = el("div", {
-    css: {
-      height: "100%", width: "100%", scrollSnapAlign: "start", display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center", padding: "20px", textAlign: "center", color: "var(--text)"
-    }
+    cls: "shorts-slide",
+    css: { textAlign: "center", color: "var(--text, #f1f5f9)" }
   });
-  endSlide.appendChild(el("div", {css: {fontSize: "3rem", marginBottom: "10px"}}, "🎉"));
-  endSlide.appendChild(el("div", {css: {fontSize: "1.4rem", fontWeight: "800", marginBottom: "10px"}}, "Session Complete!"));
-  endSlide.appendChild(el("div", {css: {fontSize: ".9rem", opacity: "0.7", marginBottom: "20px"}}, "You just reviewed 100 questions."));
+  endSlide.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "12px" } }, "🎉"));
+  endSlide.appendChild(el("div", { css: { fontSize: "1.4rem", fontWeight: "800", marginBottom: "8px" } }, "Session Complete!"));
+  endSlide.appendChild(el("div", { css: { fontSize: ".9rem", opacity: "0.7", marginBottom: "24px" } }, "You just reviewed 100 questions."));
   endSlide.appendChild(el("button", {
-    css: { padding: "12px 24px", background: "var(--accent)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "700", cursor: "pointer" },
-    onclick: function(){ go("shorts"); } 
+    css: {
+      padding: "12px 28px", background: "var(--accent, #3b82f6)",
+      color: "#fff", border: "none", borderRadius: "12px",
+      fontWeight: "700", fontSize: "1rem", cursor: "pointer"
+    },
+    onclick: function() {
+      var t = document.getElementById("shorts-title");
+      var c = document.getElementById("shorts-close-btn");
+      if(t) t.remove();
+      if(c) c.remove();
+      go("shorts");
+    }
   }, "Shuffle New Batch 🔄"));
   w.appendChild(endSlide);
-
-  if (!document.getElementById("shorts-styles")) {
-    var style = document.createElement("style");
-    style.id = "shorts-styles";
-    style.innerHTML = "@keyframes bounce-up { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -10px); } }";
-    document.head.appendChild(style);
-  }
 
   return w;
 }
