@@ -1854,43 +1854,46 @@ div[class*="hero"]:not(.pg-hero) {
 }
 
 /* ==========================================================================
-   🎯 STUDYLAB STREAK BANNER LIGHT/DARK MODE UNIVERSAL FIX
+   🎯 STUDYLAB STREAK BANNER SPECIFIC TARGET (NO REACTION ON SHORTS)
    ========================================================================== */
 
-/* 1. Dark Theme (Aapke Refined Editorial Theme ke variables par sync) */
+/* 1. Universal Streak tokens mapping specifically built on your layout blueprint */
 :root, :root[data-theme="dark"] {
-  --sl-streak-bg: #1C2333 !important;       /* Elevated Level 3 surface */
-  --sl-streak-text: #F1F5F9 !important;     /* High contrast text */
-  --sl-streak-border: rgba(255, 255, 255, 0.15) !important;
+  --sl-streak-card-bg: #111827 !important;       /* Syncs with Level 1 Card */
+  --sl-streak-main-text: #F1F5F9 !important;     /* Bright High Contrast Text */
+  --sl-streak-muted-text: #8B9CB8 !important;    /* Soft Muted grey description text */
+  --sl-streak-card-border: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* 2. Light Theme (Aapke existing data-theme=light variable overrides) */
 :root[data-theme="light"] {
-  --sl-streak-bg: #F5F7FF !important;       /* Inner card element surface */
-  --sl-streak-text: #0D1B3E !important;     /* High contrast dark navy text */
-  --sl-streak-border: rgba(0, 0, 0, 0.14) !important;
+  --sl-streak-card-bg: #F5F7FF !important;       /* Light blue matching system bg surface */
+  --sl-streak-main-text: #0D1B3E !important;     /* High contrast Royal Dark Navy blue text */
+  --sl-streak-muted-text: #5A6A8A !important;    /* Highly legible active gray context text */
+  --sl-streak-card-border: rgba(0, 0, 0, 0.08) !important;
 }
 
-/* 3. Brute Force Theme Engine Injection - Target card containers natively */
-[data-page="daily"] > div:nth-child(2),
-.daily-container > div:first-child,
-div[style*="background"] {
-  background: var(--sl-streak-bg) !important;
-  border: 1.5px solid var(--sl-streak-border) !important;
-  color: var(--sl-streak-text) !important;
+/* 2. Brute-Force Target: Restrict override rules only to the Top Banner Box */
+div:has(> [txt*="STREAK"]),
+div:has(> div:contains("STREAK")),
+.daily-container > div:first-child {
+  background: var(--sl-streak-card-bg) !important;
+  border: 1.5px solid var(--sl-streak-card-border) !important;
 }
 
-/* 4. Force visibility on the "Science" title and description labels */
-[data-page="daily"] div,
-[data-page="daily"] span,
-[data-page="daily"] h3,
-.subject-title-text {
-  color: var(--sl-streak-text) !important;
+/* 3. Safely map text colors inside streak layout using custom specific queries */
+div:has(> [txt*="STREAK"]) div,
+div:has(> [txt*="STREAK"]) span,
+.subject-title-text,
+div[txt="Science"],
+div:contains("Science") {
+  color: var(--sl-streak-main-text) !important;
 }
 
-/* 5. Keep the unique Accent pill or text links matching your global blueprint tokens */
-.sl-quiz-card-tag, 
-div:contains("Question of the day") {
-  color: var(--accent) !important;
+/* 4. Muted text override pointer - Fixes the "Not answered yet today" fade bug */
+div:has(> [txt*="STREAK"]) div:contains("answered"),
+div:has(> [txt*="STREAK"]) div[txt*="answered"],
+div:contains("Today's subject") {
+  color: var(--sl-streak-muted-text) !important;
+  font-weight: 500 !important;
+  opacity: 1 !important; /* Removes browser fading overlays */
 }
-
