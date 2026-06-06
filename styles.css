@@ -1725,3 +1725,38 @@ div[class*="hero"]:not(.pg-hero) {
   }
 })();
 
+
+.sl-streak-card-dark {
+  background-color: #1E1B29; /* Dark theme background */
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  margin-bottom: 24px;
+}
+
+.sl-streak-left {
+  text-align: center;
+}
+
+.sl-streak-number {
+  color: #3B82F6; /* Blue number */
+  font-size: 32px;
+  margin: 4px 0;
+}
+
+.sl-streak-text, .sl-subject-title, .sl-subject-status {
+  color: #9CA3AF; /* Light gray text */
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.sl-subject-name {
+  color: #3B82F6; /* Blue subject text */
+  font-size: 18px;
+  margin: 8px 0;
+}
+
