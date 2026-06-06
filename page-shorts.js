@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS PRO ULTRA (FULLY BUG-FIXED VISUALS)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS PRO ULTRA V3 (NO REPEAT + FIXED BOX)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -50,16 +50,22 @@ function generateDynamicShorts(sessionLimit) {
   if (!allQuestions.length) {
     allQuestions = [{ id: "fallback-default", subj: "Economy", bg: "linear-gradient(160deg, #db2777, #831843)", q: "Disguised unemployment refers to...", a: "Persons with no job.", extra: "Keep scrolling to master more facts! 🔥" }];
   }
-  return typeof shuf === 'function' ? shuf(allQuestions).slice(0, sessionLimit) : allQuestions.slice(0, sessionLimit);
+  
+  // Custom absolute modern shuffler logic
+  if (typeof shuf === 'function') {
+    return shuf(allQuestions);
+  } else {
+    return allQuestions.sort(function() { return 0.5 - Math.random(); });
+  }
 }
 
 class StudyLabShortsEngine {
   constructor(targetElement, questionsList) {
     this.container = targetElement;
-    this.allQuestions = questionsList;
+    this.allQuestions = questionsList; // Pool of non-repeating sequence chain
     this.currentIndex = 0;
     
-    this.dom = { wrapper: null, progressBar: null, counter: null, track: null, streakBadge: null, viewBookmarksBtn: null, bookmarkPage: null };
+    this.dom = { wrapper: null, progressBar: null, counter: null, track: null, streakBadge: null, viewBookmarksBtn: null, bookmarkPage: null, controls: null };
     this.init();
   }
 
@@ -82,7 +88,7 @@ class StudyLabShortsEngine {
       var yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       if (lastActiveDate === today) {
-        // maintained
+        // maintained today
       } else if (lastActiveDate === yesterday.toDateString()) {
         currentStreak += 1;
       } else {
@@ -99,16 +105,21 @@ class StudyLabShortsEngine {
     var style = document.createElement('style');
     style.id = 'sl-pro-ultra-styles';
     style.textContent = `
+      /* [FIXED] Hardware Acceleration Layer prevents viewport jumps entirely */
       .sl-main-center-box {
         display: flex; flex-direction: column; justify-content: center; align-items: center; 
         width: 100%; padding: 15px; box-sizing: border-box;
-        overscroll-behavior: none !important; touch-action: pan-y;
+        overscroll-behavior: none !important;
+        -webkit-overflow-scrolling: auto !important;
       }
       .sl-shorts-wrapper {
         position: relative; width: 100%; max-width: 410px; height: 68dvh; min-height: 500px;
         background: #0d0e12; border-radius: 26px; box-shadow: 0 20px 45px rgba(0,0,0,0.5); overflow: hidden;
         font-family: system-ui, -apple-system, sans-serif;
         overscroll-behavior: contain !important;
+        transform: translate3d(0, 0, 0); /* Locks box coordinates in system memory */
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
       }
       .sl-progress-container {
         position: absolute; top: 15px; left: 20px; right: 20px; display: flex; gap: 4px; z-index: 10;
@@ -122,7 +133,7 @@ class StudyLabShortsEngine {
       }
       .sl-badge-left { display: flex; gap: 8px; pointer-events: auto; }
       
-      /* Amazing Active Streak Badge Animation */
+      /* Active Burning Glow Streak Custom Component Animation */
       .sl-streak-badge {
         color: #fff; font-size: 0.72rem; font-weight: 700; 
         background: linear-gradient(45deg, #ff4500, #ff8c00);
@@ -149,7 +160,7 @@ class StudyLabShortsEngine {
       .sl-track { width: 100%; height: 100%; display: flex; flex-direction: column; }
       .sl-card {
         min-height: 100%; width: 100%; position: relative; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; padding: 40px 24px 100px; box-sizing: border-box; color: #fff; text-align: center;
+        justify-content: center; align-items: center; padding: 40px 24px 110px; box-sizing: border-box; color: #fff; text-align: center;
         user-select: none; cursor: pointer;
       }
       .sl-subj-tag {
@@ -166,7 +177,7 @@ class StudyLabShortsEngine {
 
       .sl-bottom-sheet {
         position: absolute; bottom: 0; left: 0; right: 0; background: #111219; border-radius: 28px 28px 0 0;
-        padding: 24px 24px 95px; transform: translateY(102%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
+        padding: 24px 24px 105px; transform: translateY(102%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
         z-index: 5; text-align: left; box-shadow: 0 -10px 40px rgba(0,0,0,0.6); box-sizing: border-box;
         max-height: 52%; overflow-y: auto; pointer-events: auto;
       }
@@ -175,20 +186,25 @@ class StudyLabShortsEngine {
       .sl-ans-text { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 8px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
+      /* [UPDATED] Clean Horizontal Unified Controls Grid */
       .sl-controls { 
-        position: absolute; bottom: 22px; left: 20px; right: 20px;
-        display: flex; gap: 10px; z-index: 99; justify-content: center; align-items: center;
+        position: absolute; bottom: 22px; left: 24px; right: 24px;
+        display: flex; gap: 12px; z-index: 99; justify-content: center; align-items: center;
         pointer-events: auto;
       }
       .sl-btn {
-        background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 12px 16px; border-radius: 50px;
+        background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 12px 18px; border-radius: 50px;
         font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
         display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        -webkit-tap-highlight-color: transparent;
       }
-      .sl-btn.btn-next { background: var(--accent, #3b82f6); border-color: transparent; flex: 1; max-width: 140px; }
-      .sl-btn.btn-prev { flex: 1; max-width: 100px; }
+      /* Balanced Width Alignment Specifications */
+      .sl-btn.btn-prev { width: 105px; }
+      .sl-btn.btn-next { background: var(--accent, #3b82f6); border-color: transparent; width: 115px; }
       .sl-btn.btn-prev:disabled { opacity: 0.25; cursor: not-allowed; background: #0f172a; }
-      .sl-btn.btn-share { background: #334155; width: 42px; height: 42px; padding: 0; border-radius: 50%; }
+      
+      /* [UPDATED] Centered Premium Rounded Share Control Node between actions */
+      .sl-btn.btn-share { background: #334155; width: 44px; height: 44px; padding: 0; border-radius: 50%; font-size: 0.95rem; }
       
       .sl-toast {
         position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -216,16 +232,15 @@ class StudyLabShortsEngine {
         transform: translateY(-1px);
       }
       .sl-bookmarks-trigger-btn.active-view {
-        background: #ef4444 !important; /* खुल जाने पर क्लोज करने के लिए रेड अलर्ट लुक */
+        background: #ef4444 !important; 
         color: #ffffff !important;
         border-color: #ef4444 !important;
       }
 
-      /* [FIXED CONTENT MIGRATION] Inside Container Locking to avoid visual bleeding outside shorts box */
       .sl-bookmark-page {
         position: absolute; inset: 0; background: #0c0d14; z-index: 120; transform: translateY(100%);
         transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
-        border-radius: 26px; /* Keeps identical corner rounding aesthetics */
+        border-radius: 26px; 
       }
       .sl-bookmark-page.open { transform: translateY(0); }
       
@@ -234,10 +249,7 @@ class StudyLabShortsEngine {
         border-bottom: 1px solid rgba(255,255,255,0.08); background: #12131c; padding-top: 35px;
       }
       .sl-bp-title { font-size: 1rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
-      .sl-bp-close {
-        background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 0.85rem; font-weight: 700;
-        padding: 6px 14px; border-radius: 30px; cursor: pointer; display: none; /* Hidden because primary yellow button does toggling */
-      }
+      .sl-bp-close { display: none; }
       
       .sl-bp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
       .sl-bp-item {
@@ -272,7 +284,7 @@ class StudyLabShortsEngine {
     
     this.dom.streakBadge = document.createElement('div');
     this.dom.streakBadge.className = 'sl-streak-badge';
-    this.dom.streakBadge.innerHTML = `🔥 ${this.streakCount} Days`;
+    this.dom.streakBadge.innerHTML = `⚡ ${this.streakCount} Days`;
     
     this.dom.bookmarkBtn = document.createElement('button');
     this.dom.bookmarkBtn.className = 'sl-top-btn btn-bookmark';
@@ -310,7 +322,7 @@ class StudyLabShortsEngine {
     this.dom.wrapper.appendChild(headerControls);
     this.dom.wrapper.appendChild(this.dom.track);
     this.dom.wrapper.appendChild(this.dom.controls);
-    this.dom.wrapper.appendChild(this.dom.bookmarkPage); // Perfectly encapsulated internally now
+    this.dom.wrapper.appendChild(this.dom.bookmarkPage); 
     this.dom.wrapper.appendChild(this.dom.toast);
     
     this.container.appendChild(this.dom.wrapper);
@@ -367,11 +379,12 @@ class StudyLabShortsEngine {
     `;
     this.dom.track.appendChild(card);
 
+    // [UPDATED] Render unified clean sequence tracking buttons row
     var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
     this.dom.controls.innerHTML = `
       <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
-      <button class="sl-btn btn-next">Next ➔</button>
       <button class="sl-btn btn-share" title="Share Fact">🔗</button>
+      <button class="sl-btn btn-next">Next ➔</button>
     `;
   }
 
@@ -424,7 +437,7 @@ class StudyLabShortsEngine {
                     `${item.q}\n\n` +
                     `--- \n` +
                     `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
+                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
                     `_________________________________________`;
 
     if (navigator.share) {
@@ -440,7 +453,6 @@ class StudyLabShortsEngine {
     }
   }
 
-  // [FIXED] Single Toggle Trigger Controller
   toggleBookmarkPage() {
     var isOpen = this.dom.bookmarkPage.classList.contains('open');
     if (isOpen) {
@@ -485,8 +497,7 @@ class StudyLabShortsEngine {
 
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
-      // If bookmark page is completely open, clicks inside it shouldn't trigger slide toggle gestures
-      if (this.dom.bookmarkPage.classList.contains('open') && !e.target.closest('.sl-bp-close')) {
+      if (this.dom.bookmarkPage.classList.contains('open')) {
         return; 
       }
 
@@ -518,20 +529,12 @@ class StudyLabShortsEngine {
       }
     });
 
-    // Dedicated External Button Trigger Handler
     this.dom.viewBookmarksBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevents outer layout click intercepts
+      e.stopPropagation(); 
       this.toggleBookmarkPage();
     });
     
     this.dom.bookmarkPage.addEventListener('click', (e) => {
-      if (e.target.classList.contains('sl-bp-close')) {
-        this.dom.bookmarkPage.classList.remove('open');
-        this.dom.viewBookmarksBtn.classList.remove('active-view');
-        this.updateBookmarkButtonCount();
-        return;
-      }
-
       if (e.target.classList.contains('sl-bp-delete-btn')) {
         e.stopPropagation();
         var idToRemove = e.target.dataset.id;
@@ -562,13 +565,16 @@ class StudyLabShortsEngine {
     });
   }
 
+  // [UPDATED FEATURE]: True sequence progressive logic chain (Guarantees zero replication overhead)
   next() {
     if (this.currentIndex < this.allQuestions.length - 1) {
       this.currentIndex++;
       this.renderSlide();
     } else {
+      // Loop resets cleanly back to starting sequence point only when array fully depletes
       this.currentIndex = 0;
       this.renderSlide();
+      this.showToast("🔄 Starting fresh review batch!");
     }
   }
 
