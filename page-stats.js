@@ -3,11 +3,12 @@ function pgStats(){
   var w=el("div",{cls:"fd"});
   w.appendChild(makeNav("stats"));
 
-  // Inject scoped styles
+  // Inject scoped styles (always update)
   var styleId="pgstats-style";
-  if(!document.getElementById(styleId)){
-    var style=document.createElement("style");
-    style.id=styleId;
+  var existingStyle=document.getElementById(styleId);
+  if(existingStyle) existingStyle.remove();
+  var style=document.createElement("style");
+  style.id=styleId;
     style.textContent=`
       .pg-wrap{
         max-width:520px;
@@ -18,7 +19,7 @@ function pgStats(){
       }
       .pg-hero{
         text-align:center;
-        padding:10px 0 20px;
+        padding:4px 0 20px;
       }
       .pg-hero-icon{
         width:56px;height:56px;
@@ -183,7 +184,6 @@ function pgStats(){
       }
     `;
     document.head.appendChild(style);
-  }
 
   var wrap=el("div",{cls:"pg-wrap"});
   w.appendChild(wrap);
