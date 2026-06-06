@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA (OVERLAP & HEIGHT BUG FIXED)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA PRO (STREAK ANIMATION & FIXES)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -86,7 +86,7 @@ class StudyLabShortsEngine {
       } else if (lastActiveDate === yesterday.toDateString()) {
         currentStreak += 1;
       } else {
-        currentStreak = 1;
+        currentStreak = 1; // broken reset
       }
     }
     localStorage.setItem('sl_last_active', today);
@@ -99,13 +99,17 @@ class StudyLabShortsEngine {
     var style = document.createElement('style');
     style.id = 'sl-pro-ultra-styles';
     style.textContent = `
+      /* [FIXED] Prevent outside bouncing scroll & lock physics */
       .sl-main-center-box {
-        display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 15px; box-sizing: border-box;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        width: 100%; padding: 15px; box-sizing: border-box;
+        overscroll-behavior: none !important; touch-action: pan-y;
       }
       .sl-shorts-wrapper {
         position: relative; width: 100%; max-width: 410px; height: 68dvh; min-height: 500px;
-        background: #0d0e12; border-radius: 26px; box-shadow: 0 20px 45px rgba(0,0,0,0.4); overflow: hidden;
+        background: #0d0e12; border-radius: 26px; box-shadow: 0 20px 45px rgba(0,0,0,0.5); overflow: hidden;
         font-family: system-ui, -apple-system, sans-serif;
+        overscroll-behavior: contain !important;
       }
       .sl-progress-container {
         position: absolute; top: 15px; left: 20px; right: 20px; display: flex; gap: 4px; z-index: 10;
@@ -118,10 +122,20 @@ class StudyLabShortsEngine {
         position: absolute; top: 25px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
       }
       .sl-badge-left { display: flex; gap: 8px; pointer-events: auto; }
+      
+      /* [ANIMATION FIXED] Amazing Fire Streak Glowing Animation */
       .sl-streak-badge {
-        color: #fff; font-size: 0.72rem; font-weight: 700; background: linear-gradient(45deg, #f97316, #ea580c);
-        padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(234,88,12,0.3);
+        color: #fff; font-size: 0.72rem; font-weight: 700; 
+        background: linear-gradient(45deg, #ff4500, #ff8c00);
+        padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;
+        box-shadow: 0 0 12px rgba(255,69,0,0.6);
+        animation: slStreakGlow 1.5s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
       }
+      @keyframes slStreakGlow {
+        0% { transform: scale(1); box-shadow: 0 0 8px rgba(255,69,0,0.5); }
+        100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(255,140,0,0.9), 0 0 25px rgba(255,69,0,0.4); }
+      }
+
       .sl-top-btn {
         background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 28px; height: 28px;
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); pointer-events: auto; font-size: 0.85rem; transition: all 0.2s;
@@ -151,7 +165,6 @@ class StudyLabShortsEngine {
       }
       @keyframes slFadeInOut { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 
-      /* [FIXED] Dynamic Slide-Up Sheet with Perfect Height & Layout */
       .sl-bottom-sheet {
         position: absolute; bottom: 0; left: 0; right: 0; background: #111219; border-radius: 28px 28px 0 0;
         padding: 24px 24px 95px; transform: translateY(102%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
@@ -163,7 +176,6 @@ class StudyLabShortsEngine {
       .sl-ans-text { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 8px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
-      /* [FIXED] Absolute Floating Controls Over Everything */
       .sl-controls { 
         position: absolute; bottom: 22px; left: 20px; right: 20px;
         display: flex; gap: 10px; z-index: 99; justify-content: center; align-items: center;
@@ -187,16 +199,28 @@ class StudyLabShortsEngine {
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+      /* [FIXED] Ultra Premium Dark Mode High Contrast Trigger Button */
       .sl-view-bookmarks-wrapper {
         margin-top: 20px; width: 100%; max-width: 410px; display: flex; justify-content: center; position: relative; z-index: 999;
       }
       .sl-bookmarks-trigger-btn {
-        background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff !important;
+        background: #141622 !important; /* डीप डार्क ब्लैक बैकग्राउंड */
+        border: 2px solid rgba(255, 255, 255, 0.18) !important; /* चमकीली कंट्रास्ट बॉर्डर */
+        color: #ffffff !important;
         padding: 12px 28px; border-radius: 50px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
-        transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 8px; 
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.1);
       }
       .sl-bookmarks-trigger-btn:hover {
-        background: #334155; color: #ffffff !important; box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        background: #1e2235 !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
+        transform: translateY(-1px);
+      }
+      .sl-bookmarks-trigger-btn.active-view {
+        background: #eab308 !important; /* एक्टिव होने पर गोल्ड थीम */
+        color: #000000 !important;
+        border-color: #eab308 !important;
       }
 
       .sl-bookmark-page {
@@ -248,7 +272,7 @@ class StudyLabShortsEngine {
     
     this.dom.streakBadge = document.createElement('div');
     this.dom.streakBadge.className = 'sl-streak-badge';
-    this.dom.streakBadge.innerHTML = `⚡ ${this.streakCount} Days`;
+    this.dom.streakBadge.innerHTML = `🔥 ${this.streakCount} Days`;
     
     this.dom.bookmarkBtn = document.createElement('button');
     this.dom.bookmarkBtn.className = 'sl-top-btn btn-bookmark';
@@ -279,14 +303,13 @@ class StudyLabShortsEngine {
       <div class="sl-bp-list"></div>
     `;
 
-    // [FIXED] Shared navigation controls appended globally to the wrapper to prevent sliding behavior artifacts
     this.dom.controls = document.createElement('div');
     this.dom.controls.className = 'sl-controls';
 
     this.dom.wrapper.appendChild(this.dom.progressBar);
     this.dom.wrapper.appendChild(headerControls);
     this.dom.wrapper.appendChild(this.dom.track);
-    this.dom.wrapper.appendChild(this.dom.controls); // Mounted directly on top grid layer
+    this.dom.wrapper.appendChild(this.dom.controls);
     this.dom.wrapper.appendChild(this.dom.bookmarkPage);
     this.dom.wrapper.appendChild(this.dom.toast);
     
@@ -344,7 +367,6 @@ class StudyLabShortsEngine {
     `;
     this.dom.track.appendChild(card);
 
-    // [FIXED] Render action buttons into the persistent global control bar layer
     var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
     this.dom.controls.innerHTML = `
       <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
@@ -397,7 +419,7 @@ class StudyLabShortsEngine {
                     `${item.q}\n\n` +
                     `--- \n` +
                     `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
+                    `ACCESS LINK : https://studylab-inky.vercel.appn` +
                     `_________________________________________`;
 
     if (navigator.share) {
@@ -410,6 +432,18 @@ class StudyLabShortsEngine {
       document.execCommand("copy");
       document.body.removeChild(dummy);
       this.showToast("Link Copied to Clipboard");
+    }
+  }
+
+  // [FIXED] Toggle visibility states of Bookmark View layer via single button orchestrator
+  toggleBookmarkPage() {
+    var isOpen = this.dom.bookmarkPage.classList.contains('open');
+    if (isOpen) {
+      this.dom.bookmarkPage.classList.remove('open');
+      this.dom.viewBookmarksBtn.classList.remove('active-view');
+    } else {
+      this.openBookmarkPage();
+      this.dom.viewBookmarksBtn.classList.add('active-view');
     }
   }
 
@@ -450,7 +484,6 @@ class StudyLabShortsEngine {
         return;
       }
 
-      // [FIXED] Intercept clicks on the independent button track layer safely
       if (e.target.closest('.sl-controls')) {
         if (e.target.classList.contains('btn-next')) {
           this.next();
@@ -462,7 +495,6 @@ class StudyLabShortsEngine {
         return;
       }
 
-      // Screen Tapping Toggle Action Flow
       var sheet = this.dom.wrapper.querySelector('.sl-bottom-sheet');
       if (sheet) {
         var isSheetOpen = sheet.classList.contains('open');
@@ -475,11 +507,13 @@ class StudyLabShortsEngine {
       }
     });
 
-    this.dom.viewBookmarksBtn.addEventListener('click', () => this.openBookmarkPage());
+    // [FIXED] Single button event router to handle open & close seamlessly
+    this.dom.viewBookmarksBtn.addEventListener('click', () => this.toggleBookmarkPage());
     
     this.dom.bookmarkPage.addEventListener('click', (e) => {
       if (e.target.classList.contains('sl-bp-close')) {
         this.dom.bookmarkPage.classList.remove('open');
+        this.dom.viewBookmarksBtn.classList.remove('active-view');
         return;
       }
 
@@ -506,6 +540,7 @@ class StudyLabShortsEngine {
           this.currentIndex = foundIndex;
           this.renderSlide();
           this.dom.bookmarkPage.classList.remove('open');
+          this.dom.viewBookmarksBtn.classList.remove('active-view');
         }
       }
     });
