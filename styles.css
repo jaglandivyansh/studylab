@@ -1656,64 +1656,72 @@ body:not(.dark) .subject-title {
 
 
 /* ════════════════════════════════════════════
-   DESKTOP NAVBAR FIX — Full width + proper layout
+   FIX 1 — pg-hero gap (all screen sizes)
    ════════════════════════════════════════════ */
-@media (min-width: 769px) {
+.pg-hero {
+  margin-top: 0 !important;
+  padding-top: 4px !important;
+}
 
-  /* ── TOP NAVBAR: Full width desktop bar ── */
+/* Original hero rule — exclude pg-hero */
+.hero-section,
+.hero-container,
+div[class*="hero"]:not(.pg-hero) {
+  margin-top: 88px !important;
+}
+
+/* ════════════════════════════════════════════
+   FIX 2 — Navbar: Scale with screen size
+   Same pill style, but width adjusts to screen
+   ════════════════════════════════════════════ */
+
+/* Desktop: wider pill, more breathing room */
+@media (min-width: 769px) {
   #top-navbar {
-    top: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
+    top: 12px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) translateZ(0) !important;
+    width: calc(100% - 48px) !important;
+    max-width: 860px !important;         /* Desktop pe wide pill */
     padding: 0 !important;
   }
 
   #top-navbar .nb-island {
     width: 100% !important;
     max-width: 100% !important;
-    border-radius: 0 !important;
-    height: 62px !important;
-    padding: 0 32px !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
-    border-bottom: 1px solid var(--border) !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.35) !important;
+    border-radius: 100px !important;     /* Pill shape same */
+    height: 58px !important;
+    padding: 0 24px !important;
   }
 
   /* Show nav links on desktop */
   #top-navbar .nb-links { display: flex !important; }
-
-  /* Hide hamburger on desktop */
   #top-navbar #nb-hamburger { display: none !important; }
 
-  /* ── BOTTOM NAVBAR: Hide on desktop ── */
-  #bottom-navbar { display: none !important; }
-
-  /* ── No floating navbar offset needed ── */
-  .hero-section,
-  .hero-container,
-  div[class*="hero"]:not(.pg-hero) {
-    margin-top: 0 !important;
+  /* Bottom navbar: wider pill on desktop */
+  #bottom-navbar {
+    display: flex !important;
+    width: calc(100% - 48px) !important;
+    max-width: 600px !important;         /* Desktop pe wider */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 16px !important;
   }
 
-  /* ── Page content top padding for desktop sticky navbar ── */
+  /* Content padding for floating navbar */
   body, main, .main-container, #app-layout, .content-wrapper {
-    padding-top: 62px !important;
-    padding-bottom: 24px !important;
+    padding-top: 0 !important;
+    padding-bottom: 110px !important;
   }
 }
 
-/* ── Mobile only: pg-hero gap fix ── */
-@media (max-width: 768px) {
-  div[class*="hero"]:not(.pg-hero) {
-    margin-top: 88px !important;
+/* Large desktop: even wider */
+@media (min-width: 1200px) {
+  #top-navbar {
+    max-width: 1100px !important;
   }
-  .pg-hero {
-    margin-top: 0 !important;
-    padding-top: 4px !important;
+  #bottom-navbar {
+    max-width: 700px !important;
   }
 }
