@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-SHORTS.JS — STUDYLAB SHORTS ULTRA PRO (STREAK ANIMATION & FIXES)
+// PAGE-SHORTS.JS — STUDYLAB SHORTS PRO ULTRA (FULLY BUG-FIXED VISUALS)
 // ═══════════════════════════════════════════════════════════════════
 
 function generateDynamicShorts(sessionLimit) {
@@ -86,7 +86,7 @@ class StudyLabShortsEngine {
       } else if (lastActiveDate === yesterday.toDateString()) {
         currentStreak += 1;
       } else {
-        currentStreak = 1; // broken reset
+        currentStreak = 1; 
       }
     }
     localStorage.setItem('sl_last_active', today);
@@ -99,7 +99,6 @@ class StudyLabShortsEngine {
     var style = document.createElement('style');
     style.id = 'sl-pro-ultra-styles';
     style.textContent = `
-      /* [FIXED] Prevent outside bouncing scroll & lock physics */
       .sl-main-center-box {
         display: flex; flex-direction: column; justify-content: center; align-items: center; 
         width: 100%; padding: 15px; box-sizing: border-box;
@@ -123,17 +122,17 @@ class StudyLabShortsEngine {
       }
       .sl-badge-left { display: flex; gap: 8px; pointer-events: auto; }
       
-      /* [ANIMATION FIXED] Amazing Fire Streak Glowing Animation */
+      /* Amazing Active Streak Badge Animation */
       .sl-streak-badge {
         color: #fff; font-size: 0.72rem; font-weight: 700; 
         background: linear-gradient(45deg, #ff4500, #ff8c00);
         padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px;
         box-shadow: 0 0 12px rgba(255,69,0,0.6);
-        animation: slStreakGlow 1.5s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
+        animation: slStreakPop 1.2s infinite alternate ease-in-out;
       }
-      @keyframes slStreakGlow {
+      @keyframes slStreakPop {
         0% { transform: scale(1); box-shadow: 0 0 8px rgba(255,69,0,0.5); }
-        100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(255,140,0,0.9), 0 0 25px rgba(255,69,0,0.4); }
+        100% { transform: scale(1.06); box-shadow: 0 0 16px rgba(255,140,0,0.8), 0 0 22px rgba(255,69,0,0.4); }
       }
 
       .sl-top-btn {
@@ -199,49 +198,50 @@ class StudyLabShortsEngine {
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-      /* [FIXED] Ultra Premium Dark Mode High Contrast Trigger Button */
+      /* Highly Visible View Bookmarks Yellow-Gold Button */
       .sl-view-bookmarks-wrapper {
         margin-top: 20px; width: 100%; max-width: 410px; display: flex; justify-content: center; position: relative; z-index: 999;
       }
       .sl-bookmarks-trigger-btn {
-        background: #141622 !important; /* डीप डार्क ब्लैक बैकग्राउंड */
-        border: 2px solid rgba(255, 255, 255, 0.18) !important; /* चमकीली कंट्रास्ट बॉर्डर */
-        color: #ffffff !important;
-        padding: 12px 28px; border-radius: 50px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+        background: #eab308 !important; 
+        border: 2px solid rgba(255, 255, 255, 0.2) !important; 
+        color: #000000 !important;
+        padding: 12px 28px; border-radius: 50px; font-size: 0.88rem; font-weight: 800; cursor: pointer;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 8px; 
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
       }
       .sl-bookmarks-trigger-btn:hover {
-        background: #1e2235 !important;
-        border-color: rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
+        background: #ca8a04 !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
         transform: translateY(-1px);
       }
       .sl-bookmarks-trigger-btn.active-view {
-        background: #eab308 !important; /* एक्टिव होने पर गोल्ड थीम */
-        color: #000000 !important;
-        border-color: #eab308 !important;
+        background: #ef4444 !important; /* खुल जाने पर क्लोज करने के लिए रेड अलर्ट लुक */
+        color: #ffffff !important;
+        border-color: #ef4444 !important;
       }
 
+      /* [FIXED CONTENT MIGRATION] Inside Container Locking to avoid visual bleeding outside shorts box */
       .sl-bookmark-page {
-        position: absolute; inset: 0; background: #090a0f; z-index: 200; transform: translateY(100%);
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+        position: absolute; inset: 0; background: #0c0d14; z-index: 120; transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+        border-radius: 26px; /* Keeps identical corner rounding aesthetics */
       }
       .sl-bookmark-page.open { transform: translateY(0); }
       
       .sl-bp-header {
         padding: 20px; display: flex; align-items: center; justify-content: space-between;
-        border-bottom: 1px solid rgba(255,255,255,0.08); background: #0d0e15;
+        border-bottom: 1px solid rgba(255,255,255,0.08); background: #12131c; padding-top: 35px;
       }
       .sl-bp-title { font-size: 1rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
       .sl-bp-close {
         background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 0.85rem; font-weight: 700;
-        padding: 6px 14px; border-radius: 30px; cursor: pointer;
+        padding: 6px 14px; border-radius: 30px; cursor: pointer; display: none; /* Hidden because primary yellow button does toggling */
       }
       
-      .sl-bp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+      .sl-bp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
       .sl-bp-item {
-        background: #131520; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 14px 16px;
+        background: #181a26; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 14px 16px;
         display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s;
       }
       .sl-bp-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; text-align: left; }
@@ -310,7 +310,7 @@ class StudyLabShortsEngine {
     this.dom.wrapper.appendChild(headerControls);
     this.dom.wrapper.appendChild(this.dom.track);
     this.dom.wrapper.appendChild(this.dom.controls);
-    this.dom.wrapper.appendChild(this.dom.bookmarkPage);
+    this.dom.wrapper.appendChild(this.dom.bookmarkPage); // Perfectly encapsulated internally now
     this.dom.wrapper.appendChild(this.dom.toast);
     
     this.container.appendChild(this.dom.wrapper);
@@ -386,7 +386,12 @@ class StudyLabShortsEngine {
 
   updateBookmarkButtonCount() {
     var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
-    this.dom.viewBookmarksBtn.innerHTML = `📚 View Bookmarks (${savedList.length})`;
+    var isOpen = this.dom.bookmarkPage.classList.contains('open');
+    if (isOpen) {
+      this.dom.viewBookmarksBtn.innerHTML = `✕ Close Bookmarks`;
+    } else {
+      this.dom.viewBookmarksBtn.innerHTML = `📚 View Bookmarks (${savedList.length})`;
+    }
   }
 
   toggleBookmark() {
@@ -435,7 +440,7 @@ class StudyLabShortsEngine {
     }
   }
 
-  // [FIXED] Toggle visibility states of Bookmark View layer via single button orchestrator
+  // [FIXED] Single Toggle Trigger Controller
   toggleBookmarkPage() {
     var isOpen = this.dom.bookmarkPage.classList.contains('open');
     if (isOpen) {
@@ -445,6 +450,7 @@ class StudyLabShortsEngine {
       this.openBookmarkPage();
       this.dom.viewBookmarksBtn.classList.add('active-view');
     }
+    this.updateBookmarkButtonCount();
   }
 
   openBookmarkPage() {
@@ -479,6 +485,11 @@ class StudyLabShortsEngine {
 
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
+      // If bookmark page is completely open, clicks inside it shouldn't trigger slide toggle gestures
+      if (this.dom.bookmarkPage.classList.contains('open') && !e.target.closest('.sl-bp-close')) {
+        return; 
+      }
+
       if (e.target.closest('.btn-bookmark')) {
         this.toggleBookmark();
         return;
@@ -507,13 +518,17 @@ class StudyLabShortsEngine {
       }
     });
 
-    // [FIXED] Single button event router to handle open & close seamlessly
-    this.dom.viewBookmarksBtn.addEventListener('click', () => this.toggleBookmarkPage());
+    // Dedicated External Button Trigger Handler
+    this.dom.viewBookmarksBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevents outer layout click intercepts
+      this.toggleBookmarkPage();
+    });
     
     this.dom.bookmarkPage.addEventListener('click', (e) => {
       if (e.target.classList.contains('sl-bp-close')) {
         this.dom.bookmarkPage.classList.remove('open');
         this.dom.viewBookmarksBtn.classList.remove('active-view');
+        this.updateBookmarkButtonCount();
         return;
       }
 
@@ -525,9 +540,9 @@ class StudyLabShortsEngine {
         if (index !== -1) {
           savedList.splice(index, 1);
           localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
-          this.updateBookmarkButtonCount();
           this.openBookmarkPage();
           this.renderSlide();
+          this.updateBookmarkButtonCount();
         }
         return;
       }
@@ -541,6 +556,7 @@ class StudyLabShortsEngine {
           this.renderSlide();
           this.dom.bookmarkPage.classList.remove('open');
           this.dom.viewBookmarksBtn.classList.remove('active-view');
+          this.updateBookmarkButtonCount();
         }
       }
     });
