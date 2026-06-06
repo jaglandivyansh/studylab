@@ -175,18 +175,37 @@ class StudyLabShortsEngine {
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-      /* Premium Bottom Navigation Link for Bookmarks */
+            /* Premium Bottom Navigation Link for Bookmarks (FULLY VISIBLE) */
       .sl-view-bookmarks-wrapper {
-        margin-top: 15px; width: 100%; max-width: 410px; display: flex; justify-content: center;
+        margin-top: 20px; 
+        width: 100%; 
+        max-width: 410px; 
+        display: flex; 
+        justify-content: center;
+        position: relative;
+        z-index: 999; /* ताकि किसी लेयर के पीछे न छिपे */
       }
       .sl-bookmarks-trigger-btn {
-        background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.8);
-        padding: 10px 24px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
-        transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background: #1e293b; /* सॉलिड प्रीमियम डार्क बैकग्राउंड */
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        color: #ffffff !important; /* हमेशा चमकीला वाइट रहेगा */
+        padding: 12px 28px; 
+        border-radius: 50px; 
+        font-size: 0.88rem; 
+        font-weight: 700; 
+        cursor: pointer;
+        transition: all 0.2s ease; 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 8px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* बढ़िया विज़िबिलिटी के लिए शैडो */
       }
       .sl-bookmarks-trigger-btn:hover {
-        background: rgba(255, 255, 255, 0.12); color: #fff; border-color: rgba(255,255,255,0.2);
+        background: #334155; 
+        color: #ffffff !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.6);
       }
+
 
       /* Premium Sliding Full-Page View Bookmarks Module */
       .sl-bookmark-page {
