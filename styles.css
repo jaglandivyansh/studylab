@@ -1853,3 +1853,44 @@ div[class*="hero"]:not(.pg-hero) {
   color: #ffffff !important;
 }
 
+/* ==========================================================================
+   🚨 STUDYLAB BRUTE-FORCE EMERGENCY OVERRIDE (EXAM-CLEARING CODE)
+   ========================================================================== */
+
+/* 1. Us purane bade se dark-purple streak box ko jad se mitao */
+div:has(> [txt*="STREAK"]),
+div:has(> div:contains("STREAK")),
+.daily-container > div:first-child,
+[data-page="daily"] > div:nth-child(2),
+div[style*="background: rgb(30, 41, 59)"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* 2. Light mode me "Science" aur baki gayab hone wale text ko zindaa karo */
+body:not(.dark) div,
+body:not(.dark) span,
+body:not(.dark) h3,
+body:not(.dark) p,
+body:not(.dark) .subject-title-text {
+    color: #0f172a !important; /* Pure dark royal black/blue color */
+}
+
+/* 3. Jo aapka main question box hai, use light/dark mode ke hisab se automatic set karo */
+div:has(> h3) {
+    background: var(--card) !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: 20px !important;
+}
+
+/* 4. Options buttons (Kota, Udaipur...) ko bina crash kare clean and dark borders do */
+div:has(> span[txt*="A."]), 
+div:has(> span:contains("A.")) {
+    border: 1.5px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
