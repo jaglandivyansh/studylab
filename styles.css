@@ -1694,33 +1694,3 @@ div[class*="hero"]:not(.pg-hero) {
     max-width: 700px !important;
   }
 }
-// ─── GLOBAL EMERGENCY OVERRIDE TO HIDE STREAK BANNER FOREVER ───
-(function() {
-  var globalFixId = "studylab-emergency-hide-streak";
-  if (!document.getElementById(globalFixId)) {
-    var styleNode = document.createElement("style");
-    styleNode.id = globalFixId;
-    styleNode.innerHTML = `
-      /* 1. Purane screen ke streak card container ko poori tarah gayab (hide) karne ke liye */
-      div:has(> [txt*="STREAK"]), 
-      div:has(> .nav-item) + div,
-      .daily-container > div:first-child,
-      [data-page="daily"] > div:nth-child(2) {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-
-      /* 2. Light mode me transparent labels ko fix karne ke liye typography safety patch */
-      body:not(.dark) div, 
-      body:not(.dark) span, 
-      body:not(.dark) h3 {
-        color: var(--text) !important;
-      }
-    `;
-    document.head.appendChild(styleNode);
-  }
-})();
