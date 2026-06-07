@@ -82,7 +82,9 @@ function pgDigest() {
         { id: "govt", label: "Govt / PIB", icon: "🏛️", color: "#8b5cf6", desc: "Official press releases and schemes." },
         { id: "economy", label: "Economy", icon: "📈", color: "#f59e0b", desc: "RBI, GDP, budget and markets." },
         { id: "science", label: "Science", icon: "🔬", color: "#4ade80", desc: "ISRO, DRDO and health." },
-        { id: "world", label: "World", icon: "🌐", color: "#f87171", desc: "Foreign relations and global summits." }
+        { id: "world", label: "World", icon: "🌐", color: "#f87171", desc: "Foreign relations and global summits." },
+        { id: "sports", label: "Sports", icon: "🏆", color: "#ec4899", desc: "Tournaments, records, and events." },
+        { id: "awards", label: "Awards & Culture", icon: "🎖️", color: "#14b8a6", desc: "Honors, literature, and heritage." }
     ];
 
     var contentWrap = el("div", { css: { height: "100%" } });
@@ -93,7 +95,7 @@ function pgDigest() {
         if (stats.date !== today) stats = { date: today, read: 0 };
         return stats;
     }
-    
+
     function updateDailyProgress() {
         var stats = getDailyProgress();
         stats.read += 1;
@@ -150,22 +152,46 @@ function pgDigest() {
         });
 
         var topBar = el("div", { css: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexShrink: "0" } });
-        
+
         var leftSide = el("div", { css: { display: "flex", alignItems: "center", gap: "12px" } });
         var backBtn = el("button", { css: { padding: "8px 14px", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer" }, onclick: function () { history.back(); } });
         backBtn.innerHTML = '←';
-        
+
         var titleNode = el("div", { css: { fontSize: "1.4rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--text)" }, txt: cat.icon + " " + cat.label });
         leftSide.appendChild(backBtn);
         leftSide.appendChild(titleNode);
 
+        // --- UPDATED PREMIUM REFRESH BUTTON ---
         var syncBtn = el("button", { 
-            css: { padding: "8px 12px", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: "600", color: "var(--text)" },
-            onclick: function () { fetchLatestNews(cat, newsWrap, syncIcon, true, 0); }
+            css: { 
+                padding: "8px 16px", 
+                borderRadius: "24px", 
+                border: "1.5px solid " + cat.color + "40", 
+                background: "linear-gradient(145deg, var(--card), var(--bg2))", 
+                boxShadow: "0 4px 10px rgba(0,0,0,0.04)", 
+                cursor: "pointer", 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "8px", 
+                fontSize: "0.85rem", 
+                fontWeight: "800", 
+                color: "var(--text)",
+                transition: "transform 0.15s ease"
+            },
+            onclick: function () { 
+                var btn = this;
+                btn.style.transform = "scale(0.92)"; // Click animation
+                setTimeout(function() { btn.style.transform = "scale(1)"; }, 150);
+                fetchLatestNews(cat, newsWrap, syncIcon, true, 0); 
+            }
         });
+        
         var syncIcon = el("span", { css: { display: "inline-block", transition: "transform 0.2s" }, txt: "🔄" });
         syncBtn.appendChild(syncIcon);
-        syncBtn.appendChild(el("span", { txt: "Refresh" }));
+        
+        // Brand matched sync text
+        var syncText = el("span", { css: { color: cat.color }, txt: "Sync Latest" });
+        syncBtn.appendChild(syncText);
 
         topBar.appendChild(leftSide);
         topBar.appendChild(syncBtn);
@@ -175,8 +201,9 @@ function pgDigest() {
         wrap.appendChild(newsWrap);
         contentWrap.appendChild(wrap);
 
-        // Fixed signature call parameters matching initialization loop index
-        fetchLatestNews(cat, newsWrap, syncIcon, false, 0);
+        // --- AUTO-REFRESH TRIGGER ---
+        // Passing 'true' here forces it to background refresh instantly when the category is clicked
+        fetchLatestNews(cat, newsWrap, syncIcon, true, 0);
     }
 
     function fetchLatestNews(cat, newsWrap, syncIcon, forceRefresh, index) {
@@ -190,10 +217,13 @@ function pgDigest() {
             cachedData = { date: "", articles: [] };
         }
 
-        if (cachedData.articles.length > 0 && !forceRefresh) {
+        // Instantly render cache so screen isn't blank, BUT keep fetching if forceRefresh is true
+        if (cachedData.articles.length > 0 && index === 0) {
             renderDiscoverStream(cachedData.articles, cat, newsWrap);
-            if (syncIcon) syncIcon.classList.remove("rotate-sync");
-            return;
+            if (!forceRefresh) {
+                if (syncIcon) syncIcon.classList.remove("rotate-sync");
+                return;
+            }
         }
 
         var feeds = (typeof CA_FEEDS !== "undefined" && CA_FEEDS[cat.id]) ? CA_FEEDS[cat.id] : [];
@@ -210,7 +240,7 @@ function pgDigest() {
             .then(function (data) {
                 if (data.items && data.items.length) {
                     var cutoffDate = new Date();
-                    cutoffDate.setDate(cutoffDate.getDate() - 6); // Safety boundary: Keeps full 5 days + buffer
+                    cutoffDate.setDate(cutoffDate.getDate() - 6); 
 
                     var parsed = data.items.map(function (item) {
                         return { 
@@ -225,7 +255,8 @@ function pgDigest() {
                         return new Date(item.pubDate) >= cutoffDate;
                     });
 
-                    var baseList = forceRefresh ? [] : cachedData.articles;
+                    // Seamless merging instead of emptying the array, so it feels fast
+                    var baseList = cachedData.articles; 
                     var combined = parsed.concat(baseList);
 
                     var unique = [];
@@ -261,7 +292,7 @@ function pgDigest() {
             });
     }
 
-        function renderDiscoverStream(articles, cat, newsWrap) {
+    function renderDiscoverStream(articles, cat, newsWrap) {
         newsWrap.innerHTML = "";
         if (!articles || !articles.length) {
             newsWrap.innerHTML = '<div style="padding:40px; text-align:center; color:var(--muted); font-weight:600;">No articles available. Tap refresh to update.</div>';
@@ -271,15 +302,12 @@ function pgDigest() {
         articles.forEach(function (a) {
             var card = el("div", { className: "perp-card" });
 
-            // 1. UPDATED PREMIUM IMAGE CONTAINER
             var imgContainer = el("div", { css: { width: "100%", height: "210px", position: "relative", borderBottom: "1px solid var(--border2)", backgroundColor: "var(--bg2)", overflow: "hidden" } });
-            
+
             if (a.image && a.image.trim() !== "") {
-                // Uses 'contain' to prevent cutting off the image, placed over a solid background for max device compatibility
                 var sharpLayer = el("div", { css: { position: "absolute", top: "0", left: "0", width: "100%", height: "100%", backgroundImage: "url('" + a.image + "')", backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center" } });
                 imgContainer.appendChild(sharpLayer);
             } else {
-                // 2. NEW ARCHITECTURAL GRAPH-PAPER FALLBACK DESIGN
                 imgContainer.style.backgroundImage = "linear-gradient(" + cat.color + "1A 1px, transparent 1px), linear-gradient(90deg, " + cat.color + "1A 1px, transparent 1px)";
                 imgContainer.style.backgroundSize = "20px 20px";
                 imgContainer.style.backgroundPosition = "center center";
@@ -303,12 +331,12 @@ function pgDigest() {
 
             var metaRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em" } });
             metaRow.appendChild(el("span", { css: { color: cat.color }, txt: a.source }));
-            
+
             var parsedTime = new Date(a.pubDate);
             var dateOption = { month: "short", day: "numeric" };
             if (parsedTime.getFullYear() !== new Date().getFullYear()) dateOption.year = "numeric";
             var timeStr = !isNaN(parsedTime) ? parsedTime.toLocaleDateString("en-IN", dateOption) : "Recent";
-            
+
             metaRow.appendChild(el("span", { css: { color: "var(--subtle)" }, txt: timeStr }));
             textBlock.appendChild(metaRow);
 
@@ -322,12 +350,10 @@ function pgDigest() {
             var descEl = el("p", { css: { fontSize: "0.9rem", color: "var(--muted)", lineHeight: "1.55", margin: "10px 0 20px 0" }, txt: summaryTxt });
             textBlock.appendChild(descEl);
 
-                        var bottomRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border2)", paddingTop: "14px", marginTop: "10px" } });
-            
-            // --- UPDATED BRAND MATCHING FOOTER ---
+            var bottomRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border2)", paddingTop: "14px", marginTop: "10px" } });
+
             var profileBox = el("div", { css: { display: "flex", alignItems: "center", gap: "8px" } });
-            
-            // Replicating your top nav 'SL' black badge exactly
+
             var slBadge = el("div", { 
                 css: { 
                     width: "26px", height: "26px", borderRadius: "7px", 
@@ -337,33 +363,29 @@ function pgDigest() {
                 }, 
                 txt: "SL" 
             });
-            
-            // Replicating the 'StudyLab' dual-color typography
+
             var brandText = el("div", { css: { fontSize: "0.85rem", fontWeight: "800", fontFamily: "var(--font-display, sans-serif)", letterSpacing: "-0.02em" } });
             brandText.innerHTML = '<span style="color: var(--text);">Study</span><span style="color: #3b82f6;">Lab</span>';
-            
+
             profileBox.appendChild(slBadge);
             profileBox.appendChild(brandText);
             bottomRow.appendChild(profileBox);
-            // --------------------------------------
 
             var readBtn = el("button", { 
                 css: { padding: "8px 14px", background: "none", border: "1px solid " + cat.color, color: cat.color, borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", cursor: "pointer" }, 
                 txt: "Read Full Brief",
-// ... rest of the code remains the same
                 onclick: function() { 
                     updateDailyProgress(); 
                     if (a.url) window.open(a.url, "_blank"); 
                 } 
             });
             bottomRow.appendChild(readBtn);
-            
+
             textBlock.appendChild(bottomRow);
             card.appendChild(textBlock);
             newsWrap.appendChild(card);
         });
     }
-
 
     function onPopState(e) {
         if (!w.isConnected) { window.removeEventListener("popstate", onPopState); return; }
