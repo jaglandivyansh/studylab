@@ -764,9 +764,17 @@ function closeRightDrawer() {
   var drawer = document.getElementById('nb-mobile-drawer');
   var scrim = document.getElementById('nb-mobile-overlay');
   
+  // 1. Pehle class remove karo (CSS animation trigger hogi)
   if (drawer) drawer.classList.remove('open');
   if (scrim) scrim.classList.remove('open');
+  
+  // 2. Browser ko 300ms ka time do animation khatam hone ke liye
+  // Isse lag khatam ho jayega
+  setTimeout(function() {
+      if (drawer) drawer.style.display = 'flex'; // Zaroorat ho toh
+  }, 300);
 }
+
 
 // Scrim click listener
 var scrim = document.getElementById('nb-mobile-overlay');
