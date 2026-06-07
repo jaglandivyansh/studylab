@@ -261,7 +261,7 @@ function pgDigest() {
             });
     }
 
-    function renderDiscoverStream(articles, cat, newsWrap) {
+        function renderDiscoverStream(articles, cat, newsWrap) {
         newsWrap.innerHTML = "";
         if (!articles || !articles.length) {
             newsWrap.innerHTML = '<div style="padding:40px; text-align:center; color:var(--muted); font-weight:600;">No articles available. Tap refresh to update.</div>';
@@ -271,12 +271,30 @@ function pgDigest() {
         articles.forEach(function (a) {
             var card = el("div", { className: "perp-card" });
 
-            var imgContainer = el("div", { css: { width: "100%", height: "210px", backgroundSize: "cover", backgroundPosition: "center", position: "relative", borderBottom: "1px solid var(--border2)", background: "var(--bg2)" } });
+            // 1. UPDATED PREMIUM IMAGE CONTAINER
+            var imgContainer = el("div", { css: { width: "100%", height: "210px", position: "relative", borderBottom: "1px solid var(--border2)", backgroundColor: "var(--bg2)", overflow: "hidden" } });
+            
             if (a.image && a.image.trim() !== "") {
-                imgContainer.style.backgroundImage = "url('" + a.image + "')";
+                // Uses 'contain' to prevent cutting off the image, placed over a solid background for max device compatibility
+                var sharpLayer = el("div", { css: { position: "absolute", top: "0", left: "0", width: "100%", height: "100%", backgroundImage: "url('" + a.image + "')", backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center" } });
+                imgContainer.appendChild(sharpLayer);
             } else {
-                imgContainer.style.background = "linear-gradient(145deg, " + cat.color + "15, var(--bg2))";
-                var fallbackBadge = el("div", { css: { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: "3.5rem", opacity: "0.25" }, txt: cat.icon });
+                // 2. NEW ARCHITECTURAL GRAPH-PAPER FALLBACK DESIGN
+                imgContainer.style.backgroundImage = "linear-gradient(" + cat.color + "1A 1px, transparent 1px), linear-gradient(90deg, " + cat.color + "1A 1px, transparent 1px)";
+                imgContainer.style.backgroundSize = "20px 20px";
+                imgContainer.style.backgroundPosition = "center center";
+
+                var fallbackBadge = el("div", { 
+                    css: { 
+                        position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
+                        width: "75px", height: "75px", borderRadius: "14px", 
+                        backgroundColor: "var(--card)",
+                        border: "2px solid " + cat.color,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "2.5rem", boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+                    }, 
+                    txt: cat.icon 
+                });
                 imgContainer.appendChild(fallbackBadge);
             }
             card.appendChild(imgContainer);
@@ -307,7 +325,8 @@ function pgDigest() {
             var bottomRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border2)", paddingTop: "14px", marginTop: "10px" } });
             
             var profileBox = el("div", { css: { display: "flex", alignItems: "center", gap: "8px" } });
-            profileBox.appendChild(el("div", { css: { width: "22px", height: "22px", borderRadius: "50%", background: cat.color, color: "#fff", fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700" }, txt: cat.icon }));
+            // Custom "SL" initial design instead of just repeating the category icon
+            profileBox.appendChild(el("div", { css: { width: "24px", height: "24px", borderRadius: "4px", backgroundColor: "#000", color: "#fff", fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", letterSpacing: "1px" }, txt: "SL" }));
             profileBox.appendChild(el("span", { css: { fontSize: "0.75rem", color: "var(--text)", fontWeight: "600" }, txt: "StudyLab Prep" }));
             bottomRow.appendChild(profileBox);
 
@@ -326,6 +345,7 @@ function pgDigest() {
             newsWrap.appendChild(card);
         });
     }
+
 
     function onPopState(e) {
         if (!w.isConnected) { window.removeEventListener("popstate", onPopState); return; }
