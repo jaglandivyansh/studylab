@@ -1170,7 +1170,7 @@ body::after {
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 10000;
+  z-index: 9997;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -1191,7 +1191,7 @@ body::after {
   height: 100vh;
   background: #0F1623 !important;
   border-left: 1px solid rgba(255,255,255,0.08);
-  z-index: 10001;
+  z-index: 9998;
   padding: 0; /* Padding handled internally now */
   flex-direction: column;
   box-shadow: -10px 0 50px rgba(0,0,0,0.8);
