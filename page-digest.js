@@ -161,38 +161,34 @@ function pgDigest() {
         leftSide.appendChild(backBtn);
         leftSide.appendChild(titleNode);
 
-        // --- UPDATED PREMIUM REFRESH BUTTON ---
+        // --- ICON-ONLY CIRCULAR REFRESH BUTTON (Matches Screenshot) ---
         var syncBtn = el("button", { 
             css: { 
-                padding: "8px 16px", 
-                borderRadius: "24px", 
-                border: "1.5px solid " + cat.color + "40", 
-                background: "linear-gradient(145deg, var(--card), var(--bg2))", 
-                boxShadow: "0 4px 10px rgba(0,0,0,0.04)", 
+                width: "42px",
+                height: "42px",
+                borderRadius: "50%", 
+                border: "1.5px solid var(--border2)", 
+                background: "var(--bg2)", 
                 cursor: "pointer", 
                 display: "flex", 
                 alignItems: "center", 
-                gap: "8px", 
-                fontSize: "0.85rem", 
-                fontWeight: "800", 
+                justifyContent: "center",
                 color: "var(--text)",
-                transition: "transform 0.15s ease"
+                transition: "all 0.15s ease"
             },
             onclick: function () { 
                 var btn = this;
-                btn.style.transform = "scale(0.92)"; // Click animation
+                btn.style.transform = "scale(0.85)"; // Shrink animation on tap
                 setTimeout(function() { btn.style.transform = "scale(1)"; }, 150);
                 fetchLatestNews(cat, newsWrap, syncIcon, true, 0); 
             }
         });
-        
-        var syncIcon = el("span", { css: { display: "inline-block", transition: "transform 0.2s" }, txt: "🔄" });
-        syncBtn.appendChild(syncIcon);
-        
-        // Brand matched sync text
-        var syncText = el("span", { css: { color: cat.color }, txt: "Sync Latest" });
-        syncBtn.appendChild(syncText);
 
+        // SVG that matches your uploaded screenshot perfectly
+        var syncIcon = el("span", { css: { display: "flex", alignItems: "center", justifyContent: "center" } });
+        syncIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>`;
+        
+        syncBtn.appendChild(syncIcon);
         topBar.appendChild(leftSide);
         topBar.appendChild(syncBtn);
         wrap.appendChild(topBar);
@@ -202,7 +198,6 @@ function pgDigest() {
         contentWrap.appendChild(wrap);
 
         // --- AUTO-REFRESH TRIGGER ---
-        // Passing 'true' here forces it to background refresh instantly when the category is clicked
         fetchLatestNews(cat, newsWrap, syncIcon, true, 0);
     }
 
@@ -217,7 +212,6 @@ function pgDigest() {
             cachedData = { date: "", articles: [] };
         }
 
-        // Instantly render cache so screen isn't blank, BUT keep fetching if forceRefresh is true
         if (cachedData.articles.length > 0 && index === 0) {
             renderDiscoverStream(cachedData.articles, cat, newsWrap);
             if (!forceRefresh) {
@@ -243,19 +237,29 @@ function pgDigest() {
                     cutoffDate.setDate(cutoffDate.getDate() - 6); 
 
                     var parsed = data.items.map(function (item) {
+                        
+                        // --- SMART IMAGE EXTRACTOR ADDED BACK ---
+                        var extractedImg = item.thumbnail || (item.enclosure && item.enclosure.link) || "";
+                        if (!extractedImg || extractedImg.trim() === "") {
+                            var imgMatch = (item.content || item.description || "").match(/<img[^>]+src="([^">]+)"/i);
+                            if (imgMatch && imgMatch[1]) {
+                                extractedImg = imgMatch[1];
+                            }
+                        }
+                        // ----------------------------------------
+
                         return { 
                             title: decodeHTML(item.title), 
                             url: item.link, 
                             source: feeds[index].name || cat.label, 
                             pubDate: item.pubDate || new Date().toISOString(),
                             description: decodeHTML(item.description || item.contentSnippet || ""),
-                            image: item.thumbnail || (item.enclosure && item.enclosure.link) || "" 
+                            image: extractedImg 
                         };
                     }).filter(function(item) {
                         return new Date(item.pubDate) >= cutoffDate;
                     });
 
-                    // Seamless merging instead of emptying the array, so it feels fast
                     var baseList = cachedData.articles; 
                     var combined = parsed.concat(baseList);
 
