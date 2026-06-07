@@ -278,43 +278,68 @@ Practice History, Geography, Polity and more
 
 
 <!-- ── MOBILE NAVIGATION DRAWER ── -->
+<div id="nb-mobile-overlay" onclick="closeMobileDrawer()"></div>
+
 <div id="nb-mobile-drawer">
   
-  <div class="drawer-profile-section" onclick="if(!window.currentUser) { showLoginModal(); closeMobileDrawer(); } else { window.signOut(); closeMobileDrawer(); }">
-    <div class="profile-avatar">
+  <div class="drawer-header">
+    <div class="drawer-brand">Study<span style="color:var(--accent)">Lab</span></div>
+    <button class="drawer-close-btn" onclick="closeMobileDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="drawer-profile-card" onclick="if(!window.currentUser) { showLoginModal(); closeMobileDrawer(); } else { window.signOut(); closeMobileDrawer(); }">
+    <div class="profile-avatar-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
     </div>
     <div class="profile-info">
       <div class="profile-name" id="drawer-user-name">Guest User</div>
       <div class="drawer-subtext" id="drawer-user-action">Tap to Sign In</div>
     </div>
+    <div class="profile-chevron">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </div>
   </div>
 
-  <div id="nb-mobile-drawer-divider"></div>
+  <div class="drawer-menu-list">
+    <div class="drawer-section-title">App Settings</div>
 
-  <button onclick="ThemeManager.toggle(); closeMobileDrawer();" class="drawer-menu-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drawer-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-    <span>Toggle Dark/Light Mode</span>
-  </button>
+    <button onclick="ThemeManager.toggle(); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 1;">
+      <div class="drawer-icon-box" style="--box-color: #8b5cf6; --box-bg: rgba(139, 92, 246, 0.15);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </div>
+      <span>Appearance Mode</span>
+    </button>
 
-  <button onclick="go('stats'); closeMobileDrawer();" class="drawer-menu-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drawer-icon"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-    <span>My Progress</span>
-  </button>
+    <button onclick="go('stats'); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 2;">
+      <div class="drawer-icon-box" style="--box-color: #3b82f6; --box-bg: rgba(59, 130, 246, 0.15);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      </div>
+      <span>My Progress</span>
+    </button>
 
-  <button onclick="openFeedbackModal(); closeMobileDrawer();" class="drawer-menu-item">
+    <div id="nb-mobile-drawer-divider"></div>
+    <div class="drawer-section-title">Support & Info</div>
 
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drawer-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-    <span>Rate StudyLab</span>
-  </button>
+    <button onclick="openFeedbackModal(); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 3;">
+      <div class="drawer-icon-box" style="--box-color: #f59e0b; --box-bg: rgba(245, 158, 11, 0.15);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+      <span>Rate StudyLab</span>
+    </button>
 
-  <div id="nb-mobile-drawer-divider"></div>
-
-  <button onclick="go('about'); closeMobileDrawer();" class="drawer-menu-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drawer-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-    <span>About Us</span>
-  </button>
+    <button onclick="go('about'); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 4;">
+      <div class="drawer-icon-box" style="--box-color: #10b981; --box-bg: rgba(16, 185, 129, 0.15);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      </div>
+      <span>About Us</span>
+    </button>
+  </div>
+  
+  <div class="drawer-footer-text">StudyLab Premium v2.0</div>
 </div>
+
 
 <script>
   // This constantly checks if the user logged in and updates the drawer text
