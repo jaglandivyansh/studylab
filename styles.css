@@ -1204,19 +1204,13 @@ body::after {
 #nb-mobile-drawer.open { transform: translateX(0); }
 
 /* 3. Header & Close Button */
+/* Header hidden but space preserved */
 .drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  visibility: hidden;
+  pointer-events: none;
+  height: 76px; /* adjust if needed */
   padding: 24px 20px 16px 24px;
 }
-.drawer-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--text); }
-.drawer-close-btn {
-  width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,0.06);
-  color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
-}
-.drawer-close-btn:hover { background: rgba(255,255,255,0.12); color: var(--text); transform: scale(0.95); }
-[data-theme="light"] .drawer-close-btn { background: rgba(0,0,0,0.05); }
 
 /* 4. Interactive Profile Card */
 .drawer-profile-card {
