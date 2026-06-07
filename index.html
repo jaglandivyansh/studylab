@@ -750,9 +750,30 @@ if (document.readyState === 'loading') {
     drawer.appendChild(clone);
   });
 
-  function openRightDrawer()  { drawer.classList.add('open');  scrim.classList.add('visible'); }
-  function closeRightDrawer() { drawer.classList.remove('open'); scrim.classList.remove('visible'); }
+  // --- Updated Drawer Control Logic ---
+
+function openRightDrawer() {
+  var drawer = document.getElementById('nb-mobile-drawer');
+  var scrim = document.getElementById('nb-mobile-overlay'); // Naya naam
+  
+  if (drawer) drawer.classList.add('open');
+  if (scrim) scrim.classList.add('open'); // Humne class 'open' rakhi hai, 'visible' nahi
+}
+
+function closeRightDrawer() {
+  var drawer = document.getElementById('nb-mobile-drawer');
+  var scrim = document.getElementById('nb-mobile-overlay');
+  
+  if (drawer) drawer.classList.remove('open');
+  if (scrim) scrim.classList.remove('open');
+}
+
+// Scrim click listener
+var scrim = document.getElementById('nb-mobile-overlay');
+if (scrim) {
   scrim.addEventListener('click', closeRightDrawer);
+}
+
 
   // ── Safe navigation — always calls go() directly, never history.back() ──
   // history.back() goes through popstate → go() = double render + lag
