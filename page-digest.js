@@ -322,17 +322,35 @@ function pgDigest() {
             var descEl = el("p", { css: { fontSize: "0.9rem", color: "var(--muted)", lineHeight: "1.55", margin: "10px 0 20px 0" }, txt: summaryTxt });
             textBlock.appendChild(descEl);
 
-            var bottomRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border2)", paddingTop: "14px", marginTop: "10px" } });
+                        var bottomRow = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border2)", paddingTop: "14px", marginTop: "10px" } });
             
+            // --- UPDATED BRAND MATCHING FOOTER ---
             var profileBox = el("div", { css: { display: "flex", alignItems: "center", gap: "8px" } });
-            // Custom "SL" initial design instead of just repeating the category icon
-            profileBox.appendChild(el("div", { css: { width: "24px", height: "24px", borderRadius: "4px", backgroundColor: "#000", color: "#fff", fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", letterSpacing: "1px" }, txt: "SL" }));
-            profileBox.appendChild(el("span", { css: { fontSize: "0.75rem", color: "var(--text)", fontWeight: "600" }, txt: "StudyLab Prep" }));
+            
+            // Replicating your top nav 'SL' black badge exactly
+            var slBadge = el("div", { 
+                css: { 
+                    width: "26px", height: "26px", borderRadius: "7px", 
+                    backgroundColor: "#0a0a0a", color: "#ffffff", 
+                    fontSize: "0.75rem", display: "flex", alignItems: "center", 
+                    justifyContent: "center", fontWeight: "900", fontFamily: "var(--font-display, sans-serif)" 
+                }, 
+                txt: "SL" 
+            });
+            
+            // Replicating the 'StudyLab' dual-color typography
+            var brandText = el("div", { css: { fontSize: "0.85rem", fontWeight: "800", fontFamily: "var(--font-display, sans-serif)", letterSpacing: "-0.02em" } });
+            brandText.innerHTML = '<span style="color: var(--text);">Study</span><span style="color: #3b82f6;">Lab</span>';
+            
+            profileBox.appendChild(slBadge);
+            profileBox.appendChild(brandText);
             bottomRow.appendChild(profileBox);
+            // --------------------------------------
 
             var readBtn = el("button", { 
                 css: { padding: "8px 14px", background: "none", border: "1px solid " + cat.color, color: cat.color, borderRadius: "8px", fontWeight: "700", fontSize: "0.8rem", cursor: "pointer" }, 
                 txt: "Read Full Brief",
+// ... rest of the code remains the same
                 onclick: function() { 
                     updateDailyProgress(); 
                     if (a.url) window.open(a.url, "_blank"); 
