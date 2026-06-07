@@ -15,6 +15,46 @@ function pgDaily() {
       return element;
   }
 
+  // --- 🎨 MISSING CSS INJECTED HERE ---
+  if (!document.getElementById('sl-daily-styles')) {
+      var style = document.createElement('style');
+      style.id = 'sl-daily-styles';
+      style.innerHTML = `
+          .sl-new-layout { padding: 16px; max-width: 600px; margin: 20px auto 100px auto; font-family: var(--font-display, sans-serif); }
+          .sl-brand-header { text-align: center; margin-bottom: 24px; }
+          .sl-header-icon { font-size: 3rem; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+          .sl-brand-header h2 { font-size: 1.6rem; font-weight: 800; color: var(--text); margin: 0 0 6px 0; }
+          .sl-brand-header p { font-size: 0.9rem; color: var(--muted); margin: 0; line-height: 1.4; }
+          
+          /* The Dark Streak Board */
+          .sl-premium-streak-board { background: #1c1c24; border-radius: 20px; display: flex; padding: 24px 20px; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); align-items: center; }
+          .sl-streak-left-panel { flex: 0 0 35%; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 16px; }
+          .sl-flame-icon { font-size: 2.2rem; margin-bottom: 4px; }
+          .sl-streak-digit { font-size: 2.5rem; font-weight: 900; color: #3b82f6; margin: 0; line-height: 1; }
+          .sl-streak-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-top: 8px; }
+          .sl-streak-right-panel { flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: center; }
+          .sl-subject-subtitle { font-size: 0.75rem; font-weight: 600; color: #6b7280; margin: 0 0 6px 0; }
+          .sl-subject-heading { font-size: 1.15rem; font-weight: 800; color: #0044ff; margin: 0 0 8px 0; filter: brightness(1.2); }
+          .sl-subject-live-status { font-size: 0.85rem; font-weight: 600; margin: 0; }
+          
+          /* The White Quiz Box */
+          .sl-premium-quiz-box { background: var(--card, #ffffff); border-radius: 20px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border, #e2e8f0); }
+          .sl-quiz-card-tag { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+          .sl-quiz-main-question { font-size: 1.2rem; font-weight: 700; color: var(--text, #1e293b); line-height: 1.5; margin-bottom: 24px; }
+          
+          /* Options */
+          .sl-premium-option-row { display: flex; align-items: center; padding: 16px; margin-bottom: 12px; border: 2px solid var(--border, #e2e8f0); border-radius: 14px; cursor: pointer; transition: all 0.2s; background: var(--bg2, #f8f9fa); color: var(--text, #334155); font-weight: 600; font-size: 0.95rem; }
+          .sl-premium-option-index { color: #94a3b8; font-weight: 800; margin-right: 16px; font-size: 0.95rem; }
+          
+          /* Correct / Wrong States */
+          .sl-correct-state { border-color: #22c55e !important; background-color: #f0fdf4 !important; color: #15803d !important; }
+          .sl-correct-state .sl-premium-option-index { color: #22c55e !important; }
+          .sl-wrong-state { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c !important; }
+          .sl-wrong-state .sl-premium-option-index { color: #ef4444 !important; }
+      `;
+      document.head.appendChild(style);
+  }
+
   // Master Setup Container
   var w = el("div", { cls: "sl-new-layout" });
 
@@ -29,11 +69,10 @@ function pgDaily() {
   var today = new Date().toDateString();
   var dailyStats = JSON.parse(localStorage.getItem('sl_daily_challenge') || '{"streak": 0, "lastPlayed": "", "status": "Not answered yet today"}');
   
-  // Reset streak if user missed a day
   var yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   if (dailyStats.lastPlayed !== today && dailyStats.lastPlayed !== yesterday.toDateString() && dailyStats.lastPlayed !== "") {
-      dailyStats.streak = 0; // Streak broken
+      dailyStats.streak = 0; 
       dailyStats.status = "Not answered yet today";
   } else if (dailyStats.lastPlayed !== today) {
       dailyStats.status = "Not answered yet today";
@@ -41,27 +80,24 @@ function pgDaily() {
   
   var dailyPlayed = (dailyStats.lastPlayed === today);
 
-  // 2. DARK STREAK & SUBJECT CARD (Renamed Classes to avoid any conflicts)
-  var streakCard = el("div", { cls: "sl-premium-streak-board" }); // CLASS CHANGED
+  // 2. DARK STREAK & SUBJECT CARD 
+  var streakCard = el("div", { cls: "sl-premium-streak-board" }); 
 
-  // Left part: Flame and Streak Count
-  var streakLeft = el("div", { cls: "sl-streak-left-panel" }); // CLASS CHANGED
+  var streakLeft = el("div", { cls: "sl-streak-left-panel" }); 
   streakLeft.appendChild(el("div", { cls: "sl-flame-icon", txt: "🔥" }));
   
-  // ID given to update numbers dynamically
   var streakNumberEl = el("h2", { cls: "sl-streak-digit", txt: dailyStats.streak }); 
   streakLeft.appendChild(streakNumberEl);
   streakLeft.appendChild(el("p", { cls: "sl-streak-label", txt: "DAY STREAK" }));
   streakCard.appendChild(streakLeft);
 
-  // Right part: Subject and Status
-  var streakRight = el("div", { cls: "sl-streak-right-panel" }); // CLASS CHANGED
+  var streakRight = el("div", { cls: "sl-streak-right-panel" }); 
   streakRight.appendChild(el("p", { cls: "sl-subject-subtitle", txt: "Today's subject" }));
   streakRight.appendChild(el("h3", { cls: "sl-subject-heading", txt: "🔬 Science" }));
   
-  // ID given to update status text and color dynamically
-  var statusColor = (dailyStats.status.includes("correctly")) ? "#4ade80" : (dailyStats.status.includes("Incorrect") ? "#f87171" : "var(--muted)");
-  var statusEl = el("p", { cls: "sl-subject-live-status", txt: dailyStats.status, css: { color: statusColor, fontWeight: "600" } });
+  var statusColor = (dailyStats.status.includes("correctly")) ? "#4ade80" : (dailyStats.status.includes("Incorrect") ? "#f87171" : "#9ca3af");
+  var statusEl = el("p", { cls: "sl-subject-live-status", txt: dailyStats.status });
+  statusEl.style.color = statusColor;
   streakRight.appendChild(statusEl);
   streakCard.appendChild(streakRight);
 
@@ -96,12 +132,10 @@ function pgDaily() {
     rowBtn.appendChild(el("div", { cls: "sl-premium-option-index", txt: opt.key + "." }));
     rowBtn.appendChild(el("span", { txt: opt.val }));
 
-    // If already played today, pre-fill the correct/wrong answers
     if (dailyPlayed) {
         if (opt.key === solutionKey) rowBtn.classList.add("sl-correct-state");
     }
 
-    // Interactive Click Event Handler
     rowBtn.onclick = function() {
       if (dailyPlayed) return; 
       dailyPlayed = true;
@@ -110,26 +144,24 @@ function pgDaily() {
       if (opt.key === solutionKey) {
         rowBtn.classList.add("sl-correct-state");
         
-        // --- DYNAMIC STREAK UPDATE ---
         dailyStats.streak += 1;
         dailyStats.status = "✅ Answered correctly!";
         streakNumberEl.textContent = dailyStats.streak;
         statusEl.textContent = dailyStats.status;
-        statusEl.style.color = "#4ade80"; // Bright Green
+        statusEl.style.color = "#4ade80"; 
         
         if (typeof toast === "function") toast("🎉 Correct Answer!", "#22c55e");
-        if (typeof throwConfetti === "function") throwConfetti(); // Trigger Confetti!
+        if (typeof throwConfetti === "function") throwConfetti(); 
         
       } else {
         rowBtn.classList.add("sl-wrong-state");
         
-        dailyStats.streak = 0; // Reset streak on wrong answer
+        dailyStats.streak = 0; 
         dailyStats.status = "❌ Incorrect, try again tomorrow!";
         streakNumberEl.textContent = dailyStats.streak;
         statusEl.textContent = dailyStats.status;
-        statusEl.style.color = "#f87171"; // Red
+        statusEl.style.color = "#f87171"; 
         
-        // Highlight correct answer
         optionRowsArray.forEach(function(r) {
           if (r.getAttribute("data-ans-key") === solutionKey) {
             r.classList.add("sl-correct-state");
@@ -138,7 +170,6 @@ function pgDaily() {
         if (typeof toast === "function") toast("❌ Incorrect Answer!", "#ef4444");
       }
       
-      // Save progress to phone memory
       localStorage.setItem('sl_daily_challenge', JSON.stringify(dailyStats));
     };
 
