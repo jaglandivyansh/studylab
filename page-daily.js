@@ -1,6 +1,7 @@
 // ─── PREMIUM STUDYLAB DAILY CHALLENGE COMPONENT (100% BUG FREE) ───
 function pgDaily() {
-  function el(type, props) {
+    alert("Naya Code Run Ho Raha Hai! 🚀");
+    function el(type, props) {
       var element = document.createElement(type);
       if (props) {
           if (props.cls) element.className = props.cls;
