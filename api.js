@@ -98,7 +98,10 @@ const CA_TABS = [
   { id: 'govt',      label: '🏛 Govt / PIB',  color: '#8b5cf6' },
   { id: 'economy',   label: '📈 Economy',     color: '#f59e0b' },
   { id: 'science',   label: '🔬 Science',     color: '#4ade80' },
-  { id: 'world',     label: '🌐 World',       color: '#f87171' }
+  { id: 'world',     label: '🌐 World',       color: '#f87171' },
+  // --- NAYE TABS ADDED ---
+  { id: 'sports',    label: '🏆 Sports',      color: '#ec4899' },
+  { id: 'awards',    label: '🎖️ Awards',      color: '#14b8a6' }
 ];
 
 // ── GLOBAL ERROR HANDLER ──
@@ -140,6 +143,15 @@ const CA_FEEDS = {
     { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-world-news'),          name: 'NDTV World' },
     { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),name: 'TOI World' },
     { url: R2J + encodeURIComponent('https://www.thehindu.com/news/international/feeder/default.rss'), name: 'The Hindu World' }
+  ],
+  // --- NAYE FEEDS ADDED ---
+  sports: [
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/sport/feeder/default.rss'),         name: 'The Hindu Sports' },
+    { url: R2J + encodeURIComponent('https://indianexpress.com/section/sports/feed/'),            name: 'Indian Express' }
+  ],
+  awards: [
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/entertainment/art/feeder/default.rss'), name: 'The Hindu Culture' },
+    { url: R2J + encodeURIComponent('https://indianexpress.com/section/lifestyle/art-and-culture/feed/'), name: 'IE Art & Culture' }
   ]
 };
 
@@ -169,6 +181,17 @@ const CA_FALLBACK = {
     { title: "India-US strategic partnership strengthened at bilateral summit", source: "NDTV World", url: "https://www.ndtv.com", pubDate: "" },
     { title: "UN General Assembly adopts India-sponsored resolution on yoga", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
     { title: "SCO summit: India pushes for stronger connectivity in Central Asia", source: "Times of India", url: "https://timesofindia.com", pubDate: "" }
+  ],
+  // --- NAYE FALLBACKS ADDED ---
+  sports: [
+    { title: "India wins historic gold medal in Asian Games track and field event", source: "The Hindu Sports", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "BCCI announces central contracts list for the upcoming cricket season", source: "Indian Express", url: "https://indianexpress.com", pubDate: "" },
+    { title: "Neeraj Chopra sets new national record in javelin throw competition", source: "Sports Today", url: "https://www.indiatoday.in", pubDate: "" }
+  ],
+  awards: [
+    { title: "Sahitya Akademi Awards announced for 24 Indian languages", source: "The Hindu Culture", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "Veteran actor awarded Dadasaheb Phalke Award for lifetime contribution", source: "IE Art & Culture", url: "https://indianexpress.com", pubDate: "" },
+    { title: "New UNESCO World Heritage site declared in India by UN committee", source: "Ministry of Culture", url: "https://pib.gov.in", pubDate: "" }
   ]
 };
 
@@ -239,7 +262,9 @@ function renderCurrentAffairs(articles, isLive, tabId) {
     <div class="news-scroller ca-scroller">${cardsHTML || '<div class="ca-empty">No articles found. Try another tab.</div>'}</div>
   `;
   // Trigger animation for the newly injected news cards
-  setTimeout(function(){ triggerReveal(container); }, 10);
+  if (typeof triggerReveal === "function") {
+    setTimeout(function(){ triggerReveal(container); }, 10);
+  }
 }
 
 async function switchCATab(tabId) {
@@ -297,6 +322,7 @@ async function loadCurrentAffairs() {
   // Pre-fetch remaining tabs in background (no await)
   CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
 }
+
 // ═══════════════════════════════════════════
 //   GOVT UPDATES PAGE — RSS SYSTEM
 // ═══════════════════════════════════════════
