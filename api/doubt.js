@@ -1,23 +1,21 @@
 // api/doubt.js
 // ─────────────────────────────────────────────────────────────────
-// Bracket Tag Extractor — 100% Complete and Accurate Answers
+// STUDYLAB MASTER BACKEND — CRASH-PROOF AI DOUBT SOLVER
 // ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed." });
+  }
 
   const { question } = req.body;
-  if (!question || question.trim() === "") return res.status(400).json({ error: "Question is required." });
 
-  // AI ko clear brackets ke sath answer dene ko bola hai
-  const SYSTEM_PROMPT = `You are an educational assistant for Indian competitive exams.
-Answer the question completely and concisely in under 150 words using simple English.
+  if (!question || typeof question !== "string" || question.trim() === "") {
+    return res.status(400).json({ error: "Please enter a valid question." });
+  }
 
-CRITICAL: You must wrap your final student-facing answer between [ANSWER_START] and [ANSWER_END] tags. 
-Example:
-[ANSWER_START]
-The Prime Minister (PM) of India is the head of the government...
-[ANSWER_END]`;
+  // 💡 System prompt ko bilkul chota aur direct rakha hai taaki AI gyaan na bante
+  const SYSTEM_PROMPT = "You are a direct study assistant for Indian competitive exams. Provide a short, complete answer under 150 words using simple English. Do not write any internal thinking, planning steps, or numbered analysis. Start directly with the answer.";
 
   try {
     const sarvamRes = await fetch("https://api.sarvam.ai/v1/chat/completions", {
@@ -31,37 +29,33 @@ The Prime Minister (PM) of India is the head of the government...
         messages: [
           { role: "user", content: `${SYSTEM_PROMPT}\n\nQuestion: ${question.trim()}` }
         ],
-        temperature: 0.1, 
-        max_tokens: 500 // Sahi bada token count taaki answer poora aaye
+        temperature: 0.0,       // Strict deterministic output
+        max_tokens: 450,        // Ample tokens taaki answer beech mein na kate
+        reasoning_effort: "low" // Suppresses heavy thinking chains on supported gateways
       })
     });
 
     const data = await sarvamRes.json();
-    if (data.error) return res.status(200).json({ answer: `⚠️ Sarvam Error: ${data.error.message || JSON.stringify(data.error)}` });
 
-    let answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
-    
-    if (answer) {
-      // 🎯 BRACKET EXTRACTOR: Agar AI ne tags lagaye hain, toh unke beech ka poora text nikal lo
-      const match = answer.match(/\[ANSWER_START\]([\s\S]*?)\[ANSWER_END\]/i);
-      
-      if (match && match[1]) {
-        answer = match[1].trim();
-      } else {
-        // Fallback: Agar AI tag lagana bhool gaya, toh bas "1.", "2." waali lines ko hatayenge
-        answer = answer
-          .split("\n")
-          .filter(line => !/^\d+\./.test(line.trim()) && !line.toLowerCase().includes("deconstruct") && !line.toLowerCase().includes("analyze"))
-          .join("\n")
-          .trim();
-      }
-
-      return res.status(200).json({ answer: answer });
+    if (data.error) {
+      return res.status(200).json({ answer: "System busy. Please try again in a moment." });
     }
 
-    return res.status(200).json({ answer: "⚠️ Model did not return any text." });
+    let finalAnswer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
+
+    if (finalAnswer) {
+      // 🛡️ BACKEND SAFETY LAYER: Agar AI fir bhi dheetpan kare, toh code planning blocks ko uda dega
+      if (finalAnswer.includes("1. ") || finalAnswer.includes("Analyze") || finalAnswer.includes("Deconstruct")) {
+        const cleanBlocks = finalAnswer.split(/\n\n/);
+        finalAnswer = cleanBlocks[cleanBlocks.length - 1];
+      }
+      
+      return res.status(200).json({ answer: finalAnswer.trim() });
+    }
+
+    return res.status(200).json({ answer: "Could not generate a response. Please rephrase." });
 
   } catch (err) {
-    return res.status(200).json({ answer: `⚠️ Backend Error: ${err.message}` });
+    return res.status(500).json({ error: "Internal server connectivity failure." });
   }
 }
