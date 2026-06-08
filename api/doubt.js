@@ -1,6 +1,6 @@
 // api/doubt.js
 // ─────────────────────────────────────────────────────────────────
-// Vercel Serverless Function — AI Doubt Solver (powered by Sarvam AI)
+// Vercel Serverless Function — AI Doubt Solver (Fixed Response Structure)
 // ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -28,7 +28,7 @@ Use simple English. If the question is unrelated to studies, politely redirect.`
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "sarvam-30b", // ✅ Fixed: Purane model ko 'sarvam-30b' se replace kar diya hai
+        model: "sarvam-30b", 
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user",   content: question.trim() }
@@ -40,17 +40,25 @@ Use simple English. If the question is unrelated to studies, politely redirect.`
 
     const data = await sarvamRes.json();
 
-    // Agar Sarvam API koi direct error response de (jaise deprecation ya backend error)
+    // 1. Agar Sarvam backend se koi error aaye (jaise quota end ya invalid key)
     if (data.error) {
-      return res.status(200).json({ error: data.error.message || data.error });
+      return res.status(200).json({ error: data.error.message || JSON.stringify(data.error) });
     }
 
+    // 2. Sahi response format ko check karne ka ekdum safe tareeqa
     const answer = data?.choices?.[0]?.message?.content;
+    
     if (answer) {
-      return res.status(200).json({ answer });
+      // Frontend ko dono formats mein bhej rahe hain taaki agar frontend 
+      // data.answer dhoond raha ho ya data.choices, dono jagah kaam chal jaye.
+      return res.status(200).json({ 
+        answer: answer,
+        choices: [{ message: { content: answer } }] 
+      });
     }
 
-    return res.status(500).json({ error: "No response from Sarvam." });
+    // 3. Agar response aaya par choices khali thi
+    return res.status(200).json({ error: "Sarvam returned an empty response. Raw data: " + JSON.stringify(data) });
 
   } catch (err) {
     return res.status(500).json({ error: "Backend failed to connect." });
