@@ -427,31 +427,115 @@ class StudyLabShortsEngine {
     this.updateBookmarkButtonCount();
   }
 
-  shareCurrentShort() {
-    var item = this.allQuestions[this.currentIndex];
-    var shareText = `_________________________________________\n\n` +
-                    `STUDYLAB SHORTS : DAILY BRIEF\n` +
-                    `_________________________________________\n\n` +
-                    `SECTION  |  ${item.subj.toUpperCase()}\n\n` +
-                    `QUESTION :\n` +
-                    `${item.q}\n\n` +
-                    `--- \n` +
-                    `Discover the full analysis and more insights on StudyLab.\n` +
-                    `ACCESS LINK : https://studylab-inky.vercel.app\n` +
-                    `_________________________________________`;
+  ShareCurrentShort() {
+  var item = this.allQuestions[this.currentIndex];
+  var self = this; // Maintain scoping context for toast calls inside callbacks
 
-    if (navigator.share) {
-      navigator.share({ title: 'StudyLab Daily Brief', text: shareText }).catch(function(err){});
+  // 1. Initialize a crisp, high-resolution canvas layout
+  var canvas = document.createElement("canvas");
+  canvas.width = 800;
+  canvas.height = 500; // Expanded slightly to provide optimal padding for long questions
+  var ctx = canvas.getContext("2d");
+
+  // Background: Studio-grade deep dark space gradient
+  var grad = ctx.createLinearGradient(0, 0, 800, 500);
+  grad.addColorStop(0, "#090d16");
+  grad.addColorStop(1, "#111827");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 800, 500);
+
+  // Left Brand Accent Border (Premium Tech Blue)
+  ctx.fillStyle = "#3b82f6";
+  ctx.fillRect(0, 0, 14, 500);
+
+  ctx.textBaseline = "top";
+  
+  // Over-title Header Branding
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("STUDYLAB SHORTS : DAILY BRIEF", 50, 45);
+
+  // Metadata Track: Subject Area Section
+  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("SECTION", 50, 95);
+  
+  ctx.fillStyle = "#f1f5f9";
+  ctx.font = "600 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(item.subj.toUpperCase(), 50, 118);
+
+  // Metadata Track: Question Header
+  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("QUESTION FOCUS", 50, 180);
+
+  // 2. Intelligent Multi-line Text Wrapping Engine for the Question Body
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
+  
+  var textX = 50;
+  var textY = 205;
+  var maxLineWidth = 700;
+  var lineHeight = 34;
+  
+  var words = item.q.split(" ");
+  var currentLine = "";
+
+  for (var n = 0; n < words.length; n++) {
+    var testLine = currentLine + words[n] + " ";
+    var metrics = ctx.measureText(testLine);
+    
+    if (metrics.width > maxLineWidth && n > 0) {
+      ctx.fillText(currentLine, textX, textY);
+      currentLine = words[n] + " ";
+      textY += lineHeight;
     } else {
+      currentLine = testLine;
+    }
+  }
+  ctx.fillText(currentLine, textX, textY); // Paint remaining trailing words
+
+  // Subtle App Domain Branding Footer
+  ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("studylab-inky.vercel.app", 50, 440);
+
+  // 3. Fallback text description payload
+  var textDescription = "StudyLab Shorts Brief. Section: " + item.subj.toUpperCase() + " | Review full analysis and micro-learning metrics at: https://studylab-inky.vercel.app";
+
+  // 4. Native Share Execution with Blob Stream Conversion
+  canvas.toBlob(function(blob) {
+    if (!blob) return;
+    var file = new File([blob], "studylab-short.png", { type: "image/png" });
+
+    // Use native device system share manager sheet if supported (iOS / Android / Safari)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        title: 'StudyLab Daily Brief',
+        text: textDescription,
+        files: [file]
+      }).catch(function(err){});
+    } else {
+      // Hard Fallback Engine for PC/Mac Desktop Browsers: Copy link + Auto Download PNG Card
       var dummy = document.createElement("textarea");
       document.body.appendChild(dummy);
-      dummy.value = shareText;
+      dummy.value = textDescription;
       dummy.select();
       document.execCommand("copy");
       document.body.removeChild(dummy);
-      this.showToast("Link Copied to Clipboard");
+
+      var link = document.createElement("a");
+      link.download = "studylab-short-card.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      
+      if (typeof self.showToast === "function") {
+        self.showToast("Analysis copied & card image downloaded.");
+      }
     }
-  }
+  }, "image/png");
+}
+
 
   toggleBookmarkPage() {
     var isOpen = this.dom.bookmarkPage.classList.contains('open');
