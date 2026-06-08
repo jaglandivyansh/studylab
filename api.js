@@ -87,19 +87,16 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
     contentArea.innerText = "Connection lost. Please check your internet.";
   });
 }
-// ───────────────────────────
-
 // ========================================
 // LIVE DAILY CURRENT AFFAIRS — RSS SYSTEM
 // ========================================
 
 const CA_TABS = [
   { id: 'national',  label: '🇮🇳 National',  color: '#4F8EF7' },
+  { id: 'world',     label: '🌐 World',       color: '#f87171' },
   { id: 'govt',      label: '🏛 Govt / PIB',  color: '#8b5cf6' },
   { id: 'economy',   label: '📈 Economy',     color: '#f59e0b' },
   { id: 'science',   label: '🔬 Science',     color: '#4ade80' },
-  { id: 'world',     label: '🌐 World',       color: '#f87171' },
-  // --- NAYE TABS ADDED ---
   { id: 'sports',    label: '🏆 Sports',      color: '#ec4899' },
   { id: 'awards',    label: '🎖️ Awards',      color: '#14b8a6' }
 ];
@@ -107,7 +104,6 @@ const CA_TABS = [
 // ── GLOBAL ERROR HANDLER ──
 window.addEventListener('error', function(e) {
   console.error('StudyLab Error:', e.error);
-  // Don't show errors to users for better UX
 });
 
 window.addEventListener('unhandledrejection', function(e) {
@@ -115,19 +111,27 @@ window.addEventListener('unhandledrejection', function(e) {
   e.preventDefault();
 });
 
-// rss2json base — free, no key, works from browser
+// rss2json base — free, no key, works directly from browser sandbox
 const R2J = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
+// High-Volume Balanced Matrix: 10 Core National and Global Outlets Distributed Across Categories
 const CA_FEEDS = {
   national: [
     { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-india-news'),          name: 'NDTV India' },
     { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/2083611.cms'),  name: 'Times of India' },
-    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu' }
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu' },
+    { url: R2J + encodeURIComponent('https://indianexpress.com/section/india/feed/'),             name: 'Indian Express' }
+  ],
+  world: [
+    { url: R2J + encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml'),               name: 'BBC World News' },
+    { url: R2J + encodeURIComponent('https://www.reutersagency.com/feed/?best-types=top-news'),   name: 'Reuters Global' },
+    { url: R2J + encodeURIComponent('http://rss.cnn.com/rss/edition.rss'),                        name: 'CNN International' },
+    { url: R2J + encodeURIComponent('https://www.theguardian.com/world/rss'),                     name: 'The Guardian' }
   ],
   govt: [
     { url: R2J + encodeURIComponent('https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3'),   name: 'PIB India' },
-    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu' },
-    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-india-news'),          name: 'NDTV India' }
+    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/national/feeder/default.rss'), name: 'The Hindu Govt' },
+    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-india-news'),          name: 'NDTV National' }
   ],
   economy: [
     { url: R2J + encodeURIComponent('https://economictimes.indiatimes.com/rssfeedsdefault.cms'),  name: 'Economic Times' },
@@ -139,15 +143,9 @@ const CA_FEEDS = {
     { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-science'),             name: 'NDTV Science' },
     { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/2886704.cms'),  name: 'TOI Science' }
   ],
-  world: [
-    { url: R2J + encodeURIComponent('https://feeds.feedburner.com/ndtvnews-world-news'),          name: 'NDTV World' },
-    { url: R2J + encodeURIComponent('https://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),name: 'TOI World' },
-    { url: R2J + encodeURIComponent('https://www.thehindu.com/news/international/feeder/default.rss'), name: 'The Hindu World' }
-  ],
-  // --- NAYE FEEDS ADDED ---
   sports: [
     { url: R2J + encodeURIComponent('https://www.thehindu.com/sport/feeder/default.rss'),         name: 'The Hindu Sports' },
-    { url: R2J + encodeURIComponent('https://indianexpress.com/section/sports/feed/'),            name: 'Indian Express' }
+    { url: R2J + encodeURIComponent('https://indianexpress.com/section/sports/feed/'),            name: 'Indian Express Sports' }
   ],
   awards: [
     { url: R2J + encodeURIComponent('https://www.thehindu.com/entertainment/art/feeder/default.rss'), name: 'The Hindu Culture' },
@@ -159,90 +157,92 @@ const CA_FALLBACK = {
   national: [
     { title: "India's GDP growth forecast revised upward by IMF for FY2025", source: "Economic Times", url: "https://economictimes.indiatimes.com", pubDate: "" },
     { title: "Union Cabinet approves major infrastructure projects under PM Gati Shakti", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
-    { title: "Supreme Court delivers landmark verdict on electoral bonds scheme", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
-    { title: "New education policy implementation reviewed at national level meet", source: "Hindustan Times", url: "https://www.hindustantimes.com", pubDate: "" }
+    { title: "Supreme Court delivers landmark verdict on electoral bonds scheme", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" }
+  ],
+  world: [
+    { title: "Global strategic partnership strengthened at international summit assembly", source: "Reuters", url: "https://reuters.com", pubDate: "" },
+    { title: "UN General Assembly adopts multilateral connectivity cooperation resolution", source: "BBC World", url: "https://bbc.com", pubDate: "" }
   ],
   govt: [
     { title: "Cabinet approves PM Vishwakarma scheme for traditional artisans", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
-    { title: "Government launches Digital India initiative phase-3", source: "PIB India", url: "https://pib.gov.in", pubDate: "" },
-    { title: "New railway line inaugurated connecting remote districts", source: "PIB India", url: "https://pib.gov.in", pubDate: "" }
+    { title: "Government launches Digital India initiative phase-3 updates", source: "PIB India", url: "https://pib.gov.in", pubDate: "" }
   ],
   economy: [
-    { title: "RBI holds repo rate steady; focuses on inflation management", source: "Mint", url: "https://www.livemint.com", pubDate: "" },
-    { title: "India ranks among top 10 in Global Innovation Index 2024", source: "India Today", url: "https://www.indiatoday.in", pubDate: "" },
-    { title: "India signs bilateral trade agreements with multiple nations at G20", source: "Business Standard", url: "https://www.business-standard.com", pubDate: "" }
+    { title: "RBI holds repo rate steady; focuses on inflation management metrics", source: "Mint", url: "https://www.livemint.com", pubDate: "" },
+    { title: "India ranks among top positions in Global Innovation Index reporting", source: "Business Standard", url: "https://www.business-standard.com", pubDate: "" }
   ],
   science: [
-    { title: "ISRO successfully tests next-generation rocket engine for Gaganyaan", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
-    { title: "India's first quantum computing mission gets Cabinet approval", source: "NDTV Science", url: "https://www.ndtv.com", pubDate: "" },
-    { title: "DRDO develops new high-altitude surveillance drone", source: "Times of India", url: "https://timesofindia.com", pubDate: "" }
+    { title: "Space agency successfully tests next-generation satellite launcher rocket", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "National quantum computing mission infrastructure updates released", source: "NDTV Science", url: "https://www.ndtv.com", pubDate: "" }
   ],
-  world: [
-    { title: "India-US strategic partnership strengthened at bilateral summit", source: "NDTV World", url: "https://www.ndtv.com", pubDate: "" },
-    { title: "UN General Assembly adopts India-sponsored resolution on yoga", source: "The Hindu", url: "https://www.thehindu.com", pubDate: "" },
-    { title: "SCO summit: India pushes for stronger connectivity in Central Asia", source: "Times of India", url: "https://timesofindia.com", pubDate: "" }
-  ],
-  // --- NAYE FALLBACKS ADDED ---
   sports: [
-    { title: "India wins historic gold medal in Asian Games track and field event", source: "The Hindu Sports", url: "https://www.thehindu.com", pubDate: "" },
-    { title: "BCCI announces central contracts list for the upcoming cricket season", source: "Indian Express", url: "https://indianexpress.com", pubDate: "" },
-    { title: "Neeraj Chopra sets new national record in javelin throw competition", source: "Sports Today", url: "https://www.indiatoday.in", pubDate: "" }
+    { title: "National athletics team completes historic gold medal competitive run", source: "The Hindu Sports", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "Cricket control board announces updated operational schedules", source: "Indian Express", url: "https://indianexpress.com", pubDate: "" }
   ],
   awards: [
-    { title: "Sahitya Akademi Awards announced for 24 Indian languages", source: "The Hindu Culture", url: "https://www.thehindu.com", pubDate: "" },
-    { title: "Veteran actor awarded Dadasaheb Phalke Award for lifetime contribution", source: "IE Art & Culture", url: "https://indianexpress.com", pubDate: "" },
-    { title: "New UNESCO World Heritage site declared in India by UN committee", source: "Ministry of Culture", url: "https://pib.gov.in", pubDate: "" }
+    { title: "Sahitya Akademi Awards announced across multiple regional languages", source: "The Hindu Culture", url: "https://www.thehindu.com", pubDate: "" },
+    { title: "National heritage protection metrics upgraded by cultural committee", source: "Ministry of Culture", url: "https://pib.gov.in", pubDate: "" }
   ]
 };
 
 var caActiveTab = 'national';
-var caCache = {};  // cache fetched articles per tab
+var caCache = {}; 
 
+// ─── STABLE INDIVIDUAL FEED CONVERTER (Soft-Fails Gracefully) ───
 async function fetchRSSFeed(feedObj) {
-  const res = await Promise.race([
-    fetch(feedObj.url),
-    new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), 6000))
-  ]);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
-  if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('Empty feed');
-  return data.items.map(item => ({
-    title: (item.title || '').split(' - ')[0].split(' | ')[0].trim(),
-    source: feedObj.name,
-    url: item.link || item.url || '#',
-    pubDate: item.pubDate || ''
-  })).filter(a => a.title.length > 10);
+  try {
+    const res = await Promise.race([
+      fetch(feedObj.url),
+      // Prevent browser hangs by dropping requests that take more than 5 seconds
+      new Promise(function(_, rej) { setTimeout(function() { rej(new Error('Timeout')); }, 5000); })
+    ]);
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+    if (data.status !== 'ok' || !data.items || !data.items.length) return [];
+    
+    return data.items.map(function(item) {
+      return {
+        title: (item.title || '').split(' - ')[0].split(' | ')[0].trim(),
+        source: feedObj.name,
+        url: item.link || item.url || '#',
+        pubDate: item.pubDate ? new Date(item.pubDate).getTime() : 0
+      };
+    }).filter(function(a) { return a.title.length > 10; });
+  } catch (e) {
+    console.warn("Feed stream bypassed: " + feedObj.name);
+    return []; // Return empty array on failure so Promise.all Settled doesn't stall
+  }
 }
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
   try {
     var d = new Date(dateStr);
-    if (isNaN(d)) return '';
+    if (isNaN(d.getTime())) return '';
     var now = new Date();
-    var diff = Math.floor((now - d) / 60000); // minutes
-    if (diff < 60) return diff + 'm ago';
-    if (diff < 1440) return Math.floor(diff/60) + 'h ago';
-    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+    var diff = Math.floor((now.getTime() - d.getTime()) / 60000); 
+    if (diff < 60) return (diff < 1 ? 'Just now' : diff + 'm ago');
+    if (diff < 1440) return Math.floor(diff / 60) + 'h ago';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   } catch(e) { return ''; }
 }
 
 function renderCurrentAffairs(articles, isLive, tabId) {
   const container = document.getElementById('current-affairs-container');
   if (!container) return;
-  const tab = CA_TABS.find(t => t.id === tabId) || CA_TABS[0];
+  const tab = CA_TABS.find(function(t) { return t.id === tabId; }) || CA_TABS[0];
 
-  // Build tab bar HTML
-  let tabsHTML = CA_TABS.map(t => `
-    <button class="ca-tab${t.id === tabId ? ' ca-tab-active' : ''}"
-      style="${t.id === tabId ? '--ca-color:'+t.color : ''}"
+  var tabsHTML = CA_TABS.map(function(t) {
+    return `<button class="ca-tab${t.id === tabId ? ' ca-tab-active' : ''}"
+      style="${t.id === tabId ? '--ca-color:' + t.color : ''}"
       onclick="switchCATab('${t.id}')">
       ${t.label}
-    </button>`).join('');
+    </button>`;
+  }).join('');
 
-  // Build cards HTML
-  let cardsHTML = articles.slice(0, 10).map((a, i) => `
-    <div class="news-card ca-card" style="animation-delay:${i*40}ms">
+  var cardsHTML = articles.slice(0, 15).map(function(a, i) {
+    return `<div class="news-card ca-card" style="animation-delay:${i * 40}ms">
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div class="news-source" style="color:${tab.color}">${a.source}</div>
@@ -251,17 +251,18 @@ function renderCurrentAffairs(articles, isLive, tabId) {
         <div class="news-title">${a.title}</div>
       </div>
       <a href="${a.url}" target="_blank" rel="noopener" class="news-btn" style="color:${tab.color}">Read Full Story ↗</a>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   container.innerHTML = `
     <div class="news-header" style="margin-bottom:14px">
       <h2>Daily <span>Current Affairs</span></h2>
-      <div class="news-live-badge">${isLive ? '<span class="ca-live-dot"></span>LIVE' : '📰 OFFLINE'}</div>
+      <div class="news-live-badge">${isLive ? '<span class="ca-live-dot"></span>AGGREGATED LIVE' : '📰 OFFLINE BACKUP'}</div>
     </div>
     <div class="ca-tabs-wrap">${tabsHTML}</div>
     <div class="news-scroller ca-scroller">${cardsHTML || '<div class="ca-empty">No articles found. Try another tab.</div>'}</div>
   `;
-  // Trigger animation for the newly injected news cards
+
   if (typeof triggerReveal === "function") {
     setTimeout(function(){ triggerReveal(container); }, 10);
   }
@@ -269,41 +270,78 @@ function renderCurrentAffairs(articles, isLive, tabId) {
 
 async function switchCATab(tabId) {
   caActiveTab = tabId;
-  // Update tab active state immediately (fast UI)
-  document.querySelectorAll('.ca-tab').forEach(b => {
-    const isActive = b.getAttribute('onclick').includes("'"+tabId+"'");
+  
+  document.querySelectorAll('.ca-tab').forEach(function(b) {
+    const isActive = b.getAttribute('onclick').includes("'" + tabId + "'");
     b.classList.toggle('ca-tab-active', isActive);
-    const tab = CA_TABS.find(t => t.id === tabId);
+    const tab = CA_TABS.find(function(t) { return t.id === tabId; });
     if (isActive && tab) b.style.setProperty('--ca-color', tab.color);
     else b.style.removeProperty('--ca-color');
   });
-  // Use cache if available
+
   if (caCache[tabId]) {
     renderCurrentAffairs(caCache[tabId].articles, caCache[tabId].isLive, tabId);
     return;
   }
-  // Show loading skeleton
+
   const scroller = document.querySelector('.ca-scroller');
-  if (scroller) scroller.innerHTML = '<div class="ca-loading"><div class="ca-spinner"></div>Loading '+tabId+' news...</div>';
+  if (scroller) scroller.innerHTML = '<div class="ca-loading"><div class="ca-spinner"></div>Consolidating ' + tabId + ' networks...</div>';
   await loadCATab(tabId);
 }
 
+// ─── CONCURRENT AGGREGATION ENGINE (Fixes single-feed limitations) ───
 async function loadCATab(tabId) {
   const feeds = CA_FEEDS[tabId] || [];
-  for (const feed of feeds) {
-    try {
-      const articles = await fetchRSSFeed(feed);
-      if (articles.length) {
-        caCache[tabId] = { articles, isLive: true };
-        if (caActiveTab === tabId) renderCurrentAffairs(articles, true, tabId);
-        return;
+  
+  // 1. Fetch all mapped media channels simultaneously in parallel streams
+  const fetchPromises = feeds.map(function(feed) { return fetchRSSFeed(feed); });
+  const results = await Promise.allSettled(fetchPromises);
+  
+  let aggregatedArticles = [];
+  let isLive = false;
+
+  // 2. Safely stitch together active outputs
+  results.forEach(function(result) {
+    if (result.status === 'fulfilled' && result.value.length > 0) {
+      aggregatedArticles = aggregatedArticles.concat(result.value);
+      isLive = true; 
+    }
+  });
+
+  // 3. Smart De-duplication: Drops overlap if different channels post identical text strings
+  const seenTitles = new Set();
+  let uniqueArticles = aggregatedArticles.filter(function(article) {
+    var cleanTitle = article.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (seenTitles.has(cleanTitle)) return false;
+    seenTitles.add(cleanTitle);
+    return true;
+  });
+
+  // 4. Fallback Hybrid Integration: If streaming links fall short, overlay historical objects smoothly
+  if (uniqueArticles.length < 5) {
+    const fallbacks = CA_FALLBACK[tabId] || [];
+    fallbacks.forEach(function(f) {
+      var cleanFBTitle = f.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!seenTitles.has(cleanFBTitle)) {
+        uniqueArticles.push({
+          title: f.title,
+          source: f.source + " Archive",
+          url: f.url,
+          pubDate: f.pubDate ? new Date(f.pubDate).getTime() : Date.now() - 86400000 // Stamp as yesterday by default
+        });
+        seenTitles.add(cleanFBTitle);
       }
-    } catch(e) { continue; }
+    });
   }
-  // All feeds failed — use fallback
-  const fallback = CA_FALLBACK[tabId] || [];
-  caCache[tabId] = { articles: fallback, isLive: false };
-  if (caActiveTab === tabId) renderCurrentAffairs(fallback, false, tabId);
+
+  // 5. Absolute Chronological Ordering (Pushes fresh breaking news up, maps yesterday below it)
+  uniqueArticles.sort(function(a, b) { return b.pubDate - a.pubDate; });
+
+  caCache[tabId] = { articles: uniqueArticles, isLive: isLive };
+  
+  if (caActiveTab === tabId) {
+    renderCurrentAffairs(uniqueArticles, isLive, tabId);
+  }
 }
 
 async function loadCurrentAffairs() {
@@ -312,15 +350,19 @@ async function loadCurrentAffairs() {
   container.innerHTML = `
     <div class="news-header">
       <h2>Daily <span>Current Affairs</span></h2>
-      <div class="news-live-badge"><span class="ca-live-dot"></span>Loading...</div>
+      <div class="news-live-badge"><span class="ca-live-dot"></span>Synchronizing...</div>
     </div>
     <div style="padding:40px;text-align:center;color:var(--muted);font-size:.85rem">
-      <div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live news...
+      <div class="ca-spinner" style="margin:0 auto 12px"></div>Polling multi-media channels...
     </div>`;
+  
   caCache = {};
   await loadCATab(caActiveTab);
-  // Pre-fetch remaining tabs in background (no await)
-  CA_TABS.filter(t => t.id !== caActiveTab).forEach(t => loadCATab(t.id));
+  
+  // Pre-fetch remaining sections sequentially in the background (Non-blocking)
+  CA_TABS.filter(function(t) { return t.id !== caActiveTab; }).forEach(function(t) {
+    loadCATab(t.id);
+  });
 }
 
 // ═══════════════════════════════════════════
