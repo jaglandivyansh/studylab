@@ -1,15 +1,16 @@
-// api/doubt.js (Super Clean & Safe Version)
+// api/doubt.js
+// ─────────────────────────────────────────────────────────────────
+// Anti-Reasoning Monologue Version — Strict Chat Output
+// ─────────────────────────────────────────────────────────────────
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { question } = req.body;
   if (!question || question.trim() === "") return res.status(400).json({ error: "Question is required." });
 
-  // Ekdum kadak prompt jo planning ko 100% block karega
-  const SYSTEM_PROMPT = `You are a helpful study assistant for Indian competitive exam students.
-Provide a direct, complete, and concise answer under 150 words using simple English.
-
-CRITICAL ROLE: Do NOT think out loud. Do NOT write "Deconstruct the User's Request", "Initial Brainstorming", or any numbered steps. Output ONLY the final student-facing answer directly.`;
+  // Simple aur seedha prompt. Zyada gyaan dene se AI confuse ho kar use hi repeat karne lagta hai.
+  const SYSTEM_PROMPT = "You are a factual study assistant. Provide a direct, short answer to the user's question in simple English for competitive exams. Do not include any steps, thinking, planning, or introduction. Write only the definition or answer.";
 
   try {
     const sarvamRes = await fetch("https://api.sarvam.ai/v1/chat/completions", {
@@ -21,24 +22,27 @@ CRITICAL ROLE: Do NOT think out loud. Do NOT write "Deconstruct the User's Reque
       body: JSON.stringify({
         model: "sarvam-30b", 
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user",   content: question.trim() }
+          { role: "user", content: `${SYSTEM_PROMPT}\n\nQuestion: ${question.trim()}` } // Dono ko user message mein daal diya taaki AI use instruction hi maane
         ],
-        temperature: 0.1, 
-        max_tokens: 450, // tokens badha diye taaki answer poora aaye
-        reasoning_effort: "low"
+        temperature: 0.0, // Isko 0.0 kar diya taaki AI bilkul bhi bhatke nahi
+        max_tokens: 300
       })
     });
 
     const data = await sarvamRes.json();
     if (data.error) return res.status(200).json({ answer: `⚠️ Sarvam Error: ${data.error.message || JSON.stringify(data.error)}` });
 
-    const answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content;
+    let answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
     
-    if (answer) {
-      return res.status(200).json({ answer: answer.trim() });
+    // 💡 SYSTEM LEVEL CLEANER: Agar AI fir bhi dheetpan kare, toh code khud use saaf kar dega
+    if (answer.includes("1. ") || answer.includes("Analyze the User") || answer.includes("Constraints:")) {
+      // Agar text mein fir bhi planning aayi, toh split karke sirf aakhiri hissa nikalenge jahan asli definition hoti hai
+      const cleanParts = answer.split(/\n\n/);
+      // Agar aakhiri line mein kaam ka answer hai toh use le lo
+      answer = cleanParts[cleanParts.length - 1];
     }
-    return res.status(200).json({ answer: "⚠️ Model did not return any text." });
+
+    return res.status(200).json({ answer: answer.trim() });
 
   } catch (err) {
     return res.status(200).json({ answer: `⚠️ Backend Error: ${err.message}` });
