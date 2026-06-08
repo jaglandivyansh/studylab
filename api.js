@@ -13,7 +13,7 @@ function triggerReveal(container) {
   });
 }
 
-// ── SARVAM AI TUTOR MODAL ──
+// ── SARVAM AI TUTOR MODAL (FIXED VERSION) ──
 
 function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   var overlay = el("div", {
@@ -24,7 +24,7 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   });
 
   var card = el("div", {
-    cls: "glass-modal", // <-- Applies the frosted glass
+    cls: "glass-modal", 
     css: {
       border: "1px solid var(--border2)", 
       borderRadius: "18px",
@@ -34,28 +34,24 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
       boxShadow: "0 24px 60px rgba(0,0,0,0.4)"
     }
   });
-  
+
   var header = el("div", {css:{display:"flex", justifyContent:"space-between", marginBottom:"16px"}});
   header.appendChild(el("h3", {css:{margin:0, color:"var(--text)", fontFamily:"var(--font-display)"}, txt: "💡 AI Tutor Analysis"}));
   var closeBtn = el("button", {css:{background:"none", border:"none", color:"var(--subtle)", cursor:"pointer", fontSize:"1.2rem"}, txt:"✕", onclick: () => document.body.removeChild(overlay)});
   header.appendChild(closeBtn);
   card.appendChild(header);
 
-  var contentArea = el("div", {css:{fontSize:"0.95rem", color:"var(--muted)", lineHeight:"1.6", maxHeight:"60vh", overflowY:"auto"}});
-  contentArea.innerHTML = "<div style='text-align:center; padding: 20px;'>Analyzing problem...</div>";
+  var contentArea = el("div", {css:{fontSize:"0.95rem", color:"var(--text)", lineHeight:"1.6", maxHeight:"60vh", overflowY:"auto"}});
+  contentArea.innerHTML = "<div style='text-align:center; padding: 20px; color: var(--muted);'>Analyzing problem...</div>";
   card.appendChild(contentArea);
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 
   var correctAns = optionsArr ? optionsArr[correctIndex] : "Not provided";
-  var prompt = `You are a technical tutor. The student is reviewing a ${subject} question. 
-Question: ${questionText}
-Options: ${optionsArr ? optionsArr.join(", ") : ""}
-Correct Answer: ${correctAns}
+  
+  // ✅ Tight and Direct Prompt to avoid internal thoughts
+  var prompt = `Give a direct, 1-2 sentence explanation of why "${correctAns}" is the correct answer for this ${subject} question: "${questionText}". Do NOT include any brainstorming or analysis steps. Start directly with the answer.`;
 
-Briefly explain the underlying logic of why this is the correct answer. Keep it analytical, straightforward, and under 50 words in English.`;
-
-  // Notice we are now calling our own local API route
   fetch("api/tutor", {
     method: "POST",
     headers: {
@@ -64,18 +60,28 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
     body: JSON.stringify({
       model: "sarvam-30b",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.2,
-      max_tokens: 300 // <-- Increased to prevent mid-sentence cutoffs
+      temperature: 0.0, // <-- Set to 0.0 for strict response
+      max_tokens: 300 
     })
   })
   .then(res => res.json())
   .then(data => {
-    // Check if Sarvam returned a successful choice
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      contentArea.style.color = "var(--text)";
-      contentArea.innerText = data.choices[0].message.content;
+      // ✅ Fallback: Check content first, if empty, look into reasoning_content
+      let mainContent = data.choices[0].message.content || data.choices[0].message.reasoning_content || "";
+      
+      // ✅ Clean any accidental meta-commentary from the UI side
+      if (mainContent.includes("1. ") || mainContent.includes("Analyze")) {
+        var parts = mainContent.split(/\n\n/);
+        mainContent = parts[parts.length - 1];
+      }
+      
+      contentArea.innerText = mainContent.trim() || "No clear answer returned.";
     } 
-    // Handle error messages returned from the backend
+    else if (data.answer) {
+      // If the backend directly formatted it as { answer: "..." }
+      contentArea.innerText = data.answer;
+    }
     else if (data.error) {
       contentArea.innerText = "Error: " + data.error;
     } 
@@ -87,6 +93,7 @@ Briefly explain the underlying logic of why this is the correct answer. Keep it 
     contentArea.innerText = "Connection lost. Please check your internet.";
   });
 }
+
 // ========================================
 // LIVE DAILY CURRENT AFFAIRS — RSS SYSTEM
 // ========================================
