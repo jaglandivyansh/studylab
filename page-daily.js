@@ -1,192 +1,248 @@
-// ─── UTILITY: TIMEZONE-SAFE STREAK CALCULATION ──────────────────
-function checkStreakStatus() {
-  const lastActive = localStorage.getItem("sl_last_active");
-  let streak = parseInt(localStorage.getItem("sl_streak") || "0", 10);
+// ─── SHARE SCORE: PROFESSIONAL CANVAS GRAPHIC GENERATOR ────────
+function shareScore(subj, correct, streak) {
+  var canvas = document.createElement("canvas");
+  canvas.width = 800;
+  canvas.height = 450;
+  var ctx = canvas.getContext("2d");
+
+  var grad = ctx.createLinearGradient(0, 0, 800, 450);
+  grad.addColorStop(0, "#0f172a");
+  grad.addColorStop(1, "#1e293b");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 800, 450);
+
+  ctx.fillStyle = correct ? "#10b981" : "#f43f5e";
+  ctx.fillRect(0, 0, 12, 450);
+
+  ctx.textBaseline = "top";
   
-  if (!lastActive) return { streak: 0, status: "new" };
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.font = "bold 13px sans-serif";
+  ctx.fillText("STUDYLAB DAILY CHALLENGE STATUS", 50, 45);
 
-  // Generate safe midnight boundaries using native Date manipulations
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayMs = today.getTime();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 36px sans-serif";
+  var statusText = correct ? "Challenge Completed" : "Challenge Attempted";
+  ctx.fillText(statusText, 50, 75);
 
-  const yesterday = new Date(todayMs);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayMs = yesterday.getTime();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.font = "13px sans-serif";
+  ctx.fillText("SUBJECT FOCUS", 50, 160);
+  
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "600 22px sans-serif";
+  ctx.fillText(subj, 50, 185);
 
-  const lastActiveDate = new Date(parseInt(lastActive, 10));
-  lastActiveDate.setHours(0, 0, 0, 0);
-  const lastActiveMs = lastActiveDate.getTime();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.font = "13px sans-serif";
+  ctx.fillText("CURRENT STREAK RECORD", 50, 250);
+  
+  ctx.fillStyle = "#3b82f6"; 
+  ctx.font = "bold 46px sans-serif";
+  ctx.fillText(streak + " Days", 50, 275);
 
-  if (lastActiveMs === todayMs) {
-    return { streak, status: "completed_today" };
-  } else if (lastActiveMs === yesterdayMs) {
-    return { streak, status: "eligible" };
-  } else {
-    // If the last active date is older than yesterday, the streak resets
-    localStorage.setItem("sl_streak", "0");
-    return { streak: 0, status: "expired" };
-  }
+  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+  ctx.font = "13px sans-serif";
+  ctx.fillText("studylab-inky.vercel.app", 50, 380);
+
+  var textDescription = "StudyLab Daily Challenge Update. Track: " + subj + " | Current Streak: " + streak + " days. Monitor progress at https://studylab-inky.vercel.app";
+
+  canvas.toBlob(function(blob) {
+    if (!blob) {
+      if (typeof toast === "function") toast("Failed to compile share card image", "#ef4444");
+      return;
+    }
+
+    var file = new File([blob], "studylab-challenge.png", { type: "image/png" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        title: "StudyLab Daily Challenge",
+        text: textDescription,
+        files: [file]
+      }).catch(function(err) {
+        console.log("Sharing cancelled by user", err);
+      });
+    } else {
+      navigator.clipboard.writeText(textDescription).then(function() {
+        var link = document.createElement("a");
+        link.download = "studylab-score.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        if (typeof toast === "function") toast("Performance stats copied & card image downloaded.", "#10b981");
+      });
+    }
+  }, "image/png");
 }
 
-// ─── MAIN HUB REDESIGN ───────────────────────────────────────────
+// ─── DAILY CHALLENGE HUB OVERHAUL ────────────────────────────────
 function pgDaily() {
-  const container = el("div", { css: { maxWidth: "650px", margin: "0 auto", padding: "24px 16px", paddingBottom: "40px" } });
-  
-  // Guard clause to gracefully handle asynchronous load latency
-  if (!window.SUBJ || !window.QD) {
-    container.appendChild(el("div", { css: { textAlign: "center", padding: "60px 20px", color: "var(--muted)", fontSize: "0.95rem" }, txt: "Assembling your daily data workspace..." }));
-    return container;
-  }
+  var w = el("div", { css: { 
+    maxWidth: "600px", 
+    margin: "0 auto", 
+    padding: "32px 16px 60px 16px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+  } });
 
-  const streakInfo = checkStreakStatus();
-  const now = Date.now();
-  let dueCards = [];
-  let totalKnown = 0;
+  var hdr = el("div", { css: { 
+    display: "flex", 
+    alignItems: "center", 
+    gap: "14px", 
+    marginBottom: "36px", 
+    paddingBottom: "20px", 
+    borderBottom: "1px solid var(--border, #eaeaea)" 
+  } });
 
-  // The SRS Engine: Gather Due Cards Safely
-  window.SUBJ.forEach(function(subj) {
-    const sv = Sv.get("fc_" + subj);
+  var targetSvg = el("svg", { 
+    attr: { viewBox: "0 0 24 24", width: "26", height: "26", fill: "none", stroke: "currentColor", strokeWidth: "2.5" }, 
+    css: { color: "var(--accent, #3b82f6)", flexShrink: "0" } 
+  }, [
+    el("circle", { attr: { cx: "12", cy: "12", r: "10" } }),
+    el("circle", { attr: { cx: "12", cy: "12", r: "6" } }),
+    el("circle", { attr: { cx: "12", cy: "12", r: "1.5", fill: "currentColor" } })
+  ]);
+  hdr.appendChild(targetSvg);
+
+  hdr.appendChild(el("div", { css: { flex: "1" } }, [
+    el("div", { css: { fontSize: "1.4rem", fontWeight: "800", letterSpacing: "-0.02em", color: "var(--text, #111)" }, txt: "Daily Smart Review" }),
+    el("div", { css: { fontSize: ".85rem", color: "var(--muted, #666)", marginTop: "2px", fontWeight: "400" }, txt: "Powered by Spaced Repetition" })
+  ]));
+  w.appendChild(hdr);
+
+  // Core Engine Run
+  var now = Date.now();
+  var dueCards = [];
+  var totalKnown = 0;
+
+  var subjectsList = window.SUBJ || [];
+  subjectsList.forEach(function(subj) {
+    var sv = Sv.get("fc_" + subj);
     if (!sv || !sv.k) return;
 
-    const knownData = sv.k; 
-    const subjQuestions = window.QD[subj] || [];
+    var knownData = sv.k; 
+    var subjQuestions = window.QD[subj] || [];
 
-    Object.keys(knownData).forEach(function(qId) {
-      totalKnown++;
-      if (knownData[qId] < now) {
-        const match = subjQuestions.find(q => q.q && q.q.slice(0, 35) === qId);
-        // Shallow copy ({...match}) keeps core database immutable if session tracking alters attributes
-        if (match) {
-          dueCards.push({ subject: subj, q: { ...match }, id: qId });
+    subjQuestions.forEach(function(q) {
+      // FIXED: Added defensive checks to prevent slicing crashes on broken questions
+      if (!q || !q.q || typeof q.q !== "string") return;
+      
+      var qId = q.q.slice(0, 35);
+      if (knownData[qId]) {
+        totalKnown++;
+        if (knownData[qId] < now) {
+          dueCards.push({ subject: subj, q: q, id: qId });
         }
       }
     });
   });
 
-  // 1. Header with Gamified Streak Tracker
-  const header = el("div", { css: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", paddingBottom: "16px", borderBottom: "1.5px solid var(--border)" } });
-  header.appendChild(el("div", {}, [
-    el("h1", { css: { fontSize: "1.4rem", fontWeight: "800", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }, txt: "🎯 Daily Smart Hub" }),
-    el("p", { css: { fontSize: ".8rem", color: "var(--muted)", marginTop: "2px" }, txt: "Powered by Spaced Repetition Mechanics" })
-  ]));
-
-  const streakBadge = el("div", { css: { 
-    display: "flex", alignItems: "center", gap: "6px", background: "linear-gradient(135deg, #ff6b6b, #ff8e53)", 
-    padding: "6px 14px", borderRadius: "20px", color: "#fff", fontWeight: "700", fontSize: "0.85rem", boxShadow: "0 4px 12px rgba(255,107,107,0.25)" 
-  } }, [
-    el("span", { txt: "🔥" }),
-    el("span", { txt: `${streakInfo.streak} Days` })
-  ]);
-  header.appendChild(streakBadge);
-  container.appendChild(header);
-
-  // 2. Twin Track Layout Grid
-  const grid = el("div", { css: { display: "grid", gridTemplateColumns: "1fr", gap: "16px" } });
-
-  // TRACK A: The Random Blind Challenge Card
-  const challengeCompleted = streakInfo.status === "completed_today";
-  const challengeCard = el("div", { css: { 
-    background: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", padding: "20px",
-    boxShadow: "var(--shadow-card)", position: "relative"
+  var dash = el("div", { css: { 
+    display: "grid", 
+    gridTemplateColumns: "1fr 1fr", 
+    gap: "16px", 
+    marginBottom: "32px" 
   } });
-  
-  challengeCard.appendChild(el("div", { css: { fontSize: "0.7rem", fontWeight: "700", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: "6px" }, txt: "⚡ Daily Discovery" }));
-  challengeCard.appendChild(el("h3", { css: { fontSize: "1.05rem", fontWeight: "700", marginBottom: "10px" }, txt: "Today's Blind Challenge" }));
-  challengeCard.appendChild(el("p", { css: { fontSize: "0.85rem", color: "var(--muted)", marginBottom: "16px", lineHeight: "1.4" }, txt: "Face a single surprise question outside your standard study tracks to stretch your boundaries." }));
-  
-  if (challengeCompleted) {
-    challengeCard.appendChild(el("div", { css: { background: "rgba(74,222,128,0.1)", border: "1px solid #4ade80", borderRadius: "8px", padding: "10px", color: "#4ade80", fontWeight: "600", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "8px" } }, [
-      el("span", { txt: "✅" }), el("span", { txt: "You completed today's surprise pool match!" })
-    ]));
+
+  var dynamicBg = dueCards.length > 0 ? "rgba(245,158,11,0.06)" : "rgba(34,197,94,0.06)";
+  var dynamicBorder = dueCards.length > 0 ? "1px solid rgba(245,158,11,0.25)" : "1px solid rgba(34,197,94,0.25)";
+  var dynamicColor = dueCards.length > 0 ? "#d97706" : "#16a34a";
+
+  var dueBox = el("div", { css: { 
+    background: dynamicBg, 
+    border: dynamicBorder, 
+    borderRadius: "20px", 
+    padding: "28px 20px", 
+    textAlign: "center"
+  } });
+  dueBox.appendChild(el("div", { css: { fontSize: "2.8rem", fontWeight: "800", color: dynamicColor, lineHeight: "1", letterSpacing: "-0.03em" }, txt: String(dueCards.length) }));
+  dueBox.appendChild(el("div", { css: { fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--text, #111)", fontWeight: "700", marginTop: "12px", opacity: "0.8" }, txt: "Cards Due" }));
+  dash.appendChild(dueBox);
+
+  var memBox = el("div", { css: { 
+    background: "var(--card, #fff)", 
+    border: "1px solid var(--border, #eaeaea)", 
+    borderRadius: "20px", 
+    padding: "28px 20px", 
+    textAlign: "center", 
+    boxShadow: "0 4px 20px rgba(0,0,0,0.01)" 
+  } });
+  memBox.appendChild(el("div", { css: { fontSize: "2.8rem", fontWeight: "800", color: "var(--accent, #3b82f6)", lineHeight: "1", letterSpacing: "-0.03em" }, txt: String(totalKnown) }));
+  memBox.appendChild(el("div", { css: { fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--muted, #666)", fontWeight: "700", marginTop: "12px" }, txt: "In Learning Phase" }));
+  dash.appendChild(memBox);
+  w.appendChild(dash);
+
+  if (dueCards.length === 0) {
+    var allClear = el("div", { css: { 
+      textAlign: "center", 
+      padding: "48px 24px", 
+      background: "var(--card, #fff)", 
+      borderRadius: "24px", 
+      border: "1px solid var(--border, #eaeaea)",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.02)"
+    } });
+
+    var clearSvg = el("svg", { 
+      attr: { viewBox: "0 0 24 24", width: "36", height: "36", fill: "none", stroke: "currentColor", strokeWidth: "2" }, 
+      css: { color: "#16a34a", marginBottom: "16px", display: "inline-block" } 
+    }, [
+      el("path", { attr: { d: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" } })
+    ]);
+    allClear.appendChild(clearSvg);
+
+    allClear.appendChild(el("div", { css: { fontSize: "1.25rem", fontWeight: "700", color: "var(--text, #111)", marginBottom: "8px", letterSpacing: "-0.01em" }, txt: "You're all caught up!" }));
+    allClear.appendChild(el("div", { css: { fontSize: ".9rem", color: "var(--muted, #666)", marginBottom: "28px", lineHeight: "1.5", maxWidth: "400px", margin: "0 auto 28px auto" }, txt: "You have reviewed all your due cards for today. Go start a new quiz to add more cards to your learning phase." }));
+    
+    var homeBtn = el("button", { 
+      cls: "btn btnp", 
+      css: { padding: "12px 28px", fontSize: "0.95rem", fontWeight: "600", borderRadius: "12px", display: "inline-flex", alignItems: "center", gap: "8px" },
+      onclick: function() { go("home"); } 
+    }, [
+      el("span", { txt: "Explore Subjects" })
+    ]);
+    allClear.appendChild(homeBtn);
+    w.appendChild(allClear);
   } else {
-    challengeCard.appendChild(el("button", { 
+    var startBox = el("div", { css: { 
+      textAlign: "center", 
+      padding: "36px 24px", 
+      background: "var(--card, #fff)", 
+      borderRadius: "24px", 
+      border: "1px solid var(--border, #eaeaea)",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.02)"
+    } });
+    startBox.appendChild(el("div", { css: { fontSize: ".92rem", color: "var(--text, #333)", marginBottom: "24px", lineHeight: "1.6", maxWidth: "460px", margin: "0 auto 24px auto" }, txt: "You have flashcards waiting for review. The algorithm determines these are the cards you are most likely to forget today." }));
+    
+    var runBtn = el("button", { 
       cls: "btn btnp", 
-      css: { width: "100%", background: "var(--text)", color: "var(--bg)", border: "none", padding: "10px" },
-      onclick: () => launchRandomChallenge()
-    }, "Reveal Challenge Question"));
-  }
-  grid.appendChild(challengeCard);
-
-  // TRACK B: The Spaced Repetition (SRS) Card
-  const reviewCard = el("div", { css: { 
-    background: "var(--card)", border: "1.5px solid " + (dueCards.length > 0 ? "var(--border)" : "#4ade80"), 
-    borderRadius: "16px", padding: "20px", boxShadow: "var(--shadow-card)"
-  } });
-
-  reviewCard.appendChild(el("div", { css: { fontSize: "0.7rem", fontWeight: "700", color: dueCards.length > 0 ? "#f59e0b" : "#4ade80", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: "12px" }, txt: "🧠 Memory Matrix" }));
-  
-  const metrics = el("div", { css: { display: "flex", gap: "32px", marginBottom: "20px" } });
-  metrics.appendChild(el("div", {}, [
-    el("div", { css: { fontSize: "2rem", fontWeight: "800", color: dueCards.length > 0 ? "#f59e0b" : "#4ade80", lineHeight: "1" }, txt: String(dueCards.length) }),
-    el("div", { css: { fontSize: "0.75rem", color: "var(--muted)", marginTop: "4px" }, txt: "Review Cards Due" })
-  ]));
-  metrics.appendChild(el("div", {}, [
-    el("div", { css: { fontSize: "2rem", fontWeight: "800", color: "var(--text)", lineHeight: "1" }, txt: String(totalKnown) }),
-    el("div", { css: { fontSize: "0.75rem", color: "var(--muted)", marginTop: "4px" }, txt: "Active Memory Track" })
-  ]));
-  reviewCard.appendChild(metrics);
-
-  if (dueCards.length > 0) {
-    reviewCard.appendChild(el("button", { 
-      cls: "btn btnp", 
-      css: { width: "100%", padding: "12px" }, 
-      onclick: () => {
-        if (typeof launchSRSRun === "function") {
-          launchSRSRun(dueCards);
-        } else {
-          toast("Launching Spaced Repetition sequence...", "#3b82f6");
-        }
+      css: { 
+        width: "100%", 
+        padding: "16px", 
+        fontSize: "1.05rem", 
+        fontWeight: "700",
+        borderRadius: "14px",
+        border: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        boxShadow: "0 4px 14px rgba(59,130,246,0.15)"
+      }, 
+      onclick: function() {
+        toast("Daily Review Engine launching soon!", "#3b82f6");
       } 
-    }, `Start Focused Review (${dueCards.length}) 🚀`));
-  } else {
-    reviewCard.appendChild(el("div", { css: { color: "#4ade80", fontSize: "0.85rem", fontWeight: "600", background: "rgba(74,222,128,0.1)", padding: "12px", borderRadius: "8px", textAlign: "center" }, txt: "🎉 Fantastic clean sheet! Your deck is clear." }));
+    }, [
+      el("span", { txt: "Start Daily Review" }),
+      el("svg", { 
+        attr: { viewBox: "0 0 24 24", width: "18", height: "18", fill: "none", stroke: "currentColor", strokeWidth: "2.5" }
+      }, [
+        el("line", { attr: { x1: "5", y1: "12", x2: "19", y2: "12" } }),
+        el("polyline", { attr: { points: "12 5 19 12 12 19" } })
+      ])
+    ]);
+    
+    startBox.appendChild(runBtn);
+    w.appendChild(startBox);
   }
-  
-  grid.appendChild(reviewCard);
-  container.appendChild(grid);
 
-  return container;
-}
-
-// ─── CONTROLLER: DYNAMIC DISCOVERY ENGINE ───────────────────────
-function launchRandomChallenge() {
-  if (!window.SUBJ || !window.SUBJ.length) return toast("No active domains found!", "#ef4444");
-  
-  // Pick a truly random subject domain
-  const randomSubj = window.SUBJ[Math.floor(Math.random() * window.SUBJ.length)];
-  const targetPool = window.QD[randomSubj] || [];
-  
-  if (!targetPool.length) {
-    return toast(`Subject track ${randomSubj} is empty.`, "#ef4444");
-  }
-  
-  // Extract a surprise random question instance
-  const randomQuestion = targetPool[Math.floor(Math.random() * targetPool.length)];
-  
-  toast(`Target locked: Loading unique ${randomSubj} puzzle...`, "var(--accent)");
-  
-  // Update state flags to anchor streak metrics securely upon passing to your rendering template
-  const current = checkStreakStatus();
-  localStorage.setItem("sl_streak", String(current.streak + 1));
-  localStorage.setItem("sl_last_active", String(Date.now()));
-  
-  // Structural Routing: Hook your quiz-loader view here passing `randomQuestion`
-}
-
-// ─── CORE SHARE ARCHITECTURE ───────────────────────────────────
-function shareScore(subj, correct, streak) {
-  var text = "📚 StudyLab Daily Challenge\n" + 
-             (correct ? "✅ Nailed today's question perfectly!" : "❌ Got caught on a tricky one today") + 
-             "\n🔥 Current Streak: " + streak + " days" + 
-             "\n🎓 Subject Arena: " + subj + 
-             "\n\nTest your limits alongside me here:\n🌐 https://studylab-inky.vercel.app";
-             
-  if (navigator.share) {
-    navigator.share({ title: "StudyLab Daily Challenge", text: text }).catch(err => console.log(err));
-  } else {
-    navigator.clipboard.writeText(text).then(function() {
-      toast("Results compiled to clipboard! Share it 🚀");
-    });
-  }
+  return w;
 }
