@@ -13,7 +13,7 @@ function triggerReveal(container) {
   });
 }
 
-// ── SARVAM AI TUTOR MODAL (FIXED VERSION) ──
+// ── SARVAM AI TUTOR MODAL ──
 
 function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   var overlay = el("div", {
@@ -49,8 +49,8 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
 
   var correctAns = optionsArr ? optionsArr[correctIndex] : "Not provided";
   
-  // ✅ Tight and Direct Prompt to avoid internal thoughts
-  var prompt = `Give a direct, 1-2 sentence explanation of why "${correctAns}" is the correct answer for this ${subject} question: "${questionText}". Do NOT include any brainstorming or analysis steps. Start directly with the answer.`;
+  // Ekdum seedha instruction
+  var prompt = `Give a direct 1-2 sentence explanation of why "${correctAns}" is the correct answer for this ${subject} question: "${questionText}". Do not include any brainstorming steps. Start directly with the explanation.`;
 
   fetch("api/tutor", {
     method: "POST",
@@ -60,17 +60,15 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
     body: JSON.stringify({
       model: "sarvam-30b",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.0, // <-- Set to 0.0 for strict response
+      temperature: 0.0, 
       max_tokens: 300 
     })
   })
   .then(res => res.json())
   .then(data => {
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      // ✅ Fallback: Check content first, if empty, look into reasoning_content
       let mainContent = data.choices[0].message.content || data.choices[0].message.reasoning_content || "";
       
-      // ✅ Clean any accidental meta-commentary from the UI side
       if (mainContent.includes("1. ") || mainContent.includes("Analyze")) {
         var parts = mainContent.split(/\n\n/);
         mainContent = parts[parts.length - 1];
@@ -79,7 +77,6 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
       contentArea.innerText = mainContent.trim() || "No clear answer returned.";
     } 
     else if (data.answer) {
-      // If the backend directly formatted it as { answer: "..." }
       contentArea.innerText = data.answer;
     }
     else if (data.error) {
@@ -93,6 +90,7 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
     contentArea.innerText = "Connection lost. Please check your internet.";
   });
 }
+
 
 // ========================================
 // LIVE DAILY CURRENT AFFAIRS — RSS SYSTEM
