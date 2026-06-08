@@ -50,8 +50,7 @@ function generateDynamicShorts(sessionLimit) {
   if (!allQuestions.length) {
     allQuestions = [{ id: "fallback-default", subj: "Economy", bg: "linear-gradient(160deg, #db2777, #831843)", q: "Disguised unemployment refers to...", a: "Persons with no job.", extra: "Keep scrolling to master more facts! 🔥" }];
   }
-  
-  // Custom absolute modern shuffler logic
+
   if (typeof shuf === 'function') {
     return shuf(allQuestions);
   } else {
@@ -62,9 +61,9 @@ function generateDynamicShorts(sessionLimit) {
 class StudyLabShortsEngine {
   constructor(targetElement, questionsList) {
     this.container = targetElement;
-    this.allQuestions = questionsList; // Pool of non-repeating sequence chain
+    this.allQuestions = questionsList; 
     this.currentIndex = 0;
-    
+
     this.dom = { wrapper: null, progressBar: null, counter: null, track: null, streakBadge: null, viewBookmarksBtn: null, bookmarkPage: null, controls: null };
     this.init();
   }
@@ -105,7 +104,6 @@ class StudyLabShortsEngine {
     var style = document.createElement('style');
     style.id = 'sl-pro-ultra-styles';
     style.textContent = `
-      /* [FIXED] Hardware Acceleration Layer prevents viewport jumps entirely */
       .sl-main-center-box {
         display: flex; flex-direction: column; justify-content: center; align-items: center; 
         width: 100%; padding: 15px; box-sizing: border-box;
@@ -117,7 +115,7 @@ class StudyLabShortsEngine {
         background: #0d0e12; border-radius: 26px; box-shadow: 0 20px 45px rgba(0,0,0,0.5); overflow: hidden;
         font-family: system-ui, -apple-system, sans-serif;
         overscroll-behavior: contain !important;
-        transform: translate3d(0, 0, 0); /* Locks box coordinates in system memory */
+        transform: translate3d(0, 0, 0); 
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
       }
@@ -133,7 +131,6 @@ class StudyLabShortsEngine {
       }
       .sl-badge-left { display: flex; gap: 8px; pointer-events: auto; }
       
-      /* Active Burning Glow Streak Custom Component Animation */
       .sl-streak-badge {
         color: #fff; font-size: 0.72rem; font-weight: 700; 
         background: linear-gradient(45deg, #ff4500, #ff8c00);
@@ -186,7 +183,6 @@ class StudyLabShortsEngine {
       .sl-ans-text { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 8px; word-break: break-word; }
       .sl-exp-text { color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
       
-      /* [UPDATED] Clean Horizontal Unified Controls Grid */
       .sl-controls { 
         position: absolute; bottom: 22px; left: 24px; right: 24px;
         display: flex; gap: 12px; z-index: 99; justify-content: center; align-items: center;
@@ -198,12 +194,9 @@ class StudyLabShortsEngine {
         display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         -webkit-tap-highlight-color: transparent;
       }
-      /* Balanced Width Alignment Specifications */
       .sl-btn.btn-prev { width: 105px; }
       .sl-btn.btn-next { background: var(--accent, #3b82f6); border-color: transparent; width: 115px; }
       .sl-btn.btn-prev:disabled { opacity: 0.25; cursor: not-allowed; background: #0f172a; }
-      
-      /* [UPDATED] Centered Premium Rounded Share Control Node between actions */
       .sl-btn.btn-share { background: #334155; width: 44px; height: 44px; padding: 0; border-radius: 50%; font-size: 0.95rem; }
       
       .sl-toast {
@@ -214,7 +207,6 @@ class StudyLabShortsEngine {
       }
       .sl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-      /* Highly Visible View Bookmarks Yellow-Gold Button */
       .sl-view-bookmarks-wrapper {
         margin-top: 20px; width: 100%; max-width: 410px; display: flex; justify-content: center; position: relative; z-index: 999;
       }
@@ -275,17 +267,17 @@ class StudyLabShortsEngine {
 
     this.dom.progressBar = document.createElement('div');
     this.dom.progressBar.className = 'sl-progress-container';
-    
+
     var headerControls = document.createElement('div');
     headerControls.className = 'sl-header-controls';
-    
+
     var badgeLeft = document.createElement('div');
     badgeLeft.className = 'sl-badge-left';
-    
+
     this.dom.streakBadge = document.createElement('div');
     this.dom.streakBadge.className = 'sl-streak-badge';
     this.dom.streakBadge.innerHTML = `⚡ ${this.streakCount} Days`;
-    
+
     this.dom.bookmarkBtn = document.createElement('button');
     this.dom.bookmarkBtn.className = 'sl-top-btn btn-bookmark';
     this.dom.bookmarkBtn.innerHTML = '🔖';
@@ -324,7 +316,7 @@ class StudyLabShortsEngine {
     this.dom.wrapper.appendChild(this.dom.controls);
     this.dom.wrapper.appendChild(this.dom.bookmarkPage); 
     this.dom.wrapper.appendChild(this.dom.toast);
-    
+
     this.container.appendChild(this.dom.wrapper);
 
     var footerContainer = document.createElement('div');
@@ -379,7 +371,6 @@ class StudyLabShortsEngine {
     `;
     this.dom.track.appendChild(card);
 
-    // [UPDATED] Render unified clean sequence tracking buttons row
     var isPrevDisabled = this.currentIndex === 0 ? 'disabled' : '';
     this.dom.controls.innerHTML = `
       <button class="sl-btn btn-prev" ${isPrevDisabled}>⏮ Back</button>
@@ -406,136 +397,6 @@ class StudyLabShortsEngine {
       this.dom.viewBookmarksBtn.innerHTML = `📚 View Bookmarks (${savedList.length})`;
     }
   }
-
-  toggleBookmark() {
-    var item = this.allQuestions[this.currentIndex];
-    var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
-    var index = savedList.indexOf(item.id);
-
-    if (index === -1) {
-      savedList.push(item.id);
-      this.dom.bookmarkBtn.classList.add('bookmarked');
-      this.dom.bookmarkBtn.innerHTML = '⭐';
-      this.showToast("Saved to Bookmarks!");
-    } else {
-      savedList.splice(index, 1);
-      this.dom.bookmarkBtn.classList.remove('bookmarked');
-      this.dom.bookmarkBtn.innerHTML = '🔖';
-      this.showToast("Removed from Bookmarks");
-    }
-    localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
-    this.updateBookmarkButtonCount();
-  }
-
-  ShareCurrentShort() {
-  var item = this.allQuestions[this.currentIndex];
-  var self = this; // Maintain scoping context for toast calls inside callbacks
-
-  // 1. Initialize a crisp, high-resolution canvas layout
-  var canvas = document.createElement("canvas");
-  canvas.width = 800;
-  canvas.height = 500; // Expanded slightly to provide optimal padding for long questions
-  var ctx = canvas.getContext("2d");
-
-  // Background: Studio-grade deep dark space gradient
-  var grad = ctx.createLinearGradient(0, 0, 800, 500);
-  grad.addColorStop(0, "#090d16");
-  grad.addColorStop(1, "#111827");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 800, 500);
-
-  // Left Brand Accent Border (Premium Tech Blue)
-  ctx.fillStyle = "#3b82f6";
-  ctx.fillRect(0, 0, 14, 500);
-
-  ctx.textBaseline = "top";
-  
-  // Over-title Header Branding
-  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
-  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("STUDYLAB SHORTS : DAILY BRIEF", 50, 45);
-
-  // Metadata Track: Subject Area Section
-  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
-  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("SECTION", 50, 95);
-  
-  ctx.fillStyle = "#f1f5f9";
-  ctx.font = "600 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText(item.subj.toUpperCase(), 50, 118);
-
-  // Metadata Track: Question Header
-  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
-  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("QUESTION FOCUS", 50, 180);
-
-  // 2. Intelligent Multi-line Text Wrapping Engine for the Question Body
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
-  
-  var textX = 50;
-  var textY = 205;
-  var maxLineWidth = 700;
-  var lineHeight = 34;
-  
-  var words = item.q.split(" ");
-  var currentLine = "";
-
-  for (var n = 0; n < words.length; n++) {
-    var testLine = currentLine + words[n] + " ";
-    var metrics = ctx.measureText(testLine);
-    
-    if (metrics.width > maxLineWidth && n > 0) {
-      ctx.fillText(currentLine, textX, textY);
-      currentLine = words[n] + " ";
-      textY += lineHeight;
-    } else {
-      currentLine = testLine;
-    }
-  }
-  ctx.fillText(currentLine, textX, textY); // Paint remaining trailing words
-
-  // Subtle App Domain Branding Footer
-  ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("studylab-inky.vercel.app", 50, 440);
-
-  // 3. Fallback text description payload
-  var textDescription = "StudyLab Shorts Brief. Section: " + item.subj.toUpperCase() + " | Review full analysis and micro-learning metrics at: https://studylab-inky.vercel.app";
-
-  // 4. Native Share Execution with Blob Stream Conversion
-  canvas.toBlob(function(blob) {
-    if (!blob) return;
-    var file = new File([blob], "studylab-short.png", { type: "image/png" });
-
-    // Use native device system share manager sheet if supported (iOS / Android / Safari)
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({
-        title: 'StudyLab Daily Brief',
-        text: textDescription,
-        files: [file]
-      }).catch(function(err){});
-    } else {
-      // Hard Fallback Engine for PC/Mac Desktop Browsers: Copy link + Auto Download PNG Card
-      var dummy = document.createElement("textarea");
-      document.body.appendChild(dummy);
-      dummy.value = textDescription;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-
-      var link = document.createElement("a");
-      link.download = "studylab-short-card.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      
-      if (typeof self.showToast === "function") {
-        self.showToast("Analysis copied & card image downloaded.");
-      }
-    }
-  }, "image/png");
-}
-
 
   toggleBookmarkPage() {
     var isOpen = this.dom.bookmarkPage.classList.contains('open');
@@ -579,6 +440,102 @@ class StudyLabShortsEngine {
     this.dom.bookmarkPage.classList.add('open');
   }
 
+  // ─── UPGRADED SHARE SCORE: PREMIUM CANVAS GRAPHIC GENERATOR ─────
+  shareCurrentShort() {
+    var item = this.allQuestions[this.currentIndex];
+    var self = this;
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 500; 
+    var ctx = canvas.getContext("2d");
+
+    var grad = ctx.createLinearGradient(0, 0, 800, 500);
+    grad.addColorStop(0, "#090d16");
+    grad.addColorStop(1, "#111827");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 800, 500);
+
+    ctx.fillStyle = "#3b82f6";
+    ctx.fillRect(0, 0, 14, 500);
+
+    ctx.textBaseline = "top";
+    
+    ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("STUDYLAB SHORTS : DAILY BRIEF", 50, 45);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("SECTION", 50, 95);
+    
+    ctx.fillStyle = "#f1f5f9";
+    ctx.font = "600 20px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(item.subj.toUpperCase(), 50, 118);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("QUESTION FOCUS", 50, 180);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
+    
+    var textX = 50;
+    var textY = 205;
+    var maxLineWidth = 700;
+    var lineHeight = 34;
+    
+    var words = item.q.split(" ");
+    var currentLine = "";
+
+    for (var n = 0; n < words.length; n++) {
+      var testLine = currentLine + words[n] + " ";
+      var metrics = ctx.measureText(testLine);
+      
+      if (metrics.width > maxLineWidth && n > 0) {
+        ctx.fillText(currentLine, textX, textY);
+        currentLine = words[n] + " ";
+        textY += lineHeight;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    ctx.fillText(currentLine, textX, textY); 
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+    ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("studylab-inky.vercel.app", 50, 440);
+
+    var textDescription = "StudyLab Shorts Brief. Section: " + item.subj.toUpperCase() + " | Review full analysis and micro-learning metrics at: https://studylab-inky.vercel.app";
+
+    canvas.toBlob(function(blob) {
+      if (!blob) return;
+      var file = new File([blob], "studylab-short.png", { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          title: 'StudyLab Daily Brief',
+          text: textDescription,
+          files: [file]
+        }).catch(function(err){});
+      } else {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = textDescription;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+
+        var link = document.createElement("a");
+        link.download = "studylab-short-card.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        
+        self.showToast("Analysis copied & card image downloaded.");
+      }
+    }, "image/png");
+  }
+
   attachEvents() {
     this.dom.wrapper.addEventListener('click', (e) => {
       if (this.dom.bookmarkPage.classList.contains('open')) {
@@ -590,12 +547,14 @@ class StudyLabShortsEngine {
         return;
       }
 
-      if (e.target.closest('.sl-controls')) {
-        if (e.target.classList.contains('btn-next')) {
+      // FIXED: Hardened button selector target hierarchy verification
+      var controlBtn = e.target.closest('.sl-btn');
+      if (controlBtn) {
+        if (controlBtn.classList.contains('btn-next')) {
           this.next();
-        } else if (e.target.classList.contains('btn-prev')) {
+        } else if (controlBtn.classList.contains('btn-prev')) {
           this.prev();
-        } else if (e.target.closest('.btn-share')) {
+        } else if (controlBtn.classList.contains('btn-share')) {
           this.shareCurrentShort();
         }
         return;
@@ -617,7 +576,7 @@ class StudyLabShortsEngine {
       e.stopPropagation(); 
       this.toggleBookmarkPage();
     });
-    
+
     this.dom.bookmarkPage.addEventListener('click', (e) => {
       if (e.target.classList.contains('sl-bp-delete-btn')) {
         e.stopPropagation();
@@ -649,13 +608,27 @@ class StudyLabShortsEngine {
     });
   }
 
-  // [UPDATED FEATURE]: True sequence progressive logic chain (Guarantees zero replication overhead)
+  toggleBookmark() {
+    var item = this.allQuestions[this.currentIndex];
+    var savedList = JSON.parse(localStorage.getItem('sl_bookmarks') || '[]');
+    var index = savedList.indexOf(item.id);
+    if (index !== -1) {
+      savedList.splice(index, 1);
+      this.showToast("Removed from Bookmarks");
+    } else {
+      savedList.push(item.id);
+      this.showToast("Saved to Bookmarks");
+    }
+    localStorage.setItem('sl_bookmarks', JSON.stringify(savedList));
+    this.renderSlide();
+    this.updateBookmarkButtonCount();
+  }
+
   next() {
     if (this.currentIndex < this.allQuestions.length - 1) {
       this.currentIndex++;
       this.renderSlide();
     } else {
-      // Loop resets cleanly back to starting sequence point only when array fully depletes
       this.currentIndex = 0;
       this.renderSlide();
       this.showToast("🔄 Starting fresh review batch!");
