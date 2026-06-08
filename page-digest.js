@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// PAGE-DIGEST.JS — Audited, Premium High-Volume Current Affairs Engine
+// PAGE-DIGEST.JS — Continuous Stream, Automated Current Affairs Engine
 // ═══════════════════════════════════════════════════════════════════
 
 function pgDigest() {
@@ -115,7 +115,7 @@ function pgDigest() {
 
         var wrap = el("div", { css: { maxWidth: "720px", margin: "0 auto", padding: "20px 16px 110px 16px", display: "flex", flexDirection: "column", boxSizing: "border-box" } });
 
-        var topBar = el("div", { css: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", flexShrink: "0" } });
+        var topBar = el("div", { css: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexShrink: "0" } });
         var leftSide = el("div", { css: { display: "flex", alignItems: "center", gap: "12px" } });
         var backBtn = el("button", { css: { padding: "8px 14px", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg2)", color: "var(--text)", fontWeight: "600", cursor: "pointer" }, onclick: function () { history.back(); } });
         backBtn.innerHTML = '←';
@@ -131,8 +131,7 @@ function pgDigest() {
                 btn.style.transform = "scale(0.85)"; 
                 setTimeout(function() { btn.style.transform = "scale(1)"; }, 150);
 
-                var activeFilter = filterSelect.value;
-                fetchLatestNews(cat, newsWrap, syncIcon, true, activeFilter, filterSelect); 
+                fetchLatestNews(cat, newsWrap, syncIcon, true); 
             }
         });
 
@@ -143,47 +142,15 @@ function pgDigest() {
         topBar.appendChild(syncBtn);
         wrap.appendChild(topBar);
 
-        var filterRow = el("div", { css: { display: "flex", justifyContent: "flex-end", marginBottom: "20px" } });
-        var selectWrapper = el("div", { css: { position: "relative", display: "inline-block" } });
-
-        var filterSelect = el("select", {
-            css: {
-                padding: "8px 34px 8px 16px", borderRadius: "20px", border: "1.5px solid var(--border2)",
-                background: "var(--bg2)", color: "var(--text)", fontWeight: "700", fontSize: "0.85rem",
-                cursor: "pointer", appearance: "none", WebkitAppearance: "none", outline: "none"
-            },
-            onchange: function(e) {
-                var cacheKey = "digest_daily_" + cat.id;
-                var cachedData = (typeof Sv !== 'undefined' && Sv.get) ? Sv.get(cacheKey) : null;
-                var localArts = (cachedData && cachedData.articles) ? cachedData.articles : [];
-                renderDiscoverStream(localArts, cat, newsWrap, e.target.value, filterSelect);
-            }
-        });
-        filterSelect.innerHTML = `
-            <option value="today">Today's News</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="older">Older News</option>
-        `;
-
-        var chevron = el("span", { 
-            css: { position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: "0.75rem", color: "var(--text)" }, 
-            txt: "▼" 
-        });
-
-        selectWrapper.appendChild(filterSelect);
-        selectWrapper.appendChild(chevron);
-        filterRow.appendChild(selectWrapper);
-        wrap.appendChild(filterRow);
-
         var newsWrap = el("div", { className: "news-feed-stream", css: { flex: "1" } });
         wrap.appendChild(newsWrap);
         contentWrap.appendChild(wrap);
 
-        fetchLatestNews(cat, newsWrap, syncIcon, false, filterSelect.value, filterSelect);
+        // Fetch and load everything continuously automatically
+        fetchLatestNews(cat, newsWrap, syncIcon, false);
     }
 
-    // ─── UPGRADED CONCURRENT FETCH LOGIC (100% BLENDED AND BUG FREE) ───
-    function fetchLatestNews(cat, newsWrap, syncIcon, forceRefresh, activeFilter, filterUI) {
+    function fetchLatestNews(cat, newsWrap, syncIcon, forceRefresh) {
         if (syncIcon) syncIcon.classList.add("rotate-sync");
 
         var todayStr = new Date().toDateString();
@@ -193,7 +160,7 @@ function pgDigest() {
         if (!cachedData || !Array.isArray(cachedData.articles)) { cachedData = { date: "", articles: [] }; }
 
         if (cachedData.articles.length > 0 && !forceRefresh) {
-            renderDiscoverStream(cachedData.articles, cat, newsWrap, activeFilter, filterUI);
+            renderDiscoverStream(cachedData.articles, cat, newsWrap);
             if (syncIcon) syncIcon.classList.remove("rotate-sync");
             return;
         }
@@ -202,12 +169,11 @@ function pgDigest() {
         var fallback = (typeof CA_FALLBACK !== "undefined" && CA_FALLBACK[cat.id]) ? CA_FALLBACK[cat.id] : [];
 
         if (feeds.length === 0) {
-            renderDiscoverStream(cachedData.articles.length ? cachedData.articles : fallback, cat, newsWrap, activeFilter, filterUI);
+            renderDiscoverStream(cachedData.articles.length ? cachedData.articles : fallback, cat, newsWrap);
             if (syncIcon) syncIcon.classList.remove("rotate-sync");
             return;
         }
 
-        // Map individual requests into parallel fetch streams safely wrapped with individual catch blocks
         var fetchPromises = feeds.map(function(feedObj) {
             return fetch(feedObj.url)
                 .then(function(res) { return res.json(); })
@@ -215,7 +181,7 @@ function pgDigest() {
                     if (!data.items || !data.items.length) return [];
                     
                     var cutoffDate = new Date();
-                    cutoffDate.setDate(cutoffDate.getDate() - 6);
+                    cutoffDate.setDate(cutoffDate.getDate() - 10); // Extends timeline history up to 10 days safely
 
                     return data.items.map(function(item) {
                         var extractedImg = item.thumbnail || (item.enclosure && item.enclosure.link) || "";
@@ -235,21 +201,18 @@ function pgDigest() {
                         return new Date(item.pubDate) >= cutoffDate;
                     });
                 })
-                .catch(function() { return []; }); // Return empty array on single link crashes
+                .catch(function() { return []; });
         });
 
-        // Resolve all streams concurrently in parallel sequence clusters
         Promise.all(fetchPromises).then(function(resultsLists) {
             var liveAggregated = [];
             resultsLists.forEach(function(list) {
                 if (list && list.length) liveAggregated = liveAggregated.concat(list);
             });
 
-            // Combine live pulled values cleanly stacked on top of existing cache arrays
             var baseList = cachedData.articles || [];
             var combined = liveAggregated.concat(baseList);
 
-            // Deduplicate over identical URL endpoints
             var unique = [];
             var seen = {};
             combined.forEach(function(art) {
@@ -259,59 +222,29 @@ function pgDigest() {
                 }
             });
 
-            // Chronological Sorting Core
             unique.sort(function(a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
 
-            cachedData.articles = unique.slice(0, 100);
+            cachedData.articles = unique.slice(0, 120); // Maximum density cap optimized to 120 items
             cachedData.date = todayStr;
 
             if (typeof Sv !== 'undefined' && Sv.set) Sv.set(cacheKey, cachedData);
 
-            renderDiscoverStream(cachedData.articles.length ? cachedData.articles : fallback, cat, newsWrap, activeFilter, filterUI);
+            renderDiscoverStream(cachedData.articles.length ? cachedData.articles : fallback, cat, newsWrap);
         }).finally(function() {
             if (syncIcon) syncIcon.classList.remove("rotate-sync");
         });
     }
 
-    function renderDiscoverStream(articles, cat, newsWrap, activeFilter, filterUI) {
-        activeFilter = activeFilter || "today"; 
-
-        var now = new Date();
-        var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        var startOfYesterday = startOfToday - (24 * 60 * 60 * 1000);
-
-        function filterArts(filterType) {
-            return articles.filter(function(a) {
-                var d = new Date(a.pubDate).getTime();
-                if (filterType === "today") return d >= startOfToday;
-                if (filterType === "yesterday") return d >= startOfYesterday && d < startOfToday;
-                return d < startOfYesterday; 
-            });
-        }
-
-        var filteredArticles = filterArts(activeFilter);
-
-        if (filteredArticles.length === 0) {
-            if (activeFilter === "today") {
-                activeFilter = "yesterday";
-                filteredArticles = filterArts(activeFilter);
-                if (filterUI) filterUI.value = "yesterday"; 
-            }
-            if (filteredArticles.length === 0 && activeFilter === "yesterday") {
-                activeFilter = "older";
-                filteredArticles = filterArts(activeFilter);
-                if (filterUI) filterUI.value = "older"; 
-            }
-        }
-
+    // ─── CONTINUOUS TIMELINE RENDERER (NO FILTERS, AUTOMATED CHRONOLOGY) ───
+    function renderDiscoverStream(articles, cat, newsWrap) {
         newsWrap.innerHTML = "";
 
-        if (!filteredArticles || !filteredArticles.length) {
+        if (!articles || !articles.length) {
             newsWrap.innerHTML = '<div style="padding:40px; text-align:center; color:var(--muted); font-weight:600; line-height:1.5;">No news available in this category yet.<br><span style="font-size:0.8rem; font-weight:400;">Try syncing again later.</span></div>';
             return;
         }
 
-        filteredArticles.forEach(function (a) {
+        articles.forEach(function (a) {
             var card = el("div", { className: "perp-card" });
             var imgContainer = el("div", { css: { width: "100%", height: "210px", position: "relative", borderBottom: "1px solid var(--border2)", backgroundColor: "var(--bg2)", overflow: "hidden" } });
 
