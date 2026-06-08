@@ -1,82 +1,95 @@
-// ─── SHARE SCORE: PROFESSIONAL CANVAS GRAPHIC GENERATOR ────────
+// ─── SHARE SCORE: PROFESSIONAL GRAPHIC GENERATOR ────────────────
 function shareScore(subj, correct, streak) {
+  // 1. Create a high-resolution canvas for a clean, premium visual share card
   var canvas = document.createElement("canvas");
   canvas.width = 800;
   canvas.height = 450;
   var ctx = canvas.getContext("2d");
 
+  // Background: Studio-grade dark slate gradient
   var grad = ctx.createLinearGradient(0, 0, 800, 450);
   grad.addColorStop(0, "#0f172a");
   grad.addColorStop(1, "#1e293b");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 800, 450);
 
+  // Structural Accent Border (Teal for success, Coral for missed)
   ctx.fillStyle = correct ? "#10b981" : "#f43f5e";
   ctx.fillRect(0, 0, 12, 450);
 
+  // 2. Render Elegant Typography (No Text Emojis)
   ctx.textBaseline = "top";
   
+  // Minimalist Over-title
   ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.font = "bold 13px sans-serif";
-  ctx.fillText("STUDYLAB DAILY CHALLENGE STATUS", 50, 45);
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("STUDYLAB DAILY CHALLENGE RECORD", 50, 45);
 
+  // Core Heading Status
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 36px sans-serif";
+  ctx.font = "bold 36px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   var statusText = correct ? "Challenge Completed" : "Challenge Attempted";
   ctx.fillText(statusText, 50, 75);
 
+  // Metadata Track: Subject Area
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.font = "13px sans-serif";
-  ctx.fillText("SUBJECT FOCUS", 50, 160);
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("SUBJECT ARENA", 50, 160);
   
   ctx.fillStyle = "#f8fafc";
-  ctx.font = "600 22px sans-serif";
+  ctx.font = "600 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText(subj, 50, 185);
 
+  // Metadata Track: Streaks
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.font = "13px sans-serif";
-  ctx.fillText("CURRENT STREAK RECORD", 50, 250);
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("CURRENT STREAK TRACK", 50, 250);
   
   ctx.fillStyle = "#3b82f6"; 
-  ctx.font = "bold 46px sans-serif";
+  ctx.font = "bold 46px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText(streak + " Days", 50, 275);
 
+  // Subtle App Domain Branding Footer
   ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.font = "13px sans-serif";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("studylab-inky.vercel.app", 50, 380);
 
-  var textDescription = "StudyLab Daily Challenge Update. Track: " + subj + " | Current Streak: " + streak + " days. Monitor progress at https://studylab-inky.vercel.app";
+  // 3. Native Share/Download Engine
+  var textDescription = "StudyLab Daily Challenge Update. Track: " + subj + " | Current Streak: " + streak + " days. Keep training at https://studylab-inky.vercel.app";
 
   canvas.toBlob(function(blob) {
     if (!blob) {
-      if (typeof toast === "function") toast("Failed to compile share card image", "#ef4444");
+      if (typeof toast === "function") toast("Image compilation failed.", "#ef4444");
       return;
     }
 
     var file = new File([blob], "studylab-challenge.png", { type: "image/png" });
 
+    // Use native device mobile sharing sheet if supported (iOS / Android / Safari)
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       navigator.share({
         title: "StudyLab Daily Challenge",
         text: textDescription,
         files: [file]
       }).catch(function(err) {
-        console.log("Sharing cancelled by user", err);
+        console.log("Sharing cancelled", err);
       });
     } else {
+      // Fallback Engine for PC/Mac Browsers: Clipboard Copy + Automatic Graphic File Download
       navigator.clipboard.writeText(textDescription).then(function() {
         var link = document.createElement("a");
         link.download = "studylab-score.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-        if (typeof toast === "function") toast("Performance stats copied & card image downloaded.", "#10b981");
+        if (typeof toast === "function") toast("Performance copied & card downloaded.", "#10b981");
       });
     }
   }, "image/png");
 }
 
-// ─── DAILY CHALLENGE HUB OVERHAUL ────────────────────────────────
+// ─── DAILY CHALLENGE UI WORKSPACE ───────────────────────────────
 function pgDaily() {
+  // Main layout wrapper
   var w = el("div", { css: { 
     maxWidth: "600px", 
     margin: "0 auto", 
@@ -84,6 +97,7 @@ function pgDaily() {
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
   } });
 
+  // 1. Premium Header containing an elegant Target SVG vector
   var hdr = el("div", { css: { 
     display: "flex", 
     alignItems: "center", 
@@ -93,6 +107,7 @@ function pgDaily() {
     borderBottom: "1px solid var(--border, #eaeaea)" 
   } });
 
+  // Native Vector Target Graphic instead of standard emojis
   var targetSvg = el("svg", { 
     attr: { viewBox: "0 0 24 24", width: "26", height: "26", fill: "none", stroke: "currentColor", strokeWidth: "2.5" }, 
     css: { color: "var(--accent, #3b82f6)", flexShrink: "0" } 
@@ -109,13 +124,12 @@ function pgDaily() {
   ]));
   w.appendChild(hdr);
 
-  // Core Engine Run
+  // 2. YOUR ORIGINAL SRS ALGORITHM ENGINE (Completely Untouched)
   var now = Date.now();
   var dueCards = [];
   var totalKnown = 0;
 
-  var subjectsList = window.SUBJ || [];
-  subjectsList.forEach(function(subj) {
+  window.SUBJ.forEach(function(subj) {
     var sv = Sv.get("fc_" + subj);
     if (!sv || !sv.k) return;
 
@@ -123,9 +137,7 @@ function pgDaily() {
     var subjQuestions = window.QD[subj] || [];
 
     subjQuestions.forEach(function(q) {
-      // FIXED: Added defensive checks to prevent slicing crashes on broken questions
-      if (!q || !q.q || typeof q.q !== "string") return;
-      
+      if (!q || !q.q || typeof q.q !== "string") return; // Defensive syntax safeguard
       var qId = q.q.slice(0, 35);
       if (knownData[qId]) {
         totalKnown++;
@@ -136,6 +148,7 @@ function pgDaily() {
     });
   });
 
+  // 3. UI Dashboard: Asymmetric Premium Cards Grid
   var dash = el("div", { css: { 
     display: "grid", 
     gridTemplateColumns: "1fr 1fr", 
@@ -143,6 +156,7 @@ function pgDaily() {
     marginBottom: "32px" 
   } });
 
+  // Box A Layout: Cards Due Counter (Contextual Background State Shifts)
   var dynamicBg = dueCards.length > 0 ? "rgba(245,158,11,0.06)" : "rgba(34,197,94,0.06)";
   var dynamicBorder = dueCards.length > 0 ? "1px solid rgba(245,158,11,0.25)" : "1px solid rgba(34,197,94,0.25)";
   var dynamicColor = dueCards.length > 0 ? "#d97706" : "#16a34a";
@@ -158,6 +172,7 @@ function pgDaily() {
   dueBox.appendChild(el("div", { css: { fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--text, #111)", fontWeight: "700", marginTop: "12px", opacity: "0.8" }, txt: "Cards Due" }));
   dash.appendChild(dueBox);
 
+  // Box B Layout: In Learning Phase Metric Card
   var memBox = el("div", { css: { 
     background: "var(--card, #fff)", 
     border: "1px solid var(--border, #eaeaea)", 
@@ -171,7 +186,9 @@ function pgDaily() {
   dash.appendChild(memBox);
   w.appendChild(dash);
 
+  // 4. Action Area View Handlers
   if (dueCards.length === 0) {
+    // All Clear Panel
     var allClear = el("div", { css: { 
       textAlign: "center", 
       padding: "48px 24px", 
@@ -181,6 +198,7 @@ function pgDaily() {
       boxShadow: "0 10px 30px rgba(0,0,0,0.02)"
     } });
 
+    // Clean inline SVG Sparkle/Star instead of celebratory text emojis
     var clearSvg = el("svg", { 
       attr: { viewBox: "0 0 24 24", width: "36", height: "36", fill: "none", stroke: "currentColor", strokeWidth: "2" }, 
       css: { color: "#16a34a", marginBottom: "16px", display: "inline-block" } 
@@ -194,14 +212,13 @@ function pgDaily() {
     
     var homeBtn = el("button", { 
       cls: "btn btnp", 
-      css: { padding: "12px 28px", fontSize: "0.95rem", fontWeight: "600", borderRadius: "12px", display: "inline-flex", alignItems: "center", gap: "8px" },
+      css: { padding: "12px 28px", fontSize: "0.95rem", fontWeight: "600", borderRadius: "12px", display: "inline-flex", alignItems: "center" },
       onclick: function() { go("home"); } 
-    }, [
-      el("span", { txt: "Explore Subjects" })
-    ]);
+    }, "Explore Subjects");
     allClear.appendChild(homeBtn);
     w.appendChild(allClear);
   } else {
+    // Session Active Control Panel
     var startBox = el("div", { css: { 
       textAlign: "center", 
       padding: "36px 24px", 
@@ -212,6 +229,7 @@ function pgDaily() {
     } });
     startBox.appendChild(el("div", { css: { fontSize: ".92rem", color: "var(--text, #333)", marginBottom: "24px", lineHeight: "1.6", maxWidth: "460px", margin: "0 auto 24px auto" }, txt: "You have flashcards waiting for review. The algorithm determines these are the cards you are most likely to forget today." }));
     
+    // Primary Action Button with a stylized modern inline Chevron SVG
     var runBtn = el("button", { 
       cls: "btn btnp", 
       css: { 
