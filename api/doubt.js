@@ -1,6 +1,6 @@
 // api/doubt.js
 // ─────────────────────────────────────────────────────────────────
-// Ultimate Structural Filter — Completely Strips Out All Reasoning Steps
+// Bracket Tag Extractor — 100% Complete and Accurate Answers
 // ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -9,7 +9,15 @@ export default async function handler(req, res) {
   const { question } = req.body;
   if (!question || question.trim() === "") return res.status(400).json({ error: "Question is required." });
 
-  const SYSTEM_PROMPT = "You are a direct educational assistant. Provide a simple, clear, and complete answer to the student's question for competitive exams. Do not show any internal thinking, planning steps, or numbered analysis. Output only the final answer.";
+  // AI ko clear brackets ke sath answer dene ko bola hai
+  const SYSTEM_PROMPT = `You are an educational assistant for Indian competitive exams.
+Answer the question completely and concisely in under 150 words using simple English.
+
+CRITICAL: You must wrap your final student-facing answer between [ANSWER_START] and [ANSWER_END] tags. 
+Example:
+[ANSWER_START]
+The Prime Minister (PM) of India is the head of the government...
+[ANSWER_END]`;
 
   try {
     const sarvamRes = await fetch("https://api.sarvam.ai/v1/chat/completions", {
@@ -23,8 +31,8 @@ export default async function handler(req, res) {
         messages: [
           { role: "user", content: `${SYSTEM_PROMPT}\n\nQuestion: ${question.trim()}` }
         ],
-        temperature: 0.0, 
-        max_tokens: 500 // Tokens thode badha diye taaki filter hone ke baad bhi answer adhura na rahe
+        temperature: 0.1, 
+        max_tokens: 500 // Sahi bada token count taaki answer poora aaye
       })
     });
 
@@ -34,36 +42,21 @@ export default async function handler(req, res) {
     let answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
     
     if (answer) {
-      // 🔥 BULLETPROOF REGEX CLEANER: 
-      // Agar text mein "1. ", "2. ", "3. ", ya "4. " ke sath koi bhi bold heading ya text shuru hota hai,
-      // toh hum pure string ko split karke sirf sabse aakhiri block uthayenge jo ki actual answer hoga.
-      if (/\b\d+\.\s+(\*\*.*?\*\*|[A-Za-z])/i.test(answer) || answer.includes("Analyze the User") || answer.includes("Review and Refine")) {
-        
-        // Block text ko paragraphs mein todenge
-        const paragraphs = answer.split(/\n+/);
-        
-        // Piche se dhoondenge ki kaun sa paragraph bina kisi "1.", "2.", "Analyze" ke shuru ho raha hai
-        let cleanAnswerParts = [];
-        for (let i = paragraphs.length - 1; i >= 0; i--) {
-          let p = paragraphs[i].trim();
-          // Agar paragraph kisi planning keyword se shuru nahi ho raha, toh yeh humara actual answer hai
-          if (p && !/^\d+\./.test(p) && !p.startsWith('*') && !p.toLowerCase().includes("deconstruct") && !p.toLowerCase().includes("analyze") && !p.toLowerCase().includes("synthesize") && !p.toLowerCase().includes("refine")) {
-            cleanAnswerParts.unshift(p);
-          }
-        }
-        
-        if (cleanAnswerParts.length > 0) {
-          answer = cleanAnswerParts.join("\n\n");
-        } else {
-          // Fallback: Agar sabhi mein steps the, toh bas sabse aakhiri paragraph ko hi return karo
-          answer = paragraphs[paragraphs.length - 1];
-        }
+      // 🎯 BRACKET EXTRACTOR: Agar AI ne tags lagaye hain, toh unke beech ka poora text nikal lo
+      const match = answer.match(/\[ANSWER_START\]([\s\S]*?)\[ANSWER_END\]/i);
+      
+      if (match && match[1]) {
+        answer = match[1].trim();
+      } else {
+        // Fallback: Agar AI tag lagana bhool gaya, toh bas "1.", "2." waali lines ko hatayenge
+        answer = answer
+          .split("\n")
+          .filter(line => !/^\d+\./.test(line.trim()) && !line.toLowerCase().includes("deconstruct") && !line.toLowerCase().includes("analyze"))
+          .join("\n")
+          .trim();
       }
 
-      // Final check: Agar abhi bhi galti se koi bullet point bacha ho toh use thoda saaf kar dein
-      answer = answer.replace(/^\s*[\-\*]\s*/, ''); 
-
-      return res.status(200).json({ answer: answer.trim() });
+      return res.status(200).json({ answer: answer });
     }
 
     return res.status(200).json({ answer: "⚠️ Model did not return any text." });
