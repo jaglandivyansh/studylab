@@ -1,272 +1,289 @@
-// ─── UTILITY: TIMEZONE-SAFE STREAK CALCULATION ──────────────────
-function checkStreakStatus() {
-  var lastActive = localStorage.getItem("sl_last_active");
-  var streak = parseInt(localStorage.getItem("sl_streak") || "0", 10);
-  
-  if (!lastActive) return { streak: 0, status: "new" };
-
-  var today = new Date();
-  today.setHours(0, 0, 0, 0);
-  var todayMs = today.getTime();
-
-  var yesterday = new Date(todayMs);
-  yesterday.setDate(yesterday.getDate() - 1);
-  var yesterdayMs = yesterday.getTime();
-
-  var lastActiveDate = new Date(parseInt(lastActive, 10));
-  lastActiveDate.setHours(0, 0, 0, 0);
-  var lastActiveMs = lastActiveDate.getTime();
-
-  if (lastActiveMs === todayMs) {
-    return { streak: streak, status: "completed_today" };
-  } else if (lastActiveMs === yesterdayMs) {
-    return { streak: streak, status: "eligible" };
-  } else {
-    localStorage.setItem("sl_streak", "0");
-    return { streak: 0, status: "expired" };
-  }
+// ─── UTILITY: TIMEZONE-SAFE CALENDAR DAILY SEED ──────────────────
+function getDailySeedIndex(poolLength) {
+  if (!poolLength) return 0;
+  // Generates a stable number based on Year, Month, and Day (e.g., 20260608)
+  var d = new Date();
+  var dateCode = (d.getFullYear() * 10000) + ((d.getMonth() + 1) * 100) + d.getDate();
+  return dateCode % poolLength;
 }
 
-// ─── SHARE SCORE: PROFESSIONAL CANVAS GRAPHIC GENERATOR ────────
+// ─── UTILITY: STREAK AND LOCK-STATE ENGINE ──────────────────────
+function getDailyState() {
+  var d = new Date();
+  var todayKey = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  
+  var lastClearedDate = localStorage.getItem("sl_daily_last_cleared");
+  var streak = parseInt(localStorage.getItem("sl_daily_streak") || "0", 10);
+  var hasPlayedToday = (lastClearedDate === todayKey);
+
+  // Check if streak expired (user missed yesterday)
+  if (lastClearedDate && !hasPlayedToday) {
+    var todayMs = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    var lastActiveParts = lastActiveDate = lastClearedDate.split("-");
+    var lastActiveMs = new Date(parseInt(lastActiveParts[0], 10), parseInt(lastActiveParts[1], 10) - 1, parseInt(lastActiveParts[2], 10)).getTime();
+    
+    // If gap is greater than 24 hours (86400000 ms), reset streak
+    if (todayMs - lastActiveMs > 86400000) {
+      streak = 0;
+      localStorage.setItem("sl_daily_streak", "0");
+    }
+  }
+
+  return {
+    todayKey: todayKey,
+    streak: streak,
+    hasPlayedToday: hasPlayedToday,
+    savedAnswer: localStorage.getItem("sl_daily_user_ans")
+  };
+}
+
+// ─── SHARE SCORE: PREMIUM OFF-SCREEN CANVAS GENERATOR ──────────
 function shareScore(subj, correct, streak) {
   var canvas = document.createElement("canvas");
   canvas.width = 800;
   canvas.height = 450;
   var ctx = canvas.getContext("2d");
 
-  // Gradient Background
+  // Editorial Background Gradient
   var grad = ctx.createLinearGradient(0, 0, 800, 450);
-  grad.addColorStop(0, "#0f172a");
-  grad.addColorStop(1, "#1e293b");
+  grad.addColorStop(0, "#090d16");
+  grad.addColorStop(1, "#111827");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 800, 450);
 
-  // Structural Accent Border
+  // Brand Accent Side Pillar
   ctx.fillStyle = correct ? "#10b981" : "#f43f5e";
-  ctx.fillRect(0, 0, 12, 450);
+  ctx.fillRect(0, 0, 14, 450);
 
   ctx.textBaseline = "top";
   
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.font = "bold 13px sans-serif";
-  ctx.fillText("STUDYLAB DAILY CHALLENGE RECORD", 50, 45);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("STUDYLAB INTELLECT MATRIX PRO", 50, 45);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 36px sans-serif";
-  var statusText = correct ? "Challenge Completed" : "Challenge Attempted";
-  ctx.fillText(statusText, 50, 75);
+  ctx.font = "bold 38px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(correct ? "Daily Arena Cleared" : "Daily Arena Attempted", 50, 75);
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.font = "13px sans-serif";
-  ctx.fillText("SUBJECT FOCUS", 50, 160);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("SECTOR TOPIC", 50, 170);
   
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = "600 22px sans-serif";
-  ctx.fillText(subj, 50, 185);
+  ctx.fillStyle = "#f1f5f9";
+  ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(subj, 50, 195);
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.font = "13px sans-serif";
-  ctx.fillText("CURRENT STREAK TRACK", 50, 250);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("ACTIVE SUCCESS STREAK", 50, 265);
   
   ctx.fillStyle = "#3b82f6"; 
-  ctx.font = "bold 46px sans-serif";
-  ctx.fillText(streak + " Days", 50, 275);
+  ctx.font = "bold 48px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(streak + " Days", 50, 290);
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.font = "13px sans-serif";
-  ctx.fillText("studylab-inky.vercel.app", 50, 380);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("studylab-inky.vercel.app", 50, 385);
 
-  var textDescription = "StudyLab Daily Challenge Update. Track: " + subj + " | Current Streak: " + streak + " days. Keep training at https://studylab-inky.vercel.app";
+  var textDescription = "StudyLab Daily Challenge Arena compiled. Topic: " + subj + " | Active Streak: " + streak + " days. Challenge yourself at https://studylab-inky.vercel.app";
 
   canvas.toBlob(function(blob) {
     if (!blob) return;
-    var file = new File([blob], "studylab-challenge.png", { type: "image/png" });
+    var file = new File([blob], "studylab-daily.png", { type: "image/png" });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ title: "StudyLab Daily Challenge", text: textDescription, files: [file] }).catch(function(){});
+      navigator.share({ title: "StudyLab Daily", text: textDescription, files: [file] }).catch(function(){});
     } else {
       navigator.clipboard.writeText(textDescription).then(function() {
         var link = document.createElement("a");
-        link.download = "studylab-score.png";
+        link.download = "studylab-performance.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-        if (typeof toast === "function") toast("Performance copied & card downloaded.", "#10b981");
+        if (typeof toast === "function") toast("Performance record finalized & graphic saved.", "#10b981");
       });
     }
   }, "image/png");
 }
 
-// ─── DAILY CHALLENGE HUB OVERHAUL ────────────────────────────────
+// ─── MAIN PREMIUM DAILY HUB PAGE ──────────────────────────────────
 function pgDaily() {
   var w = el("div", { css: { 
     maxWidth: "600px", 
     margin: "0 auto", 
     padding: "32px 16px 60px 16px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
   } });
 
-  // Safety Fallback if PapaParse sheets haven't finished downloading yet
+  // 1. Loading Safe Fallback (Checks your sheet database window.QD setup)
   if (!window.SUBJ || !window.QD || Object.keys(window.QD).length === 0) {
-    w.appendChild(el("div", { css: { textAlign: "center", padding: "40px", color: "var(--muted, #666)" }, txt: "Syncing study modules from cloud matrix..." }));
+    w.appendChild(el("div", { css: { textAlign: "center", padding: "60px 20px", color: "var(--muted, #666)", fontSize: "0.95rem" }, txt: "Syncing global daily challenge core..." }));
     return w;
   }
 
-  var streakInfo = checkStreakStatus();
+  var appState = getDailyState();
 
-  // 1. Premium Header containing an elegant Target SVG vector
-  var hdr = el("div", { css: { 
-    display: "flex", 
-    alignItems: "center", 
-    gap: "14px", 
-    marginBottom: "36px", 
-    paddingBottom: "20px", 
-    borderBottom: "1px solid var(--border, #eaeaea)" 
-  } });
-
-  var targetSvg = el("svg", { 
-    attr: { viewBox: "0 0 24 24", width: "26", height: "26", fill: "none", stroke: "currentColor", strokeWidth: "2.5" }, 
-    css: { color: "var(--accent, #3b82f6)", flexShrink: "0" } 
-  }, [
-    el("circle", { attr: { cx: "12", cy: "12", r: "10" } }),
-    el("circle", { attr: { cx: "12", cy: "12", r: "6" } }),
-    el("circle", { attr: { cx: "12", cy: "12", r: "1.5", fill: "currentColor" } })
-  ]);
-  hdr.appendChild(targetSvg);
-
-  var headerContent = el("div", { css: { flex: "1" } }, [
-    el("div", { css: { fontSize: "1.4rem", fontWeight: "800", letterSpacing: "-0.02em", color: "var(--text, #111)" }, txt: "Daily Challenge Hub" }),
-    el("div", { css: { fontSize: ".85rem", color: "var(--muted, #666)", marginTop: "2px" }, txt: "Smart Review & Global Milestones" })
-  ]);
-  hdr.appendChild(headerContent);
-
-  // Premium Streak Indicator Pill Badge
-  var streakBadge = el("div", { css: {
-    display: "flex", alignItems: "center", gap: "6px",
-    background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-    padding: "6px 14px", borderRadius: "20px", color: "#fff", fontWeight: "700", fontSize: "0.8rem",
-    boxShadow: "0 4px 12px rgba(59,130,246,0.2)"
-  } }, [
-    el("span", { txt: "STREAK: " + streakInfo.streak + " DAYS" })
-  ]);
-  hdr.appendChild(streakBadge);
-  w.appendChild(hdr);
-
-  // 2. YOUR ORIGINAL SRS ALGORITHM ENGINE (Completely Untouched)
-  var now = Date.now();
-  var dueCards = [];
-  var totalKnown = 0;
-
+  // 2. Select Question Dynamically (Consistent for all users on this calendar date)
+  var allGlobalQuestions = [];
   window.SUBJ.forEach(function(subj) {
-    var sv = Sv.get("fc_" + subj);
-    if (!sv || !sv.k) return;
-
-    var knownData = sv.k; 
-    var subjQuestions = window.QD[subj] || [];
-
-    subjQuestions.forEach(function(q) {
-      if (!q || !q.q || typeof q.q !== "string") return; 
-      var qId = q.q.slice(0, 35);
-      if (knownData[qId]) {
-        totalKnown++;
-        if (knownData[qId] < now) {
-          dueCards.push({ subject: subj, q: q, id: qId });
-        }
-      }
+    var list = window.QD[subj] || [];
+    list.forEach(function(item) {
+      allGlobalQuestions.push({ data: item, subjectName: subj });
     });
   });
 
-  // 3. UI Dashboard Layout
-  var dash = el("div", { css: { 
-    display: "grid", 
-    gridTemplateColumns: "1fr 1fr", 
-    gap: "16px", 
-    marginBottom: "32px" 
+  if (allGlobalQuestions.length === 0) {
+    w.appendChild(el("div", { css: { textAlign: "center", padding: "40px", color: "var(--muted)" }, txt: "No questions currently configured." }));
+    return w;
+  }
+
+  var targetedIndex = getDailySeedIndex(allGlobalQuestions.length);
+  var dailyChallenge = allGlobalQuestions[targetedIndex].data;
+  var dailySubject = allGlobalQuestions[targetedIndex].subjectName;
+
+  // 3. Editorial Premium Header View
+  var hdr = el("div", { css: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px", paddingBottom: "20px", borderBottom: "1px solid var(--border, #eaeaea)" } });
+  
+  var leftHeader = el("div", {}, [
+    el("div", { css: { fontSize: "1.4rem", fontWeight: "800", letterSpacing: "-0.02em", color: "var(--text, #111)" }, txt: "Daily Arena" }),
+    el("div", { css: { fontSize: ".85rem", color: "var(--muted, #666)", marginTop: "2px" }, txt: "One focus question. Every 24 hours." })
+  ]);
+  hdr.appendChild(leftHeader);
+
+  // High-end Streak Counter Badge Vector Integration
+  var streakBadge = el("div", { css: { 
+    display: "flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+    padding: "8px 16px", borderRadius: "24px", color: "#fff", fontWeight: "700", fontSize: "0.85rem", boxShadow: "0 4px 14px rgba(37,99,235,0.2)"
+  } });
+  
+  var flameSvg = el("svg", { attr: { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor" } }, [
+    el("path", { attr: { d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" } }),
+    el("path", { attr: { d: "M15 11a3 3 0 11-6 0 3 3 0 016 0z" } })
+  ]);
+  streakBadge.appendChild(flameSvg);
+  streakBadge.appendChild(el("span", { txt: String(appState.streak) + " DAYS" }));
+  hdr.appendChild(streakBadge);
+  w.appendChild(hdr);
+
+  // 4. Interactive Main Focus Question Space
+  var arenaCard = el("div", { css: {
+    background: "var(--card, #fff)", border: "1px solid var(--border, #eaeaea)", borderRadius: "24px",
+    padding: "28px 24px", boxShadow: "0 10px 30px rgba(0,0,0,0.02)", marginBottom: "24px"
   } });
 
-  var dynamicBg = dueCards.length > 0 ? "rgba(245,158,11,0.06)" : "rgba(34,197,94,0.06)";
-  var dynamicBorder = dueCards.length > 0 ? "1px solid rgba(245,158,11,0.25)" : "1px solid rgba(34,197,94,0.25)";
-  var dynamicColor = dueCards.length > 0 ? "#d97706" : "#16a34a";
+  // Category Tag Meta
+  arenaCard.appendChild(el("div", { css: { fontSize: "0.72rem", fontWeight: "800", color: "var(--accent, #3b82f6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }, txt: dailySubject + " • " + (dailyChallenge.topic || "General") }));
+  
+  // Clean Question Body text layout
+  arenaCard.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "700", lineHeight: "1.5", color: "var(--text, #111)", marginBottom: "24px" }, txt: dailyChallenge.q }));
 
-  var dueBox = el("div", { css: { background: dynamicBg, border: dynamicBorder, borderRadius: "20px", padding: "28px 20px", textAlign: "center" } });
-  dueBox.appendChild(el("div", { css: { fontSize: "2.8rem", fontWeight: "800", color: dynamicColor, lineHeight: "1", letterSpacing: "-0.03em" }, txt: String(dueCards.length) }));
-  dueBox.appendChild(el("div", { css: { fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--text, #111)", fontWeight: "700", marginTop: "12px", opacity: "0.8" }, txt: "Cards Due" }));
-  dash.appendChild(dueBox);
+  // Options Container Render
+  var optionsWrapper = el("div", { css: { display: "flex", flexDirection: "column", gap: "10px" } });
+  
+  var optionsList = dailyChallenge.o || [];
+  optionsList.forEach(function(optionText, optionIdx) {
+    if (!optionText) return;
 
-  var memBox = el("div", { css: { background: "var(--card, #fff)", border: "1px solid var(--border, #eaeaea)", borderRadius: "20px", padding: "28px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.01)" } });
-  memBox.appendChild(el("div", { css: { fontSize: "2.8rem", fontWeight: "800", color: "var(--accent, #3b82f6)", lineHeight: "1", letterSpacing: "-0.03em" }, txt: String(totalKnown) }));
-  memBox.appendChild(el("div", { css: { fontSize: ".72rem", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--muted, #666)", fontWeight: "700", marginTop: "12px" }, txt: "In Learning Phase" }));
-  dash.appendChild(memBox);
-  w.appendChild(dash);
+    var isSelected = (appState.savedAnswer !== null && parseInt(appState.savedAnswer, 10) === optionIdx);
+    var isCorrectOption = (optionIdx === dailyChallenge.a);
 
-  // 4. SMART CONTEXTUAL ACTION AREA
-  var startBox = el("div", { css: { 
-    padding: "36px 24px", background: "var(--card, #fff)", borderRadius: "24px", 
-    border: "1px solid var(--border, #eaeaea)", boxShadow: "0 10px 30px rgba(0,0,0,0.02)", textAlign: "center"
-  } });
+    // Baseline element styling rules
+    var optStyle = {
+      width: "100%", padding: "14px 18px", borderRadius: "14px", border: "1px solid var(--border, #eaeaea)",
+      background: "var(--bg, #f9fafb)", textAlign: "left", fontSize: "0.95rem", fontWeight: "500",
+      cursor: appState.hasPlayedToday ? "default" : "pointer", transition: "all 0.15s ease", color: "var(--text, #333)"
+    };
 
-  if (dueCards.length > 0) {
-    // SCENARIO A: User has pending historical cards ready for calculation
-    startBox.appendChild(el("div", { css: { fontSize: ".92rem", color: "var(--text, #333)", marginBottom: "24px", lineHeight: "1.6" }, txt: "You have personalized flashcards waiting for review. The algorithm determines these are the points you are most likely to forget today." }));
+    // If already locked in for the day, style correct/incorrect states instantly
+    if (appState.hasPlayedToday) {
+      if (isCorrectOption) {
+        optStyle.background = "rgba(16, 185, 129, 0.08)";
+        optStyle.borderColor = "#10b981";
+        optStyle.color = "#047857";
+        optStyle.fontWeight = "700";
+      } else if (isSelected && !isCorrectOption) {
+        optStyle.background = "rgba(244, 63, 94, 0.08)";
+        optStyle.borderColor = "#f43f5e";
+        optStyle.color = "#be123c";
+      } else {
+        optStyle.opacity = "0.5";
+      }
+    }
+
+    var optBtn = el("button", { css: optStyle, txt: optionText });
+
+    // Click handler configuration
+    if (!appState.hasPlayedToday) {
+      optBtn.onclick = function() {
+        var isCorrect = (optionIdx === dailyChallenge.a);
+        var calculatedStreak = isCorrect ? (appState.streak + 1) : 0;
+
+        // Commit immutable parameters securely to Local Storage
+        localStorage.setItem("sl_daily_last_cleared", appState.todayKey);
+        localStorage.setItem("sl_daily_user_ans", String(optionIdx));
+        localStorage.setItem("sl_daily_streak", String(calculatedStreak));
+
+        if (typeof toast === "function") {
+          if (isCorrect) toast("Target verified. Streak continuous.", "#10b981");
+          else toast("Answer incorrect. Streak broken.", "#f43f5e");
+        }
+
+        // Trigger safe UI re-evaluation loop
+        if (typeof go === "function") { go("daily"); } 
+        else {
+          // If native framework router does not exist, swap out to refresh changes
+          w.innerHTML = "";
+          w.appendChild(pgDaily().innerHTML);
+        }
+      };
+    }
+
+    optionsWrapper.appendChild(optBtn);
+  });
+
+  arenaCard.appendChild(optionsWrapper);
+  w.appendChild(arenaCard);
+
+  // 5. Post-Action Sharing Workspace Dashboard UI
+  if (appState.hasPlayedToday) {
+    var wasCorrect = (parseInt(appState.savedAnswer, 10) === dailyChallenge.a);
+
+    var actionCard = el("div", { css: { 
+      textAlign: "center", padding: "28px 24px", background: "var(--card, #fff)", borderRadius: "24px",
+      border: "1px solid var(--border, #eaeaea)", boxShadow: "0 10px 30px rgba(0,0,0,0.02)"
+    } });
+
+    actionCard.appendChild(el("div", { 
+      css: { fontSize: "1.1rem", fontWeight: "700", marginBottom: "6px", color: wasCorrect ? "#10b981" : "#f43f5e" }, 
+      txt: wasCorrect ? "Spectacular work!" : "Locked till tomorrow"
+    }));
     
-    var runBtn = el("button", { 
-      cls: "btn btnp", 
-      css: { width: "100%", padding: "16px", fontSize: "1.05rem", fontWeight: "700", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }, 
+    actionCard.appendChild(el("div", { 
+      css: { fontSize: "0.88rem", color: "var(--muted, #666)", marginBottom: "20px" }, 
+      txt: wasCorrect ? "You solved today's puzzle. Broadcast your streak record to your colleagues." : "The tracking system is locked. Come back tomorrow for the next challenge matrix." 
+    }));
+
+    var shareBtn = el("button", {
+      cls: "btn btnp",
+      css: { 
+        width: "100%", padding: "14px", fontSize: "1rem", fontWeight: "700", borderRadius: "14px",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "none"
+      },
       onclick: function() {
-        if (typeof launchSRSRun === "function") { launchSRSRun(dueCards); } 
-        else { toast("Daily Review Engine launching...", "#3b82f6"); }
-      } 
+        shareScore(dailySubject, wasCorrect, appState.streak);
+      }
     }, [
-      el("span", { txt: "Start Personal Review" }),
-      el("svg", { attr: { viewBox: "0 0 24 24", width: "18", height: "18", fill: "none", stroke: "currentColor", strokeWidth: "2.5" } }, [
-        el("line", { attr: { x1: "5", y1: "12", x2: "19", y2: "12" } }),
-        el("polyline", { attr: { points: "12 5 19 12 12 19" } })
+      el("span", { txt: "Share Challenge Card" }),
+      el("svg", { attr: { viewBox: "0 0 24 24", width: "16", height: "16", fill: "none", stroke: "currentColor", strokeWidth: "2.5" } }, [
+        el("circle", { attr: { cx: "18", cy: "5", r: "3" } }),
+        el("circle", { attr: { cx: "6", cy: "12", r: "3" } }),
+        el("circle", { attr: { cx: "18", cy: "19", r: "3" } }),
+        el("line", { attr: { x1: "8.59", y1: "13.51", x2: "15.42", y2: "17.49" } }),
+        el("line", { attr: { x1: "15.41", y1: "6.51", x2: "8.59", y2: "10.49" } })
       ])
     ]);
-    startBox.appendChild(runBtn);
-    w.appendChild(startBox);
 
-  } else {
-    // SCENARIO B: User is fully caught up (Like your screenshot!) -> Auto-Generate a Blind Daily Question from window.QD
-    var randomSubject = window.SUBJ[Math.floor(Math.random() * window.SUBJ.length)];
-    var subPool = window.QD[randomSubject] || [];
-    
-    if (subPool.length > 0) {
-      var dailyQuestionObj = subPool[Math.floor(Math.random() * subPool.length)];
-
-      startBox.appendChild(el("div", { css: { fontSize: "0.72rem", fontWeight: "800", color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }, txt: "⚡ Daily Blind Pool Challenge" }));
-      startBox.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "700", marginBottom: "8px" }, txt: "You're all caught up for the day!" }));
-      startBox.appendChild(el("div", { css: { fontSize: ".88rem", color: "var(--muted, #666)", marginBottom: "24px", lineHeight: "1.5", maxWidth: "440px", margin: "0 auto 24px auto" }, txt: "Your scheduled decks are completely empty. Test your boundaries with a random question drawn from your " + randomSubject + " database sheets instead." }));
-      
-      var blindBtn = el("button", {
-        cls: "btn btnp",
-        css: { width: "100%", padding: "16px", fontSize: "1.05rem", fontWeight: "700", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", background: "var(--text, #111)", color: "var(--bg, #fff)" },
-        onclick: function() {
-          // Process streak progression
-          localStorage.setItem("sl_streak", String(streakInfo.streak + 1));
-          localStorage.setItem("sl_last_active", String(Date.now()));
-          
-          // Route question payload securely straight into your main layout renderer
-          if (typeof go === "function") {
-            go("quiz", { subject: randomSubject, singleQuestion: dailyQuestionObj });
-          } else {
-            toast("Launching " + randomSubject + " Blind Challenge...", "var(--accent)");
-          }
-        }
-      }, [
-        el("span", { txt: "Launch Today's Question" }),
-        el("svg", { attr: { viewBox: "0 0 24 24", width: "18", height: "18", fill: "none", stroke: "currentColor", strokeWidth: "2.5" } }, [
-          el("path", { attr: { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" } }),
-          el("polyline", { attr: { points: "15 3 21 3 21 9" } }),
-          el("line", { attr: { x1: "10", y1: "14", x2: "21", y2: "3" } })
-        ])
-      ]);
-      startBox.appendChild(blindBtn);
-    } else {
-      // Catch-all safety if the databases are initialized but empty
-      startBox.appendChild(el("div", { css: { fontSize: "1.15rem", fontWeight: "700", marginBottom: "8px" }, txt: "You're all caught up!" }));
-      startBox.appendChild(el("button", { cls: "btn btnp", onclick: function() { go("home"); } }, "Explore Subjects"));
-    }
-    w.appendChild(startBox);
+    actionCard.appendChild(shareBtn);
+    w.appendChild(actionCard);
   }
 
   return w;
