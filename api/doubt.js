@@ -1,6 +1,6 @@
 // api/doubt.js
 // ─────────────────────────────────────────────────────────────────
-// Debugging Version — AI Doubt Solver
+// Final Working Version — AI Doubt Solver with Low Reasoning
 // ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -30,45 +30,28 @@ Answer clearly and concisely in under 150 words. Use simple English.`;
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user",   content: question.trim() }
         ],
-        temperature: 0.4,
-        max_tokens: 300
+        temperature: 0.2, // Thoda kam kiya deterministic output ke liye
+        max_tokens: 300,
+        reasoning_effort: "low" // ✅ FIXED: Isse model lambi reasoning chhodkar seedha content bhejega!
       })
     });
 
-    // Pehle raw text check karte hain ki kuch aa bhi raha hai ya nahi
-    const rawText = await sarvamRes.text();
-    
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (e) {
-      // Agar JSON nahi hai (jaise HTML error page ya bad gateway)
-      return res.status(200).json({ 
-        answer: `⚠️ Server returned non-JSON response. Raw: ${rawText.substring(0, 200)}` 
-      });
-    }
+    const data = await sarvamRes.json();
 
-    // 1. Agar Sarvam ne koi error bheja hai
     if (data.error) {
-      return res.status(200).json({ 
-        answer: `⚠️ Sarvam Error: ${data.error.message || JSON.stringify(data.error)}` 
-      });
+      return res.status(200).json({ answer: `⚠️ Sarvam Error: ${data.error.message || JSON.stringify(data.error)}` });
     }
 
-    // 2. Agar sahi response aaya hai
-    const answer = data?.choices?.[0]?.message?.content;
+    // Pehle normal content check karo, agar reasoning_content mein hi sab likha hai toh woh le lo
+    const answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content;
+    
     if (answer) {
       return res.status(200).json({ answer: answer });
     }
 
-    // 3. Agar response aaya par structure bilkul alag hai (Poora data screen par dikhega)
-    return res.status(200).json({ 
-      answer: `⚠️ Data structural mismatch. Received: ${JSON.stringify(data).substring(0, 300)}` 
-    });
+    return res.status(200).json({ answer: "⚠️ Model did not return any text text." });
 
   } catch (err) {
-    return res.status(200).json({ 
-      answer: `⚠️ Backend catch block error: ${err.message || err}` 
-    });
+    return res.status(200).json({ answer: `⚠️ Backend Error: ${err.message}` });
   }
 }
