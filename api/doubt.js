@@ -1,21 +1,16 @@
 // api/doubt.js
 // ─────────────────────────────────────────────────────────────────
-// STUDYLAB MASTER BACKEND — CRASH-PROOF AI DOUBT SOLVER
+// FINAL PRODUCTION VERSION — STOPS MONOLOGUE & FORCES COMPLETE ANSWERS
 // ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed." });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { question } = req.body;
+  if (!question || question.trim() === "") return res.status(400).json({ error: "Question is required." });
 
-  if (!question || typeof question !== "string" || question.trim() === "") {
-    return res.status(400).json({ error: "Please enter a valid question." });
-  }
-
-  // 💡 System prompt ko bilkul chota aur direct rakha hai taaki AI gyaan na bante
-  const SYSTEM_PROMPT = "You are a direct study assistant for Indian competitive exams. Provide a short, complete answer under 150 words using simple English. Do not write any internal thinking, planning steps, or numbered analysis. Start directly with the answer.";
+  // Prompt ko ekdum chota aur directly hit karne waala banaya hai
+  const SYSTEM_PROMPT = "Provide a direct, complete answer for competitive exams under 150 words using simple English. Do not show any internal brainstorming, refining steps, or meta-commentary like 'Refining and Combining'. Start immediately with the facts.";
 
   try {
     const sarvamRes = await fetch("https://api.sarvam.ai/v1/chat/completions", {
@@ -29,33 +24,53 @@ export default async function handler(req, res) {
         messages: [
           { role: "user", content: `${SYSTEM_PROMPT}\n\nQuestion: ${question.trim()}` }
         ],
-        temperature: 0.0,       // Strict deterministic output
-        max_tokens: 450,        // Ample tokens taaki answer beech mein na kate
-        reasoning_effort: "low" // Suppresses heavy thinking chains on supported gateways
+        temperature: 0.0, 
+        max_tokens: 500
       })
     });
 
     const data = await sarvamRes.json();
+    if (data.error) return res.status(200).json({ answer: `⚠️ Sarvam Error: ${data.error.message || JSON.stringify(data.error)}` });
 
-    if (data.error) {
-      return res.status(200).json({ answer: "System busy. Please try again in a moment." });
-    }
-
-    let finalAnswer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
-
-    if (finalAnswer) {
-      // 🛡️ BACKEND SAFETY LAYER: Agar AI fir bhi dheetpan kare, toh code planning blocks ko uda dega
-      if (finalAnswer.includes("1. ") || finalAnswer.includes("Analyze") || finalAnswer.includes("Deconstruct")) {
-        const cleanBlocks = finalAnswer.split(/\n\n/);
-        finalAnswer = cleanBlocks[cleanBlocks.length - 1];
+    let answer = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.reasoning_content || "";
+    
+    if (answer) {
+      // 🎯 FORCEFUL EXTRACTOR: Agar AI apni aadat se majboor ho kar planning text bhejta hai,
+      // toh hum use direct bullet points ya paragraph se split karke sirf actual answer nikalenge.
+      if (answer.toLowerCase().includes("refining") || answer.toLowerCase().includes("let's start") || answer.toLowerCase().includes("core definition")) {
+        
+        // Agar text ke andar clear point indicators hain jaise "*" ya "-" toh unka use karenge
+        const blocks = answer.split(/\n+/);
+        let cleanLines = [];
+        
+        for (let line of blocks) {
+          let trimmed = line.trim();
+          // Faltu headings ko skip karenge aur sirf quotes ke andar ka ya clean statement uthayenge
+          if (trimmed && !trimmed.toLowerCase().includes("refining") && !trimmed.toLowerCase().includes("structuring") && !trimmed.toLowerCase().includes("brainstorming")) {
+            // Agar line mein "The Prime Minister..." jaisa text quotes mein hai ya direct hai, toh clean karein
+            let cleanLine = trimmed.replace(/^[\s\-\*\"\']+|[\"\'\:]+$/g, '');
+            if (cleanLine.toLowerCase().startsWith("let's start")) {
+              cleanLine = cleanLine.replace(/Let's start with the core definition\.?/i, '').trim();
+            }
+            if (cleanLine) cleanLines.push(cleanLine);
+          }
+        }
+        
+        if (cleanLines.length > 0) {
+          answer = cleanLines.join(" ");
+        }
       }
-      
-      return res.status(200).json({ answer: finalAnswer.trim() });
+
+      // Agar filter lagne ke baad bhi kuch "Let's start" bacha ho toh ek last safety check
+      answer = answer.replace(/Refining and Combining for Conciseness and Simplicity.*?\n/gi, "");
+      answer = answer.replace(/Let's start with the core definition\.?/gi, "");
+
+      return res.status(200).json({ answer: answer.trim() });
     }
 
-    return res.status(200).json({ answer: "Could not generate a response. Please rephrase." });
+    return res.status(200).json({ answer: "⚠️ Model did not return any text." });
 
   } catch (err) {
-    return res.status(500).json({ error: "Internal server connectivity failure." });
+    return res.status(200).json({ answer: `⚠️ Backend Error: ${err.message}` });
   }
 }
