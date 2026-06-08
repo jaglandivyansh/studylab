@@ -68,15 +68,17 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
   .then(data => {
     if (data.choices && data.choices[0] && data.choices[0].message) {
       let mainContent = data.choices[0].message.content || data.choices[0].message.reasoning_content || "";
-      
+
       if (mainContent.includes("1. ") || mainContent.includes("Analyze")) {
         var parts = mainContent.split(/\n\n/);
         mainContent = parts[parts.length - 1];
       }
-      
+
+      contentArea.style.color = "var(--text)"; // Text color ensure karne ke liye
       contentArea.innerText = mainContent.trim() || "No clear answer returned.";
     } 
     else if (data.answer) {
+      contentArea.style.color = "var(--text)";
       contentArea.innerText = data.answer;
     }
     else if (data.error) {
@@ -90,6 +92,7 @@ function openSarvamAIModal(questionText, optionsArr, correctIndex, subject) {
     contentArea.innerText = "Connection lost. Please check your internet.";
   });
 }
+
 
 
 // ========================================
