@@ -1749,28 +1749,35 @@ body {
    UNIFIED FLOATING PILL SYSTEM (GLOBAL)
    ════════════════════════════════════════════ */
 
-/* Apply this to both top and bottom navbars for identical behavior */
+/* ════════ FULL-WIDTH FLOATING PILL SYSTEM ════════ */
+
 #top-navbar, #bottom-navbar {
   position: fixed;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  /* Fixed width logic for all devices */
-  width: calc(100% - 32px) !important;
-  max-width: 480px !important;
+  
+  /* Use 95% width to cover full screen with a tiny margin on edges */
+  width: 95% !important; 
+  /* Remove the small max-width restriction to allow full expansion */
+  max-width: 1400px !important; 
+  
   z-index: 10000 !important;
-  pointer-events: none; /* Allows clicking through the empty space */
+  pointer-events: none;
 }
 
-/* The actual 'Island' surface */
+/* The actual Island surface */
 .nb-island, #bottom-navbar {
-  pointer-events: auto; /* Re-enable clicks only on the island */
+  pointer-events: auto;
   height: 56px !important;
   background: rgba(17, 24, 39, 0.85) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 100px !important;
-  padding: 0 16px !important;
+  
+  /* Increased border radius for a smoother pill shape */
+  border-radius: 100px !important; 
+  
+  padding: 0 24px !important; /* More padding for wide screens */
   box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1) !important;
   transition: all 0.3s ease;
 }
