@@ -113,34 +113,20 @@ function makeModernHero() {
 
   var ctaRow = el("div", { css: { display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap", marginBottom: "48px" } });
   
+// Inside your makeModernHero function in page-home.js:
   var primaryBtn = el("button", {
-  css: {
-    padding: "14px 32px", borderRadius: "14px", border: "1px solid rgba(79, 142, 247, 0.3)",
-    background: "linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(59, 130, 246, 0.05))", 
-    color: "var(--text)", fontWeight: "600", backdropFilter: "blur(12px)",
-    fontSize: "1rem", cursor: "pointer",
-    boxShadow: "0 8px 24px rgba(0,0,0,0.1)", 
-    transition: "all 0.4s var(--spring-easing)"
-  },
-  onclick: function(e) {
-    e.preventDefault();
-    
-    // 1. Try finding by ID
-    var target = document.getElementById('ss');
-    
-    // 2. Fallback: If not found, try to find it by class if you used one
-    if (!target) target = document.querySelector('.subjsec') || document.querySelector('#ss');
-    
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      // 3. Debugging: If it still fails, tell us what's in the DOM
-      console.warn("Target 'ss' not found. Ensure subjSec has id: 'ss'");
-      // Try to scroll to the end of the app container if all else fails
-      document.getElementById('app').lastElementChild.scrollIntoView({ behavior: 'smooth' });
+    css: {
+      padding: "14px 32px", borderRadius: "14px", border: "1px solid rgba(79, 142, 247, 0.3)",
+      background: "linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(59, 130, 246, 0.05))", 
+      color: "var(--text)", fontWeight: "600", backdropFilter: "blur(12px)",
+      fontSize: "1rem", cursor: "pointer",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.1)", 
+      transition: "all 0.4s var(--spring-easing)"
+    },
+    onclick: function() { 
+        go("govtupdates"); // Redirects to the Government Updates page
     }
-  }
-}, "Enter the Lab →");
+}, "View Updates →"); // Updated Button Text
   
   primaryBtn.addEventListener("mouseenter", function() { 
       this.style.transform = "scale(1.04) translateY(-2px)"; 
