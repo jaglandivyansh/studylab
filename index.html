@@ -9,91 +9,31 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta property="og:image" content="logo.png">
 
-<!-- 
-═══════════════════════════════════════════════════════════════════
-STUDYLAB - Student Edition
-═══════════════════════════════════════════════════════════════════
-Free online study partner for competitive exams
-Practice History, Geography, Polity and more
-═══════════════════════════════════════════════════════════════════
--->
-
 <!-- ═══ SEO META TAGS ═══ -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta property="og:description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta name="twitter:description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free. Built for UPSC, SSC, RRB & state exam aspirants." />
-<meta name="keywords" content="StudyLab, online study, free study app, history questions, geography quiz, polity practice, economics questions, science MCQs, current affairs, daily current affairs, current affairs 2025, general studies, GS paper 1, competitive exam, UPSC, SSC, RRB, state PCS, government exam, 4000+ MCQs, flashcards, study tracker, exam preparation" />
-<meta name="author" content="StudyLab" />
-<meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://studylab-inky.vercel.app/" />
-
-<!-- ═══ OPEN GRAPH (WhatsApp, Facebook, LinkedIn previews) ═══ -->
-<meta property="og:type" content="website" />
-<meta property="og:title" content="StudyLab — Your Ultimate Competitive Exam Partner" />
-<meta property="og:description" content="Master History, Geography, Polity and more with thousands of curated questions. Track progress, get daily practice and government exam updates — all for free." />
-<meta property="og:url" content="https://studylab-inky.vercel.app/" />
-<meta property="og:site_name" content="StudyLab" />
-<meta property="og:locale" content="en_IN" />
-
-<!-- ═══ TWITTER CARD ═══ -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="StudyLab — Your Ultimate Competitive Exam Partner" />
-<meta name="twitter:description" content="Your free study partner for UPSC, SSC, RRB and competitive exams. Practice daily, track progress, get govt updates." />
-<meta name="twitter:site" content="@StudyLab" />
+<meta name="description" content="Practice 4000+ MCQs, get instant AI explanations & master GS topics — all free." />
 
 <!-- ═══ PWA SUPPORT ═══ -->
-<meta name="theme-color" content="#080C12" />
+<meta name="theme-color" content="#05080F" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="StudyLab" />
 <link rel="manifest" href="manifest.json" />
 
-<!-- ═══ STRUCTURED DATA (Google Rich Results) ═══ -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "StudyLab",
-  "url": "https://studylab-inky.vercel.app/",
-  "description": "Free online learning platform for competitive exam preparation covering History, Geography, Polity and more.",
-  "applicationCategory": "EducationApplication",
-  "operatingSystem": "Web",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "INR"
-  },
-  "inLanguage": "en-IN",
-  "audience": {
-    "@type": "Audience",
-    "audienceType": "Students preparing for UPSC, SSC, RRB and other competitive exams"
-  }
-}
-</script>
-
-<!-- ═══ INSTANT THEME LOADING (Prevents Flash) ═══ -->
+<!-- ═══ INSTANT THEME LOADING (Dark Mode Locked) ═══ -->
 <script>
-// This script runs BEFORE page render to prevent theme flash
 (function() {
-  const savedTheme = localStorage.getItem('theme');
-  const isDark = savedTheme !== 'light'; // Default to dark
   const root = document.documentElement;
-  
-  // Grab the meta theme-color tag
   let metaTheme = document.querySelector('meta[name="theme-color"]');
 
-  // Apply theme instantly
-  root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  
-  // Set Android system bars instantly (🔥 UPDATE HOGAYA)
+  // Force dark mode permanently
+  root.setAttribute('data-theme', 'dark');
   if (metaTheme) {
-    metaTheme.setAttribute('content', isDark ? '#0F172A' : '#FFFFFF');
+    metaTheme.setAttribute('content', '#05080F'); 
   }
   
-  // Add no-transition class to prevent flash on load
   document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.add('no-transition');
     setTimeout(function() {
@@ -107,83 +47,15 @@ Practice History, Geography, Polity and more
 <link rel="stylesheet" href="styles.css">
 
 <style>
-/* ═══ AI DOUBT SOLVER — LIGHT MODE FIX ════════════════════════════
-   api.js creates the AI modal dynamically. These overrides ensure
-   all text/backgrounds respect the active theme (light OR dark).   */
-
-/* The overlay backdrop */
-.ai-modal-overlay,
-#sarvam-modal-overlay,
-[id*="ai-overlay"],
-[id*="doubt-overlay"] {
-  background: rgba(4,8,16,0.85) !important;
-}
-
-/* The modal card itself */
-.ai-modal-card,
-#sarvam-modal,
-[id*="ai-modal"],
-[id*="doubt-modal"] {
-  background: var(--card) !important;
-  color: var(--text) !important;
-  border-color: var(--border2) !important;
-}
-
-/* ALL text nodes inside any AI / doubt modal */
-.ai-modal-card *,
-#sarvam-modal *,
-[id*="ai-modal"] *,
-[id*="doubt-modal"] * {
-  color: var(--text) !important;
-}
-
-/* Muted helper text */
-.ai-modal-card .muted,
-.ai-modal-card small,
-#sarvam-modal .muted,
-#sarvam-modal small {
-  color: var(--muted) !important;
-}
-
-/* The scrollable answer / stream area */
-#sarvam-response,
-#ai-response-box,
-.ai-response-area,
-[id*="ai-answer"],
-[id*="ai-response"],
-[id*="ai-output"],
-[id*="doubt-answer"] {
-  background: var(--bg2) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
-}
-
-/* Section headers inside the response (e.g. "Explanation:", "Tip:") */
-#sarvam-response strong,
-#sarvam-response b,
-.ai-response-area strong,
-.ai-response-area b {
-  color: var(--text) !important;
-}
-
-/* Loading / thinking state text */
-.ai-loading-text,
-.ai-thinking,
-[id*="ai-status"],
-[id*="ai-loading"] {
-  color: var(--muted) !important;
-}
-
-/* Inline code / mono spans inside AI response */
-#sarvam-response code,
-.ai-response-area code {
-  background: var(--bg2) !important;
-  color: var(--accent) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 4px;
-  padding: 0 4px;
-}
-/* ═══ END AI DOUBT SOLVER FIX ══════════════════════════════════*/
+/* ═══ AI DOUBT SOLVER — FORCED DARK MODE FIX ═══ */
+.ai-modal-overlay, #sarvam-modal-overlay, [id*="ai-overlay"], [id*="doubt-overlay"] { background: rgba(4,8,16,0.85) !important; }
+.ai-modal-card, #sarvam-modal, [id*="ai-modal"], [id*="doubt-modal"] { background: var(--card) !important; color: var(--text) !important; border-color: var(--border2) !important; }
+.ai-modal-card *, #sarvam-modal *, [id*="ai-modal"] *, [id*="doubt-modal"] * { color: var(--text) !important; }
+.ai-modal-card .muted, .ai-modal-card small, #sarvam-modal .muted, #sarvam-modal small { color: var(--muted) !important; }
+#sarvam-response, #ai-response-box, .ai-response-area, [id*="ai-answer"], [id*="ai-response"], [id*="ai-output"], [id*="doubt-answer"] { background: var(--bg2) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+#sarvam-response strong, #sarvam-response b, .ai-response-area strong, .ai-response-area b { color: var(--text) !important; }
+.ai-loading-text, .ai-thinking, [id*="ai-status"], [id*="ai-loading"] { color: var(--muted) !important; }
+#sarvam-response code, .ai-response-area code { background: var(--bg2) !important; color: var(--accent) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -214,11 +86,8 @@ Practice History, Geography, Polity and more
     <button onclick="go('about')" data-page="about">About</button>
   </div>
    <div class="nb-right">
-    <button 
-      id="nb-hamburger" 
-      aria-expanded="false" 
-      aria-controls="nb-mobile-drawer" 
-      aria-label="Open navigation menu">
+    <!-- UNIFIED TOGGLE FUNCTION ATTACHED HERE -->
+    <button id="nb-hamburger" onclick="window.toggleDrawer()">
       <span class="line"></span>
       <span class="line"></span>
       <span class="line"></span>
@@ -276,20 +145,18 @@ Practice History, Geography, Polity and more
   </button>
 </div>
 
-
 <!-- ── MOBILE NAVIGATION DRAWER ── -->
-<div id="nb-mobile-overlay" onclick="closeMobileDrawer()"></div>
+<div id="nb-mobile-overlay" onclick="window.closeDrawer()"></div>
 
 <div id="nb-mobile-drawer">
-  
   <div class="drawer-header">
     <div class="drawer-brand">Study<span style="color:var(--accent)">Lab</span></div>
-    <button class="drawer-close-btn" onclick="closeMobileDrawer()">
+    <button class="drawer-close-btn" onclick="window.closeDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   </div>
 
-  <div class="drawer-profile-card" onclick="if(!window.currentUser) { showLoginModal(); closeMobileDrawer(); } else { window.signOut(); closeMobileDrawer(); }">
+  <div class="drawer-profile-card" onclick="if(!window.currentUser) { showLoginModal(); window.closeDrawer(); } else { window.signOut(); window.closeDrawer(); }">
     <div class="profile-avatar-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
     </div>
@@ -305,14 +172,7 @@ Practice History, Geography, Polity and more
   <div class="drawer-menu-list">
     <div class="drawer-section-title">App Settings</div>
 
-    <button onclick="ThemeManager.toggle(); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 1;">
-      <div class="drawer-icon-box" style="--box-color: #8b5cf6; --box-bg: rgba(139, 92, 246, 0.15);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-      </div>
-      <span>Appearance Mode</span>
-    </button>
-
-    <button onclick="go('stats'); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 2;">
+    <button onclick="go('stats'); window.closeDrawer();" class="drawer-menu-item" style="--anim-order: 1;">
       <div class="drawer-icon-box" style="--box-color: #3b82f6; --box-bg: rgba(59, 130, 246, 0.15);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
       </div>
@@ -322,14 +182,14 @@ Practice History, Geography, Polity and more
     <div id="nb-mobile-drawer-divider"></div>
     <div class="drawer-section-title">Support & Info</div>
 
-    <button onclick="openFeedbackModal(); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 3;">
+    <button onclick="openFeedbackModal(); window.closeDrawer();" class="drawer-menu-item" style="--anim-order: 2;">
       <div class="drawer-icon-box" style="--box-color: #f59e0b; --box-bg: rgba(245, 158, 11, 0.15);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
       </div>
       <span>Rate StudyLab</span>
     </button>
 
-    <button onclick="go('about'); closeMobileDrawer();" class="drawer-menu-item" style="--anim-order: 4;">
+    <button onclick="go('about'); window.closeDrawer();" class="drawer-menu-item" style="--anim-order: 3;">
       <div class="drawer-icon-box" style="--box-color: #10b981; --box-bg: rgba(16, 185, 129, 0.15);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
       </div>
@@ -340,9 +200,8 @@ Practice History, Geography, Polity and more
   <div class="drawer-footer-text">StudyLab Premium v2.0</div>
 </div>
 
-
 <script>
-  // This constantly checks if the user logged in and updates the drawer text
+  // Profile state updater
   setInterval(function() {
     var nameEl = document.getElementById('drawer-user-name');
     var actionEl = document.getElementById('drawer-user-action');
@@ -350,11 +209,11 @@ Practice History, Geography, Polity and more
       if(window.currentUser) {
         nameEl.innerText = window.currentUser.displayName || "User";
         actionEl.innerText = "Tap to Sign Out";
-        actionEl.style.color = "#F87171"; // Red for sign out
+        actionEl.style.color = "#F87171"; 
       } else {
         nameEl.innerText = "Guest User";
         actionEl.innerText = "Tap to Sign In";
-        actionEl.style.color = "var(--accent)"; // Blue for sign in
+        actionEl.style.color = "var(--accent)"; 
       }
     }
   }, 1000);
@@ -362,10 +221,8 @@ Practice History, Geography, Polity and more
 
 <div class="app-container">
   <div id="current-affairs-container" class="hide-on-quiz"></div>
-  
   <div id="app"></div>
 </div>
-
 <div id="tc"></div>
 
 <script>
@@ -391,174 +248,69 @@ function toast(msg, color) {
     anim.onfinish = () => t.remove();
   }, 3000);
 }
-// Native zero-dependency Confetti!
-function throwConfetti() {
-  for(let i=0; i<45; i++) {
-    let conf = document.createElement('div');
-    conf.style.cssText = `position:fixed;width:8px;height:8px;background:hsl(${Math.random()*360},100%,60%);top:-10px;left:${Math.random()*100}vw;z-index:99999;border-radius:${Math.random()>.5?'50%':'2px'};pointer-events:none;transform:rotate(${Math.random()*360}deg);`;
-    document.body.appendChild(conf);
-    conf.animate([
-      { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
-      { transform: `translate3d(${(Math.random()-0.5)*250}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
-    ], { duration: 1500 + Math.random()*1200, easing: 'cubic-bezier(.37,0,.63,1)' }).onfinish = () => conf.remove();
-  }
-}
 
-// ========================================
-// MOBILE DRAWER & HAMBURGER LOGIC
-// ========================================
-function toggleMobileDrawer() {
-  const hamburgerBtn = document.getElementById('nb-hamburger');
-  const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  
-  if (!mobileDrawer) return;
+// ── UNIFIED DRAWER CONTROL ENGINE ──
+window.openDrawer = function() {
+  var drawer = document.getElementById('nb-mobile-drawer');
+  var overlay = document.getElementById('nb-mobile-overlay');
+  var hamburger = document.getElementById('nb-hamburger');
+  if(drawer) drawer.classList.add('open');
+  if(overlay) overlay.classList.add('open');
+  if(hamburger) hamburger.classList.add('active');
+};
 
-  const isDrawerOpen = mobileDrawer.classList.contains('open');
+window.closeDrawer = function() {
+  var drawer = document.getElementById('nb-mobile-drawer');
+  var overlay = document.getElementById('nb-mobile-overlay');
+  var hamburger = document.getElementById('nb-hamburger');
+  if(drawer) drawer.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  if(hamburger) hamburger.classList.remove('active');
+};
 
-  if (isDrawerOpen) {
-    // Close it
-    mobileDrawer.classList.remove('open');
-    if(hamburgerBtn) {
-        hamburgerBtn.classList.remove('active');
-        hamburgerBtn.setAttribute('aria-expanded', 'false');
-    }
+window.toggleDrawer = function() {
+  var drawer = document.getElementById('nb-mobile-drawer');
+  if(drawer && drawer.classList.contains('open')) {
+    window.closeDrawer();
   } else {
-    // Open it
-    mobileDrawer.classList.add('open');
-    if(hamburgerBtn) {
-        hamburgerBtn.classList.add('active');
-        hamburgerBtn.setAttribute('aria-expanded', 'true');
-    }
-  }
-}
-
-// Close the drawer if the user presses the Escape key
-document.addEventListener('keydown', function(event) {
-  const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  if (event.key === 'Escape' && mobileDrawer && mobileDrawer.classList.contains('open')) {
-    toggleMobileDrawer();
-  }
-});
-
-// Close the drawer when clicking outside
-document.addEventListener('click', function(event) {
-  const mobileDrawer = document.getElementById('nb-mobile-drawer');
-  const hamburgerBtn = document.getElementById('nb-hamburger');
-  
-  // Check if drawer is open
-  if (mobileDrawer && mobileDrawer.classList.contains('open')) {
-    // Check if click is outside both the drawer and hamburger button
-    if (!mobileDrawer.contains(event.target) && !hamburgerBtn.contains(event.target)) {
-      toggleMobileDrawer();
-    }
-  }
-});
-
-// Attach the click event when page loads
-document.addEventListener("DOMContentLoaded", function() {
-  const hamburgerBtn = document.getElementById('nb-hamburger');
-  if (hamburgerBtn) {
-    hamburgerBtn.addEventListener('click', toggleMobileDrawer);
-  }
-});
-// ========================================
-// THEME SYSTEM
-// ========================================
-var ThemeManager = {
-  isDark: true, // Defaults to Dark Black/Blue mode
-  
-  init: function() {
-    var saved = localStorage.getItem('theme');
-    if (saved === 'light') {
-      this.isDark = false;
-    }
-    this.applyTheme();
-    
-    var toggle = document.getElementById('themeToggle');
-    if (toggle) {
-      var self = this;
-      toggle.onclick = function() {
-        self.toggle();
-      };
-    }
-  },
-  
-  toggle: function() {
-    this.isDark = !this.isDark;
-    localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-    this.applyTheme();
-  },
-  
-    applyTheme: function() {
-    var root = document.documentElement;
-    var toggle = document.getElementById('themeToggle');
-    // Grab the meta theme-color tag
-    var metaTheme = document.querySelector('meta[name="theme-color"]');
-    
-    if (this.isDark) {
-      root.setAttribute('data-theme', 'dark');
-      if (toggle) toggle.innerText = '☀️';
-      // Set Android system bars to Dark (🔥 UPDATE HOGAYA)
-      if (metaTheme) metaTheme.setAttribute('content', '#0F172A'); 
-    } else {
-      root.setAttribute('data-theme', 'light');
-      if (toggle) toggle.innerText = '🌙';
-      // Set Android system bars to Light
-      if (metaTheme) metaTheme.setAttribute('content', '#FFFFFF'); 
-    }
+    window.openDrawer();
   }
 };
 
-// ========================================
-// ROBUST START APPLICATION LOGIC
-// ========================================
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') window.closeDrawer();
+});
+// ──────────────────────────────────
+
 function initializeApp() {
-  // 1. Initialize Theme
-  if (typeof ThemeManager !== 'undefined') ThemeManager.init();
-  
-  // 2. Inject Logo safely
   var nbLogo = document.getElementById('nb-logo-svg');
   if(nbLogo && typeof makeLogo === 'function') {
       nbLogo.innerHTML = ""; 
       nbLogo.appendChild(makeLogo(34));
   }
   
-  // 3. Load Current Affairs (PRIORITY)
   if (typeof loadCurrentAffairs === 'function') {
       loadCurrentAffairs(); 
-  } else {
-      console.error("loadCurrentAffairs function is missing!");
   }
   
-  // 4. Initial Render
   if (typeof render === "function") {
       render();
-  } else {
-      console.error("render function is missing! The app will not display correctly.");
   }
 
-  // 5. Hide Loader Smoothly
   var loader = document.getElementById('app-loader');
   if (loader) {
-      loader.style.opacity = '0'; // Triggers the CSS fade out
-      setTimeout(function() { 
-          loader.remove(); // Removes it completely from the DOM
-      }, 400);
+      loader.style.opacity = '0';
+      setTimeout(function() { loader.remove(); }, 400);
   }
-  // 🚀 6. Trigger the First-Time Tour Check
+
   if (typeof AppTour !== 'undefined') {
       AppTour.init();
   }
 }
 
-// Create a global empty object for our questions
-window.QD = {}; 
-
-// Create a global empty object for our questions
 window.QD = {}; 
 
 function fetchQuestionsAndStart() {
-  // 🚨 PASTE ALL YOUR INDIVIDUAL TAB LINKS HERE 🚨
   const SHEET_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=263668087&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=767959018&single=true&output=csv",
@@ -567,48 +319,34 @@ function fetchQuestionsAndStart() {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=337186880&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=216502792&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1795942396&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=393325687&single=true&output=csv",
-    // Add as many links as you have tabs. Just make sure each line ends with a comma!
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=393325687&single=true&output=csv"
   ];
   
   let completedRequests = 0;
   let hasErrors = false;
 
-  // Loop through every link and download them simultaneously
   SHEET_URLS.forEach(function(url) {
     Papa.parse(url, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
+      download: true, header: true, skipEmptyLines: true,
       complete: function(results) {
         results.data.forEach(function(row) {
           let subject = row["Subject"];
           if (!subject) return; 
-
           subject = subject.trim();
-          
           if (!window.QD[subject]) window.QD[subject] = [];
-          
           window.QD[subject].push({
-            topic: row["Topic"],
-            q: row["Question"],
+            topic: row["Topic"], q: row["Question"],
             o: [row["Option 1"], row["Option 2"], row["Option 3"], row["Option 4"]],
             a: parseInt(row["Correct Answer (0-3)"])
           });
         });
-        
-        // Track how many sheets have finished downloading
         completedRequests++;
-        
-        // Only start the app once ALL sheets have successfully loaded
         if (completedRequests === SHEET_URLS.length && !hasErrors) {
-          console.log("✅ All subject sheets loaded successfully!");
           window.totalQuestions = Object.values(window.QD).reduce((sum, subjectArray) => sum + subjectArray.length, 0);
           initializeApp();
         }
       },
       error: function(err) {
-        console.error("❌ Failed to fetch a sheet:", err);
         hasErrors = true;
         alert("Failed to load some study material. Please check your connection.");
       }
@@ -616,7 +354,6 @@ function fetchQuestionsAndStart() {
   });
 }
 
-// Start the fetch process as soon as the HTML is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', fetchQuestionsAndStart);
 } else {
@@ -624,77 +361,22 @@ if (document.readyState === 'loading') {
 }
 </script>
 
-
-<!-- ── SWIPE NAVIGATION v4 ── -->
+<!-- ── SWIPE NAVIGATION ENGINE ── -->
 <style>
-/* ── Page dots ── */
-#sl-page-dots {
-  position: fixed;
-  bottom: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  z-index: 9000;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
+#sl-page-dots { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; z-index: 9000; pointer-events: none; opacity: 0; transition: opacity 0.35s ease; }
 #sl-page-dots.visible { opacity: 1; }
-#sl-page-dots .sl-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.22);
-  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-#sl-page-dots .sl-dot.active {
-  width: 20px;
-  border-radius: 4px;
-  background: var(--accent, #6366f1);
-  box-shadow: 0 0 10px var(--accent, #6366f1);
-}
-
-/* ── Drawer peek overlay (right-swipe from edge) ── */
-#sl-drawer-peek {
-  position: fixed;
-  top: 0; right: 0;
-  width: 80vw; max-width: 320px;
-  height: 100%;
-  z-index: 9999;
-  transform: translateX(100%);
-  transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
-  pointer-events: none;
-}
-#sl-drawer-peek.open {
-  transform: translateX(0);
-  pointer-events: all;
-}
-#sl-drawer-scrim {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 9998;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.32s ease;
-  backdrop-filter: blur(2px);
-}
-#sl-drawer-scrim.visible {
-  opacity: 1;
-  pointer-events: all;
-}
+#sl-page-dots .sl-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.22); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+#sl-page-dots .sl-dot.active { width: 20px; border-radius: 4px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 </style>
 
 <script>
 (function () {
   var NAV_PAGES = ['home', 'govtupdates', 'shorts', 'digest', 'daily'];
-  var EDGE_ZONE = 28;  // px from screen edge
-  var SWIPE_MIN = 48;  // lower = more responsive
-  var TIME_MAX  = 400; // ms max for a swipe gesture
-  var _swipeLock = false; // prevent double-fire
+  var EDGE_ZONE = 28;  
+  var SWIPE_MIN = 48;  
+  var TIME_MAX  = 400; 
+  var _swipeLock = false; 
 
-  // ── Page indicator dots ──
   var bar = document.createElement('div');
   bar.id = 'sl-page-dots';
   NAV_PAGES.forEach(function () {
@@ -709,108 +391,24 @@ if (document.readyState === 'loading') {
     var idx = NAV_PAGES.indexOf(page);
     if (idx === -1) { bar.classList.remove('visible'); return; }
     bar.classList.add('visible');
-    bar.querySelectorAll('.sl-dot').forEach(function (d, i) {
-      d.classList.toggle('active', i === idx);
-    });
+    bar.querySelectorAll('.sl-dot').forEach(function (d, i) { d.classList.toggle('active', i === idx); });
     clearTimeout(_dotTimer);
     _dotTimer = setTimeout(function () { bar.classList.remove('visible'); }, 2000);
   }
 
-  // Sync dots to currentPage — poll is fine, it's cheap
   var _lastPage = null;
   setInterval(function () {
     var p = window.currentPage || 'home';
     if (p !== _lastPage) { _lastPage = p; showDots(p); }
   }, 100);
 
-  // ── Right-side swipe drawer ──
-  var scrim = document.createElement('div');
-  scrim.id = 'sl-drawer-scrim';
-  document.body.appendChild(scrim);
-
-  var drawer = document.createElement('div');
-  drawer.id = 'sl-drawer-peek';
-  document.body.appendChild(drawer);
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var orig = document.getElementById('nb-mobile-drawer');
-    if (!orig) return;
-    var clone = orig.cloneNode(true);
-    clone.id = 'sl-drawer-inner';
-    clone.removeAttribute('style');
-    clone.style.cssText = 'height:100%;background:var(--card);border-left:1px solid var(--border2);padding:60px 20px 40px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.4)';
-    clone.querySelectorAll('button[data-page]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var p = btn.getAttribute('data-page');
-        closeRightDrawer();
-        // Wait for go() to be defined (app.js loads after this script)
-        if (typeof go === 'function') go(p);
-      });
-    });
-    drawer.appendChild(clone);
-  });
-
-  // --- Updated Drawer Control Logic ---
-
-function openRightDrawer() {
-  var drawer = document.getElementById('nb-mobile-drawer');
-  var scrim = document.getElementById('nb-mobile-overlay'); // Naya naam
-  
-  if (drawer) drawer.classList.add('open');
-  if (scrim) scrim.classList.add('open'); // Humne class 'open' rakhi hai, 'visible' nahi
-}
-
-function closeRightDrawer() {
-  var drawer = document.getElementById('nb-mobile-drawer');
-  var scrim = document.getElementById('nb-mobile-overlay');
-  
-  // 1. Pehle class remove karo (CSS animation trigger hogi)
-  if (drawer) drawer.classList.remove('open');
-  if (scrim) scrim.classList.remove('open');
-  
-  // 2. Browser ko 300ms ka time do animation khatam hone ke liye
-  // Isse lag khatam ho jayega
-  setTimeout(function() {
-      if (drawer) drawer.style.display = 'flex'; // Zaroorat ho toh
-  }, 300);
-}
-
-
-// Scrim click listener
-var scrim = document.getElementById('nb-mobile-overlay');
-if (scrim) {
-  scrim.addEventListener('click', closeRightDrawer);
-}
-
-
-  // ── Safe navigation — always calls go() directly, never history.back() ──
-  // history.back() goes through popstate → go() = double render + lag
-  // Instead we read history state directly and call go() ourselves
-  function safeBack() {
-    // Try to get previous state from history
-    // If we have a state, use it; otherwise go home
-    if (window.history.state && window.history.state.page && window.history.state.page !== window.currentPage) {
-      var prevPage = window.history.state.page;
-      var prevSub  = window.history.state.sub;
-      if (typeof go === 'function') go(prevPage, prevSub, false);
-    } else {
-      // Fall back to history.back() only as last resort
-      window.history.back();
-    }
-  }
-
-  // ── Touch state ──
   var sx = 0, sy = 0, st = 0;
-  var locked = false;
-  var isEdge = false;
-  var edgeSide = '';
-  var drawerOpen = false;
+  var locked = false, isEdge = false, edgeSide = '';
 
   document.addEventListener('touchstart', function (e) {
     var t = e.touches[0];
     sx = t.clientX; sy = t.clientY; st = Date.now();
     locked = false; isEdge = false; edgeSide = '';
-    drawerOpen = drawer.classList.contains('open');
     _swipeLock = false;
     var W = window.innerWidth;
     if (sx < EDGE_ZONE)         { isEdge = true; edgeSide = 'left'; }
@@ -821,7 +419,6 @@ if (scrim) {
     if (locked) return;
     var dx = Math.abs(e.touches[0].clientX - sx);
     var dy = Math.abs(e.touches[0].clientY - sy);
-    // Lock out if clearly vertical scroll
     if (dy > 10 && dy > dx * 1.5) locked = true;
   }, { passive: true });
 
@@ -834,41 +431,38 @@ if (scrim) {
     var adx = Math.abs(dx);
     var ady = Math.abs(dy);
 
-    if (dt  > TIME_MAX)      return; // too slow
-    if (adx < SWIPE_MIN)     return; // too short
-    if (ady / adx > 0.65)   return; // too diagonal
+    if (dt  > TIME_MAX)      return; 
+    if (adx < SWIPE_MIN)     return; 
+    if (ady / adx > 0.65)   return; 
 
-    _swipeLock = true; // block any double-fire within same gesture
+    _swipeLock = true; 
 
-    // 1. Close open drawer with left swipe
-    if (drawerOpen && dx < 0) { closeRightDrawer(); return; }
+    var drawerOpen = document.getElementById('nb-mobile-drawer') && document.getElementById('nb-mobile-drawer').classList.contains('open');
 
-    // 2. Right-edge swipe LEFT → open nav drawer
+    // 1. Close drawer with left swipe
+    if (drawerOpen && dx < 0) { window.closeDrawer(); return; }
+
+    // 2. Open drawer with right-edge left swipe
     if (isEdge && edgeSide === 'right' && dx < 0) {
-      openRightDrawer(); return;
+      window.openDrawer(); return;
     }
 
-    // 3. Left-edge swipe RIGHT → go back
-    // Call go() directly instead of history.back() — zero lag, no double render
+    // 3. Go back with left-edge right swipe
     if (isEdge && edgeSide === 'left' && dx > 0) {
-      if (typeof go === 'function') {
-        window.history.back(); // let popstate in app.js handle it cleanly
-      }
+      if (typeof go === 'function') window.history.back();
       return;
     }
 
-    // 4. Regular page swipe (only on main nav pages)
+    // 4. Regular page swipe
     var page = window.currentPage || 'home';
     var idx  = NAV_PAGES.indexOf(page);
-    if (idx === -1) return; // not a swipeable page (quiz, flashcards etc)
+    if (idx === -1) return; 
 
     if (dx < 0 && idx < NAV_PAGES.length - 1) {
-      // Swipe LEFT → next page
       var next = NAV_PAGES[idx + 1];
       showDots(next);
       if (typeof go === 'function') go(next);
     } else if (dx > 0 && idx > 0) {
-      // Swipe RIGHT → previous page
       var prev = NAV_PAGES[idx - 1];
       showDots(prev);
       if (typeof go === 'function') go(prev);
@@ -895,19 +489,14 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
   });
 }
+window.addEventListener('scroll', function() {
+  const topNavbar = document.getElementById('top-navbar');
+  if (window.scrollY > 10) {
+    topNavbar.classList.add('scrolled');
+  } else {
+    topNavbar.classList.remove('scrolled');
+  }
+});
 </script>
-<script>
-    window.addEventListener('scroll', function() {
-      const topNavbar = document.getElementById('top-navbar');
-      if (window.scrollY > 10) {
-        topNavbar.classList.add('scrolled');
-      } else {
-        topNavbar.classList.remove('scrolled');
-      }
-    });
-  </script>
 </body>
 </html>
-
-
-

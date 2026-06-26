@@ -1183,28 +1183,60 @@ function showExitConfirmationModal() {
 }
 
 function checkInitialSetup() {
-    if (window.currentUser || localStorage.getItem('sl_user')) {
-        if (typeof triggerSmartInstallPrompt === 'function') triggerSmartInstallPrompt();
-        return;
+    // Check if user has ever been here
+    var hasVisited = localStorage.getItem('has_visited');
+    
+    if (!hasVisited) {
+        // First time users: Start the flow
+        window.startOnboardingFlow();
+        localStorage.setItem('has_visited', 'true');
+    } else {
+        // Returning users: Check if they need to install
+        if (typeof triggerSmartInstallPrompt === 'function') {
+            triggerSmartInstallPrompt();
+        }
     }
-    // Pehli baar open → koi modal nahi, seedha app
-    // User khud Sign In button se login karega
 }
 
-// Boot the App 
-window.addEventListener('load', function() {
-    history.replaceState({ page: 'exit_trap' }, "");
-    history.pushState({ page: 'home', sub: null }, "");
-    render();
+// ── SMART ONBOARDING FLOW ──
+window.startOnboardingFlow = function() {
+    // 1. Welcome Modal
+    showWelcomeModal();
+};
+
+function showWelcomeModal() {
+    var overlay = el("div", { css: { position: "fixed", inset: "0", background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "100000" } });
+    var card = el("div", { css: { background: "var(--card)", padding: "40px", borderRadius: "24px", maxWidth: "400px", width: "90%", textAlign: "center", border: "1px solid var(--border)" } });
     
-    // Check user state after load instead of launching the tour
-    setTimeout(function() {
-        checkInitialSetup();
-    }, 800);
-});
+    card.appendChild(el("div", { css: { fontSize: "3rem", marginBottom: "20px" } }, "👋"));
+    card.appendChild(el("h2", { css: { color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-display)" } }, "Welcome to StudyLab!"));
+    card.appendChild(el("p", { css: { color: "var(--muted)", marginBottom: "32px", lineHeight: "1.6" } }, "Your ultimate exam companion. Master topics, track progress, and ace your exams effortlessly."));
+    
+    var btn = el("button", { 
+        css: { width: "100%", padding: "14px", background: "var(--accent)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "700", cursor: "pointer" },
+        txt: "Get Started" 
+    });
+    btn.onclick = function() {
+        document.body.removeChild(overlay);
+        // Prompt Sign-In
+        setTimeout(showLoginModal, 500);
+    };
+    
+    card.appendChild(btn);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+}
 
-window.addEventListener('scroll', function(){
-  document.getElementById('top-navbar')
-    .classList.toggle('scrolled', window.scrollY > 10);
-});
-
+// UPDATE THIS FUNCTION IN YOUR APP.JS
+function checkInitialSetup() {
+    var hasVisited = localStorage.getItem('has_visited');
+    
+    if (!hasVisited) {
+        window.startOnboardingFlow();
+        localStorage.setItem('has_visited', 'true');
+    } else {
+        if (window.currentUser || localStorage.getItem('sl_user')) {
+            if (typeof triggerSmartInstallPrompt === 'function') triggerSmartInstallPrompt();
+        }
+    }
+}

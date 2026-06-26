@@ -1,194 +1,200 @@
 window.STUDYLAB_FEEDBACK_URL = "https://formspree.io/f/mzdyqbyz";
 
-// ─── MODERN HERO SECTION ──────────────────────────────────────────
-function makeModernHero() {
+// ─── REIMAGINED DAILY INSIGHT (QUOTE) ─────────────────────────────
+function makeQuoteCard() {
   var wrap = el("div", {
     css: {
-      position: "relative", borderRadius: "24px", overflow: "hidden",
-      marginBottom: "32px", padding: "48px 20px", textAlign: "center",
-      background: "var(--card)", border: "1px solid var(--border)",
-      boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
+      position: "relative", margin: "0 auto 40px",
+      background: "var(--glass-bg)", border: "1px solid var(--glass-border)",
+      backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+      borderRadius: "20px", padding: "32px 40px", textAlign: "center",
+      overflow: "hidden"
     }
   });
 
-  var glow1 = el("div", { css: { position: "absolute", top: "-50px", left: "-50px", width: "200px", height: "200px", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: "0.15", filter: "blur(30px)", pointerEvents: "none" } });
-  var glow2 = el("div", { css: { position: "absolute", bottom: "-50px", right: "-50px", width: "250px", height: "250px", background: "radial-gradient(circle, #8b5cf6 0%, transparent 70%)", opacity: "0.1", filter: "blur(40px)", pointerEvents: "none" } });
+  var quoteGlow = el("div", {
+    css: {
+      position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+      width: "200px", height: "100px", background: "radial-gradient(ellipse, #0891b2 0%, transparent 70%)",
+      opacity: "0.05", filter: "blur(40px)", pointerEvents: "none"
+    }
+  });
+  wrap.appendChild(quoteGlow);
+
+  var content = el("div", { css: { position: "relative", zIndex: "1" } });
+
+  content.appendChild(el("div", {
+    css: {
+      fontSize: "1.2rem", color: "var(--accent2)", opacity: "0.8",
+      marginBottom: "16px", fontFamily: "Georgia, serif", fontStyle: "italic"
+    },
+    txt: "“"
+  }));
+
+  content.appendChild(el("div", {
+    css: {
+      fontSize: "1.1rem", color: "var(--text)", fontWeight: "400", // FIXED
+      lineHeight: "1.6", letterSpacing: "0.02em",
+      fontFamily: "var(--font-display)", maxWidth: "80%", margin: "0 auto 16px"
+    },
+    txt: "Success in exams is not about studying everything. It is about understanding the mechanics of what matters." 
+  }));
+
+  content.appendChild(el("div", {
+    css: {
+      fontSize: ".75rem", color: "var(--text-muted)", textTransform: "uppercase",
+      letterSpacing: "0.15em", fontWeight: "700"
+    },
+    txt: "— The Architecture of Learning"
+  }));
+
+  wrap.appendChild(content);
+  return wrap;
+}
+
+// ─── REIMAGINED COSMIC HERO SECTION ───────────────────────────────
+function makeModernHero() {
+  var wrap = el("div", {
+    css: {
+      position: "relative", padding: "70px 20px 80px",
+      textAlign: "center", overflow: "hidden", marginBottom: "0px"
+    }
+  });
+
+  var glow1 = el("div", { css: { position: "absolute", top: "0%", left: "15%", width: "400px", height: "400px", background: "radial-gradient(circle, var(--accent) 0%, transparent 60%)", opacity: "0.08", filter: "blur(60px)", pointerEvents: "none", transform: "translateZ(0)" } });
+  var glow2 = el("div", { css: { position: "absolute", bottom: "-10%", right: "15%", width: "450px", height: "450px", background: "radial-gradient(circle, #8b5cf6 0%, transparent 60%)", opacity: "0.06", filter: "blur(70px)", pointerEvents: "none", transform: "translateZ(0)" } });
   wrap.appendChild(glow1);
   wrap.appendChild(glow2);
 
-  var content = el("div", { css: { position: "relative", zIndex: "1", maxWidth: "600px", margin: "0 auto" } });
+  var content = el("div", { css: { position: "relative", zIndex: "1", maxWidth: "720px", margin: "0 auto" } });
 
   var badge = el("div", {
     css: {
-      display: "inline-flex", alignItems: "center", gap: "6px",
-      padding: "6px 14px", borderRadius: "100px",
-      background: "var(--bg2)", border: "1px solid var(--border2)",
+      display: "inline-flex", alignItems: "center", gap: "8px",
+      padding: "8px 16px", borderRadius: "100px",
+      background: "var(--glass-bg)", border: "1px solid var(--glass-border)",
+      backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
       fontSize: ".75rem", fontWeight: "700", color: "var(--text)",
-      marginBottom: "20px", cursor: "pointer", transition: "transform 0.2s"
+      marginBottom: "28px", cursor: "pointer", transition: "all 0.4s var(--spring-easing)",
+      letterSpacing: "0.04em", textTransform: "uppercase"
     },
     onclick: function() { go("skilltree"); }
   });
-  badge.addEventListener("mouseenter", function() { this.style.transform = "scale(1.05)"; });
-  badge.addEventListener("mouseleave", function() { this.style.transform = "scale(1)"; });
-  badge.innerHTML = "<span style='color: #f59e0b'>✨</span> <span>New: RPG Skill Tree & Study Shorts</span> <span style='color: var(--muted)'>→</span>";
+  badge.addEventListener("mouseenter", function() { 
+      this.style.transform = "scale(1.05) translateY(-2px)";
+      this.style.background = "var(--glass-border)"; // FIXED
+      this.style.borderColor = "var(--accent-glow)";
+  });
+  badge.addEventListener("mouseleave", function() { 
+      this.style.transform = "scale(1) translateY(0)"; 
+      this.style.background = "var(--glass-bg)";
+      this.style.borderColor = "var(--glass-border)";
+  });
+  badge.innerHTML = "<span style='color: var(--accent2)'>✦</span> <span>RPG Skill Tree Live</span>";
   content.appendChild(badge);
 
   content.appendChild(el("h1", {
     css: {
-      fontSize: "clamp(2rem, 6vw, 2.8rem)", fontWeight: "800",
-      letterSpacing: "-0.03em", fontFamily: "var(--font-display)",
-      color: "var(--text)", lineHeight: "1.15", marginBottom: "16px"
+      fontSize: "clamp(2.8rem, 7vw, 4rem)", fontWeight: "800",
+      letterSpacing: "-0.04em", fontFamily: "var(--font-display)",
+      color: "var(--text)", lineHeight: "1.1", marginBottom: "20px", // FIXED
+      textShadow: "0 12px 32px rgba(0,0,0,0.1)"
     },
-    htm: "Crack Your Exams with <br><span style='background: linear-gradient(135deg, #4F8EF7, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Smarter Practice.</span>"
+    htm: "Master the Logic. <br><span style='background: linear-gradient(135deg, #4F8EF7, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Ace the Exam.</span>"
   }));
 
   content.appendChild(el("p", {
     css: {
-      fontSize: ".95rem", color: "var(--muted)", lineHeight: "1.6",
-      marginBottom: "32px", fontWeight: "400", maxWidth: "90%", margin: "0 auto 32px"
+      fontSize: "1.05rem", color: "var(--muted)", lineHeight: "1.6",
+      marginBottom: "40px", fontWeight: "300", maxWidth: "85%", margin: "0 auto 40px"
     },
-    txt: "A free, distraction-free learning lab for UPSC, SSC, and State PCS. Master 4,000+ curated MCQs with instant AI-powered explanations."
+    txt: "A distraction-free, analytical learning lab for UPSC and State PCS. Decode 4,000+ curated MCQs with instant AI-powered breakdowns."
   }));
 
-  var ctaRow = el("div", { css: { display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginBottom: "40px" } });
+  var ctaRow = el("div", { css: { display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap", marginBottom: "48px" } });
   
   var primaryBtn = el("button", {
-    css: {
-      padding: "12px 28px", borderRadius: "12px", border: "none",
-      background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", color: "#fff", fontWeight: "700",
-      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)",
-      boxShadow: "0 4px 14px rgba(79,142,247,0.35)", transition: "all 0.2s"
-    },
-    onclick: function() { document.getElementById('ss').scrollIntoView({behavior:'smooth', block:'start'}); }
-  }, "Start Learning");
-  primaryBtn.addEventListener("mouseenter", function() { this.style.transform = "translateY(-2px)"; this.style.boxShadow = "0 6px 20px rgba(79,142,247,0.45)"; });
-  primaryBtn.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; this.style.boxShadow = "0 4px 14px rgba(79,142,247,0.35)"; });
+  css: {
+    padding: "14px 32px", borderRadius: "14px", border: "1px solid rgba(79, 142, 247, 0.3)",
+    background: "linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(59, 130, 246, 0.05))", 
+    color: "var(--text)", fontWeight: "600", backdropFilter: "blur(12px)",
+    fontSize: "1rem", cursor: "pointer",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.1)", 
+    transition: "all 0.4s var(--spring-easing)"
+  },
+  onclick: function(e) {
+    e.preventDefault();
+    
+    // 1. Try finding by ID
+    var target = document.getElementById('ss');
+    
+    // 2. Fallback: If not found, try to find it by class if you used one
+    if (!target) target = document.querySelector('.subjsec') || document.querySelector('#ss');
+    
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      // 3. Debugging: If it still fails, tell us what's in the DOM
+      console.warn("Target 'ss' not found. Ensure subjSec has id: 'ss'");
+      // Try to scroll to the end of the app container if all else fails
+      document.getElementById('app').lastElementChild.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}, "Enter the Lab →");
+  
+  primaryBtn.addEventListener("mouseenter", function() { 
+      this.style.transform = "scale(1.04) translateY(-2px)"; 
+      this.style.background = "linear-gradient(135deg, rgba(79, 142, 247, 0.25), rgba(59, 130, 246, 0.1))";
+      this.style.boxShadow = "0 12px 32px rgba(79, 142, 247, 0.2), inset 0 1px 0 rgba(255,255,255,0.2)"; 
+  });
+  primaryBtn.addEventListener("mouseleave", function() { 
+      this.style.transform = "scale(1) translateY(0)"; 
+      this.style.background = "linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(59, 130, 246, 0.05))";
+      this.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)"; 
+  });
   
   var secondaryBtn = el("button", {
     css: {
-      padding: "12px 28px", borderRadius: "12px", border: "1.5px solid var(--border2)",
-      background: "var(--bg2)", color: "var(--text)", fontWeight: "600",
-      fontSize: ".95rem", cursor: "pointer", fontFamily: "var(--font-body)", transition: "all 0.2s"
+      padding: "14px 32px", borderRadius: "14px", border: "1px solid var(--glass-border)",
+      background: "var(--glass-bg)", color: "var(--text)", fontWeight: "600",
+      backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+      fontSize: "1rem", cursor: "pointer", fontFamily: "var(--font-body)", 
+      transition: "all 0.4s var(--spring-easing)"
     },
     onclick: function() { go("shorts"); }
-  }, "⚡ Study Shorts");
-  secondaryBtn.addEventListener("mouseenter", function() { this.style.background = "var(--border)"; });
-  secondaryBtn.addEventListener("mouseleave", function() { this.style.background = "var(--bg2)"; });
+  }, "Study Shorts");
+  
+  secondaryBtn.addEventListener("mouseenter", function() { 
+      this.style.transform = "scale(1.04) translateY(-2px)";
+      this.style.background = "var(--glass-border)"; // FIXED
+  });
+  secondaryBtn.addEventListener("mouseleave", function() { 
+      this.style.transform = "scale(1) translateY(0)";
+      this.style.background = "var(--glass-bg)"; 
+  });
   
   ctaRow.appendChild(primaryBtn);
   ctaRow.appendChild(secondaryBtn);
   content.appendChild(ctaRow);
 
-  var trustStrip = el("div", {
-    css: {
-      display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap",
-      paddingTop: "24px", borderTop: "1px solid var(--border)",
-      fontSize: ".75rem", fontWeight: "600", color: "var(--subtle)",
-      letterSpacing: "0.03em", textTransform: "uppercase"
-    }
-  });
-  
-  var features = [
-    { icon: "🗺️", text: "RPG Skill Tree" },
-    { icon: "⚡", text: "Study Shorts" },
-    { icon: "🤖", text: "AI Tutors" }
-  ];
-  
-  features.forEach(function(f) {
-    var item = el("div", { css: { display: "flex", alignItems: "center", gap: "6px" } });
-    item.appendChild(el("span", { css: { fontSize: "1rem" } }, f.icon));
-    item.appendChild(el("span", {}, f.text));
-    trustStrip.appendChild(item);
-  });
-  
-  content.appendChild(trustStrip);
   wrap.appendChild(content);
-
   return wrap;
 }
 
-// ─── DEADLINE COUNTDOWN WIDGET ───────────────────────────────────
-function makeDeadlineWidget() {
-  var stored = Sv.get("gu_entries") || [];
-  var allData = stored.concat(typeof GU_FALLBACK !== 'undefined' ? GU_FALLBACK : []);
-  
-  var now = new Date();
-  now.setHours(0,0,0,0);
-  var closestEntry = null;
-  var closestDiff = Infinity;
-  var isExam = false;
-
-  allData.forEach(function(e) {
-    var dateStr = e.lastDate || e.examDate;
-    if(!dateStr) return;
-    
-    var cleanDateStr = dateStr.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
-    var parsed = new Date(cleanDateStr);
-    
-    if (!isNaN(parsed) && parsed >= now) {
-      var diff = parsed - now;
-      if (diff < closestDiff) {
-        closestDiff = diff;
-        closestEntry = e;
-        isExam = !!e.examDate;
-      }
-    }
-  });
-
-  if (!closestEntry || closestDiff === Infinity) return el("div", {css:{display:"none"}});
-  var daysLeft = Math.ceil(closestDiff / (1000 * 60 * 60 * 24));
-  if (daysLeft > 30) return el("div", {css:{display:"none"}});
-
-  var isUrgent = daysLeft <= 3;
-  var wCol = isUrgent ? "#ef4444" : "#f59e0b";
-  var wBg = isUrgent ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)";
-
-  var widget = el("div", {
-    css: {
-      background: "var(--card)", border: "1.5px solid " + wCol, borderRadius: "16px",
-      padding: "16px 20px", marginBottom: "28px", display: "flex",
-      alignItems: "center", justifyContent: "space-between",
-      boxShadow: "0 8px 24px " + wBg, cursor: "pointer", transition: "transform 0.2s"
-    },
-    onclick: function() { go("govtupdates"); }
-  });
-  
-  widget.addEventListener("mouseenter", function() { this.style.transform = "translateY(-3px)"; });
-  widget.addEventListener("mouseleave", function() { this.style.transform = "translateY(0)"; });
-
-  var left = el("div", {css: {display: "flex", alignItems: "center", gap: "14px", flex:"1", minWidth:"0"}});
-  left.appendChild(el("div", {
-    css: {fontSize: "2rem", animation: isUrgent ? "pulse-dot 1.2s infinite" : "none", flexShrink:"0"},
-    txt: isExam ? "📝" : "⏳"
-  }));
-
-  var textWrap = el("div", {css:{minWidth:"0"}});
-  var typeText = isExam ? "Upcoming Exam" : "Application Deadline";
-  textWrap.appendChild(el("div", {css: {fontSize: ".7rem", textTransform: "uppercase", letterSpacing: ".1em", color: wCol, fontWeight: "700", marginBottom: "2px"}}, typeText));
-  textWrap.appendChild(el("div", {css: {fontSize: ".95rem", fontWeight: "700", color: "var(--text)", display: "-webkit-box", WebkitLineClamp: "1", WebkitBoxOrient: "vertical", overflow: "hidden", paddingRight:"10px"}}, closestEntry.org + " — " + closestEntry.title));
-  left.appendChild(textWrap);
-  widget.appendChild(left);
-
-  var right = el("div", {
-    css: {background: wCol, color: "#fff", padding: "6px 14px", borderRadius: "10px", fontWeight: "800", fontSize: ".9rem", whiteSpace: "nowrap", flexShrink:"0"}
-  }, daysLeft === 0 ? "Today!" : daysLeft + " Days");
-  
-  widget.appendChild(right);
-  return widget;
-}
 
 // ─── AI DOUBT SOLVER ─────────────────────────────────────────────
 var ADS_LOADING = false;
 
 function makeAIDoubtSolver() {
   var wrapper = el("div", {
-    id: "ai-doubt-solver",
-    css: {
-      marginBottom: "28px", borderRadius: "18px", overflow: "hidden",
-      border: "1px solid var(--border2)", background: "var(--card)",
-      boxShadow: "var(--shadow-elevated, 0 12px 32px rgba(0,0,0,0.12))",
-      transition: "box-shadow 0.3s ease"
-    }
+  id: "ai-doubt-solver",
+  css: {
+    marginBottom: "32px", borderRadius: "24px", overflow: "hidden",
+    border: "1px solid var(--glass-border)", 
+    background: "var(--glass-bg)",
+    backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+    transition: "all 0.5s var(--spring-easing)" 
+  }
   });
 
   var bar = el("div", {
@@ -234,11 +240,12 @@ function makeAIDoubtSolver() {
   });
 
   var chatArea = el("div", {
-    id: "ads-chat-area",
-    css: {
-      maxHeight: "300px", overflowY: "auto", padding: "16px 16px 8px",
-      display: "flex", flexDirection: "column", gap: "20px", scrollBehavior: "smooth"
-    }
+  id: "ads-chat-area",
+  css: {
+    maxHeight: "350px", overflowY: "auto", padding: "20px",
+    display: "flex", flexDirection: "column", gap: "20px",
+    background: "transparent"
+  }
   });
 
   var welcome = el("div", {
@@ -458,232 +465,6 @@ function adsScrollChat() {
   if (area) setTimeout(function() { area.scrollTop = area.scrollHeight; }, 50);
 }
 
-// INTERACTIVE EMOJI FEEDBACK WIDGET (PREMIUM SPACING)
-function createSmartFeedbackWidget() {
-    var widgetWrap = el("div", { 
-        css: { 
-            background: "var(--card)", border: "1.5px solid var(--border)", 
-            borderRadius: "24px", /* Thoda aur smooth curve */
-            padding: "32px 28px", /* 🔥 MAIN FIX: Andar ki spacing badha di taaki text/button side se na chipke */
-            margin: "24px auto", 
-            maxWidth: "680px", 
-            width: "calc(100% - 16px)", 
-            boxSizing: "border-box",
-            textAlign: "center", 
-            boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
-            transition: "box-shadow 0.3s ease, border-color 0.3s ease"
-        } 
-    });
-
-    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 6px 0", fontSize: "1.4rem", color: "var(--text)", fontFamily: "var(--font-display)", fontWeight: "800" }, txt: "Rate your experience!" }));
-    widgetWrap.appendChild(el("p", { css: { margin: "0 0 20px 0", fontSize: ".9rem", color: "var(--muted)" }, txt: "Your feedback helps us improve StudyLab." }));
-
-    // Dynamic Emoji Display
-    var emojiDisplay = el("div", { 
-        css: { 
-            fontSize: "4rem", /* Emoji thoda bada kiya */
-            margin: "10px 0 24px 0", 
-            transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            display: "inline-block",    
-            transformOrigin: "center",  
-            willChange: "transform",    
-            lineHeight: "1", 
-        },
-        txt: "🤔" 
-    });
-    var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
-    var ratingText = ["Tap a star", "Needs Work", "It's Okay", "Good", "Great!", "Absolutely Amazing!"];
-    var statusText = el("div", { css: { fontSize: ".95rem", fontWeight: "700", color: "var(--accent)", marginBottom: "20px", minHeight: "22px" }, txt: "Tap a star" });
-
-    widgetWrap.appendChild(emojiDisplay);
-
-    // Interactive Stars
-    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.8rem", color: "var(--border2)", cursor: "pointer", marginBottom: "24px" } });
-    var stars = [];
-    var currentRating = 0; 
-    var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease", marginTop: "10px" } });
-
-    for (let i = 1; i <= 5; i++) {
-        let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)" } });
-
-        star.onclick = function() {
-            currentRating = i;
-
-            emojiDisplay.style.willChange = "transform";
-            emojiDisplay.style.transform = "scale(1.2) rotate(5deg)";
-
-            setTimeout(() => {
-                emojiDisplay.style.transform = "scale(1) rotate(0deg)";
-                setTimeout(() => { emojiDisplay.style.willChange = "auto"; }, 300);
-            }, 200);
-
-            emojiDisplay.textContent = emojis[i];
-            statusText.textContent = ratingText[i];
-            statusText.style.color = (i <= 2) ? "#ef4444" : (i <= 4) ? "#f59e0b" : "#10b981";
-
-            stars.forEach((s, index) => {
-                if (index < currentRating) {
-                    s.style.color = "#f59e0b";
-                    s.style.textShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
-                    s.style.transform = "scale(1.15)";
-                } else {
-                    s.style.color = "var(--border)";
-                    s.style.textShadow = "none";
-                    s.style.transform = "scale(1)";
-                }
-            });
-
-            formReveal.style.display = "block";
-        };
-        stars.push(star);
-        starContainer.appendChild(star);
-    }
-
-    widgetWrap.appendChild(starContainer);
-    widgetWrap.appendChild(statusText);
-
-    // Text Area & Submit
-    var textArea = el("textarea", { 
-        css: { 
-            width: "100%", 
-            padding: "16px", /* Andar ki padding thodi badhai */
-            borderRadius: "14px", 
-            border: "1.5px solid var(--border2)", 
-            background: "var(--bg)", /* Background thoda contrast kiya */
-            color: "var(--text)", 
-            minHeight: "100px", 
-            marginBottom: "20px", /* Niche ka gap badhaya */
-            fontFamily: "var(--font-body)", 
-            resize: "none", 
-            boxSizing: "border-box", 
-            display: "block", 
-            fontSize: ".95rem",
-            lineHeight: "1.5",
-            outline: "none",
-            transition: "border-color 0.2s ease"
-        } 
-    });
-    textArea.placeholder = "Tell us what you loved or what we can improve... (Optional)";
-    
-    // Focus effect for premium feel
-    textArea.onfocus = function() { textArea.style.borderColor = "var(--accent)"; };
-    textArea.onblur = function() { textArea.style.borderColor = "var(--border2)"; };
-
-    var submitBtn = el("button", { 
-        css: { 
-            width: "100%", 
-            padding: "16px", 
-            background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", 
-            color: "#fff", 
-            border: "none", 
-            borderRadius: "14px", 
-            fontWeight: "700", 
-            fontFamily: "var(--font-body)",
-            cursor: "pointer", 
-            fontSize: "1.05rem", 
-            boxShadow: "0 6px 20px rgba(79,142,247,0.25)", 
-            transition: "transform 0.2s, box-shadow 0.2s",
-            boxSizing: "border-box", 
-            display: "block" 
-        }, 
-        txt: "Send Feedback 🚀" 
-    });
-
-    submitBtn.onmousedown = function() { this.style.transform = "scale(0.97)"; };
-    submitBtn.onmouseup = function() { this.style.transform = "scale(1)"; };
-    submitBtn.onmouseleave = function() { this.style.transform = "scale(1)"; };
-
-    submitBtn.onclick = function() {
-        if (currentRating === 0) return;
-
-        var feedbackText = textArea.value.trim();
-
-        var user = { name: "Guest User", phone: "No Phone" };
-        try {
-            var savedData = localStorage.getItem('sl_user');
-            if (savedData) user = JSON.parse(savedData);
-        } catch(e) {}
-
-        if (window.STUDYLAB_FEEDBACK_URL) {
-            submitBtn.textContent = "Sending...";
-            submitBtn.style.opacity = "0.7";
-            fetch(window.STUDYLAB_FEEDBACK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                body: JSON.stringify({
-                    Date: new Date().toLocaleString("en-IN"),
-                    Name: user.name,
-                    Phone: user.phone,
-                    Rating: currentRating + " stars",
-                    Message: feedbackText || "(no message)"
-                })
-            }).then(function() {
-                var firstName = user.name.split(' ')[0] || "there";
-                widgetWrap.innerHTML = `
-                <div style="padding: 40px 20px; text-align: center; animation: bounce-in 0.5s ease;">
-                    <div style="font-size: 3.8rem; margin-bottom: 20px;">💖</div>
-                    <div style="font-weight: 800; font-size: 1.5rem; color: var(--text); margin-bottom: 10px; font-family: var(--font-display);">You're awesome, ${firstName}!</div>
-                    <div style="font-size: 1rem; color: var(--muted); line-height: 1.6;">Thank you for helping us make StudyLab the best exam partner.</div>
-                </div>`;
-            }).catch(function() {
-                alert("Network error. Please try again.");
-                submitBtn.textContent = "Send Feedback 🚀";
-                submitBtn.style.opacity = "1";
-            });
-        }
-    };
-
-    formReveal.appendChild(textArea);
-    formReveal.appendChild(submitBtn);
-    widgetWrap.appendChild(formReveal);
-
-    return widgetWrap;
-}
-// ── OPEN FEEDBACK IN A POPUP MODAL ──
-window.openFeedbackModal = function() {
-    var overlay = el("div", {
-        css: {
-            position: "fixed", inset: "0", background: "rgba(4, 8, 16, 0.85)", 
-            backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-            display: "flex", alignItems: "center", justifyContent: "center", 
-            zIndex: "10000", padding: "20px", animation: "fade-in 0.2s ease"
-        }
-    });
-
-    overlay.addEventListener("click", function(e) {
-        if (e.target === overlay) document.body.removeChild(overlay);
-    });
-
-    // Aapka widget call kiya
-    var widget = createSmartFeedbackWidget();
-    widget.style.margin = "0"; 
-    widget.style.position = "relative"; 
-
-    // Close button (X)
-    var closeBtn = el("button", {
-        css: {
-            position: "absolute", top: "16px", right: "16px", 
-            background: "var(--card2)", border: "none", borderRadius: "50%", 
-            width: "32px", height: "32px", fontSize: "1.2rem", 
-            color: "var(--muted)", cursor: "pointer", display: "flex", 
-            alignItems: "center", justifyContent: "center", transition: "all 0.2s"
-        },
-        txt: "×",
-        onclick: function() { document.body.removeChild(overlay); }
-    });
-    
-    closeBtn.onmouseover = function() { this.style.color = "var(--text)"; this.style.background = "var(--border2)"; };
-    closeBtn.onmouseleave = function() { this.style.color = "var(--muted)"; this.style.background = "var(--card2)"; };
-
-    widget.appendChild(closeBtn);
-    overlay.appendChild(widget);
-    document.body.appendChild(overlay);
-};
-
-
-
-
-
 // ─── MAIN PAGE RENDER ────────────────────────────────────────────
 function pgHome(){
   var tot=SUBJ.reduce(function(s,k){return s+(QD[k]||[]).length;},0);
@@ -694,35 +475,64 @@ function pgHome(){
   w.appendChild(makeDeadlineWidget());
   if (typeof makeQuoteCard === 'function') w.appendChild(makeQuoteCard());
 
+  // ─── REIMAGINED RPG SKILL TREE BANNER ────────────────────────────
   var skillTreeBanner = el("div", {
     css: {
-      background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
-      borderRadius: "18px", padding: "24px 28px", marginBottom: "32px",
-      color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between",
-      cursor: "pointer", boxShadow: "0 12px 32px rgba(124,58,237,0.3)",
-      transition: "transform 0.25s ease, box-shadow 0.25s ease"
+      position: "relative", overflow: "hidden",
+      background: "var(--glass-bg)", border: "1px solid var(--glass-border)",
+      backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+      borderRadius: "24px", padding: "32px 36px", marginBottom: "40px",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      cursor: "pointer", transition: "all 0.5s var(--spring-easing)", zIndex: "2"
     },
     onclick: function() { go('skilltree'); }
   });
+
+  var stGlow = el("div", {
+    css: {
+      position: "absolute", top: "-50%", left: "-10%",
+      width: "300px", height: "300px", background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)",
+      opacity: "0.15", filter: "blur(50px)", pointerEvents: "none", transition: "opacity 0.4s ease"
+    }
+  });
+  skillTreeBanner.appendChild(stGlow);
+
   skillTreeBanner.addEventListener("mouseenter", function() { 
-    this.style.transform = "translateY(-4px)"; 
-    this.style.boxShadow = "0 16px 40px rgba(124,58,237,0.4)";
+    this.style.transform = "scale(1.02) translateY(-4px)"; 
+    this.style.background = "var(--glass-border)"; // FIXED
+    this.style.borderColor = "rgba(124, 58, 237, 0.4)";
+    this.style.boxShadow = "0 24px 48px rgba(0,0,0,0.1), 0 0 0 1px rgba(124, 58, 237, 0.2)";
+    stGlow.style.opacity = "0.25";
   });
   skillTreeBanner.addEventListener("mouseleave", function() { 
-    this.style.transform = "translateY(0)"; 
-    this.style.boxShadow = "0 12px 32px rgba(124,58,237,0.3)";
+    this.style.transform = "scale(1) translateY(0)"; 
+    this.style.background = "var(--glass-bg)";
+    this.style.borderColor = "var(--glass-border)";
+    this.style.boxShadow = "none";
+    stGlow.style.opacity = "0.15";
   });
 
-  var stbLeft = el("div", {css: {display: "flex", alignItems: "center", gap: "16px"}});
-  stbLeft.appendChild(el("div", {css: {fontSize: "2.5rem", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))"}}, "🗺️"));
+  var stbLeft = el("div", {css: {display: "flex", alignItems: "center", gap: "20px", position: "relative", zIndex: "1"}});
+  
+  var stIcon = el("div", {
+    css: {
+      width: "56px", height: "56px", borderRadius: "16px",
+      background: "rgba(124, 58, 237, 0.15)", border: "1px solid rgba(124, 58, 237, 0.3)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: "1.5rem", color: "#a78bfa", filter: "drop-shadow(0 4px 12px rgba(124,58,237,0.4))"
+    }
+  });
+  stIcon.innerHTML = "✧"; 
+  stbLeft.appendChild(stIcon);
   
   var stbText = el("div");
-  stbText.appendChild(el("div", {css:{fontSize:"1.3rem", fontWeight:"800", fontFamily:"var(--font-display)", marginBottom:"4px", letterSpacing: "-0.02em"}}, "RPG Skill Tree"));
-  stbText.appendChild(el("div", {css:{fontSize:".85rem", opacity:"0.85", lineHeight: "1.4"}}, "Master topics sequentially and unlock new levels!"));
+  stbText.appendChild(el("div", {css:{fontSize:"1.4rem", color: "var(--text)", fontWeight:"800", fontFamily:"var(--font-display)", marginBottom:"6px", letterSpacing: "-0.02em"}}, "Neural Skill Graph")); // FIXED
+  stbText.appendChild(el("div", {css:{fontSize:".95rem", color: "var(--text-muted)", fontWeight: "300", lineHeight: "1.5"}} , "Master topics sequentially and unlock deeper knowledge nodes."));
   
   stbLeft.appendChild(stbText);
   skillTreeBanner.appendChild(stbLeft);
-  skillTreeBanner.appendChild(el("div", {css:{fontSize:"1.5rem", fontWeight:"800", background: "rgba(255,255,255,0.2)", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%"}}, "→"));
+  
+  skillTreeBanner.appendChild(el("div", {css:{fontSize:"1.4rem", color: "#a78bfa", fontWeight:"400", position: "relative", zIndex: "1", transition: "transform 0.3s ease"}}, "→"));
 
   w.appendChild(skillTreeBanner);
   w.appendChild(makeAIDoubtSolver());
@@ -738,56 +548,111 @@ function pgHome(){
     "Previous Year Questions":{color:"#8b5cf6",bg:"#f5f3ff",desc:"Practice with actual past exam papers to understand patterns and difficulty levels.",topics:["UPSC","SSC CGL","Railways","Banking","State PCS"],sym:["📜","🕰️","🎯","📝","📚","🔍"]}
   };
   
-  var subjSec=el("div",{id:"ss",css:{marginBottom:"48px"}});
-  var subjTitle=el("div",{css:{textAlign:"center",marginBottom:"32px"}});
-  subjTitle.appendChild(el("div",{css:{fontSize:".6rem",color:"var(--subtle)",textTransform:"uppercase",letterSpacing:".18em",fontWeight:"700",marginBottom:"10px",fontFamily:"var(--font-display)"},txt:"Choose Your Subject"}));
-  subjTitle.appendChild(el("div",{css:{fontSize:"1.9rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)"},txt:"What do you want to study today?"}));
+  var subjSec = el("div", { id: "ss", css: { marginBottom: "60px", position: "relative", zIndex: "2" } });
+  
+  var subjTitle = el("div", { css: { textAlign: "center", marginBottom: "40px" } });
+  subjTitle.appendChild(el("div", { 
+    css: { 
+      fontSize: ".7rem", color: "var(--accent2)", textTransform: "uppercase", 
+      letterSpacing: ".2em", fontWeight: "700", marginBottom: "12px", 
+      fontFamily: "var(--font-display)" 
+    }, 
+    txt: "Explore the Modules" 
+  }));
+  subjTitle.appendChild(el("div", { 
+    css: { 
+      fontSize: "2.2rem", fontWeight: "800", letterSpacing: "-0.03em", 
+      fontFamily: "var(--font-display)", color: "var(--text)" // FIXED
+    }, 
+    txt: "What's on the agenda?" 
+  }));
   subjSec.appendChild(subjTitle);
   
+  var gridWrap = el("div", {
+    css: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+      gap: "24px"
+    }
+  });
+
   if (typeof SUBJ !== 'undefined') {
-    SUBJ.forEach(function(s,idx){
-      var d=SD[s],cnt=(typeof QD !== 'undefined' && QD[s] ? QD[s].length : 0),isOdd=idx%2===0;
-      var row=el("div",{css:{display:"flex",alignItems:"stretch",gap:"0",marginBottom:"20px",borderRadius:"20px",overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,.25)",cursor:"pointer",minHeight:"180px"},onclick:function(){go("sub",s);}});
-      row.addEventListener("mouseenter",function(){this.style.transform="translateY(-4px)";this.style.boxShadow="0 16px 48px rgba(0,0,0,.35)";});
-      row.addEventListener("mouseleave",function(){this.style.transform="translateY(0)";this.style.boxShadow="0 8px 32px rgba(0,0,0,.25)";});
-      row.style.transition="all .25s ease";
-
-      var symPanel=el("div",{css:{width:"clamp(90px,28vw,180px)",flexShrink:"0",background:"var(--card2)",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",order:isOdd?"0":"2",borderRight:isOdd?"1px solid var(--border)":"none",borderLeft:isOdd?"none":"1px solid var(--border)"}});
-      var bigEmoji=el("div",{css:{fontSize:"5rem",opacity:".15",position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)"},txt: typeof ICON !== 'undefined' ? ICON[s] : "📚"});
-      symPanel.appendChild(bigEmoji);
-      var positions=[[10,10],[60,5],[80,55],[15,70],[50,80],[75,20]];
-      (d.sym||[]).slice(0,6).forEach(function(sym,si){
-        var pos=positions[si]||[50,50];
-        var sp=el("div",{css:{position:"absolute",fontSize:"1.3rem",opacity:".25",left:pos[0]+"%",top:pos[1]+"%"}},sym);
-        symPanel.appendChild(sp);
+    SUBJ.forEach(function(s) {
+      var d = SD[s], cnt = (typeof QD !== 'undefined' && QD[s] ? QD[s].length : 0);
+      
+      var row = el("div", {
+        css: {
+          display: "flex", flexDirection: "column", padding: "28px",
+          borderRadius: "24px", background: "var(--glass-bg)", 
+          border: "1px solid var(--glass-border)",
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          cursor: "pointer", transition: "all 0.4s var(--spring-easing)",
+          position: "relative", overflow: "hidden"
+        },
+        onclick: function() { go("sub", s); }
       });
-      var cIcon=el("div",{css:{position:"relative",zIndex:"1",fontSize:"3.5rem",filter:"drop-shadow(0 4px 12px rgba(0,0,0,.2))"},txt: typeof ICON !== 'undefined' ? ICON[s] : "📚"});
-      symPanel.appendChild(cIcon);
+      
+      var ambientGlow = el("div", {
+        css: {
+          position: "absolute", top: "-50px", right: "-50px",
+          width: "150px", height: "150px", borderRadius: "50%",
+          background: d.color, opacity: "0.08", filter: "blur(40px)",
+          pointerEvents: "none", transition: "opacity 0.4s ease"
+        }
+      });
+      row.appendChild(ambientGlow);
 
-      var content=el("div",{css:{flex:"1",minWidth:"0",background:"var(--card)",padding:"20px clamp(14px,4vw,32px)",display:"flex",flexDirection:"column",justifyContent:"center",order:"1",borderLeft:isOdd?"none":"3px solid "+d.color,borderRight:isOdd?"3px solid "+d.color:"none"}});
-      var ctop=el("div",{css:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}});
-      ctop.appendChild(el("div",{css:{fontSize:"1.4rem",fontWeight:"800",letterSpacing:"-.04em",fontFamily:"var(--font-display)",color:"var(--text)"},txt:s}));
-      ctop.appendChild(el("span",{css:{fontSize:".65rem",fontWeight:"700",padding:"3px 10px",borderRadius:"6px",background:d.color+"20",color:d.color,letterSpacing:".06em",fontFamily:"var(--font-display)"}},cnt+" Q"));
-      content.appendChild(ctop);
-      content.appendChild(el("div",{css:{fontSize:".92rem",color:"var(--muted)",lineHeight:"1.65",marginBottom:"14px",fontWeight:"300"},txt:d.desc}));
-      var chips=el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"16px"}});
-      (d.topics||[]).forEach(function(t){chips.appendChild(el("span",{css:{fontSize:".68rem",fontWeight:"600",padding:"3px 10px",borderRadius:"6px",background:d.color+"18",color:d.color,border:"1px solid "+d.color+"28",fontFamily:"var(--font-display)",letterSpacing:"0.02em"}},t));});
-      content.appendChild(chips);
-      var cta=el("div",{css:{display:"flex",gap:"8px",alignItems:"center"}});
-      cta.appendChild(el("span",{css:{fontSize:".82rem",fontWeight:"700",color:d.color,fontFamily:"var(--font-display)"}},"Start Learning →"));
-      content.appendChild(cta);
+      row.addEventListener("mouseenter", function() {
+        this.style.transform = "scale(1.02) translateY(-6px)";
+        this.style.background = "var(--glass-border)"; // FIXED
+        this.style.borderColor = d.color + "40"; 
+        this.style.boxShadow = "0 24px 48px rgba(0,0,0,0.08), 0 0 0 1px " + d.color + "20";
+        ambientGlow.style.opacity = "0.2";
+      });
+      row.addEventListener("mouseleave", function() {
+        this.style.transform = "scale(1) translateY(0)";
+        this.style.background = "var(--glass-bg)";
+        this.style.borderColor = "var(--glass-border)";
+        this.style.boxShadow = "none";
+        ambientGlow.style.opacity = "0.08";
+      });
 
-      if(isOdd){row.appendChild(symPanel);row.appendChild(content);}
-      else{row.appendChild(content);row.appendChild(symPanel);}
-      subjSec.appendChild(row);
+      var ctop = el("div", { css: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", position: "relative", zIndex: "1" } });
+      
+      ctop.appendChild(el("div", {
+        css: { fontSize: "1.5rem", fontWeight: "700", letterSpacing: "-0.02em", color: "var(--text)", fontFamily: "var(--font-display)" }, // FIXED
+        txt: s
+      }));
+      
+      ctop.appendChild(el("span", {
+        css: { 
+          fontSize: ".7rem", fontWeight: "600", padding: "6px 12px", 
+          borderRadius: "100px", border: "1px solid " + d.color + "40", 
+          color: d.color, letterSpacing: ".05em", background: d.color + "10"
+        }
+      }, cnt + " Nodes"));
+      
+      row.appendChild(ctop);
+
+      row.appendChild(el("div", {
+        css: { 
+          fontSize: ".95rem", color: "var(--text-muted)", lineHeight: "1.6", 
+          fontWeight: "300", marginBottom: "24px", flex: "1", position: "relative", zIndex: "1"
+        }, 
+        txt: d.desc 
+      }));
+
+      var cta = el("div", { css: { display: "flex", gap: "8px", alignItems: "center", position: "relative", zIndex: "1" } });
+      cta.appendChild(el("span", {
+        css: { fontSize: ".85rem", fontWeight: "600", color: d.color, letterSpacing: "0.02em" }
+      }, "Access Module →"));
+      row.appendChild(cta);
+
+      gridWrap.appendChild(row);
     });
   }
-  w.appendChild(subjSec);
+w.appendChild(gridWrap);
 
-  // Add the new Smart Feedback Widget!
-  //w.appendChild(createSmartFeedbackWidget());
-
-  // Footer
   var ft=el("div",{css:{paddingTop:"16px",borderTop:"1.5px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"8px"}});
   var frl=el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
   if (typeof makeLogo === 'function') frl.appendChild(makeLogo(22));
@@ -805,4 +670,138 @@ function pgHome(){
   w.appendChild(ft);
   return w;
 }
+// ── INTERACTIVE EMOJI FEEDBACK WIDGET ──
+function createSmartFeedbackWidget() {
+    var widgetWrap = el("div", { 
+        css: { 
+            background: "var(--card)", border: "1.5px solid var(--border)", 
+            borderRadius: "24px", padding: "32px 28px", margin: "24px auto", 
+            maxWidth: "680px", width: "calc(100% - 16px)", boxSizing: "border-box",
+            textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+            transition: "box-shadow 0.3s ease, border-color 0.3s ease"
+        } 
+    });
 
+    widgetWrap.appendChild(el("h3", { css: { margin: "0 0 6px 0", fontSize: "1.4rem", color: "var(--text)", fontFamily: "var(--font-display)", fontWeight: "800" }, txt: "Rate your experience!" }));
+    widgetWrap.appendChild(el("p", { css: { margin: "0 0 20px 0", fontSize: ".9rem", color: "var(--muted)" }, txt: "Your feedback helps us improve StudyLab." }));
+
+    var emojiDisplay = el("div", { 
+        css: { fontSize: "4rem", margin: "10px 0 24px 0", transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)", display: "inline-block", transformOrigin: "center", willChange: "transform", lineHeight: "1" },
+        txt: "🤔" 
+    });
+    var emojis = ["🤔", "😞", "😐", "🙂", "😊", "🤩"];
+    var ratingText = ["Tap a star", "Needs Work", "It's Okay", "Good", "Great!", "Absolutely Amazing!"];
+    var statusText = el("div", { css: { fontSize: ".95rem", fontWeight: "700", color: "var(--accent)", marginBottom: "20px", minHeight: "22px" }, txt: "Tap a star" });
+
+    widgetWrap.appendChild(emojiDisplay);
+
+    var starContainer = el("div", { css: { display: "flex", justifyContent: "center", gap: "10px", fontSize: "2.8rem", color: "var(--border2)", cursor: "pointer", marginBottom: "24px" } });
+    var stars = [];
+    var currentRating = 0; 
+    var formReveal = el("div", { css: { display: "none", animation: "fade-in 0.4s ease", marginTop: "10px" } });
+
+    for (let i = 1; i <= 5; i++) {
+        let star = el("span", { txt: "★", css: { transition: "all 0.2s ease", color: "var(--border)" } });
+        star.onclick = function() {
+            currentRating = i;
+            emojiDisplay.style.willChange = "transform";
+            emojiDisplay.style.transform = "scale(1.2) rotate(5deg)";
+            setTimeout(() => {
+                emojiDisplay.style.transform = "scale(1) rotate(0deg)";
+                setTimeout(() => { emojiDisplay.style.willChange = "auto"; }, 300);
+            }, 200);
+            emojiDisplay.textContent = emojis[i];
+            statusText.textContent = ratingText[i];
+            statusText.style.color = (i <= 2) ? "#ef4444" : (i <= 4) ? "#f59e0b" : "#10b981";
+
+            stars.forEach((s, index) => {
+                if (index < currentRating) {
+                    s.style.color = "#f59e0b";
+                    s.style.textShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
+                    s.style.transform = "scale(1.15)";
+                } else {
+                    s.style.color = "var(--border)";
+                    s.style.textShadow = "none";
+                    s.style.transform = "scale(1)";
+                }
+            });
+            formReveal.style.display = "block";
+        };
+        stars.push(star);
+        starContainer.appendChild(star);
+    }
+
+    widgetWrap.appendChild(starContainer);
+    widgetWrap.appendChild(statusText);
+
+    var textArea = el("textarea", { 
+        css: { width: "100%", padding: "16px", borderRadius: "14px", border: "1.5px solid var(--border2)", background: "var(--bg)", color: "var(--text)", minHeight: "100px", marginBottom: "20px", fontFamily: "var(--font-body)", resize: "none", boxSizing: "border-box", display: "block", fontSize: ".95rem", lineHeight: "1.5", outline: "none", transition: "border-color 0.2s ease" } 
+    });
+    textArea.placeholder = "Tell us what you loved or what we can improve... (Optional)";
+    textArea.onfocus = function() { textArea.style.borderColor = "var(--accent)"; };
+    textArea.onblur = function() { textArea.style.borderColor = "var(--border2)"; };
+
+    var submitBtn = el("button", { 
+        css: { width: "100%", padding: "16px", background: "linear-gradient(135deg, #4F8EF7, #3b82f6)", color: "#fff", border: "none", borderRadius: "14px", fontWeight: "700", fontFamily: "var(--font-body)", cursor: "pointer", fontSize: "1.05rem", boxShadow: "0 6px 20px rgba(79,142,247,0.25)", transition: "transform 0.2s, box-shadow 0.2s", boxSizing: "border-box", display: "block" }, 
+        txt: "Send Feedback 🚀" 
+    });
+    submitBtn.onmousedown = function() { this.style.transform = "scale(0.97)"; };
+    submitBtn.onmouseup = function() { this.style.transform = "scale(1)"; };
+    submitBtn.onmouseleave = function() { this.style.transform = "scale(1)"; };
+
+    submitBtn.onclick = function() {
+        if (currentRating === 0) return;
+        var feedbackText = textArea.value.trim();
+        var user = { name: "Guest User", phone: "No Phone" };
+        try {
+            var savedData = localStorage.getItem('sl_user');
+            if (savedData) user = JSON.parse(savedData);
+        } catch(e) {}
+
+        if (window.STUDYLAB_FEEDBACK_URL) {
+            submitBtn.textContent = "Sending...";
+            submitBtn.style.opacity = "0.7";
+            fetch(window.STUDYLAB_FEEDBACK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify({ Date: new Date().toLocaleString("en-IN"), Name: user.name, Phone: user.phone, Rating: currentRating + " stars", Message: feedbackText || "(no message)" })
+            }).then(function() {
+                var firstName = user.name.split(' ')[0] || "there";
+                widgetWrap.innerHTML = `<div style="padding: 40px 20px; text-align: center; animation: bounce-in 0.5s ease;"><div style="font-size: 3.8rem; margin-bottom: 20px;">💖</div><div style="font-weight: 800; font-size: 1.5rem; color: var(--text); margin-bottom: 10px; font-family: var(--font-display);">You're awesome, ${firstName}!</div><div style="font-size: 1rem; color: var(--muted); line-height: 1.6;">Thank you for helping us make StudyLab the best exam partner.</div></div>`;
+            }).catch(function() {
+                alert("Network error. Please try again.");
+                submitBtn.textContent = "Send Feedback 🚀";
+                submitBtn.style.opacity = "1";
+            });
+        }
+    };
+
+    formReveal.appendChild(textArea);
+    formReveal.appendChild(submitBtn);
+    widgetWrap.appendChild(formReveal);
+    return widgetWrap;
+}
+
+// ── OPEN FEEDBACK IN A POPUP MODAL ──
+window.openFeedbackModal = function() {
+    var overlay = el("div", {
+        css: { position: "fixed", inset: "0", background: "rgba(4, 8, 16, 0.85)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "100000", padding: "20px", animation: "fade-in 0.2s ease" }
+    });
+    overlay.addEventListener("click", function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+
+    var widget = createSmartFeedbackWidget();
+    widget.style.margin = "0"; 
+    widget.style.position = "relative"; 
+
+    var closeBtn = el("button", {
+        css: { position: "absolute", top: "16px", right: "16px", background: "var(--card2)", border: "none", borderRadius: "50%", width: "32px", height: "32px", fontSize: "1.2rem", color: "var(--muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" },
+        txt: "×",
+        onclick: function() { document.body.removeChild(overlay); }
+    });
+    closeBtn.onmouseover = function() { this.style.color = "var(--text)"; this.style.background = "var(--border2)"; };
+    closeBtn.onmouseleave = function() { this.style.color = "var(--muted)"; this.style.background = "var(--card2)"; };
+
+    widget.appendChild(closeBtn);
+    overlay.appendChild(widget);
+    document.body.appendChild(overlay);
+};

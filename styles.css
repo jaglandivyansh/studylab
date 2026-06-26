@@ -45,23 +45,7 @@
   --nav-shadow:      0 8px 32px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0,0,0,0.5);
 }
 
-:root[data-theme="light"] {
-  --bg: #F0F4FF !important;
-  --bg2: #FFFFFF !important;
-  --card: #FFFFFF !important;
-  --card2: #F5F7FF !important;
-  --border: rgba(0,0,0,0.08) !important;
-  --border2: rgba(0,0,0,0.14) !important;
-  --accent: #2D6FE8 !important;
-  --accent2: #1A56C4 !important;
-  --accent-glow: rgba(45,111,232,0.1);
-  --text: #0D1B3E !important;
-  --muted: #5A6A8A !important;
-  --subtle: #A0AEC0 !important;
-  --hero-bg: #F0F4FF !important;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px -8px rgba(0,0,0,0.12);
-  --shadow-hover: 0 0 0 1px rgba(45,111,232,0.25), 0 20px 48px -12px rgba(45,111,232,0.15);
-}
+
 /* ── PREVENT MOBILE SCROLL BOUNCE & LAG ── */
 html, body {
   overscroll-behavior-y: none;
@@ -72,9 +56,7 @@ html {
   background-color: #05080F !important; 
 }
 
-[data-theme="light"] html {
-  background-color: #FFFFFF !important; 
-}
+
 
 /* ── PREVENT MOBILE SCROLL BOUNCE & LAG ── */
 html, body {
@@ -131,11 +113,7 @@ body.no-transition * {
   top: 0;
   z-index: 100;
 }
-[data-theme="light"] .wix-header { 
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 1px solid rgba(0,0,0,0.10) !important;
-  box-shadow: 0 2px 16px rgba(45,111,232,0.08);
-}
+
 .wix-header .logo {
   font-family: var(--font-display);
   font-size: 1.5rem;
@@ -209,31 +187,20 @@ body.no-transition * {
   background: #1F2A40 !important;
 }
 
-/* ── LIGHT MODE STYLES (Fixed to match dark layout) ── */
-[data-theme="light"] #top-navbar .nb-island {
-  background: #ffffff !important; 
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-radius: 100px !important; /* Enforced on light mode too */
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1) !important; 
-}
 
-[data-theme="light"] #top-navbar.scrolled .nb-island {
-  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.15) !important; 
-}
 
-/* ════════ GAP AND SPACING FIX (HERO POSITION) ════════ */
-/* Ab hum padding-top ko poora zero kar rahe hain aur content ko navbar ke thoda peeche se shuru hone denge */
+/* ════════ GAP AND SPACING FIX ════════ */
 body, main, .main-container, .app-content, #app-layout {
   padding-top: 0px !important; 
   margin-top: 0px !important;
 }
 
-/* Hero card container ko target karke top margin fix karna */
-/* Isse hero card upar aayega aur beech ka bada black gap khatam ho jayega */
+/* Remove the massive gap by targeting only the specific hero container */
 .hero-section, 
 .hero-container,
-div[class*="hero"] {
-  margin-top: 88px !important; /* Perfect sweet spot: Navbar ke just niche se start hoga */
+.wix-hero {
+  margin-top: 20px !important; /* Adjust this value (e.g., 60px to 80px) to tighten/widen the gap */
+  padding-top: 20px !important;
 }
 
 
@@ -273,9 +240,6 @@ div[class*="hero"] {
   white-space: nowrap;
 }
 
-#top-navbar .nb-brand-sub { display: none; }
-
-[data-theme="light"] #top-navbar .nb-brand-name { color: #0a1628 !important; }
 
 
 /* ════════ CENTER NAV LINKS ════════ */
@@ -335,49 +299,11 @@ div[class*="hero"] {
 
 #top-navbar .nb-links button::before { display: none !important; }
 
-[data-theme="light"] #top-navbar .nb-links button { color: #64748b !important; }
-[data-theme="light"] #top-navbar .nb-links button:hover { color: #1e3a6e !important; background: rgba(37,99,235,0.06) !important; }
-[data-theme="light"] #top-navbar .nb-links button.active { color: #2563EB !important; background: rgba(37,99,235,0.09) !important; }
-[data-theme="light"] #top-navbar .nb-links button.active::after { background: #2563EB !important; box-shadow: 0 0 6px rgba(37,99,235,0.4) !important; }
-
-/* ════════ RIGHT ICONS ════════ */
-#top-navbar .nb-right {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* Increased gap so the buttons don't touch each other */
-  flex-shrink: 0;
-  margin-left: auto !important; /* Pushes everything to the far right edge */
-}
 
 
-#top-navbar #themeToggle {
-  width: 38px !important;
-  height: 38px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(255,255,255,0.06) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s, border-color 0.2s, transform 0.18s;
-}
-#top-navbar #themeToggle:hover {
-  background: rgba(79,142,247,0.15) !important;
-  border-color: rgba(79,142,247,0.35) !important;
-  transform: rotate(22deg) scale(1.1);
-}
 
-[data-theme="light"] #top-navbar #themeToggle {
-  background: #f0f4ff !important;
-  border-color: rgba(37,99,235,0.15) !important;
-}
-[data-theme="light"] #top-navbar #themeToggle:hover {
-  background: #dce8ff !important;
-  border-color: rgba(37,99,235,0.35) !important;
-}
+
+
 
 /* ── Hamburger ── */
 #top-navbar #nb-hamburger {
@@ -410,11 +336,7 @@ div[class*="hero"] {
 #top-navbar #nb-hamburger.active .line:nth-child(2) { opacity: 0; transform: scaleX(0); }
 #top-navbar #nb-hamburger.active .line:nth-child(3) { transform: translateY(-6.8px) rotate(-45deg); }
 
-[data-theme="light"] #top-navbar #nb-hamburger {
-  background: #f0f4ff !important;
-  border-color: rgba(37,99,235,0.15) !important;
-}
-[data-theme="light"] #top-navbar #nb-hamburger .line { background: #374151; }
+
 
 /* ── User pill ── */
 #top-navbar .nb-user-pill {
@@ -439,11 +361,7 @@ div[class*="hero"] {
   color: #c8daff !important;
 }
 
-[data-theme="light"] #top-navbar .nb-user-pill {
-  background: rgba(37,99,235,0.07) !important;
-  border-color: rgba(37,99,235,0.2) !important;
-}
-[data-theme="light"] #top-navbar .nb-user-pill > div:last-child { color: #1e3a6e !important; }
+
 
 /* Sign In button */
 #top-navbar .btn.btnp {
@@ -537,11 +455,7 @@ div[class*="hero"] {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-[data-theme="light"] .wix-hero h1 {
-  background: linear-gradient(135deg, #0D1B3E 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
+
 .wix-hero p { font-size: 1.1rem; color: var(--muted); margin-bottom: 36px; font-weight: 300; max-width: 520px; margin-left: auto; margin-right: auto; }
 
 /* ── HIDE ON QUIZ ── */
@@ -845,9 +759,7 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
-[data-theme="light"] .glass-modal {
-  background: rgba(255, 255, 255, 0.8) !important;
-}
+
 
 /* Tactile Clicks */
 .btn:active, .qo:active:not(:disabled), .gu-tab:active, .news-card:active {
@@ -874,9 +786,7 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
   animation: shimmer 1.5s infinite;
 }
-[data-theme="light"] .skeleton-box::after {
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
-}
+
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 
 /* ── TOAST ── */
@@ -923,7 +833,6 @@ body.hide-top-sections #current-affairs-container { display: none !important; }
 
 /* ── APPLE-STYLE AMBIENT BACKGROUND (HARDWARE ACCELERATED) ── */
 body { background-color: #05080F !important; position: relative; }
-[data-theme="light"] body { background-color: #f8fafc !important; }
 
 body::before, body::after {
   content: ''; position: fixed; z-index: -1; opacity: 0.35;
@@ -939,8 +848,6 @@ body::after {
   bottom: -20%; right: -20%; width: 80vw; height: 80vh;
   background: radial-gradient(circle at center, rgba(139, 92, 246, 0.4) 0%, transparent 60%);
 }
-[data-theme="light"] body::before { background: radial-gradient(circle at center, rgba(126, 179, 255, 0.6) 0%, transparent 60%); }
-[data-theme="light"] body::after { background: radial-gradient(circle at center, rgba(167, 139, 250, 0.6) 0%, transparent 60%); }
 
 /* ── MAKE CARDS GLASSY TO REVEAL BACKGROUND ── */
 .subj-row, .stb, .gu-card, .news-card, .cw .cf, .cw .cb, .sc, .mc, .htu-step-card {
@@ -949,10 +856,7 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.09) !important;
   transform: translateZ(0); 
 }
-[data-theme="light"] .subj-row, [data-theme="light"] .stb, [data-theme="light"] .gu-card, [data-theme="light"] .news-card, [data-theme="light"] .cw .cf, [data-theme="light"] .cw .cb, [data-theme="light"] .sc, [data-theme="light"] .mc, [data-theme="light"] .htu-step-card {
-  background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
+
 
 /* ── PRO SCROLL REVEAL (STAGGERED) ── */
 .reveal-up {
@@ -1199,7 +1103,7 @@ body::after {
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); /* Ultra smooth ease-out */
   overflow-y: auto;
 }
-[data-theme="light"] #nb-mobile-drawer { background: #FFFFFF !important; border-left: 1px solid rgba(0,0,0,0.08); box-shadow: -10px 0 50px rgba(0,0,0,0.15); }
+
 
 #nb-mobile-drawer.open { transform: translateX(0); }
 
@@ -1221,7 +1125,6 @@ body::after {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .drawer-profile-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
-[data-theme="light"] .drawer-profile-card { background: #F8FAFC; border-color: rgba(0,0,0,0.08); }
 
 .profile-avatar-wrap { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 8px var(--accent-glow); flex-shrink: 0; }
 .profile-avatar-wrap svg { width: 22px; height: 22px; }
@@ -1247,7 +1150,6 @@ body::after {
   transform: translateX(20px);
 }
 .drawer-menu-item:hover { background: var(--card2); transform: translateX(4px); }
-[data-theme="light"] .drawer-menu-item:hover { background: #F1F5F9; }
 
 /* The iOS style Icon Box */
 .drawer-icon-box {
@@ -1273,7 +1175,7 @@ body::after {
 /* ── RESPONSIVE ── */
 @media(max-width: 768px) {
   .wix-header { padding: 0 20px; height: 60px; }
-  .wix-hero { padding: 72px 16px 80px; }
+  .wix-hero { padding: 40px 20px 60px; }
   .wix-hero h1 { font-size: 2.4rem; }
   .app-container { padding: 80px 12px 12px; }
   #app:has(.subj-row) { grid-template-columns: 1fr; }
@@ -1283,7 +1185,7 @@ body::after {
   #top-navbar { padding: 0 16px; }
   #top-navbar .nb-links { display: none; }
   #nb-hamburger { display: block; }
-  #top-navbar .nb-brand-sub { font-size: 0.55rem; }
+  #top-navbar .nb-brand-sub { font-size: 0.65rem; }
   #top-navbar .nb-right { gap: 6px; }
 
   /* How to Use page mobile tweaks */
@@ -1434,12 +1336,7 @@ body::after {
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5), 0 16px 48px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.07) !important;
 }
 
-/* Light Theme Styling */
-[data-theme="light"] #bottom-navbar { 
-  background: var(--bg2) !important; 
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 12px 48px rgba(10, 22, 40, 0.12) !important;
-}
+
 
 /* ── BUTTON STYLES ── */
 #bottom-navbar button,
@@ -1470,11 +1367,6 @@ body::after {
   opacity: 1 !important;
 }
 
-[data-theme="light"] #bottom-navbar button.active,
-[data-theme="light"] #bottom-navbar .nav-item.active {
-  color: #2563EB !important;
-  background: rgba(37, 99, 235, 0.12) !important; 
-}
 
 /* ── ICON & TEXT STYLES ── */
 #bottom-navbar .nav-icon,
@@ -1540,13 +1432,7 @@ main,
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-/* Ensure Light Mode has a bright, frosted spotlight feel */
-[data-theme="light"] #sl-tour-highlight {
-  box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8), 0 0 0 3px var(--accent);
-}
-#sl-tour-highlight.active {
-  opacity: 1;
-}
+
 
 /* Tooltip Box */
 #sl-tour-tooltip {
@@ -1687,4 +1573,219 @@ div[class*="hero"]:not(.pg-hero) {
   #bottom-navbar {
     max-width: 700px !important;
   }
+}
+
+/* ═══════════════════════════════════════════
+   STUDYLAB — REDESIGNED COSMIC GLASS THEME
+   ═══════════════════════════════════════════ */
+:root, :root[data-theme="dark"] {
+  /* Existing true deep dark backgrounds */
+  --bg:    #05080F !important;   
+  --bg2:   #0D1117 !important;   
+  --card:  #111827 !important;   
+  
+  /* NEW: Glassmorphic System */
+  --glass-bg: rgba(255, 255, 255, 0.02); 
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-glow: rgba(79, 142, 247, 0.15);
+  
+  /* NEW: Physics-based Apple-style Motion */
+  --spring-easing: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --fluid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Existing Borders & Text */
+  --border:  rgba(255, 255, 255, 0.08) !important;
+  --border2: rgba(255, 255, 255, 0.15) !important;
+  --text:   #F1F5F9 !important;
+  --muted:  #8B9CB8 !important;
+  --subtle: #4E5F7A !important;
+  
+  /* Existing Accents */
+  --accent:      #3B82F6 !important;
+  --accent2:     #60A5FA !important;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  --hero-bg: #05080F !important;
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+/* Add the blueprint/math grid to the body */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* NEW: Subtle Blueprint Grid */
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed; /* Keeps the grid static while scrolling */
+}
+/* ════════ LOGO ════════ */
+#top-navbar .nb-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+/* Ensure the image or SVG logo is visible */
+#top-navbar .nb-logo img, 
+#top-navbar .nb-logo svg {
+  display: block !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+}
+
+/* 1. Force the text container to perfectly align its children */
+#top-navbar .nb-logo > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* Perfect left-alignment */
+}
+
+#top-navbar .nb-logo:hover .nb-brand-name { color: var(--accent2); }
+
+/* 2. Tighten the Main Brand Name */
+#top-navbar .nb-brand-name {
+  font-family: var(--font-display);
+  font-size: 1.45rem; /* Slightly reduced to balance the pill height */
+  font-weight: 800;
+  letter-spacing: -0.03em; 
+  color: var(--text);
+  transition: color 0.2s;
+  white-space: nowrap;
+  line-height: 1; /* Removes the invisible gap below the text */
+}
+
+/* 3. Style the Subtitle properly */
+#top-navbar .nb-brand-sub {
+  font-family: var(--font-body);
+  font-size: 0.7rem; 
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase; /* Gives it a premium, structured look */
+  margin-top: 2px;
+  white-space: nowrap;
+}
+/* ════════════════════════════════════════════
+   REIMAGINED GLASSMORPHIC HAMBURGER
+   ════════════════════════════════════════════ */
+#top-navbar #nb-hamburger {
+  width: 42px !important;
+  height: 42px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important; /* Stagger lines to the right */
+  justify-content: center !important;
+  gap: 6px !important;
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 50% !important; /* Perfect circle fits the pill */
+  padding: 0 11px !important;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.4s var(--spring-easing) !important;
+  z-index: 10001;
+}
+
+#top-navbar #nb-hamburger:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.05);
+}
+
+#top-navbar #nb-hamburger .line {
+  display: block;
+  height: 2px;
+  background-color: var(--text);
+  border-radius: 4px;
+  transition: all 0.4s var(--spring-easing);
+  transform-origin: center;
+}
+
+/* ── Asymmetric Staggered Lines ── */
+#top-navbar #nb-hamburger .line:nth-child(1) { width: 18px; }
+#top-navbar #nb-hamburger .line:nth-child(2) { width: 10px; }
+#top-navbar #nb-hamburger .line:nth-child(3) { width: 18px; }
+
+/* ── Hover Physics: Middle line springs out ── */
+#top-navbar #nb-hamburger:hover .line:nth-child(2) { width: 18px; }
+
+/* ── Active State: The Perfect 'X' ── */
+#top-navbar #nb-hamburger.active {
+  align-items: center !important; 
+  background: rgba(79, 142, 247, 0.15) !important;
+  border-color: rgba(79, 142, 247, 0.4) !important;
+}
+
+#top-navbar #nb-hamburger.active .line:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+  width: 20px;
+  background-color: var(--accent2);
+}
+#top-navbar #nb-hamburger.active .line:nth-child(2) {
+  width: 0;
+  opacity: 0;
+}
+#top-navbar #nb-hamburger.active .line:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+  width: 20px;
+  background-color: var(--accent2);
+}
+
+/* ════════════════════════════════════════════
+   UNIFIED FLOATING PILL SYSTEM (GLOBAL)
+   ════════════════════════════════════════════ */
+
+/* Apply this to both top and bottom navbars for identical behavior */
+#top-navbar, #bottom-navbar {
+  position: fixed;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* Fixed width logic for all devices */
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  z-index: 10000 !important;
+  pointer-events: none; /* Allows clicking through the empty space */
+}
+
+/* The actual 'Island' surface */
+.nb-island, #bottom-navbar {
+  pointer-events: auto; /* Re-enable clicks only on the island */
+  height: 56px !important;
+  background: rgba(17, 24, 39, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 100px !important;
+  padding: 0 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  transition: all 0.3s ease;
+}
+
+/* Top Navbar specific placement */
+#top-navbar { top: 12px !important; }
+
+/* Bottom Navbar specific placement */
+#bottom-navbar { bottom: 20px !important; }
+
+/* Hamburger stays identical size */
+#nb-hamburger {
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
