@@ -386,6 +386,7 @@ var GU_TYPES = {
 // ── RSS feeds via multiple proxy services (tries each until one works)
 var GU_RAW_FEEDS = [
   { raw: 'https://www.freejobalert.com/feed/',                          name:'FreeJobAlert' },
+  { raw: 'https://www.indgovtjobs.in/feeds/posts/default?alt=rss',      name:'IndGovtJobs' }, // Highly reliable, no Cloudflare
   { raw: 'https://quicksarkari.com/feed/',                              name:'Sarkari Naukri' },
   { raw: 'https://www.rojgarresult.com/feed/',                          name:'Rojgar Result' },
   { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',           name:'FreshersWorld' },
@@ -1014,17 +1015,19 @@ card.appendChild(foot);
     });
 
     var usedFallback = false;
-    if(fetchedEntries.length >= 3){
-      // 1. Grab the old cache so we can accumulate updates over time!
-      var oldCache = Sv.get("gu_cache") || [];
+    var oldCache = Sv.get("gu_cache") || [];
+    var usedFallback = false;
+
+    // If we fetched ANY new items, OR if we already have items in our cache:
+    if (fetchedEntries.length > 0 || oldCache.length > 0) {
       
-      // 2. Combine new live entries + old cached entries + user entries
+      // Combine new live entries + old cached entries + user entries
       var combined = fetchedEntries.concat(oldCache).concat(stored);
       
       var seen = {};
       var finalEntries = [];
       
-      // 3. Deduplicate (so we don't show the same job twice)
+      // Deduplicate (so we don't show the same job twice)
       for(var i = 0; i < combined.length; i++) {
         var e = combined[i];
         var key = (e.title || '').slice(0, 50).toLowerCase();
@@ -1034,27 +1037,36 @@ card.appendChild(foot);
         }
       }
       
-      // 4. Sort by date (newest first)
+      // Sort by date (newest first)
       finalEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
       
-      // 5. Cap it at 150 total items so older mobile devices don't lag
+      // Cap it at 150 total items
       allEntries = finalEntries.slice(0, 150);
       
-      statusTxt.textContent = '● Live — ' + allEntries.length + ' updates available';
-      liveDot.style.background = '#4ade80';
+      if (fetchedEntries.length > 0) {
+        statusTxt.textContent = '● Live — ' + allEntries.length + ' updates available';
+        liveDot.style.background = '#4ade80'; // Green dot
+      } else {
+        // The fetch failed (network drop/proxy block), but we kept the cache!
+        statusTxt.textContent = '✅ Cached — ' + allEntries.length + ' updates available';
+        liveDot.style.background = '#f59e0b'; // Yellow/Orange dot
+      }
+      
     } else {
+      // ONLY trigger the hardcoded 10-item fallback if both the fetch AND the cache are completely empty
       usedFallback = true;
       allEntries = stored.concat(GU_FALLBACK);
-      statusTxt.textContent = '📋 Offline Mode — '+GU_FALLBACK.length+' curated updates';
+      statusTxt.textContent = '📋 Offline Mode — ' + GU_FALLBACK.length + ' curated updates';
       liveDot.style.background = '#f59e0b';
     }
 
+    // Save our hard work to the cache for next time
     guRssCache = allEntries;
     guLastFetch = Date.now();
     Sv.set("gu_cache", allEntries);
     Sv.set("gu_cache_time", guLastFetch);
 
-    if(usedFallback){
+    if (usedFallback) {
       var banner = el("div",{css:{background:"rgba(245,158,11,0.12)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",fontSize:".78rem",color:"#f59e0b",fontWeight:"600"}},"⚠️ Live feed unavailable right now — showing curated updates instead.");
       wrap.insertBefore(banner, statsBar);
     }
