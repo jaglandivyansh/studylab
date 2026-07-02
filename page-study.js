@@ -715,22 +715,7 @@ function pgSwipeFC() {
     }
   });
 
-  // Header overlay
-  var hdr = el("div", {css:{
-    position:"fixed", top:"15px", left:"20px", right:"20px",
-    display:"flex", justifyContent:"space-between", alignItems:"center",
-    zIndex:"20", color:"var(--text)"
-  }});
-  hdr.appendChild(el("div", {css:{fontSize:"1.1rem",fontWeight:"800",fontFamily:"var(--font-display)",
-    background:"var(--card)",padding:"6px 14px",borderRadius:"20px",border:"1px solid var(--border2)"}},
-    ICON[s] + " " + s + " ⚡"));
-  hdr.appendChild(el("button", {
-    css:{background:"var(--card)",border:"1px solid var(--border2)",color:"var(--text)",
-      padding:"6px 14px",borderRadius:"20px",fontSize:".8rem",cursor:"pointer",
-      display:"flex",alignItems:"center",gap:"6px"},
-    onclick: function(){ go("sub"); }
-  }, "← Back"));
-  w.appendChild(hdr);
+  
 
   cards.forEach(function(item, idx) {
     var slide = el("div", {css:{
