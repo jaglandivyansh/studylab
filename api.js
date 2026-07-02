@@ -392,12 +392,79 @@ var GU_RAW_FEEDS = [
   { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx', name:'Employment News' },
   { raw: 'https://haryanajobs.in/feed/',                                name:'Haryana Jobs' }
 ];
+var GU_OFFICIAL_LINKS = {
+  // ── CENTRAL & NATIONAL BOARDS ──
+  'UPSC': 'https://upsc.gov.in',
+  'SSC': 'https://ssc.gov.in', // SSC migrated to ssc.gov.in
+  'RRB': 'https://indianrailways.gov.in',
+  'IBPS': 'https://ibps.in',
+  'NTA': 'https://nta.ac.in',
+  'DRDO': 'https://drdo.gov.in',
+  'ISRO': 'https://www.isro.gov.in/Careers.html',
+  'AIIMS': 'https://www.aiims.edu',
+  
+  // ── BANKING & FINANCE ──
+  'SBI': 'https://sbi.co.in/web/careers',
+  'RBI': 'https://opportunities.rbi.org.in',
+  'NABARD': 'https://nabard.org',
+  'LIC': 'https://licindia.in/Bottom-Links/careers',
+  'EPFO': 'https://www.epfindia.gov.in',
+  'ESIC': 'https://www.esic.gov.in/recruitments',
+  
+  // ── DEFENCE & FORCES ──
+  'ARMY': 'https://joinindianarmy.nic.in',
+  'NAVY': 'https://www.joinindiannavy.gov.in',
+  'AIR FORCE': 'https://afcat.cdac.in',
+  'COAST GUARD': 'https://joinindiancoastguard.cdac.in',
+  'BSF': 'https://rectt.bsf.gov.in',
+  'CRPF': 'https://rect.crpf.gov.in',
+  'CISF': 'https://cisfrectt.cisf.gov.in',
+  'ITBP': 'https://recruitment.itbpolice.nic.in',
+
+  // ── PSUs (Public Sector Undertakings) ──
+  'ONGC': 'https://ongcindia.com',
+  'NTPC': 'https://careers.ntpc.co.in',
+  'BHEL': 'https://careers.bhel.in',
+  'HAL': 'https://hal-india.co.in/Career',
+  'SAIL': 'https://sailcareers.com',
+  'FCI': 'https://fci.gov.in/personnel.php',
+  'AAI': 'https://www.aai.aero/en/careers/recruitment',
+
+  // ── STATE PUBLIC SERVICE COMMISSIONS (PSCs) ──
+  'APPSC': 'https://psc.ap.gov.in',            // Andhra Pradesh
+  'APSC': 'https://apsc.nic.in',               // Assam
+  'BPSC': 'https://bpsc.bih.nic.in',           // Bihar
+  'CGPSC': 'https://psc.cg.gov.in',            // Chhattisgarh
+  'GPSC': 'https://gpsc.gujarat.gov.in',       // Gujarat
+  'HPSC': 'https://hpsc.gov.in',               // Haryana
+  'HPPSC': 'https://hppsc.hp.gov.in',          // Himachal Pradesh
+  'JKPSC': 'https://jkpsc.nic.in',             // Jammu & Kashmir
+  'JPSC': 'https://jpsc.gov.in',               // Jharkhand
+  'KPSC': 'https://kpsc.kar.nic.in',           // Karnataka
+  'KERALA PSC': 'https://www.keralapsc.gov.in',// Kerala
+  'MPPSC': 'https://mppsc.mp.gov.in',          // Madhya Pradesh
+  'MPSC': 'https://mpsc.gov.in',               // Maharashtra
+  'MPSC MANIPUR': 'https://mpscmanipur.gov.in',// Manipur
+  'MPSC MEGHALAYA': 'https://mpsc.nic.in',     // Meghalaya
+  'OPSC': 'https://opsc.gov.in',               // Odisha
+  'PPSC': 'https://ppsc.gov.in',               // Punjab
+  'RPSC': 'https://rpsc.rajasthan.gov.in',     // Rajasthan
+  'SPSC': 'https://spsc.sikkim.gov.in',        // Sikkim
+  'TNPSC': 'https://tnpsc.gov.in',             // Tamil Nadu
+  'TGPSC': 'https://tgpsc.gov.in',             // Telangana (Recently renamed from TSPSC)
+  'TSPSC': 'https://tgpsc.gov.in',             // Fallback for older Telangana notices
+  'TPSC': 'https://tpsc.tripura.gov.in',       // Tripura
+  'UPPSC': 'https://uppsc.up.nic.in',          // Uttar Pradesh
+  'UKPSC': 'https://psc.uk.gov.in',            // Uttarakhand
+  'WBPSC': 'https://psc.wb.gov.in'             // West Bengal
+};
 
 // Build feed URLs with multiple proxy strategies
 function guBuildFeedUrls(raw, name) {
   var enc = encodeURIComponent(raw);
   return [
-    { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'r2j', name: name },
+    { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc + '&count=120', type: 'r2j', name: name },
+    { url: 'https://api.codetabs.com/v1/proxy?quest=' + enc, type: 'xml', name: name },
     { url: 'https://api.allorigins.win/get?url=' + enc, type: 'allorigins', name: name },
     { url: 'https://corsproxy.io/?' + enc, type: 'xml', name: name },
     { url: 'https://thingproxy.freeboard.io/fetch/' + raw, type: 'xml', name: name }
@@ -452,7 +519,7 @@ function guParseXml(xmlStr, feedName) {
   var doc = parser.parseFromString(xmlStr, 'text/xml');
   var items = Array.from(doc.querySelectorAll('item'));
   if (!items.length) throw new Error('No items in XML');
-  return items.slice(0, 50).map(function(item, idx) {
+  return items.slice(0, 120).map(function(item, idx) { // Raised limit to 120
     var title = (item.querySelector('title')||{}).textContent || '';
     title = title.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
     var link  = (item.querySelector('link')||{}).textContent || (item.querySelector('guid')||{}).textContent || '#';
@@ -484,14 +551,14 @@ async function guFetchFeed(primaryFeed) {
     try {
       var res = await Promise.race([
         fetch(strategy.url, { cache: 'no-store' }),
-        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 8000); })
+        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 5000); })
       ]);
       if (!res.ok) continue;
 
       if (strategy.type === 'r2j') {
         var data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length) {
-          return data.items.slice(0,50).map(function(item, idx) {
+          return data.items.slice(0, 120).map(function(item, idx) { // Raised limit to 120
             var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
             return {
               id: guStableId(title, strategy.name),
@@ -533,7 +600,7 @@ async function guFetchAI() {
           max_tokens: 1500,
           messages: [{
             role: 'user',
-            content: 'Generate 15 realistic Indian government job notifications for today (' + today + '). Return ONLY a JSON array, no markdown, no extra text. Each object must have exactly these fields: id (string), type (one of: vacancy/admitcard/examdate/result), title (string), org (string like UPSC/SSC/RRB/IBPS/NTA/DRDO/SBI/RBI/AIIMS/ISRO), date (YYYY-MM-DD near today), lastDate (YYYY-MM-DD or null), examDate (string or null), link (official URL), tags (array of strings). Mix all 4 types. Make titles realistic and specific with post counts.'
+            content: 'Generate 40 realistic Indian government job notifications for today (' + today + '). Return ONLY a JSON array, no markdown, no extra text. Each object must have exactly these fields: id (string), type (one of: vacancy/admitcard/examdate/result), title (string), org (string like UPSC/SSC/RRB/IBPS/NTA/DRDO/SBI/RBI/AIIMS/ISRO), date (YYYY-MM-DD near today), lastDate (YYYY-MM-DD or null), examDate (string or null), link (official URL), tags (array of strings). Mix all 4 types. Make titles realistic and specific with post counts.'
           }]
         })
       }),
@@ -745,7 +812,8 @@ function pgGovtUpdates(){
         var rowLeft = el("div",{css:{display:"flex",alignItems:"center",gap:"8px",flex:"1",minWidth:"0"}});
         rowLeft.appendChild(el("span",{},t.icon));
         if(isNewEntry) rowLeft.appendChild(el("span",{css:{fontSize:".6rem",fontWeight:"800",color:"#fff",background:"#ef4444",borderRadius:"4px",padding:"1px 5px"}},"NEW"));
-        var rowTitle = el("a",{href:entry.link,target:"_blank",rel:"noopener",css:{color:"var(--fg)",textDecoration:"none",fontSize:".85rem",fontWeight:"600",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}},entry.title);
+        var targetLink = (entry.org && GU_OFFICIAL_LINKS[entry.org]) ? GU_OFFICIAL_LINKS[entry.org] : entry.link;
+var rowTitle = el("a",{href:targetLink,target:"_blank",rel:"noopener",css:{color:"var(--fg)",textDecoration:"none",fontSize:".85rem",fontWeight:"600",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}},entry.title);
         rowLeft.appendChild(rowTitle);
         row.appendChild(rowLeft);
         var rowRight = el("div",{css:{display:"flex",alignItems:"center",gap:"8px",fontSize:".72rem",color:"var(--muted)",flexShrink:"0"}});
@@ -807,8 +875,49 @@ function pgGovtUpdates(){
         card.appendChild(tagWrap);
       }
 
-      var foot = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between"}});
-      foot.appendChild(entry.link ? el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener",css:{color:t.color}},"View / Apply ↗") : el("span",{}));
+      var foot = el("div", {css: {display: "flex", alignItems: "center", justifyContent: "space-between"}});
+var linksWrap = el("div", {css: {display: "flex", gap: "12px", alignItems: "center"}});
+
+// 1. Always provide the third-party "Details" link (from the RSS feed)
+if (entry.link) {
+  linksWrap.appendChild(el("a", {
+    cls: "gu-link", 
+    href: entry.link, 
+    target: "_blank", 
+    rel: "noopener", 
+    css: {color: t.color}
+  }, "📝 Details ↗"));
+}
+
+// 2. Add the Official Site link right next to it (if we have it)
+if (entry.org && GU_OFFICIAL_LINKS[entry.org]) {
+  linksWrap.appendChild(el("a", {
+    cls: "gu-link", 
+    href: GU_OFFICIAL_LINKS[entry.org], 
+    target: "_blank", 
+    rel: "noopener", 
+    css: {color: "var(--fg)", opacity: "0.8"} // Slightly different color so they stand apart
+  }, "🏛 Official Site ↗"));
+}
+
+foot.appendChild(linksWrap);
+
+// Keep your existing AI/User tags logic here
+if (entry._ai) {
+  foot.appendChild(el("span", {css: {fontSize: ".65rem", color: "#8b5cf6", fontWeight: "600", background: "rgba(139,92,246,0.12)", padding: "2px 8px", borderRadius: "6px"}}, "🤖 AI"));
+}
+if (entry._user) {
+  (function(eid) {
+    foot.appendChild(el("button", {cls: "btng", css: {fontSize: ".72rem", padding: "4px 10px"}, onclick: function() {
+      var s = Sv.get("gu_entries") || [];
+      Sv.set("gu_entries", s.filter(function(x) { return x.id !== eid; }));
+      go("govtupdates");
+      toast("Entry removed");
+    }}, "✕ Remove"));
+  })(entry.id);
+}
+
+card.appendChild(foot);
       if(entry._ai){
         foot.appendChild(el("span",{css:{fontSize:".65rem",color:"#8b5cf6",fontWeight:"600",background:"rgba(139,92,246,0.12)",padding:"2px 8px",borderRadius:"6px"}},"🤖 AI"));
       }
@@ -891,7 +1000,7 @@ function pgGovtUpdates(){
       return Promise.race([
         guFetchFeed(feed),
         new Promise(function(_, reject) {
-          setTimeout(function(){ reject(new Error('timeout')); }, 5000);
+          setTimeout(function(){ reject(new Error('timeout')); }, 20000);
         })
       ]).catch(function(){ return []; });
     });
@@ -906,16 +1015,32 @@ function pgGovtUpdates(){
 
     var usedFallback = false;
     if(fetchedEntries.length >= 3){
+      // 1. Grab the old cache so we can accumulate updates over time!
+      var oldCache = Sv.get("gu_cache") || [];
+      
+      // 2. Combine new live entries + old cached entries + user entries
+      var combined = fetchedEntries.concat(oldCache).concat(stored);
+      
       var seen = {};
-      fetchedEntries = fetchedEntries.filter(function(e){
-        var key = (e.title||'').slice(0,40).toLowerCase();
-        if(seen[key]) return false;
-        seen[key] = true;
-        return true;
-      });
-      fetchedEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
-      allEntries = stored.concat(fetchedEntries);
-      statusTxt.textContent = '● Live — '+fetchedEntries.length+' updates from RSS';
+      var finalEntries = [];
+      
+      // 3. Deduplicate (so we don't show the same job twice)
+      for(var i = 0; i < combined.length; i++) {
+        var e = combined[i];
+        var key = (e.title || '').slice(0, 50).toLowerCase();
+        if(!seen[key]) {
+          seen[key] = true;
+          finalEntries.push(e);
+        }
+      }
+      
+      // 4. Sort by date (newest first)
+      finalEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
+      
+      // 5. Cap it at 150 total items so older mobile devices don't lag
+      allEntries = finalEntries.slice(0, 150);
+      
+      statusTxt.textContent = '● Live — ' + allEntries.length + ' updates available';
       liveDot.style.background = '#4ade80';
     } else {
       usedFallback = true;
