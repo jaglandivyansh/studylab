@@ -133,7 +133,6 @@ const CA_FEEDS = {
   world: [
     { url: R2J + encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml'),               name: 'BBC World News' },
     { url: R2J + encodeURIComponent('https://www.reutersagency.com/feed/?best-types=top-news'),   name: 'Reuters Global' },
-    { url: R2J + encodeURIComponent('http://rss.cnn.com/rss/edition.rss'),                        name: 'CNN International' },
     { url: R2J + encodeURIComponent('https://www.theguardian.com/world/rss'),                     name: 'The Guardian' }
   ],
   govt: [
@@ -374,7 +373,7 @@ async function loadCurrentAffairs() {
 }
 
 // ═══════════════════════════════════════════
-//   GOVT UPDATES PAGE — RSS SYSTEM
+//   GOVT UPDATES PAGE — RSS SYSTEM (v2 — redesigned)
 // ═══════════════════════════════════════════
 
 var GU_TYPES = {
@@ -386,25 +385,21 @@ var GU_TYPES = {
 
 // ── RSS feeds via multiple proxy services (tries each until one works)
 var GU_RAW_FEEDS = [
-  { raw: 'https://www.freejobalert.com/feed/',                                                        name:'FreeJobAlert' },
-  { raw: 'https://quicksarkari.com/feed/',                                                            name:'Sarkari Naukri' },
-  { raw: 'https://www.rojgarresult.com/feed/',                                                        name:'Rojgar Result' },
-  { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',                                         name:'FreshersWorld' },
-  { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx',                              name:'Employment News' },
-  { raw: 'https://haryanajobs.in/feed/',                                                              name:'Haryana Jobs' }
+  { raw: 'https://www.freejobalert.com/feed/',                          name:'FreeJobAlert' },
+  { raw: 'https://quicksarkari.com/feed/',                              name:'Sarkari Naukri' },
+  { raw: 'https://www.rojgarresult.com/feed/',                          name:'Rojgar Result' },
+  { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',           name:'FreshersWorld' },
+  { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx', name:'Employment News' },
+  { raw: 'https://haryanajobs.in/feed/',                                name:'Haryana Jobs' }
 ];
 
 // Build feed URLs with multiple proxy strategies
 function guBuildFeedUrls(raw, name) {
   var enc = encodeURIComponent(raw);
   return [
-    // Strategy 1: rss2json (primary)
     { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'r2j', name: name },
-    // Strategy 2: allorigins CORS proxy → parse XML ourselves
     { url: 'https://api.allorigins.win/get?url=' + enc, type: 'allorigins', name: name },
-    // Strategy 3: corsproxy.io
     { url: 'https://corsproxy.io/?' + enc, type: 'xml', name: name },
-    // Strategy 4: cors-anywhere (fallback)
     { url: 'https://thingproxy.freeboard.io/fetch/' + raw, type: 'xml', name: name }
   ];
 }
@@ -414,13 +409,12 @@ var GU_RSS_FEEDS = GU_RAW_FEEDS.map(function(f){ return guBuildFeedUrls(f.raw, f
 // Keyword-based auto type classifier
 function guClassify(title) {
   var t = (title||'').toLowerCase();
-  if (/admit card|hall ticket|call letter/.test(t))           return 'admitcard';
-  if (/result|merit list|final list|selected|cut.?off/.test(t)) return 'result';
+  if (/admit card|hall ticket|call letter/.test(t))              return 'admitcard';
+  if (/result|merit list|final list|selected|cut.?off/.test(t))  return 'result';
   if (/exam date|schedule|timetable|postponed|date sheet/.test(t)) return 'examdate';
   return 'vacancy';
 }
 
-// Extract org name from title heuristically
 function guExtractOrg(title) {
   var orgs = ['UPSC','SSC','RRB','IBPS','NTA','DRDO','SBI','RBI','NABARD','TNPSC',
     'UPPSC','MPSC','BPSC','RPSC','HPSC','UKPSC','JPSC','OPSC','KPSC','GPSC',
@@ -431,7 +425,7 @@ function guExtractOrg(title) {
   }
   return '';
 }
-// Extract 'Last Date' from RSS titles using Regex
+
 function guExtractLastDate(text) {
   var match = (text||'').match(/(?:last date|apply till|deadline|closing date)[\s\:-]*(\d{1,2}[\/\-\s](?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|[a-z]+)[\/\-\s]?\d{2,4}|\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i);
   if(match && match[1]) return match[1].trim();
@@ -466,7 +460,7 @@ function guParseXml(xmlStr, feedName) {
     var dateStr = pub ? new Date(pub).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
     if (isNaN(new Date(dateStr))) dateStr = new Date().toISOString().slice(0,10);
     return {
-      id: feedName+'_'+idx+'_'+Date.now(),
+      id: guStableId(title, feedName),
       type: guClassify(title),
       title: title,
       org: guExtractOrg(title) || feedName,
@@ -500,7 +494,7 @@ async function guFetchFeed(primaryFeed) {
           return data.items.slice(0,50).map(function(item, idx) {
             var title = (item.title||'').replace(/<[^>]+>/g,'').trim();
             return {
-              id: strategy.name+'_'+idx+'_'+Date.now(),
+              id: guStableId(title, strategy.name),
               type: guClassify(title),
               title: title,
               org: guExtractOrg(title) || strategy.name,
@@ -518,7 +512,6 @@ async function guFetchFeed(primaryFeed) {
           return guParseXml(json.contents, strategy.name);
         }
       } else {
-        // raw XML via corsproxy / thingproxy
         var xmlText = await res.text();
         return guParseXml(xmlText, strategy.name);
       }
@@ -549,7 +542,6 @@ async function guFetchAI() {
     if (!res.ok) throw new Error('AI API error');
     var aiData = await res.json();
     var text = (aiData.content||[]).map(function(c){ return c.text||''; }).join('');
-    // Strip any markdown fences if present
     text = text.replace(/```json|```/g,'').trim();
     var entries = JSON.parse(text);
     if (!Array.isArray(entries) || !entries.length) throw new Error('Bad AI response');
@@ -572,7 +564,64 @@ async function guFetchAI() {
   }
 }
 
-// Cache for RSS results
+// ── Stable ID so "new" detection works across refreshes (title+source based, not time-based)
+function guStableId(title, source) {
+  var s = (title||'') + '|' + (source||'');
+  var h = 0;
+  for (var i=0; i<s.length; i++) { h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
+  return 'gu_' + Math.abs(h);
+}
+
+// ── Seen-entries tracking (for "NEW" badge)
+function guGetSeenIds() { return Sv.get("gu_seen_ids") || []; }
+function guMarkAllSeen(entries) {
+  var ids = entries.map(function(e){ return e.id; });
+  Sv.set("gu_seen_ids", ids.slice(0, 500)); // cap growth
+  Sv.set("gu_last_visit", Date.now());
+}
+function guIsNew(entry, seenIds) {
+  return seenIds.length > 0 && seenIds.indexOf(entry.id) === -1;
+}
+
+// ── Bookmarks for govt updates (separate namespace so it doesn't clash with quiz bookmarks)
+function guGetBookmarks() { return Sv.get("gu_bookmarks") || []; }
+function guIsBookmarked(entryId) { return guGetBookmarks().some(function(b){ return b.id === entryId; }); }
+function guToggleBookmark(entry) {
+  var bms = guGetBookmarks();
+  var idx = bms.findIndex(function(b){ return b.id === entry.id; });
+  if (idx >= 0) { bms.splice(idx,1); Sv.set("gu_bookmarks", bms); toast("Bookmark removed"); return false; }
+  bms.push(entry); Sv.set("gu_bookmarks", bms); toast("Saved! ⭐"); return true;
+}
+
+// ── Days-left helper (also used for sort priority)
+function guDaysLeft(lastDateStr) {
+  if (!lastDateStr) return null;
+  var cleanDateStr = lastDateStr.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
+  var parsedDate = new Date(cleanDateStr);
+  if (isNaN(parsedDate)) return null;
+  var diffMs = parsedDate - new Date();
+  return Math.ceil(diffMs / (1000*60*60*24));
+}
+
+// ── Sort: closing-soon-and-still-open first, then new items, then by date desc
+function guSortEntries(entries, seenIds) {
+  return entries.slice().sort(function(a,b){
+    var da = guDaysLeft(a.lastDate), db = guDaysLeft(b.lastDate);
+    var aUrgent = da !== null && da >= 0 && da <= 5;
+    var bUrgent = db !== null && db >= 0 && db <= 5;
+    if (aUrgent && !bUrgent) return -1;
+    if (bUrgent && !aUrgent) return 1;
+    if (aUrgent && bUrgent) return da - db;
+
+    var aNew = guIsNew(a, seenIds), bNew = guIsNew(b, seenIds);
+    if (aNew && !bNew) return -1;
+    if (bNew && !aNew) return 1;
+
+    return (b.date||'') > (a.date||'') ? 1 : -1;
+  });
+}
+
+// Cache for RSS results (persisted across sessions too)
 var guRssCache = null;
 var guLastFetch = 0;
 
@@ -588,20 +637,32 @@ function pgGovtUpdates(){
   hd.appendChild(el("div",{css:{fontSize:".85rem",color:"var(--muted)"},txt:"Vacancies · Admit Cards · Exam Dates · Results — live from RSS"}));
   wrap.appendChild(hd);
 
-  // Status bar (live indicator + refresh button)
-  var statusBar = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"11px 18px",marginBottom:"18px"}});
+  // Status bar (live indicator + compact toggle + refresh button)
+  var statusBar = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"10px",background:"var(--card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"11px 18px",marginBottom:"18px",flexWrap:"wrap"}});
   var statusLeft = el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
   var liveDot = el("div",{cls:"gu-live-dot"});
   var statusTxt = el("div",{css:{fontSize:".78rem",color:"var(--muted)"},txt:"Loading live updates..."});
   statusLeft.appendChild(liveDot);
   statusLeft.appendChild(statusTxt);
   statusBar.appendChild(statusLeft);
+
+  var statusRight = el("div",{css:{display:"flex",alignItems:"center",gap:"8px"}});
+  var compactMode = {v: Sv.get("gu_compact") || false};
+  var compactBtn = el("button",{cls:"gu-fetch-btn",onclick:function(){
+    compactMode.v = !compactMode.v;
+    Sv.set("gu_compact", compactMode.v);
+    compactBtn.textContent = compactMode.v ? "▤ Compact" : "▥ Cards";
+    renderList();
+  }},compactMode.v ? "▤ Compact" : "▥ Cards");
   var refreshBtn = el("button",{cls:"gu-fetch-btn",onclick:function(){
     guRssCache = null; guLastFetch = 0;
+    Sv.set("gu_cache", null);
     go("govtupdates");
     toast("🔄 Refreshing...");
   }},"🔄 Refresh");
-  statusBar.appendChild(refreshBtn);
+  statusRight.appendChild(compactBtn);
+  statusRight.appendChild(refreshBtn);
+  statusBar.appendChild(statusRight);
   wrap.appendChild(statusBar);
 
   // Search
@@ -609,22 +670,39 @@ function pgGovtUpdates(){
 
   // Tabs + list container
   var activeTab = {v:"all"};
+  var showBookmarksOnly = {v:false};
   var listWrap = el("div",{});
   var allEntries = [];
+  var seenIds = guGetSeenIds();
 
-  // Stats bar (updated after fetch)
-  var statsBar = el("div",{cls:"gu-stats-bar",css:{marginBottom:"18px"}});
+  // Stats bar (tap a stat to filter that category)
+  var statsBar = el("div",{cls:"gu-stats-bar",css:{marginBottom:"18px",cursor:"pointer"}});
   wrap.appendChild(statsBar);
 
   function updateStats() {
     var counts = {vacancy:0,admitcard:0,examdate:0,result:0};
-    allEntries.forEach(function(e){ if(counts[e.type]!==undefined) counts[e.type]++; });
+    var newCounts = {vacancy:0,admitcard:0,examdate:0,result:0};
+    allEntries.forEach(function(e){
+      if(counts[e.type]!==undefined) counts[e.type]++;
+      if(newCounts[e.type]!==undefined && guIsNew(e, seenIds)) newCounts[e.type]++;
+    });
     statsBar.innerHTML = '';
     [["vacancy","📋"],["admitcard","🪪"],["examdate","📅"],["result","🏆"]].forEach(function(r){
       var t = GU_TYPES[r[0]];
-      var sc = el("div",{cls:"gu-stat"});
+      var sc = el("div",{cls:"gu-stat",onclick:function(){
+        activeTab.v = r[0];
+        tabs.querySelectorAll(".gu-tab").forEach(function(b){ b.classList.remove("gu-active"); });
+        var match = Array.from(tabs.querySelectorAll(".gu-tab")).find(function(b){ return b.dataset.type===r[0]; });
+        if(match) match.classList.add("gu-active");
+        renderList();
+      }});
       sc.appendChild(el("div",{css:{fontSize:"1.1rem"}},r[1]));
-      sc.appendChild(el("div",{cls:"gu-stat-num",css:{color:t.color}},String(counts[r[0]])));
+      var numWrap = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px"}});
+      numWrap.appendChild(el("div",{cls:"gu-stat-num",css:{color:t.color}},String(counts[r[0]])));
+      if(newCounts[r[0]] > 0){
+        numWrap.appendChild(el("span",{css:{fontSize:".62rem",fontWeight:"800",color:"#fff",background:"#ef4444",borderRadius:"99px",padding:"1px 6px"}},"+"+newCounts[r[0]]));
+      }
+      sc.appendChild(numWrap);
       sc.appendChild(el("div",{cls:"gu-stat-lbl"},t.label));
       statsBar.appendChild(sc);
     });
@@ -634,60 +712,93 @@ function pgGovtUpdates(){
     var q = searchBox.value.toLowerCase().trim();
     var filtered = allEntries.filter(function(e){
       var typeMatch = activeTab.v === "all" || e.type === activeTab.v;
+      var bmMatch = !showBookmarksOnly.v || guIsBookmarked(e.id);
       var textMatch = !q ||
         (e.title||'').toLowerCase().indexOf(q) !== -1 ||
         (e.org||'').toLowerCase().indexOf(q) !== -1 ||
         (e.tags||[]).join(' ').toLowerCase().indexOf(q) !== -1;
-      return typeMatch && textMatch;
+      return typeMatch && textMatch && bmMatch;
     });
+    filtered = guSortEntries(filtered, seenIds);
+
     listWrap.innerHTML = '';
+    listWrap.className = compactMode.v ? 'gu-list-compact' : '';
+
     if(!filtered.length){
       var emp = el("div",{cls:"gu-empty"});
-      emp.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"}},activeTab.v!=='all'?(GU_TYPES[activeTab.v]||{icon:'📭'}).icon:'📭'));
-      emp.appendChild(el("div",{css:{fontWeight:"600",marginBottom:"6px"}},q?'No results for "'+q+'"':'Nothing here yet'));
-      emp.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)"}},'Try another tab or refresh'));
+      emp.appendChild(el("div",{css:{fontSize:"2.5rem",marginBottom:"10px"}},showBookmarksOnly.v?'⭐':(activeTab.v!=='all'?(GU_TYPES[activeTab.v]||{icon:'📭'}).icon:'📭')));
+      emp.appendChild(el("div",{css:{fontWeight:"600",marginBottom:"6px"}},showBookmarksOnly.v?'No saved updates yet':(q?'No results for "'+q+'"':'Nothing here yet')));
+      emp.appendChild(el("div",{css:{fontSize:".82rem",color:"var(--muted)"}},showBookmarksOnly.v?'Tap ⭐ on any update to save it here':'Try another tab or refresh'));
       listWrap.appendChild(emp);
       return;
     }
+
     filtered.forEach(function(entry, idx){
       var t = GU_TYPES[entry.type] || GU_TYPES.vacancy;
+      var isNewEntry = guIsNew(entry, seenIds);
+      var daysLeft = guDaysLeft(entry.lastDate);
+      var closingSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 5;
+
+      if (compactMode.v) {
+        var row = el("div",{cls:"gu-row"});
+        row.style.setProperty("--gu-color", t.color);
+        var rowLeft = el("div",{css:{display:"flex",alignItems:"center",gap:"8px",flex:"1",minWidth:"0"}});
+        rowLeft.appendChild(el("span",{},t.icon));
+        if(isNewEntry) rowLeft.appendChild(el("span",{css:{fontSize:".6rem",fontWeight:"800",color:"#fff",background:"#ef4444",borderRadius:"4px",padding:"1px 5px"}},"NEW"));
+        var rowTitle = el("a",{href:entry.link,target:"_blank",rel:"noopener",css:{color:"var(--fg)",textDecoration:"none",fontSize:".85rem",fontWeight:"600",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}},entry.title);
+        rowLeft.appendChild(rowTitle);
+        row.appendChild(rowLeft);
+        var rowRight = el("div",{css:{display:"flex",alignItems:"center",gap:"8px",fontSize:".72rem",color:"var(--muted)",flexShrink:"0"}});
+        if(closingSoon) rowRight.appendChild(el("span",{css:{color:"#ef4444",fontWeight:"700"}},daysLeft===0?"Today!":daysLeft+"d left"));
+        rowRight.appendChild(el("span",{},entry.org||''));
+        (function(en){
+          rowRight.appendChild(el("button",{cls:"gu-star-btn",onclick:function(ev){
+            ev.preventDefault();
+            var bm = guToggleBookmark(en);
+            ev.currentTarget.textContent = bm ? "★" : "☆";
+          }}, guIsBookmarked(en.id) ? "★" : "☆"));
+        })(entry);
+        row.appendChild(rowRight);
+        listWrap.appendChild(row);
+        return;
+      }
+
       var card = el("div",{cls:"gu-card"});
       card.style.setProperty("--gu-color", t.color);
       card.style.animationDelay = (idx*30)+"ms";
-      // Badge
+
+      var topRow = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"8px"}});
+      var badgeWrap = el("div",{css:{display:"flex",alignItems:"center",gap:"6px"}});
       var badge = el("span",{cls:"gu-badge"},t.icon+" "+t.label);
       badge.style.background = t.color+"20";
       badge.style.color = t.color;
-      card.appendChild(badge);
-      // Title
-      card.appendChild(el("div",{cls:"gu-title"},entry.title));
-      // Meta
+      badgeWrap.appendChild(badge);
+      if(isNewEntry) badgeWrap.appendChild(el("span",{css:{fontSize:".65rem",fontWeight:"800",color:"#fff",background:"#ef4444",borderRadius:"6px",padding:"2px 7px"}},"● NEW"));
+      topRow.appendChild(badgeWrap);
+      (function(en){
+        topRow.appendChild(el("button",{cls:"gu-star-btn",css:{fontSize:"1.1rem"},onclick:function(){
+          var bm = guToggleBookmark(en);
+          starBtn.textContent = bm ? "★" : "☆";
+        }},guIsBookmarked(en.id) ? "★" : "☆"));
+      })(entry);
+      var starBtn = topRow.lastChild;
+      card.appendChild(topRow);
+
+      card.appendChild(el("div",{cls:"gu-title",css:{marginTop:"8px"}},entry.title));
+
       var meta = el("div",{cls:"gu-meta"});
       if(entry.org)      meta.appendChild(el("span",{},"🏛 "+entry.org));
       if(entry.date)     meta.appendChild(el("span",{},"📅 "+entry.date));
       if(entry.lastDate) {
-  var closingSoon = false;
-  var daysLeft = null;
-  
-  // Attempt to parse standard Indian date formats (DD/MM/YYYY or DD-MM-YYYY)
-  var cleanDateStr = entry.lastDate.replace(/(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/, '$3-$2-$1');
-  var parsedDate = new Date(cleanDateStr);
-  
-  if(!isNaN(parsedDate)) {
-    var diffMs = parsedDate - new Date();
-    daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    if(daysLeft >= 0 && daysLeft <= 5) closingSoon = true;
-  }
-  
-  if(closingSoon) {
-    meta.appendChild(el("span",{css:{color:"#ef4444", fontWeight:"700", background:"rgba(239,68,68,0.15)", padding:"2px 8px", borderRadius:"6px"}},"🚨 Closing Soon: " + entry.lastDate + (daysLeft === 0 ? " (Today!)" : " (" + daysLeft + " days left)")));
-  } else {
-    meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
-  }
-}
+        if(closingSoon) {
+          meta.appendChild(el("span",{css:{color:"#ef4444", fontWeight:"700", background:"rgba(239,68,68,0.15)", padding:"2px 8px", borderRadius:"6px"}},"🚨 Closing Soon: " + entry.lastDate + (daysLeft === 0 ? " (Today!)" : " (" + daysLeft + " days left)")));
+        } else {
+          meta.appendChild(el("span",{css:{color:"#f87171"}},"⏰ Last Date: "+entry.lastDate));
+        }
+      }
       if(entry.examDate) meta.appendChild(el("span",{css:{color:"#f59e0b"}},"📝 Exam: "+entry.examDate));
       card.appendChild(meta);
-      // Tags
+
       if(entry.tags && entry.tags.length){
         var tagWrap = el("div",{css:{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"10px"}});
         entry.tags.filter(Boolean).forEach(function(tag){
@@ -695,14 +806,12 @@ function pgGovtUpdates(){
         });
         card.appendChild(tagWrap);
       }
-      // Footer
+
       var foot = el("div",{css:{display:"flex",alignItems:"center",justifyContent:"space-between"}});
       foot.appendChild(entry.link ? el("a",{cls:"gu-link",href:entry.link,target:"_blank",rel:"noopener",css:{color:t.color}},"View / Apply ↗") : el("span",{}));
-      // Source badge
       if(entry._ai){
         foot.appendChild(el("span",{css:{fontSize:".65rem",color:"#8b5cf6",fontWeight:"600",background:"rgba(139,92,246,0.12)",padding:"2px 8px",borderRadius:"6px"}},"🤖 AI"));
       }
-      // Remove button for manually added entries
       if(entry._user){
         (function(eid){
           foot.appendChild(el("button",{cls:"btng",css:{fontSize:".72rem",padding:"4px 10px"},onclick:function(){
@@ -716,11 +825,10 @@ function pgGovtUpdates(){
       card.appendChild(foot);
       listWrap.appendChild(card);
     });
-    // Trigger animation for the newly injected live data
     setTimeout(function(){ triggerReveal(listWrap); }, 10);
   }
 
-  // Tabs
+  // Tabs (+ bookmarks filter chip)
   var tabs = el("div",{cls:"gu-tabs"});
   [["all","🔔 All"],["vacancy","📋 Vacancy"],["admitcard","🪪 Admit Card"],["examdate","📅 Exam Date"],["result","🏆 Result"]].forEach(function(td){
     var tb = el("button",{cls:"gu-tab"+(activeTab.v===td[0]?" gu-active":""),onclick:function(){
@@ -729,8 +837,15 @@ function pgGovtUpdates(){
       tb.classList.add("gu-active");
       renderList();
     }},td[1]);
+    tb.dataset.type = td[0];
     tabs.appendChild(tb);
   });
+  var bmTab = el("button",{cls:"gu-tab",onclick:function(){
+    showBookmarksOnly.v = !showBookmarksOnly.v;
+    bmTab.classList.toggle("gu-active", showBookmarksOnly.v);
+    renderList();
+  }},"⭐ Saved");
+  tabs.appendChild(bmTab);
 
   searchBox.addEventListener("input", renderList);
 
@@ -738,7 +853,6 @@ function pgGovtUpdates(){
   wrap.appendChild(tabs);
 
   // Loading skeleton
-  // ── SKELETON LOADER ──
   var skeleton = el("div",{css:{display:"flex",flexDirection:"column",gap:"14px",paddingTop:"10px"}});
   skeleton.innerHTML = Array(4).fill(
     '<div class="gu-card skeleton-box" style="height:120px;border-color:transparent;box-shadow:none;">' +
@@ -752,27 +866,32 @@ function pgGovtUpdates(){
 
   // ── Fetch Live Government Updates ──
   (async function(){
-    // Use cache if less than 10 minutes old
+    var persistedCache = Sv.get("gu_cache");
+    var persistedFetchTime = Sv.get("gu_cache_time") || 0;
+    if(!guRssCache && persistedCache && (Date.now()-persistedFetchTime) < 600000){
+      guRssCache = persistedCache;
+      guLastFetch = persistedFetchTime;
+    }
+
     if(guRssCache && (Date.now()-guLastFetch) < 600000){
       allEntries = guRssCache;
       skeleton.style.display = 'none';
       updateStats();
       renderList();
       statusTxt.textContent = '✅ Cached — '+allEntries.length+' updates loaded';
+      guMarkAllSeen(allEntries);
       return;
     }
 
     skeleton.innerHTML = '<div class="ca-spinner" style="margin:0 auto 12px"></div>Fetching live govt updates...';
 
-    // Merge with manually added entries from localStorage
     var stored = Sv.get("gu_entries") || [];
 
-    // Try RSS feeds with timeout
     var fetchPromises = GU_RSS_FEEDS.map(function(feed){
       return Promise.race([
         guFetchFeed(feed),
-        new Promise(function(_, reject) { 
-          setTimeout(function(){ reject(new Error('timeout')); }, 5000); 
+        new Promise(function(_, reject) {
+          setTimeout(function(){ reject(new Error('timeout')); }, 5000);
         })
       ]).catch(function(){ return []; });
     });
@@ -785,8 +904,8 @@ function pgGovtUpdates(){
       }
     });
 
+    var usedFallback = false;
     if(fetchedEntries.length >= 3){
-      // RSS succeeded — deduplicate + sort
       var seen = {};
       fetchedEntries = fetchedEntries.filter(function(e){
         var key = (e.title||'').slice(0,40).toLowerCase();
@@ -796,28 +915,36 @@ function pgGovtUpdates(){
       });
       fetchedEntries.sort(function(a,b){ return (b.date||'') > (a.date||'') ? 1 : -1; });
       allEntries = stored.concat(fetchedEntries);
-      guRssCache = allEntries;
-      guLastFetch = Date.now();
       statusTxt.textContent = '● Live — '+fetchedEntries.length+' updates from RSS';
       liveDot.style.background = '#4ade80';
     } else {
-      // RSS failed — use fallback
+      usedFallback = true;
       allEntries = stored.concat(GU_FALLBACK);
-      guRssCache = allEntries;
-      guLastFetch = Date.now();
       statusTxt.textContent = '📋 Offline Mode — '+GU_FALLBACK.length+' curated updates';
       liveDot.style.background = '#f59e0b';
+    }
+
+    guRssCache = allEntries;
+    guLastFetch = Date.now();
+    Sv.set("gu_cache", allEntries);
+    Sv.set("gu_cache_time", guLastFetch);
+
+    if(usedFallback){
+      var banner = el("div",{css:{background:"rgba(245,158,11,0.12)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",fontSize:".78rem",color:"#f59e0b",fontWeight:"600"}},"⚠️ Live feed unavailable right now — showing curated updates instead.");
+      wrap.insertBefore(banner, statsBar);
     }
 
     skeleton.style.display = 'none';
     updateStats();
     renderList();
+    guMarkAllSeen(allEntries);
   })();
 
   w.appendChild(wrap);
   return w;
 }
-// --- NEW BOOKMARK HELPERS ---
+
+// --- BOOKMARK HELPERS (quiz/study bookmarks — unchanged, separate from gu_bookmarks) ---
 function getBookmarks(subj) { return Sv.get("bm_"+subj) || []; }
 function isBookmarked(subj, qText) { return getBookmarks(subj).some(function(b){ return b.q === qText; }); }
 function toggleBookmark(subj, qObj) {
