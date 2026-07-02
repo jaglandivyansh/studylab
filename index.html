@@ -302,7 +302,9 @@ function initializeApp() {
       loader.style.opacity = '0';
       setTimeout(function() { loader.remove(); }, 400);
   }
-
+  if (typeof checkInitialSetup === 'function') {
+      checkInitialSetup();
+  }
   if (typeof AppTour !== 'undefined') {
       AppTour.init();
   }
@@ -312,21 +314,28 @@ window.QD = {};
 
 function fetchQuestionsAndStart() {
   const SHEET_URLS = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=263668087&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=767959018&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=531099395&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1407790517&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=337186880&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=216502792&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=1795942396&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQv_s5bmV80SxNuTpJYdAoIY9jQTdgE-IB7cZV0ufR6LgIfBzREUH1i3pDP1Jskdw/pub?gid=393325687&single=true&output=csv"
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=263668087&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=767959018&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=531099395&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1407790517&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=337186880&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=216502792&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1795942396&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=393325687&single=true&output=csv"
   ];
   
   let completedRequests = 0;
   let hasErrors = false;
 
   SHEET_URLS.forEach(function(url) {
-    Papa.parse(url, {
+    // 1. Generate a unique timestamp
+    let uniqueTimestamp = new Date().getTime();
+    
+    // 2. Append it to the URL to bypass browser and device caching
+    let freshUrl = url + "&nocache=" + uniqueTimestamp;
+
+    // 3. Pass the 'freshUrl' into Papa.parse instead of the original 'url'
+    Papa.parse(freshUrl, {
       download: true, header: true, skipEmptyLines: true,
       complete: function(results) {
         results.data.forEach(function(row) {
@@ -353,7 +362,6 @@ function fetchQuestionsAndStart() {
     });
   });
 }
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', fetchQuestionsAndStart);
 } else {
@@ -449,7 +457,15 @@ if (document.readyState === 'loading') {
 
     // 3. Go back with left-edge right swipe
     if (isEdge && edgeSide === 'left' && dx > 0) {
-      if (typeof go === 'function') window.history.back();
+      if (typeof go === 'function') {
+        // If they are deep in the app, safely route them back to home
+        if (window.currentPage && window.currentPage !== 'home') {
+            go('home'); 
+        } else {
+            // If they are already on home, trigger native back (which fires your exit modal)
+            window.history.back(); 
+        }
+      }
       return;
     }
 

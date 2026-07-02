@@ -113,8 +113,8 @@ function makeModernHero() {
 
   var ctaRow = el("div", { css: { display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap", marginBottom: "48px" } });
   
-// Inside your makeModernHero function in page-home.js:
-  var primaryBtn = el("button", {
+  // Inside your makeModernHero function in page-home.js:
+var primaryBtn = el("button", {
     css: {
       padding: "14px 32px", borderRadius: "14px", border: "1px solid rgba(79, 142, 247, 0.3)",
       background: "linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(59, 130, 246, 0.05))", 
