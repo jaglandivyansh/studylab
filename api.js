@@ -552,7 +552,7 @@ async function guFetchFeed(primaryFeed) {
     try {
       var res = await Promise.race([
         fetch(strategy.url, { cache: 'no-store' }),
-        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 5000); })
+        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 20000); })
       ]);
       if (!res.ok) continue;
 
