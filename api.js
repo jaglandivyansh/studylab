@@ -391,6 +391,7 @@ var GU_RAW_FEEDS = [
   { raw: 'https://www.rojgarresult.com/feed/',                          name:'Rojgar Result' },
   { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',           name:'FreshersWorld' },
   { raw: 'https://employmentnews.gov.in/NewMain/EmploymentNewsRss.aspx', name:'Employment News' },
+  { raw: 'https://www.freshersworld.com/feeds/jobsalert.xml',           name:'FreshersWorld' },
   { raw: 'https://haryanajobs.in/feed/',                                name:'Haryana Jobs' }
 ];
 var GU_OFFICIAL_LINKS = {
@@ -484,12 +485,17 @@ function guClassify(title) {
 }
 
 function guExtractOrg(title) {
-  var orgs = ['UPSC','SSC','RRB','IBPS','NTA','DRDO','SBI','RBI','NABARD','TNPSC',
+  var orgs = [
+    'UPSC','SSC','RRB','IBPS','NTA','DRDO','SBI','RBI','NABARD','TNPSC',
     'UPPSC','MPSC','BPSC','RPSC','HPSC','UKPSC','JPSC','OPSC','KPSC','GPSC',
-    'Army','Navy','Air Force','Police','Railway','High Court','Supreme Court',
-    'ISRO','HAL','BHEL','ONGC','NTPC','NHM','AIIMS','ESIC','LIC','GIC'];
+    'APPSC','APSC','CGPSC','HPPSC','JKPSC','PPSC','SPSC','TGPSC','TSPSC',
+    'TPSC','WBPSC','KERALA PSC', 'ISRO','HAL','BHEL','ONGC','NTPC','NHM',
+    'AIIMS','ESIC','LIC','GIC','EPFO','FCI','AAI','SAIL',
+    'ARMY','NAVY','AIR FORCE','COAST GUARD','BSF','CRPF','CISF','ITBP',
+    'Police','Railway','High Court','Supreme Court'
+  ];
   for (var i=0; i<orgs.length; i++) {
-    if ((title||'').toUpperCase().indexOf(orgs[i]) !== -1) return orgs[i];
+    if ((title||'').toUpperCase().indexOf(orgs[i].toUpperCase()) !== -1) return orgs[i];
   }
   return '';
 }
@@ -552,7 +558,7 @@ async function guFetchFeed(primaryFeed) {
     try {
       var res = await Promise.race([
         fetch(strategy.url, { cache: 'no-store' }),
-        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 20000); })
+        new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('Timeout')); }, 5000); })
       ]);
       if (!res.ok) continue;
 
