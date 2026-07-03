@@ -465,6 +465,9 @@ var GU_OFFICIAL_LINKS = {
 function guBuildFeedUrls(raw, name) {
   var enc = encodeURIComponent(raw);
   return [
+    // Your own serverless proxy — tried first, no CORS issues, no rate limits
+    { url: '/api/rss-proxy?url=' + enc, type: 'own', name: name },
+    // Fallbacks if your proxy fails for any reason
     { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc + '&count=120', type: 'r2j', name: name },
     { url: 'https://api.codetabs.com/v1/proxy?quest=' + enc, type: 'xml', name: name },
     { url: 'https://api.allorigins.win/get?url=' + enc, type: 'allorigins', name: name },
@@ -562,7 +565,27 @@ async function guFetchFeed(primaryFeed) {
       ]);
       if (!res.ok) continue;
 
-      if (strategy.type === 'r2j') {
+      if (strategy.type === 'own') {
+        var ownData = await res.json();
+        if (ownData.ok && ownData.items && ownData.items.length) {
+          return ownData.items.slice(0, 120).map(function(item, idx) {
+            var title = (item.title||'').trim();
+            return {
+              id: guStableId(title, strategy.name),
+              type: guClassify(title),
+              title: title,
+              org: guExtractOrg(title) || strategy.name,
+              date: item.pubDate ? new Date(item.pubDate).toISOString().slice(0,10) : new Date().toISOString().slice(0,10),
+              lastDate: guExtractLastDate(title), examDate: null,
+              link: item.link || '#',
+              tags: [guExtractOrg(title)].filter(Boolean),
+              _rss: true
+            };
+          }).filter(function(e){ return e.title.length > 8; });
+        }
+      } 
+      else if (strategy.type === 'r2j') {
+      
         var data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length) {
           return data.items.slice(0, 120).map(function(item, idx) { // Raised limit to 120
