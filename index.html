@@ -336,14 +336,14 @@ window.QD = {};
 
 function fetchQuestionsAndStart() {
   const SHEET_URLS = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=263668087&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=767959018&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=531099395&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1407790517&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=337186880&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=216502792&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1795942396&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=393325687&single=true&output=csv"
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1694320122&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=352095867&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=93221468&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1502391703&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=280426017&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=32240774&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2035024571&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2091749563&single=true&output=csv"
   ];
   
   let completedRequests = 0;
