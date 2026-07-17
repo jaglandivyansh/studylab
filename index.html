@@ -335,44 +335,39 @@ function initializeApp() {
 window.QD = {}; 
 
 function fetchQuestionsAndStart() {
-  const SHEET_URLS = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1694320122&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=352095867&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=93221468&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1502391703&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=280426017&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=32240774&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2035024571&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2091749563&single=true&output=csv"
+  const SHEET_SOURCES = [
+    { subject: "History",   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1694320122&single=true&output=csv" },
+    { subject: "Geography",    url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=352095867&single=true&output=csv" },
+    { subject: "Polity", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=93221468&single=true&output=csv" },
+    { subject: "Economy",  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=1502391703&single=true&output=csv" },
+    { subject: "Science",  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=280426017&single=true&output=csv" },
+    { subject: "GK",  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=32240774&single=true&output=csv" },
+    { subject: "Current Affairs",  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2035024571&single=true&output=csv" },
+    { subject: "Previous Year Questions",  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRcBWlFTv2n-_i5YFQZNee2YF9ACG0cn6SjCEYfwkp2518wfJJx7-VMPSv_dXNKtS5cst0S8u3FRlHA/pub?gid=2091749563&single=true&output=csv" }
   ];
-  
+
   let completedRequests = 0;
   let hasErrors = false;
 
-  SHEET_URLS.forEach(function(url) {
-    // 1. Generate a unique timestamp
+  SHEET_SOURCES.forEach(function(source) {
     let uniqueTimestamp = new Date().getTime();
-    
-    // 2. Append it to the URL to bypass browser and device caching
-    let freshUrl = url + "&nocache=" + uniqueTimestamp;
+    let freshUrl = source.url + "&nocache=" + uniqueTimestamp;
+    let subject = source.subject;
 
-    // 3. Pass the 'freshUrl' into Papa.parse instead of the original 'url'
     Papa.parse(freshUrl, {
       download: true, header: true, skipEmptyLines: true,
       complete: function(results) {
+        if (!window.QD[subject]) window.QD[subject] = [];
         results.data.forEach(function(row) {
-          let subject = row["Subject"];
-          if (!subject) return; 
-          subject = subject.trim();
-          if (!window.QD[subject]) window.QD[subject] = [];
+          if (!row["Question"]) return;
           window.QD[subject].push({
-            topic: row["Topic"], q: row["Question"],
-            o: [row["Option 1"], row["Option 2"], row["Option 3"], row["Option 4"]],
-            a: parseInt(row["Correct Answer (0-3)"])
+            q: row["Question"],
+            o: [row["Option A"], row["Option B"], row["Option C"], row["Option D"]],
+            a: parseInt(row["Correct Answer"])
           });
         });
         completedRequests++;
-        if (completedRequests === SHEET_URLS.length && !hasErrors) {
+        if (completedRequests === SHEET_SOURCES.length && !hasErrors) {
           window.totalQuestions = Object.values(window.QD).reduce((sum, subjectArray) => sum + subjectArray.length, 0);
           initializeApp();
         }
@@ -384,6 +379,7 @@ function fetchQuestionsAndStart() {
     });
   });
 }
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', fetchQuestionsAndStart);
 } else {
